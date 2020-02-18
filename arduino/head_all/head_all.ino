@@ -14,7 +14,7 @@ const int delay_servo=5;   // waits 15ms for the servo to reach the servo_positi
 const int delay_eyes=100;
 
 void setup(){
-  myservo.attach(9);
+  myservo.attach(13);
 
   Serial.begin(9600);
 
