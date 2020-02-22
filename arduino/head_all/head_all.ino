@@ -8,7 +8,9 @@ char servo_rotate = 'l';
 
 const int pin_in=3;
 const int pin_out=4;
-
+const int enAPin=12;//   Left  motor PWM speed control
+const int in1Pin=11;//   Left  motor  Direction  1
+const int in2Pin=10;//   Left  motor  Direction 
 const int delay_servo=5;   // waits 15ms for the servo to reach the servo_position
 
 const int delay_eyes=100;
@@ -20,14 +22,29 @@ void setup(){
 
   pinMode(pin_in, INPUT);
   pinMode(pin_out, OUTPUT);
+  pinMode(enAPin, OUTPUT);
+  pinMode(in1Pin, OUTPUT);
+  pinMode(in2Pin, OUTPUT);
+  digitalWrite(in1Pin, LOW);
+  digitalWrite(in2Pin, LOW);
 }
 
 void loop()
 {
+  //directionControl();
+  //delay(1000);
   if (isObstacle()){
     Serial.println("SERVO IS AT " + String(servo_pos));
     rotate();
   }
+}
+
+void directionControl() {
+  // Set motors to maximum speed
+  // For PWM maximum possible values are 0 to 255
+  analogWrite(enAPin, 255);
+  digitalWrite(in1Pin, HIGH);
+  digitalWrite(in2Pin, LOW);
 }
 
 bool isObstacle()
