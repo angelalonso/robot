@@ -6,3 +6,40 @@ Resources to build a home robot.
 
 Under development
 
+# PHASE 1: Connect Raspberry to Arduino
+## Raspberry Pi Model B GPIO map
+
+    5v|3.3v
+    5v|2 SDA
+   GND|3 SCL
+14 TXD|4
+15 RXD|GND
+    18|17
+   GND|27
+    23|22
+    24|3.3v
+   GND|10 MOSI
+    25|9 MISO
+     8|11 SCKL
+     7|GND
+
+## Arduino clone "ISCP" Map - yeah I know, freaking clones' typos
+
+5|3|1
+6|4|2
+
+1 MISO
+2 Vcc
+3 ICSP SCK
+4 ICSP MOSI
+5 ICSP RESET
+6 ICSP GND
+
+## Connection
+1 -> 21
+2 -> 2
+3 -> 23
+4 -> 19
+5 -> 7
+6 -> 6
+
