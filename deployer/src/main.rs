@@ -69,8 +69,9 @@ fn main() {
 
     for file in files {
         println!("Copying {}", file);
-        let retest = scp(&file, login_and_destination);
-        println!("{:?}", retest);
+        if let retest = scp(&file, login_and_destination) {
+            std::process::exit(2);
+        }
     }
 
 }
