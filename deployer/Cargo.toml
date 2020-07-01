@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 dotenv = "0.15.0"
+compare = "0.1.0"

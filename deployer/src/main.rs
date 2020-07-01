@@ -1,13 +1,14 @@
 use std::env;
 use std::process::{Command, Stdio};
 //use std::io::{self, Write};
-use std::io::{self};
+use std::io::{self, Error, ErrorKind};
+use compare::{Compare, natural};
+use std::cmp::Ordering::{Less, Equal, Greater};
 use dotenv;
 
 // TODO
 //
 // Define setup on .env instead of as args
-//https://docs.rs/dotenv/0.15.0/dotenv/fn.dotenv.html
 
 fn scp(file_to_scp: &str, destination: &str) -> io::Result<()> {
     let mut child = Command::new("scp")
@@ -23,10 +24,28 @@ fn scp(file_to_scp: &str, destination: &str) -> io::Result<()> {
 
     let output = child.wait_with_output()?;
 
-    println!("output = {:?}", output);
+    let cmp = natural();
+    if cmp.compares_gt(&output.status.code(), &Some(0)){
+    //if output.status.code() > Some(0){
+        let message = output.status.code().unwrap_or(1).to_string();
+        Err(Error::new(ErrorKind::Other, message))
+    } else {
+        Ok(())
+    }
 
-    Ok(())
     // TODO: catch output = Output { status: ExitStatus(ExitStatus(256)), stdout: "", stderr: "" }
+}
+
+fn load_dot_env() {
+    dotenv::dotenv().ok();
+}
+
+fn get_env_var(key: &str) -> std::string::String {
+    // Accessing an env var
+    match env::var(key) {
+        Ok(val) => return val,
+        Err(_e) => return key.to_string(),
+    }
 }
 
 fn print_env_var(key: &str) {
@@ -38,32 +57,20 @@ fn print_env_var(key: &str) {
 }
 
 fn main() {
-    dotenv::dotenv().ok();
-    let mut args: Vec<String> = env::args().collect();
-    args.drain(0..1);
+    // We don't (yet) need to catch arguments
+    //let mut args: Vec<String> = env::args().collect();
+    //args.drain(0..1);
 
-    let login_and_destination: &str = "pi@192.168.0.11:/home/pi/";
+    load_dot_env();
+    let raw_files = get_env_var("ARDUINO_FILES");
+    let files = raw_files.split(" ");
 
-    for arg in args.iter() {
-        println!("Copying {}", arg);
-        let retest = scp(&arg, login_and_destination);
+    let login_and_destination: &str = &get_env_var("CONNECTION").to_string();
+
+    for file in files {
+        println!("Copying {}", file);
+        let retest = scp(&file, login_and_destination);
+        println!("{:?}", retest);
     }
 
-    println!("Listing all env vars:");
-    for (key, val) in env::vars() {
-        println!("{}: {}", key, val);
-    }
-    let key = "TESTVAR";
-    print_env_var(key);
-     println!("Setting env var {}", key);
-     // Setting an env var for the current process
-     env::set_var(key, "8080");
- 
-     print_env_var(key);
- 
-     // Removing an env var for the current process
-     println!("Removing env var {}", key);
-     env::remove_var(key);
- 
-     print_env_var(key);
 }
