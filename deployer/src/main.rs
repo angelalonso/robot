@@ -1,39 +1,34 @@
-use std::env;
-use std::process::{Command, Stdio};
-//use std::io::{self, Write};
-use std::io::{self, Error, ErrorKind};
-use compare::{Compare, natural};
-use std::cmp::Ordering::{Less, Equal, Greater};
 use dotenv;
+use std::env;
+//use std::io::{Error};
+use std::process::{Command, Stdio};
+#[macro_use]
+extern crate simple_error;
 
-// TODO
-//
-// Define setup on .env instead of as args
+use std::error::Error;
 
-fn scp(file_to_scp: &str, destination: &str) -> io::Result<()> {
+type BoxResult<T> = Result<T,Box<Error>>;
+
+//fn scp(file_to_scp: &str, destination: &str) -> io::Result<()> {
+fn scp(file_to_scp: &str, destination: &str) -> BoxResult<i32> {
     let mut child = Command::new("scp")
         .arg(file_to_scp)
         .arg(destination)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
-
     {
         let _child_stdin = child.stdin.as_mut().unwrap();
     }
 
     let output = child.wait_with_output()?;
 
-    let cmp = natural();
-    if cmp.compares_gt(&output.status.code(), &Some(0)){
-    //if output.status.code() > Some(0){
-        let message = output.status.code().unwrap_or(1).to_string();
-        Err(Error::new(ErrorKind::Other, message))
+    //Ok(())
+    if &output.status.code() > &Some(0) {
+        bail!("Errooooooooooooooooooooooooooor!")
     } else {
-        Ok(())
+        Ok(0)
     }
-
-    // TODO: catch output = Output { status: ExitStatus(ExitStatus(256)), stdout: "", stderr: "" }
 }
 
 fn load_dot_env() {
@@ -69,9 +64,10 @@ fn main() {
 
     for file in files {
         println!("Copying {}", file);
-        if let retest = scp(&file, login_and_destination) {
-            std::process::exit(2);
-        }
+        println!("{:?}", scp(&file, login_and_destination));
+        //if let retest = scp(&file, login_and_destination) {
+        //    std::process::exit(2);
+        //}
     }
 
 }
