@@ -9,6 +9,26 @@ use std::error::Error;
 
 type BoxResult<T> = Result<T,Box<Error>>;
 
+fn run_over_ssh(destination: &str, command: &str) -> BoxResult<i32> {
+    let mut child = Command::new("ssh")
+        .arg(destination)
+        .arg(command)
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()?;
+    {
+        let _child_stdin = child.stdin.as_mut().unwrap();
+    }
+
+    let output = child.wait_with_output()?;
+
+    if &output.status.code() > &Some(0) {
+        bail!("ERROR copying !")
+    } else {
+        Ok(0)
+    }
+}
+
 fn scp(file_to_scp: &str, destination: &str) -> BoxResult<i32> {
     let mut child = Command::new("scp")
         .arg(file_to_scp)
@@ -61,4 +81,5 @@ fn main() {
     //}
 
     // run the program
+    run_over_ssh("pi@192.168.0.11", "'/home/pi/test.sh'");
 }
