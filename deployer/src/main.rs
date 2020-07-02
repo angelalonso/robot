@@ -81,5 +81,5 @@ fn main() {
     //}
 
     // run the program
-    run_over_ssh("pi@192.168.0.11", "'/home/pi/test.sh'");
+    run_over_ssh("pi@127.0.0.1", "'/home/pi/test.sh'");
 }
