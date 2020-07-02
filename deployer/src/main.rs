@@ -9,7 +9,6 @@ use std::error::Error;
 
 type BoxResult<T> = Result<T,Box<Error>>;
 
-//fn scp(file_to_scp: &str, destination: &str) -> io::Result<()> {
 fn scp(file_to_scp: &str, destination: &str) -> BoxResult<i32> {
     let mut child = Command::new("scp")
         .arg(file_to_scp)
@@ -23,9 +22,8 @@ fn scp(file_to_scp: &str, destination: &str) -> BoxResult<i32> {
 
     let output = child.wait_with_output()?;
 
-    //Ok(())
     if &output.status.code() > &Some(0) {
-        bail!("Errooooooooooooooooooooooooooor!")
+        bail!("ERROR copying !")
     } else {
         Ok(0)
     }
@@ -43,14 +41,6 @@ fn get_env_var(key: &str) -> std::string::String {
     }
 }
 
-fn print_env_var(key: &str) {
-    // Accessing an env var
-    match env::var(key) {
-        Ok(val) => println!("{}: {}", key, val),
-        Err(e) => println!("Couldn't print env var {}: {}", key, e),
-    }
-}
-
 fn main() {
     // We don't (yet) need to catch arguments
     //let mut args: Vec<String> = env::args().collect();
@@ -62,12 +52,13 @@ fn main() {
 
     let login_and_destination: &str = &get_env_var("CONNECTION").to_string();
 
-    for file in files {
-        println!("Copying {}", file);
-        println!("{:?}", scp(&file, login_and_destination));
-        //if let retest = scp(&file, login_and_destination) {
-        //    std::process::exit(2);
-        //}
-    }
+    //for file in files {
+    //    println!("Copying {}", file);
+    //    match scp(&file, login_and_destination) {
+    //        Ok(x) => println!("Success!"),
+    //        Err(_) => std::process::exit(2),
+    //    }
+    //}
 
+    // run the program
 }
