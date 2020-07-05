@@ -1,3 +1,4 @@
 deployer/target
 tests/**/build
 **/.env
+**/*.swp
