@@ -47,10 +47,6 @@ fn scp(file_to_scp: &str, destination: &str) -> BoxResult<i32> {
     }
 }
 
-fn load_dot_env() {
-    dotenv::dotenv().ok();
-}
-
 fn get_env_var(key: &str) -> std::string::String {
     // Accessing an env var
     match env::var(key) {
@@ -63,9 +59,9 @@ fn main() {
     // We don't (yet) need to catch arguments
     //let args: Vec<String> = env::args().skip(1).collect();
 
-    load_dot_env();
+    dotenv::dotenv().ok();
     let raw_files = get_env_var("ARDUINO_FILES");
-    let files: Vec<&str> = get_env_var("ARDUINO_FILES").split_whitespace().collect();
+    let files: Vec<&str> = raw_files.split_whitespace().collect();
     //let files = raw_files.split(" ");
 
     let login_and_destination: &str = &get_env_var("CONNECTION").to_string();
@@ -81,4 +77,29 @@ fn main() {
     println!("{:?}", files.iter());
     // run the program
     //run_over_ssh("pi@127.0.0.1", "'/home/pi/test.sh'");
+}
+
+#[cfg(test)]
+mod tests {
+
+    /// Here we test what happens if an env var is not present
+    #[test]
+    fn test_get_env_var() {
+        std::env::set_var("VAR_OK", "This is fine");
+        let test_var: &str = &super::get_env_var("VAR_OK").to_string();
+        assert_eq!("This is fine", test_var);
+        std::env::remove_var("VAR_ERR");
+        let test_var_err: &str = &super::get_env_var("VAR_ERR").to_string();
+        assert_ne!("This is fine", test_var_err);
+    }
+
+    #[test]
+    fn scp_file_list() {
+        assert_eq!(2 + 2, 4);
+    }
+
+    #[test]
+    fn run_several_progs_remotely() {
+        assert_eq!(2 + 2, 4);
+    }
 }
