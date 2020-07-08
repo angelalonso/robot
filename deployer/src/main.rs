@@ -7,10 +7,11 @@ extern crate simple_error;
 
 type BoxResult<T> = Result<T,Box<Error>>;
 
-fn run_over_ssh(destination: &str, command: &str) -> BoxResult<i32> {
+fn run_over_ssh(ssh_key: &str, destination: &str, command: &str) -> BoxResult<i32> {
     let mut child = Command::new("ssh")
+        .arg(format!("-i {}", ssh_key))
         .arg(destination)
-        .arg(command)
+        .arg(format!("sudo {}", command))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
@@ -27,10 +28,11 @@ fn run_over_ssh(destination: &str, command: &str) -> BoxResult<i32> {
     }
 }
 
-fn scp(file_to_scp: &str, destination: &str) -> BoxResult<i32> {
+fn scp(file_to_scp: &str, ssh_key: &str, ssh_destination: &str) -> BoxResult<i32> {
     let mut child = Command::new("scp")
+        .arg(format!("-i {}", ssh_key))
         .arg(file_to_scp)
-        .arg(destination)
+        .arg(ssh_destination)
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
@@ -62,21 +64,28 @@ fn main() {
     dotenv::dotenv().ok();
     let raw_files = get_env_var("ARDUINO_FILES");
     let files: Vec<&str> = raw_files.split_whitespace().collect();
-    //let files = raw_files.split(" ");
 
-    let login_and_destination: &str = &get_env_var("CONNECTION").to_string();
+    //let login_and_destination: &str = &get_env_var("CONNECTION").to_string();
+    let ssh_host: &str = &get_env_var("SSH_HOST").to_string();
+    let ssh_port: &str = &get_env_var("SSH_PORT").to_string();
+    let ssh_user: &str = &get_env_var("SSH_USER").to_string();
+    let ssh_key: &str = &get_env_var("SSH_KEY").to_string();
+    let ssh_deploy_folder: &str = &get_env_var("SSH_DEPLOY_FOLDER").to_string();
+    let ssh_login: &str = &format!("{}@{}", ssh_user, ssh_host).to_string();
+    let scp_destination: &str = &format!("{}@{}:{}", ssh_user, ssh_host, ssh_deploy_folder).to_string();
+    let runssh_prog: &str = &get_env_var("RUNSSH_PROG").to_string();
 
-    //for file in files {
-    //    println!("Copying {}", file);
-    //    match scp(&file, login_and_destination) {
-    //        Ok(x) => println!("Success!"),
-    //        Err(_) => std::process::exit(2),
-    //    }
-    //}
+    for file in &files {
+        println!("Copying {}", file);
+        match scp(&file, ssh_key, scp_destination) {
+            Ok(x) => println!("Success!"),
+            Err(_) => std::process::exit(2),
+        }
+    }
 
     println!("{:?}", files.iter());
     // run the program
-    //run_over_ssh("pi@127.0.0.1", "'/home/pi/test.sh'");
+    run_over_ssh(ssh_key, ssh_login, &format!("'{}/{}'", ssh_deploy_folder, runssh_prog).to_string());
 }
 
 #[cfg(test)]

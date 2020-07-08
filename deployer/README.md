@@ -11,3 +11,8 @@ On your PC:
 
 On the Raspberry:
 - The Controller application (TO BE DONE)
+- A user with access to sudo and without a password for that (see https://phpraxis.wordpress.com/2016/09/27/enable-sudo-without-password-in-ubuntudebian/)
+
+
+## WISHLIST
+- Avoid the need to have a user with sudo access that needs no password
