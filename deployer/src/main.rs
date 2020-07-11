@@ -7,6 +7,27 @@ extern crate simple_error;
 
 type BoxResult<T> = Result<T,Box<Error>>;
 
+fn avrdude_cleanup(ssh_key: &str, destination: &str, command: &str) -> BoxResult<i32> {
+    let mut child = Command::new("ssh")
+        .arg(format!("-i {}", ssh_key))
+        .arg(destination)
+        .arg(format!("{}", command))
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()?;
+    {
+        let _child_stdin = child.stdin.as_mut().unwrap();
+    }
+
+    let output = child.wait_with_output()?;
+
+    if &output.status.code() > &Some(0) {
+        bail!("ERROR copying !")
+    } else {
+        Ok(0)
+    }
+}
+
 fn run_over_ssh(ssh_key: &str, destination: &str, command: &str) -> BoxResult<i32> {
     let mut child = Command::new("ssh")
         .arg(format!("-i {}", ssh_key))
@@ -84,6 +105,7 @@ fn main() {
     }
 
     println!("{:?}", files.iter());
+    avrdude_cleanup(ssh_key, ssh_login, "printf '4\\n9\\n10\\n11' > /sys/class/gpio/unexport");
     // run the program
     run_over_ssh(ssh_key, ssh_login, &format!("'{}/{}'", ssh_deploy_folder, runssh_prog).to_string());
 }
