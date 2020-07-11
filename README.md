@@ -76,4 +76,10 @@ sudo avrdude -c linuxgpio -p atmega328p -v
 # PHASE 3: prepare Raspberry to run rust
 export RUSTUP_UNPACK_RAM=200000000  
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
+sudo apt-get install pkg-config libudev1 libudev-dev
+
+# ISSUES
+- Will it run Rust?
+- How to bring down deployment time?
+- How to bring down loading files intos arduino?
 
