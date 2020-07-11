@@ -1,4 +1,4 @@
-deployer/target
+**/target
 tests/**/build
 **/.env
 **/*.swp
