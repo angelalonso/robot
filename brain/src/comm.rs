@@ -33,26 +33,25 @@ impl Messages {
             self.transmitted.push(Message {incoming, message})
         }
     }
-    // TODO: result can be an error too
-    pub fn get_list(&mut self, vec_type: &str) -> Vec<String> {
-        let emptyvec = Vec::new();
+    // TODO: result can be an error too, we just send empty though
+    pub fn get_list(&mut self, vec_type: &str) -> Option<Vec<String>> {
         match vec_type {
             "received" => {
                 let mut recvvec = Vec::new();
                 for entry in &mut self.received {
                     recvvec.push(entry.message.to_string());
                 }
-                recvvec
+                Some(recvvec)
             },
             "transmitted" => {
                 let mut trnsvec = Vec::new();
                 for entry in &mut self.transmitted {
                     trnsvec.push(entry.message.to_string());
                 }
-                trnsvec
+                Some(trnsvec)
             },
             &_ => {
-                emptyvec
+                None
             },
         }
     }
