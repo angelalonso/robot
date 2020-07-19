@@ -1,3 +1,9 @@
+use std::io;
+use logwatch::Watcher;
+//-- Choose an implementation --
+use logwatch::PollWatcher as LogWatcher;
+//use logwatch::TailWatcher as LogWatcher;
+
 pub struct Message {
     pub incoming: bool,
     pub message: String,
@@ -58,8 +64,21 @@ impl Messages {
     // v1: read from a file
     // v2: read logs-wise
     // v2: wait, write somewhere else, read logs-wise
-    pub fn read_the_buffer_on_test() -> String {
-        String::from("Test")
+    pub fn factory<'a>(&mut self, count: &'a mut usize) -> Box<dyn FnMut(String) + 'a> {
+        let callback = move |line: String| {
+            *count += 1;
+            println!("{}", line);
+        };
+        Box::new(callback)
+    }
+    pub fn read_the_buffer_on_test(&mut self) -> Result<(), io::Error> {
+        let fpath = "testfile";
+        let mut count = 0;
+        let mut watcher = LogWatcher::new(&fpath, 2000); // polling period = 2000 milliseconds
+        let callback = self.factory(&mut count);
+        watcher.register(callback);
+        watcher.watch();
+        Ok(())
     }
     pub fn read_the_buffer() -> String {
         String::from("Test")
