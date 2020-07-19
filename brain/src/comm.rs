@@ -55,4 +55,13 @@ impl Messages {
             },
         }
     }
+    // v1: read from a file
+    // v2: read logs-wise
+    // v2: wait, write somewhere else, read logs-wise
+    pub fn read_the_buffer_on_test() -> String {
+        String::from("Test")
+    }
+    pub fn read_the_buffer() -> String {
+        String::from("Test")
+    }
 }
