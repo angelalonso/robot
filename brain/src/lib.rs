@@ -1,6 +1,18 @@
 pub mod comm;
 pub mod action;
 
+pub mod pollwatch;
+// pub mod tailwatch;
+
+pub use pollwatch::PollWatcher;
+// pub use tailwatch::TailWatcher;
+
+pub trait Watcher<'a> {
+    fn new(filename: &str, period_milliseconds: u64) -> Self;
+    fn register(&mut self, callback: Box<dyn FnMut(String) + 'a>);
+    fn watch(&mut self);
+    fn watch_once(&mut self);
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -31,7 +43,9 @@ mod tests {
     fn listen() {
         let mut test = comm::Messages::new();
         let read_expected: String = String::from("Test");
-        let read_result = test.read_the_buffer_on_test();
-        //assert_eq!(read_expected, read_result);
+        let read_result = match test.read_the_buffer_on_test(){
+            Ok(result) => assert_eq!(read_expected, result),
+            _ => panic!("{:?}", "ERROR"),
+        };
     }
 }
