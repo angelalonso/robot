@@ -1,6 +1,12 @@
-use std::io;
-use std::io::{BufRead, BufReader};
 use std::fs::File;
+use std::fs;
+use std::io::SeekFrom;
+use std::io::prelude::*;
+use std::io::{BufRead, BufReader};
+use std::io;
+use std::str;
+use std::time::SystemTime;
+use std::{thread, time};
 
 pub struct Message {
     pub incoming: bool,
@@ -60,6 +66,37 @@ impl Messages {
         }
     }
     pub fn read_the_buffer_on_test(&mut self) -> Result<String, io::Error> {
+        let filename = "testfile";
+        let metadata = fs::metadata(filename)?;
+        let modded = metadata.modified()?;
+        let datasize = metadata.len();
+
+        let mut exit = false;
+        let mut change : u64 = 0;
+        while !exit {
+            let mod_metadata = fs::metadata(filename)?;
+            let new_modded = mod_metadata.modified()?;
+
+            if modded != new_modded {
+                thread::sleep(time::Duration::from_millis(5));
+                exit = true;
+            }
+        }
+        let size_metadata = fs::metadata(filename)?;
+        let new_datasize = size_metadata.len();
+        change = new_datasize - datasize;
+        let mut f = File::open(filename)?;
+        f.seek(SeekFrom::Start(datasize)).unwrap();
+        let mut buf = vec![];
+        let mut chunk = f.take(change);
+        let n = chunk.read_to_end(&mut buf).expect("Didn't read enough");
+        let s = match str::from_utf8(&buf) {
+            Ok(v) => v,
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
+        Ok(s.to_string())
+    }
+    pub fn read_the_buffer_on_test2(&mut self) -> Result<String, io::Error> {
         let filename = "testfile";
         let file = BufReader::new(File::open(filename).unwrap());
         let mut lines: Vec<_> = file.lines().map(|line| { line.unwrap() }).collect();
