@@ -1,6 +1,7 @@
 pub mod comm;
 pub mod action;
 pub mod tests;
+pub mod mockduino;
 
 pub mod pollwatch;
 // pub mod tailwatch;
