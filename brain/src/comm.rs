@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::fs::File;
 use std::fs;
 use std::io::SeekFrom;
@@ -63,8 +64,8 @@ impl Messages {
             },
         }
     }
-    pub fn read_the_buffer_mock(&mut self) -> Result<String, io::Error> {
-        let filename = "testfile";
+    pub fn read_msg_mock(&mut self) -> Result<String, io::Error> {
+        let filename = "from_mockduino.q";
         let metadata = fs::metadata(filename)?;
         let modded = metadata.modified()?;
         let datasize = metadata.len();
@@ -94,7 +95,18 @@ impl Messages {
         };
         Ok(s.to_string())
     }
-    pub fn read_the_buffer() -> String {
+    pub fn read_msgs_mock(&mut self) -> Result<(), Box<dyn Error>> {
+        println!("Waiting for data...");
+        loop {
+            let results = self.read_msg_mock();
+            self.trigger_action(&results.unwrap());
+        }
+        //Ok(())
+    }
+    pub fn read_msgs(&mut self) -> String {
         String::from("Test")
+    }
+    pub fn trigger_action(&mut self, trigger: &str) {
+        println!("Rx - {:?}", trigger);
     }
 }

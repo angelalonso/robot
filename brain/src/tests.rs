@@ -1,4 +1,3 @@
-use crate::comm::Messages;
 
 // TODO: convention is to
 // "put unit tests in the src directory in each file with the code that they're testing."

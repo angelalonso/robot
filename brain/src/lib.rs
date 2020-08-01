@@ -1,4 +1,5 @@
 pub mod comm;
+pub mod config;
 pub mod action;
 pub mod tests;
 pub mod mockduino;
@@ -15,3 +16,14 @@ pub trait Watcher<'a> {
     fn watch(&mut self);
     fn watch_once(&mut self);
 }
+
+#[macro_use]
+extern crate serde_derive;
+extern crate serde_yaml;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Reaction {
+    trigger: String,
+    actions: Vec<String>,
+}
+

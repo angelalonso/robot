@@ -1,0 +1,7 @@
+---
+- trigger: "Do->Beep\n"
+  actions:
+    - do_beep
+- trigger: "Do->Boop\n"
+  actions:
+    - do_boop
