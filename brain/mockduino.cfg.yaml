@@ -1,7 +1,7 @@
 ---
-- trigger: "Do->Beep\n"
+- trigger: "Do->Ping\n"
   actions:
-    - do_beep
-- trigger: "Do->Boop\n"
+    - do_ping
+- trigger: "Do->Pong\n"
   actions:
-    - do_boop
+    - do_pong

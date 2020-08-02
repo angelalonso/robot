@@ -1,30 +1,31 @@
 use std::error::Error;
-use brain::comm::Messages;
 use brain::mockduino::Mockduino;
+use brain::brain::Brain;
 use std::thread;
-use std::fs::File;
-use brain::Reaction;
-use brain::config::Config;
 
 // TODO: remove this from here if possible
-#[macro_use]
 extern crate serde_derive;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let mut conf = Config::new("main.cfg.yaml");
-    conf.print();
-    // Simulating Arduino init
-    let mut arduino = Mockduino::new("mockduino.cfg.yaml", "to_mockduino.q", "from_mockduino.q");
-    println!("Booting arduino...");
+    // Generate our Brain object
+    let mut main_brain = Brain::new("main.cfg.yaml", "from_mockduino.q", "to_mockduino.q");
+    // Generate a Mockduino object
+    let mockduino_name = "Arduino";
+    let mut arduino = Mockduino::new(mockduino_name, "mockduino.cfg.yaml", "to_mockduino.q", "from_mockduino.q");
+
+    // Simulate some delay on booting up the Mockduino
+    println!("Booting {}...", mockduino_name);
     let get_bootload = arduino.bootload();
     println!("{:?}", get_bootload);
-    // Listening on Bus
-    let mut test = Messages::new();
-    let _read = thread::spawn(move || {
-        test.read_msgs_mock();
+
+    // Arduino starts listening on Bus
+    let _arduino_read = thread::spawn(move || {
+        let _arduino_thread = arduino.read_msgs();
     });
-    // Arduino also listening on Bus
-    arduino.read_msgs();
+    // Send the first message that triggers our ping-pong loop
+    main_brain.send("Do->Ping");
+    // Listening on Bus
+    let _brain_thread = main_brain.read_msgs();
 
     Ok(())
 }

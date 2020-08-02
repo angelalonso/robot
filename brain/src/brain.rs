@@ -10,28 +10,22 @@ use std::str;
 use std::{thread, time};
 use crate::config::Config;
 
-pub struct Mockduino<'a> {
-    pub name: &'a str,
+pub struct Brain<'a> {
+    pub name: String,
     pub msgfile_in: &'a str,
     pub msgfile_out: &'a str,
     pub config: Config,
 }
 
-impl Mockduino<'_> {
-    pub fn new(mockduino_name: &'static str, config_file: &'static str, msg_file_in: &'static str, msg_file_out: &'static str) -> Self {
+impl Brain<'_> {
+    pub fn new(config_file: &'static str, msg_file_in: &'static str, msg_file_out: &'static str) -> Self {
         let configdata = Config::new(config_file);
         Self {
-            name: mockduino_name,
+            name: "Main Brain".to_string(),
             msgfile_in: msg_file_in,
             msgfile_out: msg_file_out,
             config: configdata,
         }
-    }
-    // TODO: how to make this a result of string and error?
-    pub fn bootload(&mut self) -> Result<String, String> {
-        let mut rng = rand::thread_rng();
-		thread::sleep(time::Duration::from_millis(rng.gen_range(100, 2000)));
-        Ok("Booted".to_string())
     }
     // Read from a File like it's a message queue
     pub fn read_msg(&mut self) -> Result<String, io::Error> {
@@ -86,8 +80,8 @@ impl Mockduino<'_> {
         for action in &actions {
             let act: &str = &action[..];
             match act {
-                "do_ping" => self.send("Result->Ping"),
-                "do_pong" => self.send("Result->Pong"),
+                "send_do_ping" => self.send("Do->Ping"),
+                "send_do_pong" => self.send("Do->Pong"),
                 _ => self.do_nothing(),
             };
         }
