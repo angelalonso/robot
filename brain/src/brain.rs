@@ -39,7 +39,7 @@ impl Brain<'_> {
         Ok("Booted".to_string())
     }
     // ------------------------------------------------------ //
-    // Read from a File like it's a message queue
+    // Read new data from a File like it's a message queue
     pub fn read_msg(&mut self) -> Result<String, io::Error> {
         let fileinfo = fs::metadata(self.msgfile_in)?;
         let modded = fileinfo.modified()?;
@@ -71,6 +71,7 @@ impl Brain<'_> {
         Ok(s.to_string())
     }
     // ------------------------------------------------------ //
+    // Loop through read_msg and apply related actions
     pub fn read_msgs(&mut self) -> Result<(), Box<dyn Error>> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
@@ -90,7 +91,8 @@ impl Brain<'_> {
         log(Some(&self.name), "I", trigger);
         let actions = self.config.get_actions(trigger);
         match actions {
-            Some(a) => self.do_actions(a),
+            //Some(a) => self.do_actions(a),
+            Some(a) => self.apply_actions(a),
             None => log(Some(&self.name), "D", "Nothing to do"),
         }
     }
@@ -107,7 +109,18 @@ impl Brain<'_> {
             };
         }
     }
-
+    // ------------------------------------------------------ //
+    pub fn apply_actions(&mut self, actions: Vec<String>) {
+        for action in &actions {
+            let action_vec: Vec<&str> = action.split("_").collect();
+            match action_vec[0] {
+                // TODO: add sendfile_ action
+                // TODO: normalize what comes after send_
+                "send" => self.send(&action_vec[1..].to_vec().join("_")),
+                _ => self.do_nothing(),
+            }
+        }
+    }
     // ------------------------------------------------------ //
     pub fn do_nothing(&mut self) {
         log(Some(&self.name), "D", "Relaxing here...");
@@ -158,9 +171,9 @@ mod brain_tests {
     }
 
     #[test]
-    fn do_actions() {
+    fn apply_actions() {
         let mut test = Brain::new("test", "testfiles/test.cfg.yaml", "testfiles/test_from_mock.q", "testfiles/test_to_mock.q");
-        test.do_actions(Vec::from(["send_do_ping".to_string()]));
+        test.apply_actions(Vec::from(["send_ping".to_string()]));
 
     }
 

@@ -1,0 +1,7 @@
+---
+- trigger: "Ping\n"
+  actions:
+    - send_Pong_Pung
+- trigger: "Pong_Pung\n"
+  actions:
+    - send_Ping

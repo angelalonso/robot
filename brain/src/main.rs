@@ -4,9 +4,9 @@ use std::thread;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Generate our Brain object
-    let mut main_brain = Brain::new("Main Brain", "main.cfg.yaml", "from_mockduino.q", "to_mockduino.q");
+    let mut main_brain = Brain::new("Main Brain", "main_cfg.yaml", "from_mockduino.q", "to_mockduino.q");
     // Generate a Mockduino object
-    let mut arduino = Brain::new("Mockduino", "mockduino.cfg.yaml", "to_mockduino.q", "from_mockduino.q");
+    let mut arduino = Brain::new("Mockduino", "mockduino_cfg.yaml", "to_mockduino.q", "from_mockduino.q");
 
     // Simulate some delay on booting up the Mockduino
     let _boot = arduino.bootload();
@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         let _arduino_thread = arduino.read_msgs();
     });
     // Send the first message that triggers our ping-pong loop
-    main_brain.send("Do->Ping");
+    main_brain.send("Ping");
     // Listening on Bus
     let _brain_thread = main_brain.read_msgs();
 

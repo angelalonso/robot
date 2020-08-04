@@ -1,7 +1,0 @@
----
-- trigger: "Do->Ping\n"
-  actions:
-    - do_ping
-- trigger: "Do->Pong\n"
-  actions:
-    - do_pong
