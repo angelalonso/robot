@@ -1,0 +1,7 @@
+---
+- trigger: "Result->Ping\n"
+  actions:
+    - send_do_pong
+- trigger: "Result->Pong\n"
+  actions:
+    - send_do_ping

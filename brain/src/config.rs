@@ -22,17 +22,34 @@ impl Config {
             entries: reactions,
         }
     }
-
+    // ------------------------------------------------------ //
     pub fn print(&mut self) {
         println!("{:?}", self.entries);
     }
-
+    // ------------------------------------------------------ //
     pub fn get_actions(&mut self, configentry: &str) -> Option<Vec<String>> {
         let entry = self.entries.iter()
-            .find(|&x| x.trigger == configentry.to_string());
+            .find(|&x| x.trigger == configentry);
         match entry {
             Some(x) => Some(x.actions.to_vec()),
             None => None,
         }
     }
+}
+// ---------------------------------------------------------- //
+#[cfg(test)]
+mod config_tests {
+    use super::*;
+
+    #[test]
+    fn print() {
+        let mut test = Config::new("testfiles/test.cfg.yaml");
+        test.print();
+    } 
+
+    #[test]
+    fn get_actions() {
+        let mut test = Config::new("testfiles/test.cfg.yaml");
+        test.get_actions("Result->Ping\n");
+    } 
 }

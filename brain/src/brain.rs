@@ -9,24 +9,36 @@ use std::io;
 use std::str;
 use std::{thread, time};
 use crate::config::Config;
+use crate::log;
 
 pub struct Brain<'a> {
-    pub name: String,
+    pub name: &'a str,
     pub msgfile_in: &'a str,
     pub msgfile_out: &'a str,
     pub config: Config,
 }
 
 impl Brain<'_> {
-    pub fn new(config_file: &'static str, msg_file_in: &'static str, msg_file_out: &'static str) -> Self {
+    pub fn new(brain_name: &'static str, config_file: &'static str, msg_file_in: &'static str, msg_file_out: &'static str) -> Self {
         let configdata = Config::new(config_file);
         Self {
-            name: "Main Brain".to_string(),
+            name: brain_name,
             msgfile_in: msg_file_in,
             msgfile_out: msg_file_out,
             config: configdata,
         }
     }
+    // ------------------------------------------------------ //
+    // TODO: how to make this a result of string and error?
+    pub fn bootload(&mut self) -> Result<String, String> {
+        // Simulate delay on booting the entity
+        log(Some(&self.name), "I", &format!("Booting {}...", self.name));
+        let mut rng = rand::thread_rng();
+		thread::sleep(time::Duration::from_millis(rng.gen_range(100, 2000)));
+        log(Some(&self.name), "I", "Booted");
+        Ok("Booted".to_string())
+    }
+    // ------------------------------------------------------ //
     // Read from a File like it's a message queue
     pub fn read_msg(&mut self) -> Result<String, io::Error> {
         let fileinfo = fs::metadata(self.msgfile_in)?;
@@ -58,28 +70,37 @@ impl Brain<'_> {
         };
         Ok(s.to_string())
     }
+    // ------------------------------------------------------ //
     pub fn read_msgs(&mut self) -> Result<(), Box<dyn Error>> {
-        println!("{} is waiting for data...", self.name);
+        log(Some(&self.name), "D", "Waiting for data...");
         loop {
             let results = self.read_msg();
-            self.get_actions(&results.unwrap());
+            //self.get_actions(&results.unwrap());
+            match &results {
+                Ok(res) => self.get_actions(res),
+                Err(e) => {
+                    println!("Error Reading messages: {}", e);
+                    //TODO: return a proper error here
+                    break Ok(())},
+            }
         }
-        //Ok(())
     }
-    
     // ------------------------------------------------------ //
     pub fn get_actions(&mut self, trigger: &str) {
-        println!("{} - {:?}", self.name, trigger);
+        log(Some(&self.name), "I", trigger);
         let actions = self.config.get_actions(trigger);
         match actions {
             Some(a) => self.do_actions(a),
-            None => println!("{} has nothing to do", self.name),
+            None => log(Some(&self.name), "D", "Nothing to do"),
         }
     }
+    // ------------------------------------------------------ //
     pub fn do_actions(&mut self, actions: Vec<String>) {
         for action in &actions {
             let act: &str = &action[..];
             match act {
+                "do_ping" => self.send("Result->Ping"),
+                "do_pong" => self.send("Result->Pong"),
                 "send_do_ping" => self.send("Do->Ping"),
                 "send_do_pong" => self.send("Do->Pong"),
                 _ => self.do_nothing(),
@@ -89,8 +110,9 @@ impl Brain<'_> {
 
     // ------------------------------------------------------ //
     pub fn do_nothing(&mut self) {
-        println!("{} - Relaxing here...", self.name);
+        log(Some(&self.name), "D", "Relaxing here...");
     }
+    // ------------------------------------------------------ //
     pub fn send(&mut self, message: &str) {
         let mut rng = rand::thread_rng();
 		thread::sleep(time::Duration::from_millis(rng.gen_range(100, 4000)));
@@ -102,5 +124,50 @@ impl Brain<'_> {
         if let Err(e) = writeln!(file, "{}", message) {
             eprintln!("Couldn't write to file: {}", e);
         }
+    }
+}
+// ---------------------------------------------------------- //
+#[cfg(test)]
+mod brain_tests {
+    use super::*;
+
+    #[test]
+    fn read_msg() {
+        // I'll just test an error here
+        let mut test = Brain::new("test", "testfiles/test.cfg.yaml", "testfiles/unexistingtest_from_mock.q", "testfiles/unexistingtest_to_mock.q");
+        match test.read_msg() {
+            Ok(read) => println!("{}", read),
+            Err(e) => println!("{:?}", e),
+        };
+    }
+
+    #[test]
+    fn read_msgs() {
+        // I'll just test an error here
+        let mut test = Brain::new("test", "testfiles/test.cfg.yaml", "testfiles/unexistingtest_from_mock.q", "testfiles/unexistingtest_to_mock.q");
+        match test.read_msgs() {
+            Ok(read) => println!("{:?}", read),
+            Err(e) => println!("{:?}", e),
+        };
+    }
+
+    #[test]
+    fn get_actions() {
+        let mut test = Brain::new("test", "testfiles/test.cfg.yaml", "testfiles/test_from_mock.q", "testfiles/test_to_mock.q");
+        test.get_actions("Ping\n");
+    }
+
+    #[test]
+    fn do_actions() {
+        let mut test = Brain::new("test", "testfiles/test.cfg.yaml", "testfiles/test_from_mock.q", "testfiles/test_to_mock.q");
+        test.do_actions(Vec::from(["send_do_ping".to_string()]));
+
+    }
+
+    #[test]
+    fn send() {
+        let mut test = Brain::new("test", "testfiles/test.cfg.yaml", "testfiles/test_from_mock.q", "testfiles/test_to_mock.q");
+        test.send("Do->Ping");
+
     }
 }
