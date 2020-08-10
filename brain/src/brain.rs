@@ -11,6 +11,23 @@ use std::time::{Duration, Instant};
 use std::{thread, time};
 use crate::config::Config;
 use crate::log;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum BrainDeadError {
+    /// Represents an empty source. For example, an empty text file being given
+    /// as input to `count_words()`.
+    #[error("Source contains no data")]
+    EmptySource,
+
+    /// Represents a failure to read from input.
+    #[error("Read error")]
+    ReadError { source: std::io::Error },
+
+    /// Represents all other cases of `std::io::Error`.
+    #[error(transparent)]
+    IOError(#[from] std::io::Error),
+}
 
 pub struct Brain<'a> {
     pub name: &'a str,
@@ -91,19 +108,19 @@ impl Brain<'_> {
     }
 
     // Loop through read_msg and apply related actions
-    pub fn read_msgs(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn read_msgs(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
             let results = self.read_msg(self.timeout);
-            //self.get_actions(&results.unwrap());
-            match &results {
-                Ok(res) => self.get_actions(res),
-                Err(e) => {
-                    println!("Error Reading messages: {}", e);
-                    Error(e)
-                    //TODO: return a proper error here (?)
-                },
-            }
+            self.get_actions(&results.unwrap());
+            // match &results {
+            //     Ok(res) => self.get_actions(res),
+            //     Err(e) => {
+            //         println!("Error Reading messages: {}", e);
+            //         return Err(BrainDeadError::IOError(*e))
+            //         //TODO: return a proper error here (?)
+            //     },
+            // }
         }
     }
 
@@ -146,12 +163,12 @@ impl Brain<'_> {
         Ok(())
     }
 
-    pub fn do_nothing(&mut self) -> Result<(), io::Error> {
+    pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
     }
 
-    pub fn send(&mut self, message: &str) -> Result<(), io::Error> {
+    pub fn send(&mut self, message: &str) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "I", &format!("Sending {}", message));
         let mut rng = rand::thread_rng();
 		thread::sleep(time::Duration::from_millis(rng.gen_range(100, 4000)));
@@ -161,12 +178,13 @@ impl Brain<'_> {
             .open(self.msgfile_out)
             .unwrap();
         if let Err(e) = writeln!(file, "{}", message) {
-            return Err(Box::new)or(e)
+            //return Err(Box::new(e))
+            return Err(BrainDeadError::IOError(e))
         }
         Ok(())
     }
 
-    pub fn sendfileserial(&mut self, filename: &str) -> Result<(), io::Error> {
+    pub fn sendfileserial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", &format!("Sending file {} through Serial Port {}", filename, self.serialport));
         Ok(())
     }
