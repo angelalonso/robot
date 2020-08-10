@@ -1,4 +1,7 @@
 ---
+- trigger: "Start\n"
+  actions:
+    - sendfileserial_first_prog
 - trigger: "Ping\n"
   actions:
     - send_Pong_Pung

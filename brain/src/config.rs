@@ -27,9 +27,10 @@ impl Config {
         println!("{:?}", self.entries);
     }
     // ------------------------------------------------------ //
-    pub fn get_actions(&mut self, configentry: &str) -> Option<Vec<String>> {
+    pub fn get_actions(&mut self, raw_configentry: &str) -> Option<Vec<String>> {
+        let configentry = raw_configentry.to_lowercase();
         let entry = self.entries.iter()
-            .find(|&x| x.trigger == configentry);
+            .find(|&x| x.trigger.to_lowercase() == configentry);
         match entry {
             Some(x) => Some(x.actions.to_vec()),
             None => None,

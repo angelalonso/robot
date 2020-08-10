@@ -1,7 +1,7 @@
 ---
-- trigger: "Ping\n"
+- trigger: "ping\n"
   actions:
     - send_Pong_Pung
-- trigger: "Pong_Pung\n"
+- trigger: "pong_pung\n"
   actions:
     - send_Ping
