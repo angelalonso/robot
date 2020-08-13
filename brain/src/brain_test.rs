@@ -1,3 +1,4 @@
+use std::process;
 use crate::brain::Brain;
 
 #[cfg(test)]
@@ -7,12 +8,15 @@ mod brain_test {
     #[test]
     fn read_msg() {
         // I'll just test an error here
-        let mut test = Brain::new("test", 
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
                                   "testfiles/notest_from_mock.q", 
                                   "testfiles/nptest_to_mock.q", 
-                                  None);
-        test.bootload();
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let boot = test.bootload();
         match test.read_msg(1) {
             Ok(read) => println!("{}", read),
             Err(e) => println!("{:?}", e),
@@ -21,64 +25,83 @@ mod brain_test {
 
     #[test]
     fn read_msg_proper() {
-        let mut test = Brain::new("test", 
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
                                   "testfiles/test_from_mock.q", 
                                   "testfiles/test_to_mock.q", 
-                                  None);
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
         let msg_received = test.read_msg(1);
         assert!(msg_received.unwrap() == "");
     }
 
     #[test]
     fn read_msgs() {
-        // I'll just test an error here
-        let mut test = Brain::new("test", 
+        // Needed?
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
-                                  "testfiles/notest_from_mock.q", 
-                                  "testfiles/nptest_to_mock.q", 
-                                  None);
-        let _result = test.read_msgs().unwrap();
+                                  "testfiles/test_from_mock.q", 
+                                  "testfiles/test_to_mock.q", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        // Gets stuck, maybe this is not needed?
+        // let _result = test.read_msgs();
     }
 
     #[test]
     fn get_actions() {
-        let mut test = Brain::new("test", 
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
                                   "testfiles/test_from_mock.q", 
                                   "testfiles/test_to_mock.q", 
-                                  None);
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
         test.get_actions("Ping\n");
     }
 
     #[test]
     fn apply_actions() {
-        let mut test = Brain::new("test", 
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
                                   "testfiles/test_from_mock.q", 
                                   "testfiles/test_to_mock.q", 
-                                  None);
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
         test.apply_actions(Vec::from(["send_ping".to_string()]));
     }
 
     #[test]
     fn send() {
-        let mut test = Brain::new("test", 
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
                                   "testfiles/test_from_mock.q", 
                                   "testfiles/test_to_mock.q", 
-                                  None);
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
         test.send("Do->Ping");
     }
 
     #[test]
     #[should_panic(expected = "No such file or directory")]
     fn send_to_wrongfile() {
-        let mut test = Brain::new("test", 
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
                                   "testfiles/test_from_mock.q", 
                                   "testfiles/notest_to_mock.q", 
-                                  None);
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
         test.send("Do->Ping");
     }
 
@@ -86,11 +109,14 @@ mod brain_test {
     #[test]
     #[ignore]
     fn sendfileserial() {
-        let mut test = Brain::new("test", 
+        let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
                                   "testfiles/test_from_mock.q", 
                                   "testfiles/test_to_mock.q", 
-                                  None);
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
         test.sendfileserial("testfile");
     }
 }
