@@ -1,6 +1,6 @@
 pub mod config;
 pub mod brain;
-pub mod brainy_test;
+pub mod brain_test;
 
 extern crate chrono;
 use chrono::offset::Utc;

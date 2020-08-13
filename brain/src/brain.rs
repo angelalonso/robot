@@ -1,5 +1,4 @@
 use rand::Rng;
-use std::error::Error;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::fs;
@@ -7,7 +6,7 @@ use std::io::SeekFrom;
 use std::io::prelude::*;
 use std::io;
 use std::str;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use std::{thread, time};
 use crate::config::Config;
 use crate::log;
@@ -108,34 +107,23 @@ impl Brain<'_> {
     }
 
     // Loop through read_msg and apply related actions
-    pub fn read_msgs(&mut self) -> Result<(), BrainDeadError> {
+    pub fn read_msgs(&mut self) {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
             let results = self.read_msg(self.timeout);
             self.get_actions(&results.unwrap());
-            // match &results {
-            //     Ok(res) => self.get_actions(res),
-            //     Err(e) => {
-            //         println!("Error Reading messages: {}", e);
-            //         return Err(BrainDeadError::IOError(*e))
-            //         //TODO: return a proper error here (?)
-            //     },
-            // }
         }
     }
 
-    pub fn get_actions(&mut self, trigger: &str) -> Result<(), io::Error> {
+    pub fn get_actions(&mut self, trigger: &str) {
         log(Some(&self.name), "D", &format!("Received {}", trigger));
         let actions = self.config.get_actions(&trigger);
         match actions {
-            //Some(a) => self.do_actions(a),
             Some(a) => self.apply_actions(a),
             None => {
                 log(Some(&self.name), "D", "Nothing to do");
-                Ok(())
             },
         };
-        Ok(())
     }
 
     pub fn do_actions(&mut self, actions: Vec<String>) {
@@ -151,7 +139,7 @@ impl Brain<'_> {
         }
     }
 
-    pub fn apply_actions(&mut self, actions: Vec<String>) -> Result<(), io::Error> {
+    pub fn apply_actions(&mut self, actions: Vec<String>) {
         for action in &actions {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
@@ -160,7 +148,6 @@ impl Brain<'_> {
                 _ => self.do_nothing(),
             };
         }
-        Ok(())
     }
 
     pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {

@@ -1,9 +1,7 @@
 use crate::brain::Brain;
-use std::io;
-use std::thread;
 
 #[cfg(test)]
-mod brainy_test {
+mod brain_test {
     use super::*;
 
     #[test]
@@ -84,7 +82,9 @@ mod brainy_test {
         test.send("Do->Ping");
     }
 
+    /// run this from the raspberry itself with cargo test -- --ignored
     #[test]
+    #[ignore]
     fn sendfileserial() {
         let mut test = Brain::new("test", 
                                   "testfiles/test.cfg.yaml", 
@@ -92,6 +92,5 @@ mod brainy_test {
                                   "testfiles/test_to_mock.q", 
                                   None);
         test.sendfileserial("testfile");
-
     }
 }
