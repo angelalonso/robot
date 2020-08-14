@@ -1,3 +1,4 @@
+
 use rand::Rng;
 use std::fs::File;
 use std::fs::OpenOptions;
@@ -11,13 +12,43 @@ use std::{thread, time};
 use crate::config::Config;
 use crate::log;
 use thiserror::Error;
+use tokio_util::codec::{Decoder, Encoder};
+use futures::stream::StreamExt;
+use bytes::BytesMut;
 
+struct LineCodec;
+
+impl Decoder for LineCodec {
+    type Item = String;
+    type Error = io::Error;
+
+    fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+        let newline = src.as_ref().iter().position(|b| *b == b'\n');
+        if let Some(n) = newline {
+            let line = src.split_to(n + 1);
+            return match str::from_utf8(line.as_ref()) {
+                Ok(s) => Ok(Some(s.to_string())),
+                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Invalid String")),
+            };
+        }
+        Ok(None)
+    }
+}
+
+impl Encoder for LineCodec {
+    type Item = String;
+    type Error = io::Error;
+
+    fn encode(&mut self, _item: Self::Item, _dst: &mut BytesMut) -> Result<(), Self::Error> {
+        Ok(())
+    }
+}
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
     /// Represents an empty source. For example, an empty text file being given
     /// as input to `count_words()`.
     #[error("Source contains no data")]
-    EmptySource,
+    EmptyError,
 
     /// Represents a failure to read from input.
     #[error("Read error")]
@@ -171,8 +202,24 @@ impl Brain<'_> {
         Ok(())
     }
 
-    pub fn sendfileserial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
+    #[tokio::main]
+    pub async fn sendfileserial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", &format!("Sending file {} through Serial Port {}", filename, self.serialport));
+        //Err(BrainDeadError::EmptyError)
+        let tty_path = self.serialport;
+        let settings = tokio_serial::SerialPortSettings::default();
+        let mut port = tokio_serial::Serial::from_path(tty_path, &settings).unwrap();
+
+        #[cfg(unix)]
+        port.set_exclusive(false)
+            .expect("Unable to set serial port exclusive to false");
+
+        let mut reader = LineCodec.framed(port);
+
+        while let Some(line_result) = reader.next().await {
+            let line = line_result.expect("Failed to read line");
+            println!("{}", line);
+        }
         Ok(())
     }
 }

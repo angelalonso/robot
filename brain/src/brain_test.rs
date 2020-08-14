@@ -117,6 +117,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        test.sendfileserial("testfile");
+        let serial = test.sendfileserial("testfile");
+        assert!(serial.is_ok(), "db file should not exist");
     }
 }
