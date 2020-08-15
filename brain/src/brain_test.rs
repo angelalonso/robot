@@ -107,6 +107,19 @@ mod brain_test {
 
     /// run this from the raspberry itself with cargo test -- --ignored
     #[test]
+    fn check_avrdude() {
+        let mut test = Brain::new_serial("test",
+                                  "testfiles/test.cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let avrdude = test.check_avrdude();
+        assert!(avrdude.is_ok(), "avrdude should be installed");
+    }
+
+    /// run this from the raspberry itself with cargo test -- --ignored
+    #[test]
     #[ignore]
     fn sendfile() {
         let mut test = Brain::new_serial("test",
@@ -116,6 +129,20 @@ mod brain_test {
             process::exit(1);
         });
         let serial = test.sendfile_serial("testfile");
+        assert!(serial.is_ok(), "db file should not exist");
+    }
+
+    /// run this from the raspberry itself with cargo test -- --ignored
+    #[test]
+    #[ignore]
+    fn readserial() {
+        let mut test = Brain::new_serial("test",
+                                  "testfiles/test.cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let serial = test.read_msgs_serial();
         assert!(serial.is_ok(), "db file should not exist");
     }
 }

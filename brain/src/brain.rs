@@ -1,4 +1,4 @@
-
+use std::process::Command;
 use rand::Rng;
 use std::fs::File;
 use std::fs::OpenOptions;
@@ -52,9 +52,15 @@ pub enum BrainDeadError {
     #[error("Source contains no data")]
     EmptyError,
 
+    #[error("Something went wrong while checking if a program is installed")]
+    AppNotInstalledError,
+
     /// Represents the most basic error while sending a file (using avrdude)
     #[error("Something went wrong while using avrdude to send files")]
     SendFileError,
+
+    #[error("Something went wrong while reading from the serial port")]
+    ReadSerialError,
 
     /// Represents a failure to read from input.
     #[error("Read error")]
@@ -227,6 +233,22 @@ impl Brain<'_> {
             return Err(BrainDeadError::IOError(e))
         }
         Ok(())
+    }
+
+    /// This one represents the loop that reads several times
+    pub fn check_avrdude(&mut self) -> Result<(), BrainDeadError> {
+        let check = match Command::new("which")
+                .arg("avrdude")
+                .spawn()
+                .expect("ls command failed to start") {
+                    Ok(v) => {println!("{}", v); Ok(())},
+                    Err(e) => Err(BrainDeadError::AppNotInstalledError),
+                };
+    }
+
+    /// This one represents the loop that reads several times
+    pub fn read_msgs_serial(&mut self) -> Result<(), BrainDeadError> {
+        Err(BrainDeadError::ReadSerialError)
     }
 
     /// We actually need to read Serial,
