@@ -12,6 +12,7 @@ use std::{thread, time};
 use crate::config::Config;
 use crate::log;
 use thiserror::Error;
+
 use tokio_util::codec::{Decoder, Encoder};
 use futures::stream::StreamExt;
 use bytes::BytesMut;
@@ -45,10 +46,15 @@ impl Encoder for LineCodec {
 }
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
-    /// Represents an empty source. For example, an empty text file being given
+    /// It used to represent an empty source. For example, an empty text file being given
     /// as input to `count_words()`.
+    /// Now it's just the most basic I dont care Error
     #[error("Source contains no data")]
     EmptyError,
+
+    /// Represents the most basic error while sending a file (using avrdude)
+    #[error("Something went wrong while using avrdude to send files")]
+    SendFileError,
 
     /// Represents a failure to read from input.
     #[error("Read error")]
@@ -85,7 +91,25 @@ impl Brain<'_> {
         })
     }
 
+    /// Future me: one day new_serial will replace new
+    pub fn new_serial(brain_name: &'static str, config_file: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+        let configdata = Config::new(config_file);
+        let serial_port = match raw_serial_port {
+            Some(port) => port,
+            None => "/dev/tty7",
+        };
+        Ok(Self {
+            name: brain_name,
+            msgfile_in: "none.q", // to be removed
+            msgfile_out: "none.q", // to be removed
+            config: configdata,
+            serialport: serial_port,
+            timeout: 4,
+        })
+    }
+
     // TODO: how to make this a result of string and error?
+    /// aaaah nevermind, we will get rid of this one day
     pub fn bootload(&mut self) -> Result<String, String> {
         // Simulate delay on booting the entity
         log(Some(&self.name), "I", &format!("Booting {}...", self.name));
@@ -96,6 +120,7 @@ impl Brain<'_> {
     }
 
     // Read new data from a File like it's a message queue
+    /// Pffff "like it's a message queue" he says...
     pub fn read_msg(&mut self, timeout: u64) -> Result<String, io::Error> {
         // 3 metadatas:
         // base when we start
@@ -138,6 +163,7 @@ impl Brain<'_> {
     }
 
     // Loop through read_msg and apply related actions
+    /// Now this one here is the first one that might still make it to the final version
     pub fn read_msgs(&mut self) {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
@@ -146,6 +172,7 @@ impl Brain<'_> {
         }
     }
 
+    /// OK this one might be useful too
     pub fn get_actions(&mut self, trigger: &str) {
         log(Some(&self.name), "D", &format!("Received {}", trigger));
         let actions = self.config.get_actions(&trigger);
@@ -202,13 +229,14 @@ impl Brain<'_> {
         Ok(())
     }
 
+    /// We actually need to read Serial,
+    /// names apart, is this one the right one? or is it the next one?
     #[tokio::main]
-    pub async fn sendfileserial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
+    pub async fn readserial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", &format!("Sending file {} through Serial Port {}", filename, self.serialport));
         //Err(BrainDeadError::EmptyError)
-        let tty_path = self.serialport;
         let settings = tokio_serial::SerialPortSettings::default();
-        let mut port = tokio_serial::Serial::from_path(tty_path, &settings).unwrap();
+        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
 
         #[cfg(unix)]
         port.set_exclusive(false)
@@ -221,5 +249,32 @@ impl Brain<'_> {
             println!("{}", line);
         }
         Ok(())
+    }
+
+    /// We actually need to read Serial,
+    /// names apart, is this one the right one? or is it the previous one?
+    #[tokio::main]
+    pub async fn sendfileserial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
+        log(Some(&self.name), "D", &format!("Sending file {} through Serial Port {}", filename, self.serialport));
+        //Err(BrainDeadError::EmptyError)
+        let settings = tokio_serial::SerialPortSettings::default();
+        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
+
+        #[cfg(unix)]
+        port.set_exclusive(false)
+            .expect("Unable to set serial port exclusive to false");
+
+        let mut reader = LineCodec.framed(port);
+
+        while let Some(line_result) = reader.next().await {
+            let line = line_result.expect("Failed to read line");
+            println!("{}", line);
+        }
+        Ok(())
+    }
+
+    /// This one should avrdude to send a given file to the arduino
+    pub fn sendfile_serial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
+        Err(BrainDeadError::SendFileError)
     }
 }

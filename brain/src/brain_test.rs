@@ -108,16 +108,14 @@ mod brain_test {
     /// run this from the raspberry itself with cargo test -- --ignored
     #[test]
     #[ignore]
-    fn sendfileserial() {
-        let mut test = Brain::new("test",
+    fn sendfile() {
+        let mut test = Brain::new_serial("test",
                                   "testfiles/test.cfg.yaml", 
-                                  "testfiles/test_from_mock.q", 
-                                  "testfiles/test_to_mock.q", 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let serial = test.sendfileserial("testfile");
+        let serial = test.sendfile_serial("testfile");
         assert!(serial.is_ok(), "db file should not exist");
     }
 }
