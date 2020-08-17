@@ -28,7 +28,7 @@ pub enum BrainDeadError {
     #[error("A required program is installed (or something went wrong while checking that)")]
     ProgNotInstalledError,
 
-    #[error("AvrDude could not install the program!")]
+    #[error("AvrDude could not install the program to your Arduino!")]
     AvrdudeError,
 
     /// Represents the most basic error while sending a file (using avrdude)
@@ -321,9 +321,8 @@ impl Brain<'_> {
             Ok(v) => {
 	//sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:$HEX_SECS:i 
     /// This sudo cant be right
-                //let status = Command::new("sudo")
-                //        .arg("avrdude")
-                let status = Command::new("avrdude")
+                let status = Command::new("sudo")
+                        .arg("avrdude")
                         .arg("-c")
                         .arg("linuxgpio")
                         .arg("-p")
