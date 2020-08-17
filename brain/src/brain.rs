@@ -321,8 +321,9 @@ impl Brain<'_> {
             Ok(v) => {
 	//sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:$HEX_SECS:i 
     /// This sudo cant be right
-                let status = Command::new("sudo")
-                        .arg("avrdude")
+                //let status = Command::new("sudo")
+                //        .arg("avrdude")
+                let status = Command::new("avrdude")
                         .arg("-c")
                         .arg("linuxgpio")
                         .arg("-p")
