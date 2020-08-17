@@ -17,6 +17,36 @@ use tokio_util::codec::{Decoder, Encoder};
 use futures::stream::StreamExt;
 use bytes::BytesMut;
 
+#[derive(Error, Debug)]
+pub enum BrainDeadError {
+    /// It used to represent an empty source. For example, an empty text file being given
+    /// as input to `count_words()`.
+    /// Now it's just the most basic I dont care Error
+    #[error("Source contains no data")]
+    EmptyError,
+
+    #[error("A required program is installed (or something went wrong while checking that)")]
+    ProgNotInstalledError,
+
+    #[error("AvrDude could not install the program!")]
+    AvrdudeError,
+
+    /// Represents the most basic error while sending a file (using avrdude)
+    #[error("Something went wrong while using avrdude to send files")]
+    SendFileError,
+
+    #[error("Something went wrong while reading from the serial port")]
+    ReadSerialError,
+
+    /// Represents a failure to read from input.
+    #[error("Read error")]
+    ReadError { source: std::io::Error },
+
+    /// Represents all other cases of `std::io::Error`.
+    #[error(transparent)]
+    IOError(#[from] std::io::Error),
+}
+
 struct LineCodec;
 
 impl Decoder for LineCodec {
@@ -43,32 +73,6 @@ impl Encoder for LineCodec {
     fn encode(&mut self, _item: Self::Item, _dst: &mut BytesMut) -> Result<(), Self::Error> {
         Ok(())
     }
-}
-#[derive(Error, Debug)]
-pub enum BrainDeadError {
-    /// It used to represent an empty source. For example, an empty text file being given
-    /// as input to `count_words()`.
-    /// Now it's just the most basic I dont care Error
-    #[error("Source contains no data")]
-    EmptyError,
-
-    #[error("Something went wrong while checking if a program is installed")]
-    AppNotInstalledError,
-
-    /// Represents the most basic error while sending a file (using avrdude)
-    #[error("Something went wrong while using avrdude to send files")]
-    SendFileError,
-
-    #[error("Something went wrong while reading from the serial port")]
-    ReadSerialError,
-
-    /// Represents a failure to read from input.
-    #[error("Read error")]
-    ReadError { source: std::io::Error },
-
-    /// Represents all other cases of `std::io::Error`.
-    #[error(transparent)]
-    IOError(#[from] std::io::Error),
 }
 
 pub struct Brain<'a> {
@@ -236,17 +240,6 @@ impl Brain<'_> {
     }
 
     /// This one represents the loop that reads several times
-    pub fn check_avrdude(&mut self) -> Result<(), BrainDeadError> {
-        let check = match Command::new("which")
-                .arg("avrdude")
-                .spawn()
-                .expect("ls command failed to start") {
-                    Ok(v) => {println!("{}", v); Ok(())},
-                    Err(e) => Err(BrainDeadError::AppNotInstalledError),
-                };
-    }
-
-    /// This one represents the loop that reads several times
     pub fn read_msgs_serial(&mut self) -> Result<(), BrainDeadError> {
         Err(BrainDeadError::ReadSerialError)
     }
@@ -295,8 +288,68 @@ impl Brain<'_> {
         Ok(())
     }
 
+    /// ------------------ REVIEWED v --------------------- ///
+
+    /// This one represents the loop that reads several times
+    pub fn check_installed(&mut self, prog: &str) -> Result<(), BrainDeadError> {
+        let status = Command::new("which")
+                .arg(prog)
+                .status()
+                .expect("");
+        match status.code() {
+            Some(code) => {
+                match code {
+                    0 => return Ok(()),
+                    _ => {
+                        log(Some(&self.name), "E", &format!("{} is not installed!", prog));
+                        return Err(BrainDeadError::ProgNotInstalledError)
+                    },
+                }
+            },
+            _ => {
+                log(Some(&self.name), "E", &format!("{} is not installed!", prog));
+                return Err(BrainDeadError::ProgNotInstalledError)
+                    },
+        };
+        Ok(())
+    }
+
     /// This one should avrdude to send a given file to the arduino
     pub fn sendfile_serial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
-        Err(BrainDeadError::SendFileError)
+        // First check that avrdude is installed
+        let mut check_prog = match self.check_installed("avrdude") {
+            Ok(v) => {
+	//sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:$HEX_SECS:i 
+                let status = Command::new("sudo")
+    /// This sudo cant be right
+                        .arg("avrdude")
+                        .arg("-c")
+                        .arg("linuxgpio")
+                        .arg("-p")
+                        .arg("atmega328p")
+                        .arg("-v")
+                        .arg("-U")
+                        .arg(format!("flash:w:{}:i", filename))
+                        .status()
+                        .expect("");
+                match status.code() {
+                    Some(code) => {
+                        match code {
+                            0 => return Ok(()),
+                            _ => {
+                                log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
+                                return Err(BrainDeadError::AvrdudeError)
+                            },
+                        }
+                    },
+                    _ => {
+                        log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
+                        return Err(BrainDeadError::AvrdudeError)
+                            },
+                    };
+                },
+            Err(e) => return Err(e),
+        };
+        Ok(())
     }
 }

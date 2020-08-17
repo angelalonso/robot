@@ -6,6 +6,19 @@ mod brain_test {
     use super::*;
 
     #[test]
+    fn check_installed() {
+        let mut test = Brain::new_serial("test",
+                                  "testfiles/test.cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let avrdude = test.check_installed("rustc");
+        assert!(avrdude.is_ok(), "avrdude should be installed");
+    }
+
+    /// ------------------ REVIEWED ^ --------------------- ///
+    #[test]
     fn read_msg() {
         // I'll just test an error here
         let mut test = Brain::new("test",
@@ -103,19 +116,6 @@ mod brain_test {
             process::exit(1);
         });
         test.send("Do->Ping");
-    }
-
-    /// run this from the raspberry itself with cargo test -- --ignored
-    #[test]
-    fn check_avrdude() {
-        let mut test = Brain::new_serial("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let avrdude = test.check_avrdude();
-        assert!(avrdude.is_ok(), "avrdude should be installed");
     }
 
     /// run this from the raspberry itself with cargo test -- --ignored
