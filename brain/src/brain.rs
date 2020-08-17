@@ -321,6 +321,7 @@ impl Brain<'_> {
             Ok(v) => {
 	//sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:$HEX_SECS:i 
     /// This sudo cant be right
+    /// TODO: send a different error if the file is not there (unter anderem)
                 let status = Command::new("sudo")
                         .arg("avrdude")
                         .arg("-c")
@@ -331,7 +332,7 @@ impl Brain<'_> {
                         .arg("-U")
                         .arg(format!("flash:w:{}:i", filename))
                         .status()
-                        .expect("");
+                        .expect("process failed to execute");
                 match status.code() {
                     Some(code) => {
                         match code {
