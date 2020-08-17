@@ -320,8 +320,8 @@ impl Brain<'_> {
         let mut check_prog = match self.check_installed("avrdude") {
             Ok(v) => {
 	//sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:$HEX_SECS:i 
-                let status = Command::new("sudo")
     /// This sudo cant be right
+                let status = Command::new("sudo")
                         .arg("avrdude")
                         .arg("-c")
                         .arg("linuxgpio")
