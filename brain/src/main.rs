@@ -10,9 +10,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         process::exit(1);
     });
     // Send the first file that triggers our ping-pong loop of messages to start.
-    main_brain.sendfile_serial("../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex");
+    let mut send_first = main_brain.sendfile_serial("../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex").unwrap_or_else(|err| {
+        eprintln!("Problem sending the first program to the Arduino: {}", err);
+        process::exit(1);
+    });
     // Listening on Bus
-    let _brain_thread = main_brain.read_msgs_serial();
-
+    let mut _brain_thread = main_brain.read_msgs_serial();
     Ok(())
 }
