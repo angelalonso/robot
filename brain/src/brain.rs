@@ -89,7 +89,7 @@ impl Brain<'_> {
         let configdata = Config::new(config_file);
         let serial_port = match raw_serial_port {
             Some(port) => port,
-            None => "/dev/tty7",
+            None => "/dev/ttyUSB0",
         };
         Ok(Self {
             name: brain_name,
@@ -106,7 +106,7 @@ impl Brain<'_> {
         let configdata = Config::new(config_file);
         let serial_port = match raw_serial_port {
             Some(port) => port,
-            None => "/dev/tty7",
+            None => "/dev/ttyUSB0",
         };
         Ok(Self {
             name: brain_name,
