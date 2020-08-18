@@ -239,15 +239,6 @@ impl Brain<'_> {
         Ok(())
     }
 
-    /// This one represents the loop that reads several times
-    pub fn read_msgs_serial(&mut self) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", "Waiting for data...");
-        loop {
-            let results = self.read_msg_serial();
-            //self.get_actions(&results.unwrap());
-        }
-    }
-
     #[tokio::main]
     pub async fn read_msg_serial(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
@@ -377,5 +368,15 @@ impl Brain<'_> {
             Err(e) => return Err(e),
         };
         Ok(())
+    }
+
+    /// This one represents the loop that reads several times
+    pub fn read_msgs_serial(&mut self) -> Result<(), BrainDeadError> {
+        log(Some(&self.name), "D", "Waiting for data...");
+        loop {
+            let results = self.read_msg_serial();
+            println!("RESULT {:?}", results);
+            //self.get_actions(&results.unwrap());
+        }
     }
 }
