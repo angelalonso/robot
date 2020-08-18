@@ -355,8 +355,8 @@ impl Brain<'_> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
             let results = self.read_msg_serial().await;
-            println!("RESULT {:?}", results);
-            //self.get_actions(&results.unwrap());
+            //println!("RESULT {:?}", results);
+            self.get_actions(&results.unwrap());
         }
     }
 
