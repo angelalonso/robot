@@ -239,27 +239,6 @@ impl Brain<'_> {
         Ok(())
     }
 
-    #[tokio::main]
-    pub async fn read_msg_serial(&mut self) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
-        //Err(BrainDeadError::EmptyError)
-        let settings = tokio_serial::SerialPortSettings::default();
-        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
-
-        #[cfg(unix)]
-        port.set_exclusive(false)
-            .expect("Unable to set serial port exclusive to false");
-
-        let mut reader = LineCodec.framed(port);
-
-        while let Some(line_result) = reader.next().await {
-            let line = line_result.expect("Failed to read line");
-            println!("{}", line);
-        }
-        Ok(())
-    }
-
-
     /// We actually need to read Serial,
     /// names apart, is this one the right one? or is it the next one?
     #[tokio::main]
@@ -371,12 +350,33 @@ impl Brain<'_> {
     }
 
     /// This one represents the loop that reads several times
-    pub fn read_msgs_serial(&mut self) -> Result<(), BrainDeadError> {
+    #[tokio::main]
+    pub async fn read_msgs_serial(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
-            let results = self.read_msg_serial();
+            let results = self.read_msg_serial().await;
             println!("RESULT {:?}", results);
             //self.get_actions(&results.unwrap());
         }
+    }
+
+    pub async fn read_msg_serial(&mut self) -> Result<String, BrainDeadError> {
+        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+        //Err(BrainDeadError::EmptyError)
+        let settings = tokio_serial::SerialPortSettings::default();
+        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
+
+        #[cfg(unix)]
+        port.set_exclusive(false)
+            .expect("Unable to set serial port exclusive to false");
+
+        let mut reader = LineCodec.framed(port);
+
+        while let Some(line_result) = reader.next().await {
+            let line = line_result.expect("Failed to read line");
+            //println!("{}", line);
+            return Ok(line.to_string())
+        }
+        Ok("".to_string())
     }
 }
