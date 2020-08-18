@@ -1,4 +1,3 @@
-use std::process;
 use crate::brain::Brain;
 
 #[cfg(test)]
@@ -6,16 +5,81 @@ mod brain_test {
     use super::*;
 
     #[test]
-    fn check_installed() {
+    fn check_avrdude() {
         let mut test = Brain::new_serial("test",
                                   "testfiles/test.cfg.yaml", 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let avrdude = test.check_installed("rustc");
+        let avrdude = test.check_requirement("rustc");
         assert!(avrdude.is_ok(), "avrdude should be installed");
     }
+
+    #[test]
+    fn check_install_to_arduino () {
+        let mut test = Brain::new_serial("test",
+                                  "testfiles/test.cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let installation = test.install_to_arduino("../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex");
+        assert!(installation == "OK");
+
+    }
+
+    #[test]
+    fn check_install_to_arduino_nofile () {
+        let mut test = Brain::new_serial("test",
+                                  "testfiles/test.cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let installation = test.install_to_arduino("file_not_existing.ino.hex");
+        assert!(installation == "ERROR: File does not exist");
+
+        }
+
+
+    #[test]
+    fn check_install_to_arduino_noconnection () {
+
+        }
+
+
+    #[test]
+    fn check_install_to_arduino_blockedpin () {
+
+        }
+
+
+    #[test]
+    fn check_install_to_arduino_permissiondenied () {
+
+        }
+
+
+    #[test]
+    fn check_read_one_from_arduino () {
+
+        }
+
+
+    #[test]
+    fn check_read_one_from_arduino_noconnection () {
+
+        }
+
+
+    #[test]
+        fn check_read_one_from_arduino_permissiondenied () {
+
+        }
+
+    // #[test]
+    // fn check_read_loop_from_arduino?
 
     /// ------------------ REVIEWED ^ --------------------- ///
     #[test]
@@ -128,7 +192,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let serial = test.sendfile_serial("testfile");
+        let serial = test.install_to_arduino("testfile");
         assert!(serial.is_ok(), "db file should not exist");
     }
 
@@ -142,7 +206,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let serial = test.read_msgs_serial();
+        let serial = test.read_loop_from_arduino();
         assert!(serial.is_ok(), "db file should not exist");
     }
 }

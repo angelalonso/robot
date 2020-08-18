@@ -286,7 +286,7 @@ impl Brain<'_> {
     /// ------------------ REVIEWED v --------------------- ///
 
     /// This one represents the loop that reads several times
-    pub fn check_installed(&mut self, prog: &str) -> Result<(), BrainDeadError> {
+    pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
         let status = Command::new("which")
                 .arg(prog)
                 .status()
@@ -294,29 +294,28 @@ impl Brain<'_> {
         match status.code() {
             Some(code) => {
                 match code {
-                    0 => return Ok(()),
+                    0 => Ok(()),
                     _ => {
                         log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                        return Err(BrainDeadError::ProgNotInstalledError)
+                        Err(BrainDeadError::ProgNotInstalledError)
                     },
                 }
             },
             _ => {
                 log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                return Err(BrainDeadError::ProgNotInstalledError)
+                Err(BrainDeadError::ProgNotInstalledError)
                     },
-        };
-        Ok(())
+        }
     }
 
     /// This one should avrdude to send a given file to the arduino
-    pub fn sendfile_serial(&mut self, filename: &str) -> Result<(), BrainDeadError> {
+    pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
         // First check that avrdude is installed
-        let mut check_prog = match self.check_installed("avrdude") {
-            Ok(v) => {
+        let mut _check_prog = match self.check_requirement("avrdude") {
+            Ok(_v) => {
 	//sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:$HEX_SECS:i 
-    /// This sudo cant be right
-    /// TODO: send a different error if the file is not there (unter anderem)
+    // This sudo cant be right
+    // TODO: send a different error if the file is not there (unter anderem)
                 let status = Command::new("sudo")
                         .arg("avrdude")
                         .arg("-c")
@@ -351,16 +350,16 @@ impl Brain<'_> {
 
     /// This one represents the loop that reads several times
     #[tokio::main]
-    pub async fn read_msgs_serial(&mut self) -> Result<(), BrainDeadError> {
+    pub async fn read_loop_from_arduino(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
-            let results = self.read_msg_serial().await;
+            let results = self.read_one_from_arduino().await;
             //println!("RESULT {:?}", results);
             self.get_actions(&results.unwrap());
         }
     }
 
-    pub async fn read_msg_serial(&mut self) -> Result<String, BrainDeadError> {
+    pub async fn read_one_from_arduino(&mut self) -> Result<String, BrainDeadError> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         //Err(BrainDeadError::EmptyError)
         let settings = tokio_serial::SerialPortSettings::default();
@@ -372,10 +371,10 @@ impl Brain<'_> {
 
         let mut reader = LineCodec.framed(port);
 
-        while let Some(line_result) = reader.next().await {
+        #[allow(clippy::never_loop)] while let Some(line_result) = reader.next().await {
             let line = line_result.expect("Failed to read line");
             //println!("{}", line);
-            return Ok(line.to_string())
+            return Ok(line)
         }
         Ok("".to_string())
     }
