@@ -12,7 +12,6 @@ void loop() {
     delay(50);                       // wait for half a second
     digitalWrite(LED_BUILTIN, LOW);    // turn the LED off 
     delay(950);                       // wait for half a second
-    Serial.println("not yet pong,");
     Serial.println(j, DEC);
   }
   Serial.println("pong");
