@@ -385,6 +385,7 @@ impl Brain<'_> {
     /// -----------------------------------------------------------
     ///
     /// This one represents the loop that reads several times
+    #[tokio::main]
     pub async fn read_loop(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
