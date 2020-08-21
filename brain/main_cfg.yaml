@@ -1,10 +1,7 @@
 ---
-- trigger: "Start\n"
+- trigger: "ping\n"
   actions:
-    - sendfileserial_first_prog
-- trigger: "Ping\n"
+    - sendfileserial_../tests/001_test_pong/001_test_pong.ino.hex
+- trigger: "pong\n"
   actions:
-    - send_Pong_Pung
-- trigger: "Pong_Pung\n"
-  actions:
-    - send_Ping
+    - sendfileserial_../tests/001_test_ping/001_test_ping.ino.hex
