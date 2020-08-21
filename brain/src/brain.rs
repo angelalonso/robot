@@ -380,4 +380,37 @@ impl Brain<'_> {
         }
         Ok("".to_string())
     }
+
+    /// testing
+    /// -----------------------------------------------------------
+    ///
+    /// This one represents the loop that reads several times
+    pub async fn read_loop(&mut self) -> Result<(), BrainDeadError> {
+        log(Some(&self.name), "D", "Waiting for data...");
+        loop {
+            let results = self.read_one_from_arduino().await;
+            //println!("RECEIVED {:?}", results);
+            self.get_actions(&results.unwrap());
+        }
+    }
+
+    pub async fn read_one(&mut self) -> Result<String, BrainDeadError> {
+        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+        //Err(BrainDeadError::EmptyError)
+        let settings = tokio_serial::SerialPortSettings::default();
+        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
+
+        #[cfg(unix)]
+        port.set_exclusive(false)
+            .expect("Unable to set serial port exclusive to false");
+
+        let mut reader = LineCodec.framed(port);
+
+        #[allow(clippy::never_loop)] while let Some(line_result) = reader.next().await {
+            let line = line_result.expect("Failed to read line");
+            //println!("{}", line);
+            return Ok(line)
+        }
+        Ok("".to_string())
+    }
 }

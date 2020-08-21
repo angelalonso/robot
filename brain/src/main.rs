@@ -17,6 +17,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         process::exit(1);
     });
     // Listening on Bus
-    let mut _brain_thread = main_brain.read_loop_from_arduino();
+    let mut _brain_thread = main_brain.read_loop();
     Ok(())
 }
