@@ -1,3 +1,4 @@
+use std::process;
 use crate::brain::Brain;
 
 #[cfg(test)]
@@ -17,6 +18,7 @@ mod brain_test {
     }
 
     #[test]
+    #[ignore]
     fn check_install_to_arduino () {
         let mut test = Brain::new_serial("test",
                                   "testfiles/test.cfg.yaml", 
@@ -25,11 +27,12 @@ mod brain_test {
             process::exit(1);
         });
         let installation = test.install_to_arduino("../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex");
-        assert!(installation == "OK");
+        assert!(installation.unwrap() == ());
 
     }
 
     #[test]
+    #[ignore]
     fn check_install_to_arduino_nofile () {
         let mut test = Brain::new_serial("test",
                                   "testfiles/test.cfg.yaml", 
@@ -38,7 +41,7 @@ mod brain_test {
             process::exit(1);
         });
         let installation = test.install_to_arduino("file_not_existing.ino.hex");
-        assert!(installation == "ERROR: File does not exist");
+        assert!(installation.unwrap() == ());
 
         }
 

@@ -1,6 +1,6 @@
 use std::error::Error;
 use brain::brain::Brain;
-use std::thread;
+//use std::thread;
 use std::process;
 
 fn main() -> Result<(), Box<dyn Error>> {

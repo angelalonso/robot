@@ -1,3 +1,7 @@
+// TODO:
+// test on raspberry
+// make apply_actions and send work (or remove them)
+// fill up the other tests, including proper Error messages or types
 use std::process::Command;
 use rand::Rng;
 use std::fs::File;
@@ -313,7 +317,6 @@ impl Brain<'_> {
         // First check that avrdude is installed
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
-	//sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:$HEX_SECS:i 
     // This sudo cant be right
     // TODO: send a different error if the file is not there (unter anderem)
                 let status = Command::new("sudo")
@@ -345,7 +348,6 @@ impl Brain<'_> {
                 },
             Err(e) => return Err(e),
         };
-        Ok(())
     }
 
     /// This one represents the loop that reads several times
