@@ -155,7 +155,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        test.apply_actions(Vec::from(["send_ping".to_string()]));
+        test.apply_actions(Vec::from(["sendfile_../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex".to_string()]));
     }
 
     #[test]
