@@ -216,7 +216,7 @@ impl Brain<'_> {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "send" => self.send(&action_vec[1..].to_vec().join("_")),
-                "sendfileserial" => self.sendfileserial(&action_vec[1..].to_vec().join("_")),
+                "sendfileserial" => self.install_to_arduino(&action_vec[1..].to_vec().join("_")),
                 _ => self.do_nothing(),
             };
         }
