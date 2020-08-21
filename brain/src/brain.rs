@@ -356,7 +356,7 @@ impl Brain<'_> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
             let results = self.read_one_from_arduino().await;
-            println!("RECEIVED {:?}", results);
+            //println!("RECEIVED {:?}", results);
             self.get_actions(&results.unwrap());
         }
     }
