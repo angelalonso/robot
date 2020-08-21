@@ -15,6 +15,7 @@ void loop() {
     digitalWrite(LED_BUILTIN, LOW);    // turn the LED off 
     delay(950);                       // wait for half a second
     Serial.println("not yet pong,");
+    Serial.println(count);
     count = count-1;
   }
   Serial.println("pong");
