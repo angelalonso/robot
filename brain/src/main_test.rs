@@ -5,7 +5,7 @@ use std::process;
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Generate our Brain object
-    let mut main_brain = Brain::new("Main Brain", "main_cfg.yaml", "from_mockduino.q", "to_mockduino.q", None).unwrap_or_else(|err| {
+    let mut main_brain = Brain::new("Main Brain", "testfiles/cfg.yaml", "from_mockduino.q", "to_mockduino.q", None).unwrap_or_else(|err| {
         eprintln!("Problem Initializing Main Brain: {}", err);
         process::exit(1);
     });

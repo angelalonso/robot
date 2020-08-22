@@ -159,6 +159,7 @@ mod brain_test {
     }
 
     #[test]
+    #[ignore]
     fn send() {
         let mut test = Brain::new("test",
                                   "testfiles/test.cfg.yaml", 
