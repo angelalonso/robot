@@ -6,6 +6,27 @@ mod brain_test {
     use super::*;
 
     #[test]
+    #[ignore]
+    fn check_read_one_from_arduino () {
+
+    }
+
+    #[test]
+    #[ignore]
+    fn check_read_one_from_arduino_noconnection () {
+
+    }
+
+    #[test]
+    #[ignore]
+    fn check_read_one_from_arduino_permissiondenied () {
+
+    }
+
+    // #[test]
+    // fn check_read_loop_from_arduino?
+
+    #[test]
     fn check_avrdude() {
         let mut test = Brain::new_serial("test",
                                   "testfiles/test.cfg.yaml", 
@@ -63,26 +84,6 @@ mod brain_test {
 
         }
 
-
-    #[test]
-    fn check_read_one_from_arduino () {
-
-        }
-
-
-    #[test]
-    fn check_read_one_from_arduino_noconnection () {
-
-        }
-
-
-    #[test]
-        fn check_read_one_from_arduino_permissiondenied () {
-
-        }
-
-    // #[test]
-    // fn check_read_loop_from_arduino?
 
     /// ------------------ REVIEWED ^ --------------------- ///
     #[test]

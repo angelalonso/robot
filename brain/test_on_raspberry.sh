@@ -9,4 +9,8 @@ git commit -m "ready to test"
 git push origin ${DEV_BRANCH}
 
 
-${SSH_COMM} "cd robot/brain; pwd; git checkout ${DEV_BRANCH} && git pull && ${CARGO} test -- --ignored"
+${SSH_COMM} "cd robot/brain; pwd; git checkout ${DEV_BRANCH} && git pull && \
+  ${CARGO} clippy && \
+  ${CARGO} tarpaulin -v && \
+  ${CARGO} test -- --ignored
+  "
