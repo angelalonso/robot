@@ -1,34 +1,19 @@
-// TODO: remove dependencies that are now commented (22.08.2020)
-use crate::config::Config;
-//use crate::comm::Comm;
 use crate::log;
-//use rand::Rng;
-//use std::fs::File;
-//use std::fs::OpenOptions;
-//use std::fs;
-//use std::io::SeekFrom;
-//use std::io::prelude::*;
-use std::io;
 use std::process::Command;
-use std::str;
-//use std::time::Instant;
-//use std::{thread, time};
 use thiserror::Error;
-
+use std::io;
 use tokio_util::codec::{Decoder, Encoder};
 use futures::stream::StreamExt;
 use bytes::BytesMut;
+use std::str;
 
 #[derive(Error, Debug)]
-pub enum BrainDeadError {
+pub enum BrainCommError {
     /// It used to represent an empty source. For example, an empty text file being given
     /// as input to `count_words()`.
     /// Now it's just the most basic I dont care Error
     #[error("Source contains no data")]
     EmptyError,
-
-    #[error("Config contains no related entries")]
-    NoConfigFound,
 
     #[error("A required program is installed (or something went wrong while checking that)")]
     ProgNotInstalledError,
@@ -80,31 +65,26 @@ impl Encoder for LineCodec {
     }
 }
 
-pub struct Brain<'a> {
+pub struct Comm<'a> {
     pub name: &'a str,
-    pub config: Config,
     pub serialport: &'a str,
-    pub timeout: u64,
 }
 
-impl Brain<'_> {
-    pub fn new(brain_name: &'static str, config_file: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
-        let configdata = Config::new(config_file);
+impl Comm<'_> {
+    pub fn new(comm_name: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         let serial_port = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
         Ok(Self {
-            name: brain_name,
-            config: configdata,
+            name: comm_name,
             serialport: serial_port,
-            timeout: 4,
         })
     }
 
     /// This is the loop that keeps calling to read from serial
     #[tokio::main]
-    pub async fn read_loop(&mut self) -> Result<(), BrainDeadError> {
+    pub async fn read_loop(&mut self) -> Result<(), BrainCommError> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
             let results = self.read_one_from_serialport().await;
@@ -121,9 +101,9 @@ impl Brain<'_> {
     // TODO: sort out that we only receive the first thing from Serial
     //  - shall we use join thread somewhere?
     //  - Shall we force it to read several times?
-    pub async fn read_one_from_serialport(&mut self) -> Result<String, BrainDeadError> {
+    pub async fn read_one_from_serialport(&mut self) -> Result<String, BrainCommError> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
-        //Err(BrainDeadError::EmptyError)
+        //Err(BrainCommError::EmptyError)
         let settings = tokio_serial::SerialPortSettings::default();
         let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
 
@@ -141,43 +121,8 @@ impl Brain<'_> {
         Ok("".to_string())
     }
 
-    /// Get the action that relates to the trigger received and call to apply it
-    /// Hm...maybe this one and apply_actions should go together?
-    pub fn get_actions(&mut self, trigger: &str) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", &format!("Received {}", trigger));
-        let actions = self.config.get_actions(&trigger);
-        match actions {
-            Ok(acts) => {
-                match acts {
-                    Some(a) => {
-                        self.apply_actions(a).unwrap();
-                        return Ok(())
-                    },
-                    None => {
-                        log(Some(&self.name), "D", "Nothing to do");
-                        return Err(BrainDeadError::NoConfigFound)
-                    },
-                };
-            },
-            Err(_e) => return Err(BrainDeadError::NoConfigFound),
-        };
-    }
-
-    /// Call the action needed
-    /// , which, right now, is just installing a new hex into the arduino
-    pub fn apply_actions(&mut self, actions: Vec<String>) -> Result<(), BrainDeadError> {
-        for action in &actions {
-            let action_vec: Vec<&str> = action.split('_').collect();
-            match action_vec[0] {
-                "sendfileserial" => self.install_to_arduino(&action_vec[1..].to_vec().join("_")).unwrap(),
-                _ => self.do_nothing().unwrap(),
-            };
-        }
-        Ok(())
-    }
-
     /// This one should avrdude to send a given file to the arduino
-    pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
+    pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainCommError> {
         // First check that avrdude is installed
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
@@ -200,13 +145,13 @@ impl Brain<'_> {
                             0 => return Ok(()),
                             _ => {
                                 log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
-                                return Err(BrainDeadError::AvrdudeError)
+                                return Err(BrainCommError::AvrdudeError)
                             },
                         }
                     },
                     _ => {
                         log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
-                        return Err(BrainDeadError::AvrdudeError)
+                        return Err(BrainCommError::AvrdudeError)
                             },
                     };
                 },
@@ -214,14 +159,8 @@ impl Brain<'_> {
         };
     }
 
-    /// Do nothing, but take note that we have nothing to do
-    pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", "Relaxing here...");
-        Ok(())
-    }
-
     /// Check that a given program is installed
-    pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
+    pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainCommError> {
         let status = Command::new("which")
                 .arg(prog)
                 .status()
@@ -232,15 +171,14 @@ impl Brain<'_> {
                     0 => Ok(()),
                     _ => {
                         log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                        Err(BrainDeadError::ProgNotInstalledError)
+                        Err(BrainCommError::ProgNotInstalledError)
                     },
                 }
             },
             _ => {
                 log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                Err(BrainDeadError::ProgNotInstalledError)
+                Err(BrainCommError::ProgNotInstalledError)
                     },
         }
     }
-
 }

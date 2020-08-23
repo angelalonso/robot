@@ -1,11 +1,11 @@
 use std::error::Error;
 use brain::brain::Brain;
-//use std::thread;
 use std::process;
 
+/// We need to load a new brain, install the first trigger to arduino, and enter the reading loop
 fn main() -> Result<(), Box<dyn Error>> {
     // Generate our Brain object
-    let mut main_brain = Brain::new_serial("Main Brain", "cfg.yaml", None).unwrap_or_else(|err| {
+    let mut main_brain = Brain::new("Main Brain", "cfg.yaml", None).unwrap_or_else(|err| {
         eprintln!("Problem Initializing Main Brain: {}", err);
         process::exit(1);
     });
