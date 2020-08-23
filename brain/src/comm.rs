@@ -15,7 +15,7 @@ pub enum BrainCommError {
     #[error("Source contains no data")]
     EmptyError,
 
-    #[error("A required program is installed (or something went wrong while checking that)")]
+    #[error("A required program is NOT installed (or something went wrong while checking that)")]
     ProgNotInstalledError,
 
     #[error("AvrDude could not install the program to your Arduino!")]
