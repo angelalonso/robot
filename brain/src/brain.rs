@@ -151,15 +151,15 @@ impl Brain<'_> {
                 match acts {
                     Some(a) => {
                         self.apply_actions(a).unwrap();
-                        return Ok(())
+                        Ok(())
                     },
                     None => {
                         log(Some(&self.name), "D", "Nothing to do");
-                        return Err(BrainDeadError::NoConfigFound)
+                        Err(BrainDeadError::NoConfigFound)
                     },
                 };
             },
-            Err(_e) => return Err(BrainDeadError::NoConfigFound),
+            Err(_e) => Err(BrainDeadError::NoConfigFound),
         };
     }
 
