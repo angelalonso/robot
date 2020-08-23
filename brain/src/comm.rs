@@ -15,8 +15,8 @@ pub enum BrainCommError {
     #[error("Source contains no data")]
     EmptyError,
 
-    #[error("A required program is NOT installed (or something went wrong while checking that)")]
-    ProgNotInstalledError,
+    #[error("{0} is NOT installed (or something went wrong while checking that it is)")]
+    ProgNotInstalledError(String),
 
     #[error("AvrDude could not install the program to your Arduino!")]
     AvrdudeError,
@@ -171,13 +171,13 @@ impl Comm<'_> {
                     0 => Ok(()),
                     _ => {
                         log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                        Err(BrainCommError::ProgNotInstalledError)
+                        Err(BrainCommError::ProgNotInstalledError(prog.to_string()))
                     },
                 }
             },
             _ => {
                 log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                Err(BrainCommError::ProgNotInstalledError)
+                Err(BrainCommError::ProgNotInstalledError(prog.to_string()))
                     },
         }
     }
