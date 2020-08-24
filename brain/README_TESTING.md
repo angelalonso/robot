@@ -2,6 +2,7 @@
 - Raspberry pi:  
   - Installed
   - Rust, Cargo installed (TODO: document how)
+  - apt-get install libssl-dev
   - cargo install cargo-tarpaulin
 
 - Arduino
