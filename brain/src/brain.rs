@@ -158,9 +158,10 @@ impl Brain<'_> {
                         Err(BrainDeadError::NoConfigFound)
                     },
                 };
+                Ok(())
             },
             Err(_e) => Err(BrainDeadError::NoConfigFound),
-        };
+        }
     }
 
     /// Call the action needed
