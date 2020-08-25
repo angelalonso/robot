@@ -10,7 +10,7 @@ git push origin ${DEV_BRANCH}
 
 
 ${SSH_COMM} "cd robot/brain; pwd; git checkout ${DEV_BRANCH} && git pull && \
+  ${CARGO} clippy && \
   ${CARGO} test -- --ignored
   "
-#  ${CARGO} clippy && \
 #  ${CARGO} tarpaulin -v && \
