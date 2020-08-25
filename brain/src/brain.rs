@@ -157,8 +157,7 @@ impl Brain<'_> {
                         log(Some(&self.name), "D", "Nothing to do");
                         Err(BrainDeadError::NoConfigFound)
                     },
-                };
-                Ok(())
+                }
             },
             Err(_e) => Err(BrainDeadError::NoConfigFound),
         }
