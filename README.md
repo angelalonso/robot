@@ -12,6 +12,9 @@ Resources to build a home robot.
 
 Under development
 
+# PHASE 0: Install and prepare OS on Raspberry
+check [RASPBERRY.md](RASPBERRY.md)
+
 # PHASE 1: Connect Raspberry to Arduino
 ## GPIO Map for Raspberry pi 1 REV2 Model B 
 
@@ -79,45 +82,4 @@ TBD
 4 -> 23  
 5 -> 6  
 6 -> 7  
-
-# PHASE 2: install and configure avrdude on Raspberry
-sudo apt-get update  
-sudo apt-get install vim git pkg-config libudev1 libudev-dev # these are not needed for avrdude but we'll need them later on
-sudo apt-get install bison flex -y  
-wget http://download.savannah.gnu.org/releases/avrdude/avrdude-6.2.tar.gz  
-tar xfv avrdude-6.2.tar.gz  
-cd avrdude-6.2/  
-./configure --enable-linuxgpio  
-make  
-sudo make install  
-sudo vim /usr/local/etc/avrdude.conf  
-  
-```programmer  
-  id    = "linuxgpio";  
-  desc  = "Use the Linux sysfs interface to bitbang GPIO lines";  
-  type  = "linuxgpio";  
-  reset = 4;  
-  sck   = 11;  
-  mosi  = 10;  
-  miso  = 9;  
-;  
-```
-  
-sudo avrdude -c linuxgpio -p atmega328p -v  
-
-## test an installation of an actual program
-sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:arduino/001_test_pong/001_test_pong.ino.hex:i
-
-# PHASE 3: prepare Raspberry to run rust
-export RUSTUP_UNPACK_RAM=200000000  # For Raspberry pi 1 REV2 Model B
-export RUSTUP_UNPACK_RAM=220000000  # For Raspberry pi 1 B+
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
-
-# PHASE 4: clone this repo
-git clone https://github.com/angelalonso/robot
-
-# ISSUES
-- Will it run Rust?
-- How to bring down deployment time?
-- How to bring down loading files intos arduino?
 
