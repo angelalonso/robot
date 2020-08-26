@@ -243,4 +243,19 @@ impl Brain<'_> {
         }
     }
 
+    /// This is the loop that keeps calling to read from serial
+    #[tokio::main]
+    pub async fn new_read_loop(&mut self) -> Result<(), BrainDeadError> {
+        log(Some(&self.name), "D", "Waiting for data...");
+        loop {
+            let results = self.read_one_from_serialport().await;
+            //println!("RECEIVED {:?}", results);
+            //TODO: does the following break working code?
+            let _taken_actions = match self.get_actions(&results.unwrap()){
+                Ok(_) => (),
+                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+            };
+        }
+    }
+
 }

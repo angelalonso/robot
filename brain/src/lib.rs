@@ -2,7 +2,7 @@ pub mod config;
 pub mod config_test;
 pub mod brain;
 pub mod brain_test;
-//pub mod comm;
+pub mod comm;
 
 extern crate chrono;
 use chrono::offset::Utc;
