@@ -5,7 +5,7 @@ mod config_tests {
     #[test]
     fn get_actions() {
         let mut test = Config::new("testfiles/cfg.yaml");
-        let getting_actions = test.get_actions("ping\r\n");
+        let getting_actions = test.get_actions("ping");
         assert!(getting_actions.is_ok(), "getting actions for existing trigger did not go well");
     } 
 

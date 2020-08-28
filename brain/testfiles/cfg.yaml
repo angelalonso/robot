@@ -1,7 +1,7 @@
 ---
-- trigger: "ping\r\n"
+- trigger: "ping"
   actions:
     - sendfileserial_../arduino/001_test_pong/001_test_pong.ino.hex
-- trigger: "pong\r\n"
+- trigger: "pong"
   actions:
     - sendfileserial_../arduino/001_test_ping/001_test_ping.ino.hex
