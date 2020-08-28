@@ -47,7 +47,11 @@ impl Config {
     /// , which we normalize here.
     /// Also: we return a BrainConfigError if there's no related actions for now...
     pub fn get_actions(&mut self, raw_trigger: &str) -> Result<Option<Vec<String>>, BrainConfigError> {
-        let configentry = raw_trigger.to_lowercase();
+        let configentry = raw_trigger.to_lowercase()
+            .replace("\\r", "")
+            .replace("\r", "")
+            .replace("\\n", "")
+            .replace("\n", "");
         let entry = self.entries.iter()
             .find(|&x| x.trigger.to_lowercase() == configentry);
         match entry {

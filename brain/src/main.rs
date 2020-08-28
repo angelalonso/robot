@@ -16,5 +16,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
     // Listening on Bus
     let mut _brain_thread = main_brain.read_loop();
+    //main_brain.read();
     Ok(())
 }

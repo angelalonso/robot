@@ -1,6 +1,6 @@
 // TODO: remove dependencies that are now commented (22.08.2020)
 use crate::config::Config;
-//use crate::comm::Comm;
+use crate::comm::Comm;
 use crate::log;
 //use rand::Rng;
 //use std::fs::File;
@@ -18,6 +18,11 @@ use thiserror::Error;
 use tokio_util::codec::{Decoder, Encoder};
 use futures::stream::StreamExt;
 use bytes::BytesMut;
+
+use std::sync::mpsc::TryRecvError;
+//use std::sync::mpsc;
+use std::{thread, time};
+use std::process;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -258,4 +263,54 @@ impl Brain<'_> {
         }
     }
 
+    /// ---------------------------------------------- ///
+    pub fn read(&mut self) {
+        let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Comm: {}", err);
+            process::exit(1);
+        });
+        let stdin_channel = comm.read_channel();
+            loop {
+                match stdin_channel.try_recv() {
+                    Ok(trigger) => {
+                        let _taken_actions = match self.do_actions(&trigger){
+                            Ok(_) => (),
+                            Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+                        };
+
+                    },
+                    Err(TryRecvError::Empty) => (),
+                    Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
+                }
+                self.sleep(100);
+            }
+    }
+
+    fn sleep(&mut self, millis: u64) {
+        let duration = time::Duration::from_millis(millis);
+        thread::sleep(duration);
+    }
+
+    pub fn do_actions(&mut self, trigger: &str) -> Result<(), BrainDeadError> {
+        log(Some(&self.name), "D", &format!("Received {}", trigger));
+        let actions = self.config.get_actions(&trigger);
+        match actions {
+            Ok(acts) => {
+                match acts {
+                    Some(a) => {
+                        self.apply_actions(a).unwrap();
+                        Ok(())
+                    },
+                    None => {
+                        log(Some(&self.name), "D", "Nothing to do");
+                        Err(BrainDeadError::NoConfigFound)
+                    },
+                }
+            },
+            Err(_e) => {
+                log(Some(&self.name), "D", "Got an error while looking for actions");
+                Err(BrainDeadError::NoConfigFound)
+            },
+        }
+    }
 }

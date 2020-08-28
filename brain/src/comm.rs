@@ -7,6 +7,10 @@ use futures::stream::StreamExt;
 use bytes::BytesMut;
 use std::str;
 
+use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc;
+use std::thread;
+
 #[derive(Error, Debug)]
 pub enum BrainCommError {
     /// It used to represent an empty source. For example, an empty text file being given
@@ -82,20 +86,20 @@ impl Comm<'_> {
         })
     }
 
-    /// This is the loop that keeps calling to read from serial
-    #[tokio::main]
-    pub async fn read_loop(&mut self) -> Result<(), BrainCommError> {
-        log(Some(&self.name), "D", "Waiting for data...");
-        loop {
-            let results = self.read_one_from_serialport().await;
-            //println!("RECEIVED {:?}", results);
-            //TODO: does the following break working code?
-            let _taken_actions = match self.get_actions(&results.unwrap()){
-                Ok(_) => (),
-                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-            };
-        }
-    }
+    ///// This is the loop that keeps calling to read from serial
+    //#[tokio::main]
+    //pub async fn read_loop(&mut self) -> Result<(), BrainCommError> {
+    //    log(Some(&self.name), "D", "Waiting for data...");
+    //    loop {
+    //        let results = self.read_one_from_serialport().await;
+    //        //println!("RECEIVED {:?}", results);
+    //        //TODO: does the following break working code?
+    //        let _taken_actions = match self.get_actions(&results.unwrap()){
+    //            Ok(_) => (),
+    //            Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+    //        };
+    //    }
+    //}
 
     /// Read one text from the serial port "give me one text"
     // TODO: sort out that we only receive the first thing from Serial
@@ -181,4 +185,17 @@ impl Comm<'_> {
                     },
         }
     }
+
+    /// --------------------------------------------------
+    pub fn read_channel(&mut self) -> Receiver<String> {
+        let (tx, rx) = mpsc::channel::<String>();
+        thread::spawn(move || loop {
+            let mut buffer = String::new();
+            io::stdin().read_line(&mut buffer).unwrap();
+            tx.send(buffer).unwrap();
+        });
+        rx
+    }
+
+
 }
