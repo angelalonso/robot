@@ -110,7 +110,7 @@ impl Brain<'_> {
 
     /// This is the loop that keeps calling to read from serial
     #[tokio::main]
-    pub async fn read_loop(&mut self) -> Result<(), BrainDeadError> {
+    pub async fn read(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Waiting for data...");
         loop {
             let results = self.read_one_from_serialport().await;
@@ -250,7 +250,7 @@ impl Brain<'_> {
     }
 
     /// ---------------------------------------------- ///
-    pub fn read(&mut self) {
+    pub fn read_new(&mut self) {
         let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Comm: {}", err);
             process::exit(1);
