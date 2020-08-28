@@ -23,6 +23,7 @@ use std::sync::mpsc::TryRecvError;
 //use std::sync::mpsc;
 use std::{thread, time};
 use std::process;
+use std::sync::mpsc::Receiver;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -248,42 +249,35 @@ impl Brain<'_> {
         }
     }
 
-    /// This is the loop that keeps calling to read from serial
-    #[tokio::main]
-    pub async fn new_read_loop(&mut self) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", "Waiting for data...");
-        loop {
-            let results = self.read_one_from_serialport().await;
-            //println!("RECEIVED {:?}", results);
-            //TODO: does the following break working code?
-            let _taken_actions = match self.get_actions(&results.unwrap()){
-                Ok(_) => (),
-                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-            };
-        }
-    }
-
     /// ---------------------------------------------- ///
     pub fn read(&mut self) {
         let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Comm: {}", err);
             process::exit(1);
         });
-        let stdin_channel = comm.read_channel();
-            loop {
-                match stdin_channel.try_recv() {
-                    Ok(trigger) => {
-                        let _taken_actions = match self.do_actions(&trigger){
-                            Ok(_) => (),
-                            Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-                        };
+        let _stdin_channel: std::result::Result<Receiver<String>, BrainDeadError> = match comm.read_channel() {
+            Ok(chan) => {
+                loop {
+                    match chan.try_recv() {
+                        Ok(trigger) => {
+                            let _taken_actions = match self.do_actions(&trigger){
+                                Ok(_) => (),
+                                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+                            };
 
-                    },
-                    Err(TryRecvError::Empty) => (),
-                    Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
+                        },
+                        Err(TryRecvError::Empty) => (),
+                        Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
+                    }
+                    self.sleep(100);
                 }
-                self.sleep(100);
-            }
+            },
+            Err(_) => {
+                    log(Some(&self.name), "E", &format!("Error on Brain Read"));
+                    Err(BrainDeadError::ReadSerialError)
+                },
+
+        };
     }
 
     fn sleep(&mut self, millis: u64) {

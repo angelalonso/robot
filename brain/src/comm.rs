@@ -7,9 +7,10 @@ use futures::stream::StreamExt;
 use bytes::BytesMut;
 use std::str;
 
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::Receiver;
 use std::sync::mpsc;
 use std::thread;
+use futures::executor;
 
 #[derive(Error, Debug)]
 pub enum BrainCommError {
@@ -186,8 +187,8 @@ impl Comm<'_> {
         }
     }
 
-    /// --------------------------------------------------
-    pub fn read_channel(&mut self) -> Receiver<String> {
+    /// --------------------------- TO BE DELETED
+    pub fn read_channel_stdio(&mut self) -> Receiver<String> {
         let (tx, rx) = mpsc::channel::<String>();
         thread::spawn(move || loop {
             let mut buffer = String::new();
@@ -196,6 +197,43 @@ impl Comm<'_> {
         });
         rx
     }
+    /// --------------------------------------------------
+    #[tokio::main]
+    pub async fn read_one_from_serial(&mut self) -> Result<String, BrainCommError> {
+        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+        //Err(BrainDeadError::EmptyError)
+        let settings = tokio_serial::SerialPortSettings::default();
+        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
 
+        #[cfg(unix)]
+        port.set_exclusive(false)
+            .expect("Unable to set serial port exclusive to false");
+
+        let mut reader = LineCodec.framed(port);
+
+        #[allow(clippy::never_loop)] while let Some(line_result) = reader.next().await {
+            let line = line_result.expect("Failed to read line");
+            return Ok(line)
+        }
+        Ok("".to_string())
+    }
+
+    pub fn read_channel(&mut self) -> Result<Receiver<String>, BrainCommError>  {
+        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+        let (tx, rx) = mpsc::channel::<String>();
+        let _results = match executor::block_on(self.read_one_from_serialport()){
+            Ok(res) => {
+                tx.send(res).unwrap();
+                Ok(rx)
+            },
+            Err(_) => {
+                log(Some(&self.name), "E", &format!("Reading from Serial Port failed!"));
+                Err(BrainCommError::ReadSerialError)
+            },
+        };
+        // TODO this cannot be right
+        let (_tx, rx) = mpsc::channel::<String>();
+        Ok(rx)
+    }
 
 }
