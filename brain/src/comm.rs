@@ -3,6 +3,7 @@ use std::process::Command;
 use thiserror::Error;
 use std::io;
 use tokio_util::codec::{Decoder, Encoder};
+
 use futures::stream::StreamExt;
 use bytes::BytesMut;
 use std::str;
@@ -10,7 +11,8 @@ use std::str;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc;
 use std::thread;
-use futures::executor;
+//use futures::executor;
+use tokio::runtime::Runtime;
 
 #[derive(Error, Debug)]
 pub enum BrainCommError {
@@ -221,7 +223,9 @@ impl Comm<'_> {
     pub fn read_channel(&mut self) -> Result<Receiver<String>, BrainCommError>  {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let (tx, rx) = mpsc::channel::<String>();
-        let _results = match executor::block_on(self.read_one_from_serialport()){
+        let mut rt = Runtime::new()
+            .unwrap();
+        let _results = match rt.block_on(self.read_one_from_serialport()){
             Ok(res) => {
                 tx.send(res).unwrap();
                 Ok(rx)
