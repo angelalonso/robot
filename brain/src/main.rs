@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         process::exit(1);
     });
     // Listening on Bus
-    let mut _brain_thread = main_brain.read();
-    //main_brain.read_new();
+    //let mut _brain_thread = main_brain.read();
+    main_brain.read_new();
     Ok(())
 }

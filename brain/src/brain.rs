@@ -122,6 +122,36 @@ impl Brain<'_> {
             };
         }
     }
+    pub fn read_new(&mut self) {
+        let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Comm: {}", err);
+            process::exit(1);
+        });
+        let _stdin_channel: std::result::Result<Receiver<String>, BrainDeadError> = match comm.read_channel() {
+            Ok(chan) => {
+                loop {
+                    match chan.try_recv() {
+                        Ok(trigger) => {
+                            let _taken_actions = match self.do_actions(&trigger){
+                                Ok(_) => (),
+                                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+                            };
+
+                        },
+                        Err(TryRecvError::Empty) => (),
+                        Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
+                    }
+                    self.sleep(100);
+                }
+            },
+            Err(_) => {
+                    log(Some(&self.name), "E", &format!("Error on Brain Read"));
+                    Err(BrainDeadError::ReadSerialError)
+                },
+
+        };
+    }
+
 
     /// Read one text from the serial port "give me one text"
     // TODO: sort out that we only receive the first thing from Serial
@@ -250,36 +280,6 @@ impl Brain<'_> {
     }
 
     /// ---------------------------------------------- ///
-    pub fn read_new(&mut self) {
-        let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Comm: {}", err);
-            process::exit(1);
-        });
-        let _stdin_channel: std::result::Result<Receiver<String>, BrainDeadError> = match comm.read_channel() {
-            Ok(chan) => {
-                loop {
-                    match chan.try_recv() {
-                        Ok(trigger) => {
-                            let _taken_actions = match self.do_actions(&trigger){
-                                Ok(_) => (),
-                                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-                            };
-
-                        },
-                        Err(TryRecvError::Empty) => (),
-                        Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
-                    }
-                    self.sleep(100);
-                }
-            },
-            Err(_) => {
-                    log(Some(&self.name), "E", &format!("Error on Brain Read"));
-                    Err(BrainDeadError::ReadSerialError)
-                },
-
-        };
-    }
-
     fn sleep(&mut self, millis: u64) {
         let duration = time::Duration::from_millis(millis);
         thread::sleep(duration);
