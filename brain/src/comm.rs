@@ -266,7 +266,7 @@ impl Comm<'_> {
     pub fn read_channel(&mut self) -> Result<Receiver<String>, BrainCommError>  {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let (tx, rx) = mpsc::channel::<String>();
-        let mut rt = Runtime::new()
+        let rt = Runtime::new()
             .unwrap();
         //let _results = match rt.block_on(self.read_one_from_serial()){
         loop {
@@ -281,8 +281,5 @@ impl Comm<'_> {
                 },
             };
         }
-        // TODO this cannot be right
-        let (_tx, rx) = mpsc::channel::<String>();
-        Ok(rx)
     }
 }
