@@ -290,7 +290,7 @@ impl Comm<'_> {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(1000))?;
+        port.set_timeout(Duration::from_millis(19000))?;
 
         let reader = BufReader::new(port);
         Ok(reader.lines().next().unwrap().unwrap())
