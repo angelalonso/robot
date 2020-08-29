@@ -277,12 +277,14 @@ impl Comm<'_> {
         let mut port = serial::open(self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
-            println!("this is the result {}", got);
+            if got != "" {
+                println!("this is the result {}", got);
+            }
         }
     }
     /// ---------------------------
     fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<String> {
-        log(Some(&self.name), "D", &format!("Running Interact..."));
+        //log(Some(&self.name), "D", &format!("Running Interact..."));
         port.reconfigure(&|settings| {
             settings.set_baud_rate(serial::Baud9600)?;
             settings.set_char_size(serial::Bits8);
@@ -292,7 +294,7 @@ impl Comm<'_> {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(1000))?;
+        port.set_timeout(Duration::from_millis(500))?;
 
         let reader = BufReader::new(port);
         match reader.lines().next().unwrap() {
