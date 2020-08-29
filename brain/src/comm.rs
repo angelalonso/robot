@@ -275,8 +275,10 @@ impl Comm<'_> {
     pub fn read_channel(&mut self) {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
-        let got = self.interact(&mut port).unwrap();
-        println!("this is the result{}", got);
+        loop {
+            let got = self.interact(&mut port).unwrap();
+            println!("this is the result {}", got);
+        }
     }
     /// ---------------------------
     fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<String> {
@@ -290,7 +292,7 @@ impl Comm<'_> {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(19000))?;
+        port.set_timeout(Duration::from_millis(1000))?;
 
         let reader = BufReader::new(port);
         Ok(reader.lines().next().unwrap().unwrap())
