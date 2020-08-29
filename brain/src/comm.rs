@@ -269,16 +269,18 @@ impl Comm<'_> {
         let mut rt = Runtime::new()
             .unwrap();
         //let _results = match rt.block_on(self.read_one_from_serial()){
-        let _results = match self.read_one_from_serial() {
-            Ok(res) => {
-                tx.send(res).unwrap();
-                Ok(rx)
-            },
-            Err(_) => {
-                log(Some(&self.name), "E", &format!("Reading from Serial Port failed!"));
-                Err(BrainCommError::ReadSerialError)
-            },
-        };
+        loop {
+            let _results = match self.read_one_from_serial() {
+                Ok(res) => {
+                    tx.send(res).unwrap();
+                    Ok(rx)
+                },
+                Err(_) => {
+                    log(Some(&self.name), "E", &format!("Reading from Serial Port failed!"));
+                    Err(BrainCommError::ReadSerialError)
+                },
+            };
+        }
         // TODO this cannot be right
         let (_tx, rx) = mpsc::channel::<String>();
         Ok(rx)
