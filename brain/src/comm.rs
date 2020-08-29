@@ -223,7 +223,7 @@ impl Comm<'_> {
         Ok("".to_string())
     }
     pub fn read_one_from_serial_new(&mut self) {
-        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+        log(Some(&self.name), "D", &format!("Reading ONE from Serial Port {}", self.serialport));
         let f = File::open(self.serialport).expect("oh no");
         let mut f = BufReader::new(f);
         let mut read_buffer: Vec<u8> = Vec::new();
@@ -238,10 +238,12 @@ impl Comm<'_> {
         println!("{}", string_list.join(" "))
     }
     fn read_until<R: BufRead>(mut read: R, out: &mut Vec<u8>, pair: (u8, u8)) -> Result<usize, BrainCommError> {
+        log(Some(&self.name), "D", &format!("Reading UNTIL from Serial Port {}", self.serialport));
         let mut bytes_read = 0;
         let mut got_possible_terminator = false;
         
         loop {
+            println!("-");
             let buf = read.fill_buf()?;
             if buf.len() == 0 { return Ok(bytes_read); } // EOF
             
