@@ -15,6 +15,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         process::exit(1);
     });
     // Listening on Comm
-    main_brain.read_new();
+    main_brain.read();
     Ok(())
 }

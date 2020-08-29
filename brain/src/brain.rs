@@ -1,16 +1,9 @@
-// TODO: remove dependencies that are now commented (22.08.2020)
 use crate::config::Config;
 use crate::comm::Comm;
 use crate::log;
-//use std::io;
 use std::process::Command;
 use std::str;
 use thiserror::Error;
-
-//use tokio_util::codec::{Decoder, Encoder};
-//use futures::stream::StreamExt;
-//use bytes::BytesMut;
-
 use std::process;
 
 #[derive(Error, Debug)]
@@ -46,33 +39,6 @@ pub enum BrainDeadError {
     IOError(#[from] std::io::Error),
 }
 
-//struct LineCodec;
-//
-//impl Decoder for LineCodec {
-//    type Item = String;
-//    type Error = io::Error;
-//
-//    fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-//        let newline = src.as_ref().iter().position(|b| *b == b'\n');
-//        if let Some(n) = newline {
-//            let line = src.split_to(n + 1);
-//            return match str::from_utf8(line.as_ref()) {
-//                Ok(s) => Ok(Some(s.to_string())),
-//                Err(_) => Err(io::Error::new(io::ErrorKind::Other, "Invalid String")),
-//            };
-//        }
-//        Ok(None)
-//    }
-//}
-//
-//impl Encoder for LineCodec {
-//    type Item = String;
-//    type Error = io::Error;
-//
-//    fn encode(&mut self, _item: Self::Item, _dst: &mut BytesMut) -> Result<(), Self::Error> {
-//        Ok(())
-//    }
-//}
 
 pub struct Brain<'a> {
     pub name: &'a str,
@@ -96,7 +62,7 @@ impl Brain<'_> {
         })
     }
 
-    pub fn read_new(&mut self) {
+    pub fn read(&mut self) {
         let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Comm: {}", err);
             process::exit(1);
