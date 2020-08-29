@@ -14,6 +14,9 @@ use std::thread;
 //use futures::executor;
 use tokio::runtime::Runtime;
 
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+
 #[derive(Error, Debug)]
 pub enum BrainCommError {
     /// It used to represent an empty source. For example, an empty text file being given
@@ -219,13 +222,54 @@ impl Comm<'_> {
         }
         Ok("".to_string())
     }
+    pub fn read_one_from_serial_new(&mut self) -> Result<String, BrainCommError> {
+        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+        let f = File::open(self.serialport).expect("oh no");
+        let mut f = BufReader::new(f);
+        let mut read_buffer: Vec<u8> = Vec::new();
+        f.read_until(b'V', &mut read_buffer).expect("reading from cursor won't fail");
+        let mut string_list : Vec<String> = vec![];
+        for line in f.lines() {
+            match line {
+                Ok(content) => string_list.push(content),
+                Err(_) => (),
+            };
+        }
+        Ok(string_list.join(" "))
+    }
+    fn read_until<R: BufRead>(mut read: R, out: &mut Vec<u8>, pair: (u8, u8)) -> Result<usize, BrainCommError> {
+        let mut bytes_read = 0;
+        let mut got_possible_terminator = false;
+        
+        loop {
+            let buf = read.fill_buf()?;
+            if buf.len() == 0 { return Ok(bytes_read); } // EOF
+            
+            let mut seen = 0;
+            
+            for byte in buf.iter().copied() {
+                seen += 1;
+                if got_possible_terminator && byte == pair.1 {
+                    out.pop(); // remove first half of terminator
+                    read.consume(seen);
+                    return Ok(bytes_read + seen - 2);
+                }
+                out.push(byte);
+                got_possible_terminator = byte == pair.0;
+            }
+            let len = buf.len();
+            read.consume(len);
+            bytes_read += len;
+        }
+    }
 
     pub fn read_channel(&mut self) -> Result<Receiver<String>, BrainCommError>  {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let (tx, rx) = mpsc::channel::<String>();
         let mut rt = Runtime::new()
             .unwrap();
-        let _results = match rt.block_on(self.read_one_from_serialport()){
+        //let _results = match rt.block_on(self.read_one_from_serial()){
+        let _results = match self.read_one_from_serial() {
             Ok(res) => {
                 tx.send(res).unwrap();
                 Ok(rx)
@@ -239,5 +283,4 @@ impl Comm<'_> {
         let (_tx, rx) = mpsc::channel::<String>();
         Ok(rx)
     }
-
 }
