@@ -293,12 +293,6 @@ impl Comm<'_> {
         port.set_timeout(Duration::from_millis(1000))?;
 
         let reader = BufReader::new(port);
-        for line in reader.lines() {
-            if line.is_ok() {
-                Ok(line.unwrap_or("Reading failed".into()))
-            }
-        }
-        log(Some(&self.name), "D", &format!("Running INteract...DONE"));
-        Ok("".to_string())
+        Ok(reader.lines().next().unwrap().unwrap())
     }
 }
