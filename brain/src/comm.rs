@@ -278,7 +278,7 @@ impl Comm<'_> {
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
-                println!("this is the result {}", got);
+                log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
             }
         }
     }
