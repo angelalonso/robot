@@ -272,6 +272,7 @@ impl Comm<'_> {
         }
     }
 
+    /// ---------------------------
     pub fn read_channel(&mut self) {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
@@ -282,7 +283,6 @@ impl Comm<'_> {
             }
         }
     }
-    /// ---------------------------
     fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<String> {
         //log(Some(&self.name), "D", &format!("Running Interact..."));
         port.reconfigure(&|settings| {
