@@ -275,10 +275,11 @@ impl Comm<'_> {
     pub fn read_channel(&mut self) {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
-        self.interact(&mut port).unwrap();
+        let got = self.interact(&mut port).unwrap();
+        println!("{}", got);
     }
     /// ---------------------------
-    fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<()> {
+    fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<String> {
         log(Some(&self.name), "D", &format!("Running Interact..."));
         port.reconfigure(&|settings| {
             settings.set_baud_rate(serial::Baud9600)?;
@@ -298,6 +299,6 @@ impl Comm<'_> {
             }
         }
         log(Some(&self.name), "D", &format!("Running INteract...DONE"));
-        Ok(())
+        Ok("".to_string())
     }
 }
