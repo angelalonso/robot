@@ -127,6 +127,7 @@ impl Brain<'_> {
             eprintln!("Problem Initializing Comm: {}", err);
             process::exit(1);
         });
+        comm.read_channel();
     }
 
 
