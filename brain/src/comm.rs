@@ -17,6 +17,15 @@ use tokio::runtime::Runtime;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
+extern crate serial;
+
+use serial::prelude::*;
+use std::io::prelude::*;
+
+use std::env;
+use std::time::Duration;
+
+
 #[derive(Error, Debug)]
 pub enum BrainCommError {
     /// It used to represent an empty source. For example, an empty text file being given
@@ -222,12 +231,12 @@ impl Comm<'_> {
         }
         Ok("".to_string())
     }
-    pub fn read_one_from_serial_new(&mut self) {
-        log(Some(&self.name), "D", &format!("Reading ONE from Serial Port {}", self.serialport));
+    pub fn read_one_from_serial_new(&mut self) -> Result<String, BrainCommError> {
+        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let f = File::open(self.serialport).expect("oh no");
         let mut f = BufReader::new(f);
         let mut read_buffer: Vec<u8> = Vec::new();
-        f.read_until(b'\n', &mut read_buffer).expect("reading from cursor won't fail");
+        f.read_until(b'V', &mut read_buffer).expect("reading from cursor won't fail");
         let mut string_list : Vec<String> = vec![];
         for line in f.lines() {
             match line {
@@ -235,15 +244,13 @@ impl Comm<'_> {
                 Err(_) => (),
             };
         }
-        println!("{}", string_list.join(" "))
+        Ok(string_list.join(" "))
     }
     fn read_until<R: BufRead>(mut read: R, out: &mut Vec<u8>, pair: (u8, u8)) -> Result<usize, BrainCommError> {
-        log(Some(&self.name), "D", &format!("Reading UNTIL from Serial Port {}", self.serialport));
         let mut bytes_read = 0;
         let mut got_possible_terminator = false;
         
         loop {
-            println!("-");
             let buf = read.fill_buf()?;
             if buf.len() == 0 { return Ok(bytes_read); } // EOF
             
@@ -267,6 +274,28 @@ impl Comm<'_> {
 
     pub fn read_channel(&mut self) {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
-        self.read_one_from_serial_new();
+        let mut port = serial::open(self.serialport).unwrap();
+        self.interact(&mut port).unwrap();
+    }
+    /// ---------------------------
+    fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<()> {
+        port.reconfigure(&|settings| {
+            settings.set_baud_rate(serial::Baud9600)?;
+            settings.set_char_size(serial::Bits8);
+            settings.set_parity(serial::ParityNone);
+            settings.set_stop_bits(serial::Stop1);
+            settings.set_flow_control(serial::FlowNone);
+            Ok(())
+        })?;
+
+        port.set_timeout(Duration::from_millis(1000))?;
+
+        let reader = BufReader::new(port);
+        for line in reader.lines() {
+            if line.is_ok() {
+            println!("{:?}",  line.unwrap_or("Reading failed".into()));
+            }
+        }
+        Ok(())
     }
 }
