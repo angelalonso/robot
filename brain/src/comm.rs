@@ -279,7 +279,7 @@ impl Comm<'_> {
     }
     /// ---------------------------
     fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<()> {
-        log(Some(&self.name), "D", &format!("Running INteract...");
+        log(Some(&self.name), "D", &format!("Running Interact..."));
         port.reconfigure(&|settings| {
             settings.set_baud_rate(serial::Baud9600)?;
             settings.set_char_size(serial::Bits8);
@@ -297,8 +297,7 @@ impl Comm<'_> {
             println!("{:?}",  line.unwrap_or("Reading failed".into()));
             }
         }
-        log(Some(&self.name), "D", &format!("Running INteract...DONE");
-        port.reconfigure(&|settings| {
+        log(Some(&self.name), "D", &format!("Running INteract...DONE"));
         Ok(())
     }
 }
