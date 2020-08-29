@@ -1,14 +1,124 @@
-use std::process;
-use crate::brain::Brain;
 
 #[cfg(test)]
 mod brain_test {
-    use super::*;
+    use std::process;
+    use crate::brain::Brain;
+
+    // TODO: fill this up
+    #[test]
+    fn check_read_loop() {
+
+    }
+
+    // TODO: fill this up
+    #[test]
+    fn check_read_one_from_serialport () {
+
+    }
+    // TODO: fill this up
+    #[test]
+    fn check_read_one_from_serialport_noconnection () {
+
+    }
+    // TODO: fill this up
+    #[test]
+    fn check_read_one_from_serialport_permissiondenied () {
+
+    }
+
+    /// Ignoring this outside of the raspberry because it goes on to use avrdude
+    #[test]
+    #[ignore]
+    fn get_actions() {
+        let mut test = Brain::new("test",
+                                  "testfiles/cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let action_got = test.get_actions("ping\r\n");
+        assert!(action_got.is_ok(), "getting an action did not go well");
+    }
+    #[test]
+    fn get_actions_notfound() {
+        let mut test = Brain::new("test",
+                                  "testfiles/cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let action_got = test.get_actions("unexistingping\r\n");
+        assert!(action_got.is_err(), "getting an error for a non existing action did not go well");
+    }
+
+    // TODO: Add a failing one
+    #[test]
+    fn apply_actions() {
+        let mut test = Brain::new("test",
+                                  "testfiles/cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let action_applied = test.apply_actions(Vec::from(["sendfile_../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex".to_string()]));
+        assert!(action_applied.is_ok(), "applying an action did not go well");
+    }
 
     #[test]
-    fn check_avrdude() {
-        let mut test = Brain::new_serial("test",
-                                  "testfiles/test.cfg.yaml", 
+    #[ignore]
+    fn check_install_to_arduino() {
+        let mut test = Brain::new("test",
+                                  "testfiles/cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let serial = test.install_to_arduino("../arduino/001_test_ping/001_test_ping.ino.hex");
+        assert!(serial.is_ok(), "installing file did not work well");
+    }
+    #[test]
+    fn check_install_to_arduino_nofile () {
+        let mut test = Brain::new("test",
+                                  "testfiles/cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let serial = test.install_to_arduino("file_not_existing.ino.hex");
+        assert!(serial.is_err(), "checking errors on installing wrong file did not work well");
+    }
+    // TODO: fill this up
+    #[test]
+    fn check_install_to_arduino_noconnection () {
+
+    }
+    // TODO: fill this up
+    #[test]
+    fn check_install_to_arduino_blockedpin () {
+
+    }
+    // TODO: fill this up
+    #[test]
+    fn check_install_to_arduino_permissiondenied () {
+
+    }
+
+    #[test]
+    fn check_do_nothing() {
+        let mut test = Brain::new("test",
+                                  "testfiles/cfg.yaml", 
+                                  None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let avrdude = test.do_nothing();
+        assert!(avrdude.is_ok(), "nothing is being done");
+    }
+
+    #[test]
+    fn check_check_requirement() {
+        let mut test = Brain::new("test",
+                                  "testfiles/cfg.yaml", 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
@@ -16,201 +126,27 @@ mod brain_test {
         let avrdude = test.check_requirement("rustc");
         assert!(avrdude.is_ok(), "avrdude should be installed");
     }
-
     #[test]
     #[ignore]
-    fn check_install_to_arduino () {
-        let mut test = Brain::new_serial("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let installation = test.install_to_arduino("../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex");
-        assert!(installation.unwrap() == ());
-
-    }
-
-    #[test]
-    #[ignore]
-    fn check_install_to_arduino_nofile () {
-        let mut test = Brain::new_serial("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let installation = test.install_to_arduino("file_not_existing.ino.hex");
-        assert!(installation.unwrap() == ());
-
-        }
-
-
-    #[test]
-    fn check_install_to_arduino_noconnection () {
-
-        }
-
-
-    #[test]
-    fn check_install_to_arduino_blockedpin () {
-
-        }
-
-
-    #[test]
-    fn check_install_to_arduino_permissiondenied () {
-
-        }
-
-
-    #[test]
-    fn check_read_one_from_arduino () {
-
-        }
-
-
-    #[test]
-    fn check_read_one_from_arduino_noconnection () {
-
-        }
-
-
-    #[test]
-        fn check_read_one_from_arduino_permissiondenied () {
-
-        }
-
-    // #[test]
-    // fn check_read_loop_from_arduino?
-
-    /// ------------------ REVIEWED ^ --------------------- ///
-    #[test]
-    fn read_msg() {
-        // I'll just test an error here
+    fn check_avrdude() {
         let mut test = Brain::new("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  "testfiles/notest_from_mock.q", 
-                                  "testfiles/nptest_to_mock.q", 
+                                  "testfiles/cfg.yaml", 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let boot = test.bootload();
-        match test.read_msg(1) {
-            Ok(read) => println!("{}", read),
-            Err(e) => println!("{:?}", e),
-        };
+        let avrdude = test.check_requirement("avrdude");
+        assert!(avrdude.is_ok(), "avrdude should be installed");
     }
 
-    #[test]
-    fn read_msg_proper() {
-        let mut test = Brain::new("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  "testfiles/test_from_mock.q", 
-                                  "testfiles/test_to_mock.q", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let msg_received = test.read_msg(1);
-        assert!(msg_received.unwrap() == "");
-    }
-
-    #[test]
-    fn read_msgs() {
-        // Needed?
-        let mut test = Brain::new("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  "testfiles/test_from_mock.q", 
-                                  "testfiles/test_to_mock.q", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        // Gets stuck, maybe this is not needed?
-        // let _result = test.read_msgs();
-    }
-
-    #[test]
-    fn get_actions() {
-        let mut test = Brain::new("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  "testfiles/test_from_mock.q", 
-                                  "testfiles/test_to_mock.q", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        test.get_actions("Ping\n");
-    }
-
-    #[test]
-    fn apply_actions() {
-        let mut test = Brain::new("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  "testfiles/test_from_mock.q", 
-                                  "testfiles/test_to_mock.q", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        test.apply_actions(Vec::from(["sendfile_../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex".to_string()]));
-    }
-
-    #[test]
-    #[ignore]
-    fn send() {
-        let mut test = Brain::new("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  "testfiles/test_from_mock.q", 
-                                  "testfiles/test_to_mock.q", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        test.send("Do->Ping");
-    }
-
-    #[test]
-    #[should_panic(expected = "No such file or directory")]
-    fn send_to_wrongfile() {
-        let mut test = Brain::new("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  "testfiles/test_from_mock.q", 
-                                  "testfiles/notest_to_mock.q", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        test.send("Do->Ping");
-    }
-
-    /// run this from the raspberry itself with cargo test -- --ignored
-    #[test]
-    #[ignore]
-    fn sendfile() {
-        let mut test = Brain::new_serial("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let serial = test.install_to_arduino("testfile");
-        assert!(serial.is_ok(), "db file should not exist");
-    }
-
-    /// run this from the raspberry itself with cargo test -- --ignored
-    #[test]
-    #[ignore]
-    fn readserial() {
-        let mut test = Brain::new_serial("test",
-                                  "testfiles/test.cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let serial = test.read_loop_from_arduino();
-        assert!(serial.is_ok(), "db file should not exist");
-    }
+//    /// ------------------ REVIEWED ^ --------------------- ///
+//
+//
+//
+//
+//
+//
+//
+//
+//
 }
