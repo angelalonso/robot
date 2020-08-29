@@ -294,7 +294,7 @@ impl Comm<'_> {
         let reader = BufReader::new(port);
         for line in reader.lines() {
             if line.is_ok() {
-            println!("{:?}",  line.unwrap_or("Reading failed".into()));
+            println!("GOT {:?}",  line.unwrap_or("Reading failed".into()));
             }
         }
         log(Some(&self.name), "D", &format!("Running INteract...DONE"));
