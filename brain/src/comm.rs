@@ -295,6 +295,9 @@ impl Comm<'_> {
         port.set_timeout(Duration::from_millis(1000))?;
 
         let reader = BufReader::new(port);
-        Ok(reader.lines().next().unwrap().unwrap())
+        match reader.lines().next().unwrap() {
+            Ok(res) => Ok(res),
+            Err(_) => Ok("".to_string()),
+        }
     }
 }
