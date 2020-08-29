@@ -127,29 +127,6 @@ impl Brain<'_> {
             eprintln!("Problem Initializing Comm: {}", err);
             process::exit(1);
         });
-        let _stdin_channel: std::result::Result<Receiver<String>, BrainDeadError> = match comm.read_channel() {
-            Ok(chan) => {
-                loop {
-                    match chan.try_recv() {
-                        Ok(trigger) => {
-                            let _taken_actions = match self.do_actions(&trigger){
-                                Ok(_) => (),
-                                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-                            };
-
-                        },
-                        Err(TryRecvError::Empty) => (),
-                        Err(TryRecvError::Disconnected) => panic!("Channel disconnected"),
-                    }
-                    self.sleep(100);
-                }
-            },
-            Err(_) => {
-                    log(Some(&self.name), "E", &format!("Error on Brain Read"));
-                    Err(BrainDeadError::ReadSerialError)
-                },
-
-        };
     }
 
 

@@ -222,12 +222,12 @@ impl Comm<'_> {
         }
         Ok("".to_string())
     }
-    pub fn read_one_from_serial_new(&mut self) -> Result<String, BrainCommError> {
+    pub fn read_one_from_serial_new(&mut self) {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let f = File::open(self.serialport).expect("oh no");
         let mut f = BufReader::new(f);
         let mut read_buffer: Vec<u8> = Vec::new();
-        f.read_until(b'V', &mut read_buffer).expect("reading from cursor won't fail");
+        f.read_until(b'\n', &mut read_buffer).expect("reading from cursor won't fail");
         let mut string_list : Vec<String> = vec![];
         for line in f.lines() {
             match line {
@@ -235,7 +235,7 @@ impl Comm<'_> {
                 Err(_) => (),
             };
         }
-        Ok(string_list.join(" "))
+        println!("{}", string_list.join(" "))
     }
     fn read_until<R: BufRead>(mut read: R, out: &mut Vec<u8>, pair: (u8, u8)) -> Result<usize, BrainCommError> {
         let mut bytes_read = 0;
@@ -263,23 +263,8 @@ impl Comm<'_> {
         }
     }
 
-    pub fn read_channel(&mut self) -> Result<Receiver<String>, BrainCommError>  {
+    pub fn read_channel(&mut self) {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
-        let (tx, rx) = mpsc::channel::<String>();
-        let rt = Runtime::new()
-            .unwrap();
-        //let _results = match rt.block_on(self.read_one_from_serial()){
-        loop {
-            let _results = match self.read_one_from_serial() {
-                Ok(res) => {
-                    tx.send(res).unwrap();
-                    Ok(rx)
-                },
-                Err(_) => {
-                    log(Some(&self.name), "E", &format!("Reading from Serial Port failed!"));
-                    Err(BrainCommError::ReadSerialError)
-                },
-            };
-        }
+        self.read_one_from_serial_new();
     }
 }
