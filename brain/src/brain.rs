@@ -127,15 +127,17 @@ impl Brain<'_> {
             eprintln!("Problem Initializing Comm: {}", err);
             process::exit(1);
         });
-        let received = match comm.read_channel(){
-            Ok(rcv) => {
-                let _taken_actions = match self.get_actions(&rcv){
-                    Ok(acts) => println!("Taking action {:?}", acts),
-                    Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-                    };
-                },
-            Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
-        };
+        loop {
+            let received = match comm.read_channel(){
+                Ok(rcv) => {
+                    let _taken_actions = match self.get_actions(&rcv){
+                        Ok(acts) => println!("Taking action {:?}", acts),
+                        Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+                        };
+                    },
+                Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
+            };
+        }
     }
 
 
