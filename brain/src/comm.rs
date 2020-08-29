@@ -273,13 +273,14 @@ impl Comm<'_> {
     }
 
     /// ---------------------------
-    pub fn read_channel(&mut self) {
+    pub fn read_channel(&mut self) -> Result<String, BrainCommError> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
                 log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
+                break Ok(got)
             }
         }
     }
