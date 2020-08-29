@@ -14,8 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         eprintln!("Problem sending the first program to the Arduino: {}", err);
         process::exit(1);
     });
-    // Listening on Bus
-    //let mut _brain_thread = main_brain.read();
+    // Listening on Comm
     main_brain.read_new();
     Ok(())
 }

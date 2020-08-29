@@ -2,28 +2,16 @@
 use crate::config::Config;
 use crate::comm::Comm;
 use crate::log;
-//use rand::Rng;
-//use std::fs::File;
-//use std::fs::OpenOptions;
-//use std::fs;
-//use std::io::SeekFrom;
-//use std::io::prelude::*;
 use std::io;
 use std::process::Command;
 use std::str;
-//use std::time::Instant;
-//use std::{thread, time};
 use thiserror::Error;
 
 use tokio_util::codec::{Decoder, Encoder};
-use futures::stream::StreamExt;
+//use futures::stream::StreamExt;
 use bytes::BytesMut;
 
-use std::sync::mpsc::TryRecvError;
-//use std::sync::mpsc;
-use std::{thread, time};
 use std::process;
-use std::sync::mpsc::Receiver;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -108,27 +96,28 @@ impl Brain<'_> {
         })
     }
 
-    /// This is the loop that keeps calling to read from serial
-    #[tokio::main]
-    pub async fn read(&mut self) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", "Waiting for data...");
-        loop {
-            let results = self.read_one_from_serialport().await;
-            //println!("RECEIVED {:?}", results);
-            //TODO: does the following break working code?
-            let _taken_actions = match self.get_actions(&results.unwrap()){
-                Ok(_) => (),
-                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-            };
-        }
-    }
+//    /// This is the loop that keeps calling to read from serial
+//    #[tokio::main]
+//    pub async fn read(&mut self) -> Result<(), BrainDeadError> {
+//        log(Some(&self.name), "D", "Waiting for data...");
+//        loop {
+//            let results = self.read_one_from_serialport().await;
+//            //println!("RECEIVED {:?}", results);
+//            //TODO: does the following break working code?
+//            let _taken_actions = match self.get_actions(&results.unwrap()){
+//                Ok(_) => (),
+//                Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+//            };
+//        }
+//    }
+
     pub fn read_new(&mut self) {
         let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Comm: {}", err);
             process::exit(1);
         });
         loop {
-            let received = match comm.read_channel(){
+            let _received = match comm.read_channel(){
                 Ok(rcv) => {
                     let _taken_actions = match self.get_actions(&rcv){
                         Ok(acts) => println!("Taking action {:?}", acts),
@@ -141,29 +130,29 @@ impl Brain<'_> {
     }
 
 
-    /// Read one text from the serial port "give me one text"
-    // TODO: sort out that we only receive the first thing from Serial
-    //  - shall we use join thread somewhere?
-    //  - Shall we force it to read several times?
-    pub async fn read_one_from_serialport(&mut self) -> Result<String, BrainDeadError> {
-        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
-        //Err(BrainDeadError::EmptyError)
-        let settings = tokio_serial::SerialPortSettings::default();
-        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
-
-        #[cfg(unix)]
-        port.set_exclusive(false)
-            .expect("Unable to set serial port exclusive to false");
-
-        let mut reader = LineCodec.framed(port);
-
-        #[allow(clippy::never_loop)] while let Some(line_result) = reader.next().await {
-            let line = line_result.expect("Failed to read line");
-            //println!("{}", line);
-            return Ok(line)
-        }
-        Ok("".to_string())
-    }
+//    /// Read one text from the serial port "give me one text"
+//    // TODO: sort out that we only receive the first thing from Serial
+//    //  - shall we use join thread somewhere?
+//    //  - Shall we force it to read several times?
+//    pub async fn read_one_from_serialport(&mut self) -> Result<String, BrainDeadError> {
+//        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+//        //Err(BrainDeadError::EmptyError)
+//        let settings = tokio_serial::SerialPortSettings::default();
+//        let mut port = tokio_serial::Serial::from_path(self.serialport, &settings).unwrap();
+//
+//        #[cfg(unix)]
+//        port.set_exclusive(false)
+//            .expect("Unable to set serial port exclusive to false");
+//
+//        let mut reader = LineCodec.framed(port);
+//
+//        #[allow(clippy::never_loop)] while let Some(line_result) = reader.next().await {
+//            let line = line_result.expect("Failed to read line");
+//            //println!("{}", line);
+//            return Ok(line)
+//        }
+//        Ok("".to_string())
+//    }
 
     /// Get the action that relates to the trigger received and call to apply it
     /// Hm...maybe this one and apply_actions should go together?
@@ -267,32 +256,26 @@ impl Brain<'_> {
         }
     }
 
-    /// ---------------------------------------------- ///
-    fn sleep(&mut self, millis: u64) {
-        let duration = time::Duration::from_millis(millis);
-        thread::sleep(duration);
-    }
-
-    pub fn do_actions(&mut self, trigger: &str) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", &format!("Received {}", trigger));
-        let actions = self.config.get_actions(&trigger);
-        match actions {
-            Ok(acts) => {
-                match acts {
-                    Some(a) => {
-                        self.apply_actions(a).unwrap();
-                        Ok(())
-                    },
-                    None => {
-                        log(Some(&self.name), "D", "Nothing to do");
-                        Err(BrainDeadError::NoConfigFound)
-                    },
-                }
-            },
-            Err(_e) => {
-                log(Some(&self.name), "D", "Got an error while looking for actions");
-                Err(BrainDeadError::NoConfigFound)
-            },
-        }
-    }
+//    pub fn do_actions(&mut self, trigger: &str) -> Result<(), BrainDeadError> {
+//        log(Some(&self.name), "D", &format!("Received {}", trigger));
+//        let actions = self.config.get_actions(&trigger);
+//        match actions {
+//            Ok(acts) => {
+//                match acts {
+//                    Some(a) => {
+//                        self.apply_actions(a).unwrap();
+//                        Ok(())
+//                    },
+//                    None => {
+//                        log(Some(&self.name), "D", "Nothing to do");
+//                        Err(BrainDeadError::NoConfigFound)
+//                    },
+//                }
+//            },
+//            Err(_e) => {
+//                log(Some(&self.name), "D", "Got an error while looking for actions");
+//                Err(BrainDeadError::NoConfigFound)
+//            },
+//        }
+//    }
 }

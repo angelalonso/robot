@@ -11,8 +11,6 @@ use std::str;
 use std::sync::mpsc::Receiver;
 use std::sync::mpsc;
 use std::thread;
-//use futures::executor;
-use tokio::runtime::Runtime;
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -20,9 +18,7 @@ use std::io::{BufRead, BufReader};
 extern crate serial;
 
 use serial::prelude::*;
-use std::io::prelude::*;
 
-use std::env;
 use std::time::Duration;
 
 
@@ -245,31 +241,6 @@ impl Comm<'_> {
             };
         }
         Ok(string_list.join(" "))
-    }
-    fn read_until<R: BufRead>(mut read: R, out: &mut Vec<u8>, pair: (u8, u8)) -> Result<usize, BrainCommError> {
-        let mut bytes_read = 0;
-        let mut got_possible_terminator = false;
-        
-        loop {
-            let buf = read.fill_buf()?;
-            if buf.len() == 0 { return Ok(bytes_read); } // EOF
-            
-            let mut seen = 0;
-            
-            for byte in buf.iter().copied() {
-                seen += 1;
-                if got_possible_terminator && byte == pair.1 {
-                    out.pop(); // remove first half of terminator
-                    read.consume(seen);
-                    return Ok(bytes_read + seen - 2);
-                }
-                out.push(byte);
-                got_possible_terminator = byte == pair.0;
-            }
-            let len = buf.len();
-            read.consume(len);
-            bytes_read += len;
-        }
     }
 
     /// ---------------------------
