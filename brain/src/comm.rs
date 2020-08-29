@@ -276,7 +276,7 @@ impl Comm<'_> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
         let got = self.interact(&mut port).unwrap();
-        println!("{}", got);
+        println!("this is the result{}", got);
     }
     /// ---------------------------
     fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<String> {
@@ -295,7 +295,7 @@ impl Comm<'_> {
         let reader = BufReader::new(port);
         for line in reader.lines() {
             if line.is_ok() {
-            println!("GOT {:?}",  line.unwrap_or("Reading failed".into()));
+                Ok(line.unwrap_or("Reading failed".into()))
             }
         }
         log(Some(&self.name), "D", &format!("Running INteract...DONE"));
