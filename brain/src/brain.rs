@@ -115,6 +115,7 @@ impl Brain<'_> {
         Ok(())
     }
 
+    // TODO this should go into comm
     /// This one should avrdude to send a given file to the arduino
     pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
         // First check that avrdude is installed
@@ -153,12 +154,14 @@ impl Brain<'_> {
         };
     }
 
+    // TODO this should go into comm
     /// Do nothing, but take note that we have nothing to do
     pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
     }
 
+    // TODO this should go into comm
     /// Check that a given program is installed
     pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
         let status = Command::new("which")
