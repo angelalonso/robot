@@ -88,11 +88,14 @@ impl Comm<'_> {
                     log(Some(&self.name), "D", &format!("Got a Log message: {}", &res));
                     Ok("".to_string())
                 } else {
-                    log(Some(&self.name), "D", &format!("Got a Result: {}", &res));
+                    log(Some(&self.name), "D", &format!("Got a Result: ->{}<-", &res));
                     Ok(res)
                 }
             },
-            Err(_) => Ok("".to_string()),
+            Err(_) => {
+                    log(Some(&self.name), "D", "Got an Error Reading from Port");
+                    Ok("".to_string())
+                },
         }
     }
 }
