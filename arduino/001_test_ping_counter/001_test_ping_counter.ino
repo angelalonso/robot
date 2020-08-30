@@ -11,7 +11,7 @@ void setup() {
     Serial.print("LOG: j is ");
     Serial.println(j);
   }
-  delay(500); 
+  delay(50); 
   Serial.println("ping");
 }
 
