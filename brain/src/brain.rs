@@ -71,7 +71,7 @@ impl Brain<'_> {
             let _received = match comm.read_channel(){
                 Ok(rcv) => {
                     let _taken_actions = match self.get_actions(&rcv){
-                        Ok(acts) => println!("Taking action {:?}", acts),
+                        Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
                         Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
                     };
                 },
@@ -82,15 +82,15 @@ impl Brain<'_> {
 
     /// Get the action that relates to the trigger received and call to apply it
     /// Hm...maybe this one and apply_actions should go together?
-    pub fn get_actions(&mut self, trigger: &str) -> Result<(), BrainDeadError> {
+    pub fn get_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
         log(Some(&self.name), "D", &format!("Received {}", trigger));
         let actions = self.config.get_actions(&trigger);
         match actions {
             Ok(acts) => {
                 match acts {
                     Some(a) => {
-                        self.apply_actions(a).unwrap();
-                        Ok(())
+                        self.apply_actions(a.clone()).unwrap();
+                        Ok(a)
                     },
                     None => {
                         log(Some(&self.name), "D", "Nothing to do");

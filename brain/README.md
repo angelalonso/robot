@@ -36,9 +36,9 @@ E.g:
 - edit cfg.yaml
 - For each action, add one of the following:
 ```
-- trigger: "ping\r\n"     <- here \r\n needs to be added to what you expect your arduino hex to send you back
+- trigger: "ping"
   actions:
-    - sendfileserial_../tests/001_test_pong/001_test_pong.ino.hex  <- here you just put sendfileserial_<and the path to the next .ino.hex file you want to install to the arduino>
+    - install_../tests/001_test_pong/001_test_pong.ino.hex  <- here you just put install_<and the path to the next .ino.hex file you want to install to the arduino>
 ```
 
 
