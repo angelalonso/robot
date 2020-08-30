@@ -168,11 +168,11 @@ impl Brain<'_> {
     // TODO this should go into comm
     /// Check that a given program is installed
     pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
-        let which = Command::new("which")
+        let check = Command::new("which")
                 .arg(prog)
                 .output()
                 .expect("");
-        match which.status.code() {
+        match check.status.code() {
             Some(code) => {
                 match code {
                     0 => Ok(()),
