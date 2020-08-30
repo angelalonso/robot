@@ -8,10 +8,10 @@ void setup() {
     delay(50);                       
     digitalWrite(LED_BUILTIN, HIGH);    // turn the LED off 
     delay(950);                      
-    Serial.print("LOG: j is ");
+    Serial.print("LOG: j is ");  //messages starting with LOG: will be read but not taken as result
     Serial.println(j);
   }
-  delay(50); 
+  delay(50); // we need some delay between two consecutive serial.println to be read by the brain
   Serial.println("ping");
 }
 
