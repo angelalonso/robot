@@ -5,12 +5,13 @@ void setup() {
   int j;
   for ( j = 0; j < 10; j++) {
     digitalWrite(LED_BUILTIN, LOW);   // turn the LED on 
-    delay(50);                       // wait for half a second
+    delay(50);                       
     digitalWrite(LED_BUILTIN, HIGH);    // turn the LED off 
-    delay(950);                       // wait for half a second
+    delay(950);                      
     Serial.print("LOG: j is ");
     Serial.println(j);
   }
+  delay(500); 
   Serial.println("ping");
 }
 
