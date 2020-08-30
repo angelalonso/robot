@@ -8,6 +8,7 @@ void setup() {
     delay(50);                       // wait for half a second
     digitalWrite(LED_BUILTIN, HIGH);    // turn the LED off 
     delay(950);                       // wait for half a second
+    Serial.print("LOG: j is ");
     Serial.println(j);
   }
   Serial.println("ping");

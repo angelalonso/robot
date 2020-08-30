@@ -70,11 +70,15 @@ impl Brain<'_> {
         loop {
             let _received = match comm.read_channel(){
                 Ok(rcv) => {
-                    let _taken_actions = match self.get_actions(&rcv){
-                        Ok(acts) => println!("Taking action {:?}", acts),
-                        Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+                    if rcv.contains("LOG:") {
+                        log(Some(&self.name), "D", &rcv);
+                    } else {
+                        let _taken_actions = match self.get_actions(&rcv){
+                            Ok(acts) => println!("Taking action {:?}", acts),
+                            Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
                         };
-                    },
+                    }
+                },
                 Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
             };
         }
