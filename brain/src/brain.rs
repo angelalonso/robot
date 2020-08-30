@@ -71,7 +71,7 @@ impl Brain<'_> {
             let _received = match comm.read_channel(){
                 Ok(rcv) => {
                     if rcv.contains("LOG:") {
-                        log(Some(&self.name), "D", &rcv);
+                        log(Some(&self.name), "D", &format!("Got a Log message: {}", &rcv));
                     } else {
                         let _taken_actions = match self.get_actions(&rcv){
                             Ok(acts) => println!("Taking action {:?}", acts),
