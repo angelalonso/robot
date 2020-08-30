@@ -112,7 +112,7 @@ impl Brain<'_> {
         for action in &actions {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
-                "sendfileserial" => self.install_to_arduino(&action_vec[1..].to_vec().join("_")).unwrap(),
+                "install" => self.install_to_arduino(&action_vec[1..].to_vec().join("_")).unwrap(),
                 _ => self.do_nothing().unwrap(),
             };
         }
@@ -127,7 +127,7 @@ impl Brain<'_> {
             Ok(_v) => {
     // This sudo cant be right
     // TODO: send a different error if the file is not there (unter anderem)
-                let status = Command::new("sudo")
+                let run = Command::new("sudo")
                         .arg("avrdude")
                         .arg("-c")
                         .arg("linuxgpio")
@@ -136,9 +136,9 @@ impl Brain<'_> {
                         .arg("-v")
                         .arg("-U")
                         .arg(format!("flash:w:{}:i", filename))
-                        .status()
+                        .output()
                         .expect("process failed to execute");
-                match status.code() {
+                match run.status.code() {
                     Some(code) => {
                         match code {
                             0 => return Ok(()),
