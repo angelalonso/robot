@@ -4,4 +4,4 @@
     - install_../arduino/001_test_pong/001_test_pong.ino.hex
 - trigger: "pong"
   actions:
-    - install_../arduino/001_test_ping/001_test_ping.ino.hex
+    - install_../arduino/001_test_ping_counter/001_test_ping_counter.ino.hex
