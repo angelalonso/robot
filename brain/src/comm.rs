@@ -81,7 +81,10 @@ impl Comm<'_> {
         port.set_timeout(Duration::from_millis(500))?;
 
         let reader = BufReader::new(port);
-        match reader.lines().next().unwrap() {
+        let mut lines = reader.lines();
+        let _test = lines.next();
+        //match reader.lines().next().unwrap() {
+        match lines.next().unwrap() {
             Ok(res) => Ok(res),
             Err(_) => Ok("".to_string()),
         }
