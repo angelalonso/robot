@@ -83,7 +83,14 @@ impl Comm<'_> {
         let reader = BufReader::new(port);
         let mut lines = reader.lines();
         match lines.next().unwrap() {
-            Ok(res) => Ok(res),
+            Ok(res) => {
+                if res.contains("LOG:") {
+                    log(Some(&self.name), "D", &format!("Got a Log message: {}", &res));
+                    Ok("".to_string())
+                } else {
+                    Ok(res)
+                }
+            },
             Err(_) => Ok("".to_string()),
         }
     }
