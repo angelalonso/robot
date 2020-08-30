@@ -73,8 +73,8 @@ impl Brain<'_> {
                     let _taken_actions = match self.get_actions(&rcv){
                         Ok(acts) => println!("Taking action {:?}", acts),
                         Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-                        };
-                    },
+                    };
+                },
                 Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
             };
         }
@@ -108,7 +108,7 @@ impl Brain<'_> {
         for action in &actions {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
-                "sendfileserial" => self.install_to_arduino(&action_vec[1..].to_vec().join("_")).unwrap(),
+                "install" => self.install_to_arduino(&action_vec[1..].to_vec().join("_")).unwrap(),
                 _ => self.do_nothing().unwrap(),
             };
         }
@@ -119,11 +119,12 @@ impl Brain<'_> {
     /// This one should avrdude to send a given file to the arduino
     pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
         // First check that avrdude is installed
+        log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
     // This sudo cant be right
     // TODO: send a different error if the file is not there (unter anderem)
-                let status = Command::new("sudo")
+                let run = Command::new("sudo")
                         .arg("avrdude")
                         .arg("-c")
                         .arg("linuxgpio")
@@ -132,9 +133,9 @@ impl Brain<'_> {
                         .arg("-v")
                         .arg("-U")
                         .arg(format!("flash:w:{}:i", filename))
-                        .status()
+                        .output()
                         .expect("process failed to execute");
-                match status.code() {
+                match run.status.code() {
                     Some(code) => {
                         match code {
                             0 => return Ok(()),
@@ -164,11 +165,11 @@ impl Brain<'_> {
     // TODO this should go into comm
     /// Check that a given program is installed
     pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
-        let status = Command::new("which")
+        let check = Command::new("which")
                 .arg(prog)
-                .status()
+                .output()
                 .expect("");
-        match status.code() {
+        match check.status.code() {
             Some(code) => {
                 match code {
                     0 => Ok(()),

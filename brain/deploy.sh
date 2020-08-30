@@ -4,6 +4,7 @@ source .env
 
 git checkout ${DEV_BRANCH}
 git add ${ARDUINO_FILES}
+git add cfg.yaml
 git add src/
 git add Cargo.toml
 git commit -m "ready to test"

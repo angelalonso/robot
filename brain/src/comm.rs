@@ -78,12 +78,24 @@ impl Comm<'_> {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(500))?;
+        port.set_timeout(Duration::from_millis(15000))?;
 
         let reader = BufReader::new(port);
-        match reader.lines().next().unwrap() {
-            Ok(res) => Ok(res),
-            Err(_) => Ok("".to_string()),
+        let mut lines = reader.lines();
+        match lines.next().unwrap() {
+            Ok(res) => {
+                if res.contains("LOG:") {
+                    log(Some(&self.name), "D", &format!("Got a Log message: {}", &res));
+                    Ok("".to_string())
+                } else {
+                    log(Some(&self.name), "D", &format!("Got a Result: ->{}<-", &res));
+                    Ok(res)
+                }
+            },
+            Err(e) => {
+                    log(Some(&self.name), "D", &format!("Got an Error Reading from Port, {:?}", e));
+                    Ok("".to_string())
+                },
         }
     }
 }
