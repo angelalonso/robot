@@ -123,6 +123,7 @@ impl Brain<'_> {
     /// This one should avrdude to send a given file to the arduino
     pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
         // First check that avrdude is installed
+        log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
     // This sudo cant be right
