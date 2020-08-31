@@ -73,7 +73,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let serial = test.arduino.install("../arduino/001_test_ping/001_test_ping.ino.hex");
+        let serial = test.install_to_arduino("../arduino/001_test_ping/001_test_ping.ino.hex");
         assert!(serial.is_ok(), "installing file did not work well");
     }
     #[test]
@@ -84,7 +84,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let serial = test.arduino.install("file_not_existing.ino.hex");
+        let serial = test.install_to_arduino("file_not_existing.ino.hex");
         assert!(serial.is_err(), "checking errors on installing wrong file did not work well");
     }
     // TODO: fill this up
@@ -123,7 +123,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let avrdude = test.arduino.check_requirement("rustc");
+        let avrdude = test.check_requirement("rustc");
         assert!(avrdude.is_ok(), "avrdude should be installed");
     }
     #[test]
@@ -135,7 +135,7 @@ mod brain_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let avrdude = test.arduino.check_requirement("avrdude");
+        let avrdude = test.check_requirement("avrdude");
         assert!(avrdude.is_ok(), "avrdude should be installed");
     }
 

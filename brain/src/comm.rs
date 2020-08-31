@@ -78,7 +78,7 @@ impl Comm<'_> {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(15000))?;
+        port.set_timeout(Duration::from_millis(500))?;
 
         let reader = BufReader::new(port);
         let mut lines = reader.lines();
