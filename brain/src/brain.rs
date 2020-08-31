@@ -1,7 +1,6 @@
 use crate::config::Config;
 use crate::arduino::Arduino;
 use crate::log;
-//use std::process::Command;
 use std::str;
 use thiserror::Error;
 use std::process;
@@ -69,10 +68,6 @@ impl Brain<'_> {
     }
 
     pub fn read(&mut self) {
-        //let mut arduino = Arduino::new("arduino", None).unwrap_or_else(|err| {
-        //    eprintln!("Problem Initializing Arduino: {}", err);
-        //    process::exit(1);
-        //});
         loop {
             let _received = match self.arduino.read_channel(){
                 Ok(rcv) => {
@@ -121,73 +116,9 @@ impl Brain<'_> {
         Ok(())
     }
 
-//    // TODO this should go into comm
-//    /// This one should avrdude to send a given file to the arduino
-//    pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
-//        // First check that avrdude is installed
-//        log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
-//        let mut _check_prog = match self.check_requirement("avrdude") {
-//            Ok(_v) => {
-//    // This sudo cant be right
-//    // TODO: send a different error if the file is not there (unter anderem)
-//                let run = Command::new("sudo")
-//                        .arg("avrdude")
-//                        .arg("-c")
-//                        .arg("linuxgpio")
-//                        .arg("-p")
-//                        .arg("atmega328p")
-//                        .arg("-v")
-//                        .arg("-U")
-//                        .arg(format!("flash:w:{}:i", filename))
-//                        .output()
-//                        .expect("process failed to execute");
-//                match run.status.code() {
-//                    Some(code) => {
-//                        match code {
-//                            0 => return Ok(()),
-//                            _ => {
-//                                log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
-//                                return Err(BrainDeadError::AvrdudeError)
-//                            },
-//                        }
-//                    },
-//                    _ => {
-//                        log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
-//                        return Err(BrainDeadError::AvrdudeError)
-//                            },
-//                    };
-//                },
-//            Err(e) => return Err(e),
-//        };
-//    }
-
     /// Do nothing, but take note that we have nothing to do
     pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
     }
-
-//    // TODO this should go into comm
-//    /// Check that a given program is installed
-//    pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
-//        let check = Command::new("which")
-//                .arg(prog)
-//                .output()
-//                .expect("");
-//        match check.status.code() {
-//            Some(code) => {
-//                match code {
-//                    0 => Ok(()),
-//                    _ => {
-//                        log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-//                        Err(BrainDeadError::ProgNotInstalledError(prog.to_string()))
-//                    },
-//                }
-//            },
-//            _ => {
-//                log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-//                Err(BrainDeadError::ProgNotInstalledError(prog.to_string()))
-//                    },
-//        }
-//    }
 }

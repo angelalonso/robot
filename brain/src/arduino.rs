@@ -99,7 +99,6 @@ impl Arduino<'_> {
         }
     }
 
-    // TODO this should go into comm
     /// This one should avrdude to send a given file to the arduino
     pub fn install(&mut self, filename: &str) -> Result<(), BrainArduinoError> {
         // First check that avrdude is installed
@@ -139,7 +138,6 @@ impl Arduino<'_> {
         };
     }
 
-    // TODO this should go into comm
     /// Check that a given program is installed
     pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainArduinoError> {
         let check = Command::new("which")
