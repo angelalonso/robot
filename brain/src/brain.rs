@@ -1,7 +1,7 @@
 use crate::config::Config;
 use crate::arduino::Arduino;
 use crate::log;
-use std::process::Command;
+//use std::process::Command;
 use std::str;
 use thiserror::Error;
 use std::process;
@@ -43,6 +43,7 @@ pub enum BrainDeadError {
 pub struct Brain<'a> {
     pub name: &'a str,
     pub config: Config,
+    pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
 }
@@ -54,21 +55,26 @@ impl Brain<'_> {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
+        let arduino_connector = Arduino::new("arduino", None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Arduino: {}", err);
+            process::exit(1);
+        });
         Ok(Self {
             name: brain_name,
             config: configdata,
+            arduino: arduino_connector,
             serialport: serial_port,
             timeout: 4,
         })
     }
 
     pub fn read(&mut self) {
-        let mut arduino = Arduino::new("arduino", None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Arduino: {}", err);
-            process::exit(1);
-        });
+        //let mut arduino = Arduino::new("arduino", None).unwrap_or_else(|err| {
+        //    eprintln!("Problem Initializing Arduino: {}", err);
+        //    process::exit(1);
+        //});
         loop {
-            let _received = match arduino.read_channel(){
+            let _received = match self.arduino.read_channel(){
                 Ok(rcv) => {
                     let _taken_actions = match self.get_actions(&rcv){
                         Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
@@ -108,81 +114,80 @@ impl Brain<'_> {
         for action in &actions {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
-                "install" => self.install_to_arduino(&action_vec[1..].to_vec().join("_")).unwrap(),
+                "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
                 _ => self.do_nothing().unwrap(),
             };
         }
         Ok(())
     }
 
-    // TODO this should go into comm
-    /// This one should avrdude to send a given file to the arduino
-    pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
-        // First check that avrdude is installed
-        log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
-        let mut _check_prog = match self.check_requirement("avrdude") {
-            Ok(_v) => {
-    // This sudo cant be right
-    // TODO: send a different error if the file is not there (unter anderem)
-                let run = Command::new("sudo")
-                        .arg("avrdude")
-                        .arg("-c")
-                        .arg("linuxgpio")
-                        .arg("-p")
-                        .arg("atmega328p")
-                        .arg("-v")
-                        .arg("-U")
-                        .arg(format!("flash:w:{}:i", filename))
-                        .output()
-                        .expect("process failed to execute");
-                match run.status.code() {
-                    Some(code) => {
-                        match code {
-                            0 => return Ok(()),
-                            _ => {
-                                log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
-                                return Err(BrainDeadError::AvrdudeError)
-                            },
-                        }
-                    },
-                    _ => {
-                        log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
-                        return Err(BrainDeadError::AvrdudeError)
-                            },
-                    };
-                },
-            Err(e) => return Err(e),
-        };
-    }
+//    // TODO this should go into comm
+//    /// This one should avrdude to send a given file to the arduino
+//    pub fn install_to_arduino(&mut self, filename: &str) -> Result<(), BrainDeadError> {
+//        // First check that avrdude is installed
+//        log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
+//        let mut _check_prog = match self.check_requirement("avrdude") {
+//            Ok(_v) => {
+//    // This sudo cant be right
+//    // TODO: send a different error if the file is not there (unter anderem)
+//                let run = Command::new("sudo")
+//                        .arg("avrdude")
+//                        .arg("-c")
+//                        .arg("linuxgpio")
+//                        .arg("-p")
+//                        .arg("atmega328p")
+//                        .arg("-v")
+//                        .arg("-U")
+//                        .arg(format!("flash:w:{}:i", filename))
+//                        .output()
+//                        .expect("process failed to execute");
+//                match run.status.code() {
+//                    Some(code) => {
+//                        match code {
+//                            0 => return Ok(()),
+//                            _ => {
+//                                log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
+//                                return Err(BrainDeadError::AvrdudeError)
+//                            },
+//                        }
+//                    },
+//                    _ => {
+//                        log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
+//                        return Err(BrainDeadError::AvrdudeError)
+//                            },
+//                    };
+//                },
+//            Err(e) => return Err(e),
+//        };
+//    }
 
-    // TODO this should go into comm
     /// Do nothing, but take note that we have nothing to do
     pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
     }
 
-    // TODO this should go into comm
-    /// Check that a given program is installed
-    pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
-        let check = Command::new("which")
-                .arg(prog)
-                .output()
-                .expect("");
-        match check.status.code() {
-            Some(code) => {
-                match code {
-                    0 => Ok(()),
-                    _ => {
-                        log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                        Err(BrainDeadError::ProgNotInstalledError(prog.to_string()))
-                    },
-                }
-            },
-            _ => {
-                log(Some(&self.name), "E", &format!("{} is not installed!", prog));
-                Err(BrainDeadError::ProgNotInstalledError(prog.to_string()))
-                    },
-        }
-    }
+//    // TODO this should go into comm
+//    /// Check that a given program is installed
+//    pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainDeadError> {
+//        let check = Command::new("which")
+//                .arg(prog)
+//                .output()
+//                .expect("");
+//        match check.status.code() {
+//            Some(code) => {
+//                match code {
+//                    0 => Ok(()),
+//                    _ => {
+//                        log(Some(&self.name), "E", &format!("{} is not installed!", prog));
+//                        Err(BrainDeadError::ProgNotInstalledError(prog.to_string()))
+//                    },
+//                }
+//            },
+//            _ => {
+//                log(Some(&self.name), "E", &format!("{} is not installed!", prog));
+//                Err(BrainDeadError::ProgNotInstalledError(prog.to_string()))
+//                    },
+//        }
+//    }
 }
