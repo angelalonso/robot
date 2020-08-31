@@ -1,5 +1,5 @@
 use crate::config::Config;
-use crate::comm::Comm;
+use crate::arduino::Arduino;
 use crate::log;
 use std::process::Command;
 use std::str;
@@ -63,12 +63,12 @@ impl Brain<'_> {
     }
 
     pub fn read(&mut self) {
-        let mut comm = Comm::new("arduino", None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Comm: {}", err);
+        let mut arduino = Arduino::new("arduino", None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
         loop {
-            let _received = match comm.read_channel(){
+            let _received = match arduino.read_channel(){
                 Ok(rcv) => {
                     let _taken_actions = match self.get_actions(&rcv){
                         Ok(acts) => println!("Taking action {:?}", acts.join(", ")),

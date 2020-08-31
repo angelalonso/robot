@@ -1,4 +1,3 @@
-// TODO : this maybe should be called arduino_comm
 extern crate serial;
 use crate::log;
 use serial::prelude::*;
@@ -10,7 +9,7 @@ use thiserror::Error;
 
 
 #[derive(Error, Debug)]
-pub enum BrainCommError {
+pub enum BrainArduinoError {
     /// It used to represent an empty source. For example, an empty text file being given
     /// as input to `count_words()`.
     /// Now it's just the most basic I dont care Error
@@ -39,24 +38,24 @@ pub enum BrainCommError {
     IOError(#[from] std::io::Error),
 }
 
-pub struct Comm<'a> {
+pub struct Arduino<'a> {
     pub name: &'a str,
     pub serialport: &'a str,
 }
 
-impl Comm<'_> {
-    pub fn new(comm_name: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+impl Arduino<'_> {
+    pub fn new(arduino_name: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         let serial_port = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
         Ok(Self {
-            name: comm_name,
+            name: arduino_name,
             serialport: serial_port,
         })
     }
 
-    pub fn read_channel(&mut self) -> Result<String, BrainCommError> {
+    pub fn read_channel(&mut self) -> Result<String, BrainArduinoError> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
         loop {

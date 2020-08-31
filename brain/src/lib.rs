@@ -3,6 +3,7 @@ pub mod config_test;
 pub mod brain;
 pub mod brain_test;
 pub mod comm;
+pub mod arduino;
 
 extern crate chrono;
 use chrono::offset::Utc;
