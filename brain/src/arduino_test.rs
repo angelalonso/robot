@@ -4,16 +4,16 @@ mod arduino_test {
     use std::process;
     use crate::arduino::Arduino;
 
+    // TODO: fill this up
     #[test]
     #[ignore]
     fn check_read_channel() {
-
     }
 
+    // TODO: fill this up
     #[test]
     #[ignore]
     fn check_interact() {
-
     }
 
     #[test]
@@ -27,13 +27,8 @@ mod arduino_test {
         assert!(serial.is_ok(), "installing file did not work well");
     }
     #[test]
+    #[ignore]
     fn check_install_nofile () {
-        //let mut test = Brain::new("test",
-        //                          "testfiles/cfg.yaml", 
-        //                          None).unwrap_or_else(|err| {
-        //    eprintln!("Problem Initializing Main Brain: {}", err);
-        //    process::exit(1);
-        //});
         let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
@@ -41,21 +36,14 @@ mod arduino_test {
         let serial = test.install("file_not_existing.ino.hex");
         assert!(serial.is_err(), "checking errors on installing wrong file did not work well");
     }
-
-    // TODO: fill this up
     #[test]
     fn check_install_noconnection () {
-
-    }
-    // TODO: fill this up
-    #[test]
-    fn check_install_lockedpin () {
-
-    }
-    // TODO: fill this up
-    #[test]
-    fn check_install_ermissiondenied () {
-
+        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let serial = test.install("file_not_existing.ino.hex");
+        assert!(serial.is_err(), "checking errors on installing without connection did not work well");
     }
 
     #[test]
