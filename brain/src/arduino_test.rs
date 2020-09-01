@@ -4,17 +4,17 @@ mod arduino_test {
     use std::process;
     use crate::arduino::Arduino;
 
-    // TODO: fill this up
-    #[test]
-    #[ignore]
-    fn check_read_channel() {
-        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let serial = test.read_channel();
-        assert!(serial.is_ok(), "reading from the Serial Port did not work well");
-    }
+    // TODO: add a limit on loops before enabling this
+    //#[test]
+    //#[ignore]
+    //fn check_read_channel() {
+    //    let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+    //        eprintln!("Problem Initializing Main Brain: {}", err);
+    //        process::exit(1);
+    //    });
+    //    let serial = test.read_channel();
+    //    assert!(serial.is_ok(), "reading from the Serial Port did not work well");
+    //}
 
     #[test]
     #[ignore]
