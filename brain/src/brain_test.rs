@@ -4,32 +4,15 @@ mod brain_test {
     use std::process;
     use crate::brain::Brain;
 
-    // TODO: fill this up
     #[test]
-    fn check_read_loop() {
-
-    }
-
-    // TODO: fill this up
-    #[test]
-    fn check_read_one_from_serialport () {
-
-    }
-    // TODO: fill this up
-    #[test]
-    fn check_read_one_from_serialport_noconnection () {
-
-    }
-    // TODO: fill this up
-    #[test]
-    fn check_read_one_from_serialport_permissiondenied () {
-
+    #[ignore]
+    fn check_read() {
     }
 
     /// Ignoring this outside of the raspberry because it goes on to use avrdude
     #[test]
     #[ignore]
-    fn get_actions() {
+    fn check_get_actions() {
         let mut test = Brain::new("test",
                                   "testfiles/cfg.yaml", 
                                   None).unwrap_or_else(|err| {
@@ -40,7 +23,7 @@ mod brain_test {
         assert!(action_got.is_ok(), "getting an action did not go well");
     }
     #[test]
-    fn get_actions_notfound() {
+    fn check_get_actions_notfound() {
         let mut test = Brain::new("test",
                                   "testfiles/cfg.yaml", 
                                   None).unwrap_or_else(|err| {
@@ -51,9 +34,8 @@ mod brain_test {
         assert!(action_got.is_err(), "getting an error for a non existing action did not go well");
     }
 
-    // TODO: Add a failing one
     #[test]
-    fn apply_actions() {
+    fn check_apply_actions() {
         let mut test = Brain::new("test",
                                   "testfiles/cfg.yaml", 
                                   None).unwrap_or_else(|err| {
@@ -63,44 +45,8 @@ mod brain_test {
         let action_applied = test.apply_actions(Vec::from(["sendfile_../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex".to_string()]));
         assert!(action_applied.is_ok(), "applying an action did not go well");
     }
-
     #[test]
-    #[ignore]
-    fn check_install_to_arduino() {
-        let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let serial = test.arduino.install("../arduino/001_test_ping/001_test_ping.ino.hex");
-        assert!(serial.is_ok(), "installing file did not work well");
-    }
-    #[test]
-    fn check_install_to_arduino_nofile () {
-        let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let serial = test.arduino.install("file_not_existing.ino.hex");
-        assert!(serial.is_err(), "checking errors on installing wrong file did not work well");
-    }
-    // TODO: fill this up
-    #[test]
-    fn check_install_to_arduino_noconnection () {
-
-    }
-    // TODO: fill this up
-    #[test]
-    fn check_install_to_arduino_blockedpin () {
-
-    }
-    // TODO: fill this up
-    #[test]
-    fn check_install_to_arduino_permissiondenied () {
-
+    fn check_apply_actions_error() {
     }
 
     #[test]
@@ -114,39 +60,4 @@ mod brain_test {
         let avrdude = test.do_nothing();
         assert!(avrdude.is_ok(), "nothing is being done");
     }
-
-    #[test]
-    fn check_check_requirement() {
-        let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let avrdude = test.arduino.check_requirement("rustc");
-        assert!(avrdude.is_ok(), "avrdude should be installed");
-    }
-    #[test]
-    #[ignore]
-    fn check_avrdude() {
-        let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
-                                  None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let avrdude = test.arduino.check_requirement("avrdude");
-        assert!(avrdude.is_ok(), "avrdude should be installed");
-    }
-
-//    /// ------------------ REVIEWED ^ --------------------- ///
-//
-//
-//
-//
-//
-//
-//
-//
-//
 }
