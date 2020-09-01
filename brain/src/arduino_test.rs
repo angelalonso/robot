@@ -8,9 +8,14 @@ mod arduino_test {
     #[test]
     #[ignore]
     fn check_read_channel() {
+        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let serial = test.read();
+        assert!(serial.is_ok(), "reading from the Serial Port did not work well");
     }
 
-    // TODO: fill this up
     #[test]
     #[ignore]
     fn check_interact() {
@@ -21,7 +26,19 @@ mod arduino_test {
         });
         let mut port = serial::open("/dev/ttyUSB0").unwrap();
         let serial = test.interact(&mut port);
-        assert!(serial.is_ok(), "installing file did not work well");
+        assert!(serial.is_ok(), "interacting with the Serial Port did not work well");
+    }
+    #[test]
+    #[ignore]
+    fn check_interact_error() {
+            
+        let mut test = Arduino::new("testduino", Some("/dev/ttyNONE")).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let mut port = serial::open("/dev/ttyNONE").unwrap();
+        let serial = test.interact(&mut port);
+        assert!(serial.is_err(), "interacting with the WRONG Serial Port did not return a proper error");
     }
 
     #[test]
