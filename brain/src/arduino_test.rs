@@ -12,7 +12,7 @@ mod arduino_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let serial = test.read();
+        let serial = test.read_channel();
         assert!(serial.is_ok(), "reading from the Serial Port did not work well");
     }
 
