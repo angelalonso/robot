@@ -36,9 +36,8 @@ mod arduino_test {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let mut port = serial::open("/dev/ttyNONE").unwrap();
-        let serial = test.interact(&mut port);
-        assert!(serial.is_err(), "interacting with the WRONG Serial Port did not return a proper error");
+        let wrong_port = serial::open("/dev/ttyNONE");
+        assert!(wrong_port.is_err(), "interacting with the WRONG Serial Port did not return a proper error");
     }
 
     #[test]
