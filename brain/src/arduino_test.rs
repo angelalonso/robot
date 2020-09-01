@@ -28,17 +28,6 @@ mod arduino_test {
         let serial = test.interact(&mut port);
         assert!(serial.is_ok(), "interacting with the Serial Port did not work well");
     }
-    #[test]
-    #[ignore]
-    fn check_interact_error() {
-            
-        let _test = Arduino::new("testduino", None).unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Main Brain: {}", err);
-            process::exit(1);
-        });
-        let wrong_port = serial::open("/dev/ttyNONE");
-        assert!(wrong_port.is_err(), "interacting with the WRONG Serial Port did not return a proper error");
-    }
 
     #[test]
     #[ignore]
