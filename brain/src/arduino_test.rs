@@ -32,7 +32,7 @@ mod arduino_test {
     #[ignore]
     fn check_interact_error() {
             
-        let mut test = Arduino::new("testduino", Some("/dev/ttyNONE")).unwrap_or_else(|err| {
+        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
