@@ -68,7 +68,7 @@ impl Arduino<'_> {
         }
     }
 
-    fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<String> {
+    pub fn interact<T: SerialPort>(&mut self, port: &mut T) -> io::Result<String> {
         port.reconfigure(&|settings| {
             settings.set_baud_rate(serial::Baud9600)?;
             settings.set_char_size(serial::Bits8);

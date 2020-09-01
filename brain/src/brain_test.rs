@@ -4,11 +4,6 @@ mod brain_test {
     use std::process;
     use crate::brain::Brain;
 
-    #[test]
-    #[ignore]
-    fn check_read() {
-    }
-
     /// Ignoring this outside of the raspberry because it goes on to use avrdude
     #[test]
     #[ignore]
@@ -44,9 +39,6 @@ mod brain_test {
         });
         let action_applied = test.apply_actions(Vec::from(["sendfile_../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex".to_string()]));
         assert!(action_applied.is_ok(), "applying an action did not go well");
-    }
-    #[test]
-    fn check_apply_actions_error() {
     }
 
     #[test]

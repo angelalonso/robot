@@ -14,6 +14,14 @@ mod arduino_test {
     #[test]
     #[ignore]
     fn check_interact() {
+            
+        let mut test = Arduino::new("testduino", Some("/dev/ttyUSB0")).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Main Brain: {}", err);
+            process::exit(1);
+        });
+        let mut port = serial::open("/dev/ttyUSB0").unwrap();
+        let serial = test.interact(&mut port);
+        assert!(serial.is_ok(), "installing file did not work well");
     }
 
     #[test]
