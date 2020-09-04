@@ -22,21 +22,6 @@ pub enum BrainArduinoError {
 
     #[error("AvrDude could not install the program to your Arduino!")]
     AvrdudeError,
-
-    /// Represents the most basic error while sending a file (using avrdude)
-    #[error("Something went wrong while using avrdude to send files")]
-    SendFileError,
-
-    #[error("Something went wrong while reading from the serial port")]
-    ReadSerialError,
-
-    /// Represents a failure to read from input.
-    #[error("Read error")]
-    ReadError { source: std::io::Error },
-
-    /// Represents all other cases of `std::io::Error`.
-    #[error(transparent)]
-    IOError(#[from] std::io::Error),
 }
 
 pub struct Arduino<'a> {

@@ -117,3 +117,9 @@ export RUSTUP_UNPACK_RAM=200000000  # For Raspberry pi 1 REV2 Model B
 export RUSTUP_UNPACK_RAM=220000000  # For Raspberry pi 1 B+
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
 
+# Make Raspberry connect to LAN through Wi-Fi
+Buy a Wifi dongle.  
+Read https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md  
+sudo raspi-config
+> Localisation Options > Change Wi-fi Country > Choose yours
+> Network Options > Wi-Fi > add the name of the WiFi network and the pass
