@@ -118,8 +118,8 @@ export RUSTUP_UNPACK_RAM=220000000  # For Raspberry pi 1 B+
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
 
 # Make Raspberry connect to LAN through Wi-Fi
-Buy a Wifi dongle.  
+Buy a Wifi dongle. I have this https://www.amazon.com/Edimax-EW-7611ULB-Wi-Fi-Bluetooth-Adapter/dp/B01KVZB3A4/ref=sr_1_2?dchild=1&keywords=edimax+wifi+dongle&qid=1599231989&sr=8-2  
 Read https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md  
-sudo raspi-config
-> Localisation Options > Change Wi-fi Country > Choose yours
-> Network Options > Wi-Fi > add the name of the WiFi network and the pass
+sudo raspi-config  
+> Localisation Options > Change Wi-fi Country > Choose yours  
+> Network Options > Wi-Fi > add the name of the WiFi network and the pass  
