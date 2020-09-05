@@ -9,8 +9,8 @@ void setup() {
   pinMode(in2, OUTPUT);
   pinMode(button, INPUT);
   // Set initial rotation direction
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
 }
 void loop() {
   int potValue = analogRead(A0); // Read potentiometer value
