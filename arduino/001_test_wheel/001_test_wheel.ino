@@ -13,8 +13,5 @@ void setup() {
   digitalWrite(in2, LOW);
 }
 void loop() {
-  int potValue = analogRead(A0); // Read potentiometer value
-  int pwmOutput = map(potValue, 0, 1023, 0 , 255); // Map the potentiometer value from 0 to 255
-  analogWrite(enA, pwmOutput); // Send PWM signal to L298N Enable pin
-
+  analogWrite(enA, 100); 
 }
