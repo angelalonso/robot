@@ -13,5 +13,5 @@ void setup() {
   digitalWrite(in2, LOW);
 }
 void loop() {
-  analogWrite(enA, 100); 
+  analogWrite(enA, 200); 
 }
