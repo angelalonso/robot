@@ -58,6 +58,7 @@ check [RASPBERRY.md](RASPBERRY.md)
                 GPIO26--37-|O O|-38-----GPIO20
                       _-39-|O O|-40-----GPIO21
                            '---'
+                           (_ means Ground)
 
 ## Arduino clone "ISCP" Map - yeah I know, freaking clones' typos
 -----------
