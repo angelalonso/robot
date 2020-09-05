@@ -1,4 +1,7 @@
 ---
+- trigger: "start"
+  actions:
+    - install_../arduino/001_test_wheel/001_test_wheel.ino.hex
 - trigger: "ping"
   actions:
     - install_../arduino/001_test_pong/001_test_pong.ino.hex
