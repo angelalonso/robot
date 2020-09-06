@@ -59,7 +59,7 @@ void loop() {
     analogWrite(enB, 0);
   }
   Serial.println("LOG: Aunque me muera ahora!");
-  digitalWrite(inA1, LOW);
+  digitalWrite(inA1, HIGH);
   digitalWrite(inA2, LOW);
   digitalWrite(inB1, LOW);
   digitalWrite(inB2, HIGH);
