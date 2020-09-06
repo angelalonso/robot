@@ -13,7 +13,7 @@ void setup() {
   digitalWrite(in2, LOW);
   Serial.begin(9600);
   int j;
-  for ( j = 0; j < 10; j++) {
+  for ( j = 0; j < 255; j++) {
     analogWrite(enA, j);
     delay(50);                                            
     Serial.print("LOG: j is ");  //messages starting with LOG: will be read but not taken as result
