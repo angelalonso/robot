@@ -10,10 +10,10 @@ void loop() {
   digitalWrite(LED_BUILTIN, LOW);   // turn the LED on 
   delay(50);                       
   digitalWrite(LED_BUILTIN, HIGH);    // turn the LED off 
-  delay(50);     
+  delay(100);     
   digitalWrite(LED_BUILTIN, LOW);   // turn the LED on 
   delay(50);                       
   digitalWrite(LED_BUILTIN, HIGH);    // turn the LED off 
-  delay(950);                      
+  delay(800);                      
   Serial.println("LOG: Ready");  //messages starting with LOG: will be read but not taken as result
 }
