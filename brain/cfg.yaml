@@ -1,4 +1,7 @@
 ---
+- trigger: "wheel finished"
+  actions:
+    - install_../arduino/000_ready/000_ready.ino.hex
 - trigger: "start"
   actions:
     - install_../arduino/001_test_wheel/001_test_wheel.ino.hex
