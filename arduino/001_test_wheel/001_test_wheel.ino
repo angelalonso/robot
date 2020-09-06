@@ -11,6 +11,7 @@ void setup() {
   // Set initial rotation direction
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
+  Serial.begin(9600);
   int j;
   for ( j = 0; j < 10; j++) {
     analogWrite(enA, j);
