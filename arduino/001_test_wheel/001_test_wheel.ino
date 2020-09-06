@@ -1,8 +1,8 @@
 
 void setup() {
-  #define enA 5
-  #define in1 6
-  #define in2 7
+  #define enA 9
+  #define in1 7
+  #define in2 8
   
   pinMode(enA, OUTPUT);
   pinMode(in1, OUTPUT);
