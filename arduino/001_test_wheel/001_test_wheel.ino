@@ -11,7 +11,14 @@ void setup() {
   // Set initial rotation direction
   digitalWrite(in1, HIGH);
   digitalWrite(in2, LOW);
+  int j;
+  for ( j = 0; j < 10; j++) {
+    analogWrite(enA, j);
+    delay(50);                                            
+    Serial.print("LOG: j is ");  //messages starting with LOG: will be read but not taken as result
+    Serial.println(j);
+  }
 }
 void loop() {
-  analogWrite(enA, 255); 
+ 
 }
