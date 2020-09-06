@@ -16,4 +16,5 @@ void loop() {
   digitalWrite(LED_BUILTIN, LOW);    // turn the LED off 
   delay(800);                      
   Serial.println("LOG: Ready");  //messages starting with LOG: will be read but not taken as result
+  delay(60000);
 }
