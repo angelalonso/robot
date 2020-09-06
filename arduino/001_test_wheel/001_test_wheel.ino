@@ -63,6 +63,7 @@ void loop() {
   digitalWrite(inA2, LOW);
   digitalWrite(inB1, LOW);
   digitalWrite(inB2, HIGH);
+  analogWrite(enA, speed);
   analogWrite(enB, speed);
   delay(2000);
   analogWrite(enA, 0);
