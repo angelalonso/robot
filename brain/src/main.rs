@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         process::exit(1);
     });
     // Send the first file that triggers our ping-pong loop of messages to start.
-    let _send_first = main_brain.arduino.install("../arduino/001_test_wheel/001_test_wheel.ino.hex").unwrap_or_else(|err| {
+    let _send_first = main_brain.arduino.install("../arduino/000_ready/000_ready.ino.hex").unwrap_or_else(|err| {
         eprintln!("Problem sending the first program to the Arduino: {}", err);
         process::exit(1);
     });
