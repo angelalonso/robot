@@ -9,9 +9,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         eprintln!("Problem Initializing Main Brain: {}", err);
         process::exit(1);
     });
-    // Send the first file that triggers our ping-pong loop of messages to start.
-    let _send_first = main_brain.arduino.install("../arduino/001_test_wheel/001_test_wheel.ino.hex").unwrap_or_else(|err| {
-        eprintln!("Problem sending the first program to the Arduino: {}", err);
+    //// Send the first file that triggers our ping-pong loop of messages to start.
+    //let _send_first = main_brain.arduino.install("../arduino/001_test_wheel/001_test_wheel.ino.hex").unwrap_or_else(|err| {
+    //    eprintln!("Problem sending the first program to the Arduino: {}", err);
+    //    process::exit(1);
+    //});
+    // Send the first trigger to start.
+    let _send_start = main_brain.get_actions("start").unwrap_or_else(|err| {
+        eprintln!("Problem sending the first trigger to the Arduino: {}", err);
         process::exit(1);
     });
     // Listening on Comm
