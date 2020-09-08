@@ -4,6 +4,9 @@
     - install_../arduino/000_ready/000_ready.ino.hex
 - trigger: "start"
   actions:
+    - install_../arduino/001_test_ping_counter/001_test_ping_counter.ino.hex
+- trigger: "dance"
+  actions:
     - install_../arduino/001_test_wheel/001_test_wheel.ino.hex
 - trigger: "ping"
   actions:
