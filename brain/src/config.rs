@@ -28,7 +28,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(configfile: &str) -> Self {
+    pub fn new(configfile: String) -> Self {
         let filepointer = File::open(configfile).unwrap();
 
         let reactions: Vec<ConfigEntry> = serde_yaml::from_reader(filepointer).unwrap();

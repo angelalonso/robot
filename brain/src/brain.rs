@@ -27,7 +27,7 @@ pub struct Brain<'a> {
 }
 
 impl Brain<'_> {
-    pub fn new(brain_name: &'static str, config_file: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+    pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         let configdata = Config::new(config_file);
         let serial_port = match raw_serial_port {
             Some(port) => port,
