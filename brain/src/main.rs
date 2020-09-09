@@ -42,7 +42,7 @@ fn argparser() -> (String, String) {
 /// Load a new brain, send the first trigger, and enter the reading loop
 fn main() -> Result<(), Box<dyn Error>> {
     let (config_file, start_mode) = argparser();
-    println!("{}", start_mode);
+    println!("Starting Brain with Mode {}", start_mode);
     // Generate our Brain object
     let mut main_brain = Brain::new("Main Brain", config_file, None).unwrap_or_else(|err| {
         eprintln!("Problem Initializing Main Brain: {}", err);
