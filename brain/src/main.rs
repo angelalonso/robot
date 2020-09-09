@@ -30,8 +30,10 @@ fn argparser() -> (String, String) {
         },
         // two or more argument(s) passed? join them with spaces to allow phrases
         _ => {
+            // remove the prog name itself
             args.remove(0);
-            let ref configfile = &args[0];
+            // drain the config file path
+            let configfile : String = args.drain(0..1).collect();
             (configfile.to_string(), args.join(" "))
         },
     }
@@ -40,6 +42,7 @@ fn argparser() -> (String, String) {
 /// Load a new brain, send the first trigger, and enter the reading loop
 fn main() -> Result<(), Box<dyn Error>> {
     let (config_file, start_mode) = argparser();
+    println!("{}", start_mode);
     // Generate our Brain object
     let mut main_brain = Brain::new("Main Brain", config_file, None).unwrap_or_else(|err| {
         eprintln!("Problem Initializing Main Brain: {}", err);
