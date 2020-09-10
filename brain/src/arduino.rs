@@ -90,6 +90,7 @@ impl Arduino<'_> {
         log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
+    // To test avrdude manually: sudo avrdude -c linuxgpio -p atmega328p -v 
     // This sudo cant be right
     // TODO: send a different error if the file is not there (unter anderem)
                 let run = Command::new("sudo")
