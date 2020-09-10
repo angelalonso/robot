@@ -14,3 +14,6 @@
 - trigger: "pong"
   actions:
     - install_../arduino/001_test_ping_counter/001_test_ping_counter.ino.hex
+- trigger: "test proximity"
+  actions:
+    - install_../arduino/001_test_proximity/001_test_proximity.ino.hex
