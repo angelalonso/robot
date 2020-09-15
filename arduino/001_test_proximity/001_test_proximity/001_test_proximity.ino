@@ -25,10 +25,10 @@ void loop() {
   distance = duration*0.034/2;
   Serial.print("LOG: Distance -> ");
   Serial.println(distance);
-  delayMicroseconds(10);  
+  delayMicroseconds(50);  
   Serial.print("LOG: Duration -> ");
   Serial.println(duration);
-  delayMicroseconds(10);
+  delayMicroseconds(50);
   if (distance < 20) {
     Serial.println("ACTION: move backwards");
   } else {
