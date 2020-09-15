@@ -52,8 +52,7 @@ impl Arduino<'_> {
             if got != "" {
                 if got.contains("ACTION:") {
                     log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
-                    channel.send(got);
-                    Ok(got)
+                    channel.send(got).unwrap();
                 } else {
                     log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
                     break Ok(got)
