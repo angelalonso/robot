@@ -32,7 +32,11 @@ void loop() {
   if (distance < 20) {
     Serial.println("ACTION: move backwards");
   } else {
-    Serial.println("ACTION: move forwards");
+    if (distance = 0) {
+    Serial.println("ACTION: stop");
+    } else {
+      Serial.println("ACTION: move forwards");
+    }
   }
 
 }
