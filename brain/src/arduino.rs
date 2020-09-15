@@ -72,6 +72,9 @@ impl Arduino<'_> {
                 if res.contains("LOG:") {
                     log(Some(&self.name), "D", &format!("Got a Log message: {}", &res));
                     Ok("".to_string())
+                } else if res.contains("ACTION:") {
+                    log(Some(&self.name), "D", &format!("Got an Action message: {}", &res));
+                    Ok("".to_string())
                 } else {
                     //log(Some(&self.name), "D", &format!("Got a Result: ->{}<-", &res));
                     Ok(res)

@@ -24,6 +24,7 @@ pub struct Brain<'a> {
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
+    pub move_pair: (i16, i16),
 }
 
 impl Brain<'_> {
@@ -43,11 +44,13 @@ impl Brain<'_> {
             arduino: arduino_connector,
             serialport: serial_port,
             timeout: 4,
+            move_pair: (0, 0),
         })
     }
 
     pub fn read(&mut self) {
         loop {
+            self.show_move();
             let _received = match self.arduino.read_channel(){
                 Ok(rcv) => {
                     let _taken_actions = match self.get_actions(&rcv){
@@ -99,5 +102,9 @@ impl Brain<'_> {
     pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
+    }
+
+    pub fn show_move(&mut self) {
+        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.move_pair.0, self.move_pair.1));
     }
 }
