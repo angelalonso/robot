@@ -8,6 +8,7 @@ use std::time::Duration;
 use thiserror::Error;
 use std::process::Command;
 
+use std::sync::mpsc::{Sender, Receiver};
 
 #[derive(Error, Debug)]
 pub enum BrainArduinoError {
@@ -43,7 +44,7 @@ impl Arduino<'_> {
         })
     }
 
-    pub fn read_channel(&mut self) -> Result<String, BrainArduinoError> {
+    pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
         loop {
@@ -51,7 +52,7 @@ impl Arduino<'_> {
             if got != "" {
                 if got.contains("ACTION:") {
                     log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
-                    self.change_move();
+                    channel.send(got);
                 } else {
                     log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
                     break Ok(got)

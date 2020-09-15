@@ -5,6 +5,8 @@ use std::str;
 use thiserror::Error;
 use std::process;
 
+use std::sync::mpsc::{Sender, Receiver};
+
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
     /// It used to represent an empty source. For example, an empty text file being given
@@ -49,7 +51,9 @@ impl Brain<'_> {
     pub fn read(&mut self) {
         loop {
             self.show_move();
-            let _received = match self.arduino.read_channel(){
+            let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+            let msgs = s.clone();
+            let _received = match self.arduino.read_channel(msgs){
                 Ok(rcv) => {
                     let _taken_actions = match self.get_actions(&rcv){
                         Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
@@ -58,6 +62,10 @@ impl Brain<'_> {
                 },
                 Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
             };
+            loop {
+                let msg = r.recv();
+                println!("{:?}", msg);
+            }
         }
     }
 
