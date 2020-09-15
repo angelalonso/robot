@@ -53,6 +53,7 @@ impl Arduino<'_> {
                 if got.contains("ACTION:") {
                     log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
                     channel.send(got);
+                    Ok(got)
                 } else {
                     log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
                     break Ok(got)
@@ -151,7 +152,7 @@ impl Arduino<'_> {
             _ => {
                 log(Some(&self.name), "E", &format!("{} is not installed!", prog));
                 Err(BrainArduinoError::ProgNotInstalledError(prog.to_string()))
-                    },
+            },
         }
     }
 }
