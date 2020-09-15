@@ -24,7 +24,6 @@ pub struct Brain<'a> {
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
-    pub move_pair: (i16, i16),
 }
 
 impl Brain<'_> {
@@ -44,7 +43,6 @@ impl Brain<'_> {
             arduino: arduino_connector,
             serialport: serial_port,
             timeout: 4,
-            move_pair: (0, 0),
         })
     }
 
@@ -105,6 +103,6 @@ impl Brain<'_> {
     }
 
     pub fn show_move(&mut self) {
-        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.move_pair.0, self.move_pair.1));
+        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.arduino.movement.0, self.arduino.movement.1));
     }
 }

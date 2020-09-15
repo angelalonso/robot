@@ -27,6 +27,7 @@ pub enum BrainArduinoError {
 pub struct Arduino<'a> {
     pub name: &'a str,
     pub serialport: &'a str,
+    pub movement: (i16, i16),
 }
 
 impl Arduino<'_> {
@@ -38,6 +39,7 @@ impl Arduino<'_> {
         Ok(Self {
             name: arduino_name,
             serialport: serial_port,
+            movement: (10, -10),
         })
     }
 
@@ -49,6 +51,7 @@ impl Arduino<'_> {
             if got != "" {
                 if got.contains("ACTION:") {
                     log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
+                    self.change_move();
                 } else {
                     log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
                     break Ok(got)
@@ -149,5 +152,9 @@ impl Arduino<'_> {
                 Err(BrainArduinoError::ProgNotInstalledError(prog.to_string()))
                     },
         }
+    }
+    fn change_move(&mut self) {
+        self.movement = (5, -5);
+
     }
 }
