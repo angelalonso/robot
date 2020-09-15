@@ -26,7 +26,7 @@ void loop() {
   delay(10);    
   Serial.print("LOG: How far -> ");
   Serial.println(distance);
-  delay(10);  
+  delay(20);  
   Serial.print("LOG: How long -> ");
   Serial.println(duration);
   delay(10);
