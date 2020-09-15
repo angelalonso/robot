@@ -23,13 +23,13 @@ void loop() {
   // Reads the proxEchoPin, returns the sound wave travel time in microseconds
   duration = pulseIn(proxEchoPin, HIGH);
   distance = duration*0.034/2;
-  delay(10);    
+  delay(50);    
   Serial.print("LOG: How far -> ");
   Serial.println(distance);
-  delay(20);  
+  delay(50);  
   Serial.print("LOG: How long -> ");
   Serial.println(duration);
-  delay(10);
+  delay(50);
   if (distance < 20) {
     Serial.println("ACTION: move backwards");
   } else {
