@@ -1,5 +1,5 @@
-const int proxTriggerPin = 10;
-const int proxEchoPin = 11;
+const int proxTriggerPin = 7;
+const int proxEchoPin = 6;
 // vars
 long duration;
 int distance;
