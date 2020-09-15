@@ -22,21 +22,6 @@ pub enum BrainArduinoError {
 
     #[error("AvrDude could not install the program to your Arduino!")]
     AvrdudeError,
-
-    /// Represents the most basic error while sending a file (using avrdude)
-    #[error("Something went wrong while using avrdude to send files")]
-    SendFileError,
-
-    #[error("Something went wrong while reading from the serial port")]
-    ReadSerialError,
-
-    /// Represents a failure to read from input.
-    #[error("Read error")]
-    ReadError { source: std::io::Error },
-
-    /// Represents all other cases of `std::io::Error`.
-    #[error(transparent)]
-    IOError(#[from] std::io::Error),
 }
 
 pub struct Arduino<'a> {
@@ -105,6 +90,7 @@ impl Arduino<'_> {
         log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
+    // To test avrdude manually: sudo avrdude -c linuxgpio -p atmega328p -v 
     // This sudo cant be right
     // TODO: send a different error if the file is not there (unter anderem)
                 let run = Command::new("sudo")

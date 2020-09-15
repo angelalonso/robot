@@ -1,6 +1,6 @@
 [package]
 name = "brain"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Angel Alonso Fonseca <alonsofonseca.angel@gmail.com>"]
 edition = "2018"
 
@@ -8,14 +8,8 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4"
-rand = "0.7.3"
 serde = "1.0"
 serde_derive = "1.0"
 serde_yaml = "0.7"
 serial = "0.4.0"
 thiserror = "1.0.20"
-futures = "0.3.1"
-tokio = { version = "0.2.21", features = ["full"] }
-tokio-util = { version = "0.2.0", features = ["codec"], default-features = false }
-tokio-serial = "4.3.3"
-bytes = "0.5"
