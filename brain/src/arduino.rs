@@ -8,7 +8,7 @@ use std::time::Duration;
 use thiserror::Error;
 use std::process::Command;
 
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::Sender;
 
 #[derive(Error, Debug)]
 pub enum BrainArduinoError {
@@ -153,9 +153,5 @@ impl Arduino<'_> {
                 Err(BrainArduinoError::ProgNotInstalledError(prog.to_string()))
                     },
         }
-    }
-    fn change_move(&mut self) {
-        self.movement = (5, -5);
-
     }
 }

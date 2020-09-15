@@ -64,7 +64,7 @@ impl Brain<'_> {
             };
             loop {
                 let msg = r.recv();
-                println!("{:?}", msg);
+                println!("      ATTENTION!!! {:?}", msg);
             }
         }
     }
