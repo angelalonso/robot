@@ -49,9 +49,10 @@ impl Arduino<'_> {
             if got != "" {
                 if got.contains("ACTION:") {
                     log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
+                } else {
+                    log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
+                    break Ok(got)
                 }
-                log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
-                break Ok(got)
             }
         }
     }
