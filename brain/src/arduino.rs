@@ -69,11 +69,12 @@ impl Arduino<'_> {
         let mut lines = reader.lines();
         match lines.next().unwrap() {
             Ok(res) => {
+                log(Some(&self.name), "D", &res));
                 if res.contains("LOG:") {
-                    log(Some(&self.name), "D", &format!("Got a Log message: {}", &res));
+                    //log(Some(&self.name), "D", &format!("Got a Log message: {}", &res));
                     Ok("".to_string())
                 } else if res.contains("ACTION:") {
-                    log(Some(&self.name), "D", &format!("Got an Action message: {}", &res));
+                    //log(Some(&self.name), "D", &format!("Got an Action message: {}", &res));
                     Ok("".to_string())
                 } else {
                     //log(Some(&self.name), "D", &format!("Got a Result: ->{}<-", &res));
