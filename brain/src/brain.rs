@@ -21,6 +21,7 @@ pub enum BrainDeadError {
 }
 
 
+#[derive(Clone)]
 pub struct Brain<'a> {
     pub name: &'a str,
     pub config: Config,
@@ -55,20 +56,23 @@ impl Brain<'static> {
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
+            let mut avatar = self.clone();
+            let this_name = self.name.clone();
             let _handle = thread::spawn(move || {
                 let _received = match arduino.read_channel(msgs){
                     Ok(rcv) => {
-                        let _taken_actions = match self.get_actions(&rcv){
+                        let _taken_actions = match avatar.get_actions(&rcv){
                             Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
-                            Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+                            Err(_) => log(Some(&this_name), "D", "No actions were found for trigger"),
                         };
                     },
-                    Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
+                    Err(_) => log(Some(&this_name), "D", "Nothing read from Channel"),
                 };
             });
             loop {
                 let msg = r.recv();
                 println!("      ATTENTION!!! {:?}", msg);
+                self.show_move();
             }
         }
     }
