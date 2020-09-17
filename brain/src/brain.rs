@@ -4,6 +4,9 @@ use crate::log;
 use std::str;
 use thiserror::Error;
 use std::process;
+use std::thread;
+
+use std::sync::mpsc::{Sender, Receiver};
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -18,15 +21,17 @@ pub enum BrainDeadError {
 }
 
 
+#[derive(Clone)]
 pub struct Brain<'a> {
     pub name: &'a str,
     pub config: Config,
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
+    pub movement: (i16, i16),
 }
 
-impl Brain<'_> {
+impl Brain<'static> {
     pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         let configdata = Config::new(config_file);
         let serial_port = match raw_serial_port {
@@ -43,20 +48,36 @@ impl Brain<'_> {
             arduino: arduino_connector,
             serialport: serial_port,
             timeout: 4,
+            movement: (10, -10),
         })
     }
 
-    pub fn read(&mut self) {
+    pub fn read(mut self) {
         loop {
-            let _received = match self.arduino.read_channel(){
-                Ok(rcv) => {
-                    let _taken_actions = match self.get_actions(&rcv){
-                        Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
-                        Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-                    };
-                },
-                Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
-            };
+            self.show_move();
+            let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+            let msgs = s.clone();
+            let mut arduino = self.arduino.clone();
+            let mut avatar = self.clone();
+            let this_name = self.name.clone();
+            let _handle = thread::spawn(move || {
+                let _received = match arduino.read_channel(msgs){
+                    Ok(rcv) => {
+                        let _taken_actions = match avatar.get_actions(&rcv){
+                            Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
+                            Err(_) => log(Some(&this_name), "D", "No actions were found for trigger"),
+                        };
+                    },
+                    Err(_) => log(Some(&this_name), "D", "Nothing read from Channel"),
+                };
+            });
+            loop {
+                let msg = r.recv();
+                let mut msg_actions = Vec::new();
+                msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                self.apply_actions(msg_actions).unwrap();
+                self.show_move();
+            }
         }
     }
 
@@ -89,6 +110,7 @@ impl Brain<'_> {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
+                "move" => self.edit_move(action_vec[1..].to_vec().join("_")),
                 _ => self.do_nothing().unwrap(),
             };
         }
@@ -99,5 +121,20 @@ impl Brain<'_> {
     pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
+    }
+
+    /// Translate move_ commands into movement values for both engines
+    pub fn edit_move(&mut self, movement: String) {
+        match movement.as_str() {
+            "forwards" => {self.movement.0 = 255;self.movement.1 = 255;},
+            "backwards" => {self.movement.0 = -255;self.movement.1 = -255;},
+            "stop" => {self.movement.0 = 0;self.movement.1 = 0;},
+            &_ => (),
+        }
+    }
+
+    /// Show current movement values at both engines
+    pub fn show_move(&mut self) {
+        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.movement.0, self.movement.1));
     }
 }

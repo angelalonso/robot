@@ -16,13 +16,13 @@ pub enum BrainConfigError {
     NoConfigError,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ConfigEntry {
     trigger: String,
     actions: Vec<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Config {
     entries: Vec<ConfigEntry>,
 }

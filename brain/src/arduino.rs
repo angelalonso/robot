@@ -8,6 +8,7 @@ use std::time::Duration;
 use thiserror::Error;
 use std::process::Command;
 
+use std::sync::mpsc::Sender;
 
 #[derive(Error, Debug)]
 pub enum BrainArduinoError {
@@ -24,6 +25,7 @@ pub enum BrainArduinoError {
     AvrdudeError,
 }
 
+#[derive(Clone)]
 pub struct Arduino<'a> {
     pub name: &'a str,
     pub serialport: &'a str,
@@ -41,14 +43,19 @@ impl Arduino<'_> {
         })
     }
 
-    pub fn read_channel(&mut self) -> Result<String, BrainArduinoError> {
+    pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
         log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
         let mut port = serial::open(self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
-                log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
-                break Ok(got)
+                if got.contains("ACTION:") {
+                    log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
+                    channel.send(got).unwrap();
+                } else {
+                    log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
+                    break Ok(got)
+                }
             }
         }
     }
@@ -143,7 +150,7 @@ impl Arduino<'_> {
             _ => {
                 log(Some(&self.name), "E", &format!("{} is not installed!", prog));
                 Err(BrainArduinoError::ProgNotInstalledError(prog.to_string()))
-                    },
+            },
         }
     }
 }

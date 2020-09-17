@@ -1,5 +1,5 @@
-const int proxTriggerPin = 10;
-const int proxEchoPin = 11;
+const int proxTriggerPin = 7;
+const int proxEchoPin = 6;
 // vars
 long duration;
 int distance;
@@ -23,14 +23,18 @@ void loop() {
   // Reads the proxEchoPin, returns the sound wave travel time in microseconds
   duration = pulseIn(proxEchoPin, HIGH);
   distance = duration*0.034/2;
-  Serial.print("LOG: Distance -> ");
+  delay(50);    
+  Serial.print("LOG: How far (cms)-> ");
   Serial.println(distance);
-    Serial.print("LOG: Duration -> ");
-  Serial.println(duration);
+  delay(50);
   if (distance < 20) {
-    Serial.println("ACTION: move backwards");
+    Serial.println("ACTION: move_backwards");
   } else {
-    Serial.println("ACTION: move forwards");
+    if (distance = 0) {
+    Serial.println("ACTION: move_stop");
+    } else {
+      Serial.println("ACTION: move_forwards");
+    }
   }
-
+  // delay(2000);
 }
