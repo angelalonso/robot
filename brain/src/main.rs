@@ -1,23 +1,28 @@
-extern crate sysfs_gpio;
-
-use sysfs_gpio::{Direction, Pin};
-use std::thread::sleep;
+use rust_gpiozero::*;
+use std::io;
+use std::io::prelude::*;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::thread;
 use std::time::Duration;
 
+static RUNNING: AtomicBool = AtomicBool::new(true);
+
+fn watch_stdin() {
+    // wait for key press to exit
+    let _ = io::stdin().read(&mut [0u8]).unwrap();
+    RUNNING.store(false, Ordering::Relaxed);
+}
+
 fn main() {
-    let motor_pin1 = Pin::new(2);
-    let motor_pin2 = Pin::new(3);
-    motor_pin1.set_direction(Direction::Out);
-    motor_pin2.set_direction(Direction::Out);
-    motor_pin2.set_value(0);
-    motor_pin1.with_exported(|| {
-        loop {
-            println!("OFF");
-            motor_pin1.set_value(0).unwrap();
-            sleep(Duration::from_millis(1000));
-            println!("ON");
-            motor_pin1.set_value(1).unwrap();
-            sleep(Duration::from_millis(1000));
-        }
-    }).unwrap();
+    std::thread::spawn(watch_stdin);
+
+    // Create a new Servo attached to Pin 23
+    let mut servo = Servo::new(2);
+
+    while RUNNING.load(Ordering::Relaxed) {
+        servo.max();
+        thread::sleep(Duration::from_millis(2_000));
+        servo.min();
+        thread::sleep(Duration::from_millis(2_000));
+    }
 }
