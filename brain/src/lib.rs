@@ -23,7 +23,7 @@ pub fn get_now() -> String {
 
 pub fn log(sender: Option<&str>, raw_log_level: &str, raw_message: &str) {
     // right now, static. This can be changed to ERROR, WARNING. INFO, DEBUG
-    let LOGLEVEL = "DEBUG";
+    let logging_type = "DEBUG";
 
     // Make sure log_level is one of the expected values
     let log_level = match raw_log_level {
@@ -37,7 +37,7 @@ pub fn log(sender: Option<&str>, raw_log_level: &str, raw_message: &str) {
     //Control Log levels
     // 0-Errors, 1- Warnings, 2-Info, 3-Debug
     let mut logging = 0; // by default, only errors
-    match LOGLEVEL {
+    match logging_type {
         "DEBUG" => logging = 3,
         "INFO" => logging = 2,
         "WARNING" => logging = 1,
@@ -45,22 +45,25 @@ pub fn log(sender: Option<&str>, raw_log_level: &str, raw_message: &str) {
         &_ => (),
     };
 
+    if logging >= 3 && log_level == "D" {
+        match sender {
+            Some(has_sender) => println!("{}-{}-{}:{}", get_now(), log_level, has_sender, message),
+            None => println!("{}-{}:{}", get_now(), log_level, message),
+        }
+    } 
+    if logging >= 2 && log_level == "I" {
+        match sender {
+            Some(has_sender) => println!("{}-{}-{}:{}", get_now(), log_level, has_sender, message),
+            None => println!("{}-{}:{}", get_now(), log_level, message),
+        }
+    } 
+    if logging >= 1 && log_level == "W" {
+        match sender {
+            Some(has_sender) => println!("{}-{}-{}:{}", get_now(), log_level, has_sender, message),
+            None => println!("{}-{}:{}", get_now(), log_level, message),
+        }
+    } 
     if logging == 0 && log_level == "E" {
-        match sender {
-            Some(has_sender) => println!("{}-{}-{}:{}", get_now(), log_level, has_sender, message),
-            None => println!("{}-{}:{}", get_now(), log_level, message),
-        }
-    } else if logging == 1 && log_level == "W" {
-        match sender {
-            Some(has_sender) => println!("{}-{}-{}:{}", get_now(), log_level, has_sender, message),
-            None => println!("{}-{}:{}", get_now(), log_level, message),
-        }
-    } else if logging == 2 && log_level == "I" {
-        match sender {
-            Some(has_sender) => println!("{}-{}-{}:{}", get_now(), log_level, has_sender, message),
-            None => println!("{}-{}:{}", get_now(), log_level, message),
-        }
-    } else if logging == 3 && log_level == "D" {
         match sender {
             Some(has_sender) => println!("{}-{}-{}:{}", get_now(), log_level, has_sender, message),
             None => println!("{}-{}:{}", get_now(), log_level, message),
