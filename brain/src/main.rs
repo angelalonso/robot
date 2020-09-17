@@ -17,11 +17,13 @@ fn main() {
     std::thread::spawn(watch_stdin);
 
     // Create a new Servo attached to Pin 23
-    let mut servo = Servo::new(2);
+    let mut servo = Servo::new(3);
 
     while RUNNING.load(Ordering::Relaxed) {
+        println!("MAX");
         servo.max();
         thread::sleep(Duration::from_millis(2_000));
+        println!("MIN");
         servo.min();
         thread::sleep(Duration::from_millis(2_000));
     }
