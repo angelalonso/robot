@@ -123,6 +123,12 @@ impl Brain<'static> {
     }
 
     pub fn edit_move(&mut self, movement: String) {
+        match movement.as_str() {
+            "forwards" => {self.arduino.movement.0 = 255;self.arduino.movement.1 = 255;},
+            "backwards" => {self.arduino.movement.0 = -255;self.arduino.movement.1 = -255;},
+            "stop" => {self.arduino.movement.0 = 0;self.arduino.movement.1 = 0;},
+            &_ => (),
+        }
         log(Some(&self.name), "I", &format!("GOT            {:?}", movement));
     }
 
