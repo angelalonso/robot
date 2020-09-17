@@ -10,7 +10,7 @@ use chrono::offset::Utc;
 use chrono::DateTime;
 use std::time::SystemTime;
 
-#[macro_use]
+//#[macro_use]
 extern crate serde_derive;
 extern crate serde_yaml;
 
