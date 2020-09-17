@@ -39,5 +39,5 @@ void loop() {
       Serial.println("ACTION: move forwards");
     }
   }
-
+  delay(2000);
 }

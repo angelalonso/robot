@@ -65,15 +65,6 @@ impl Brain<'static> {
                     Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
                 };
             });
-            //let _received = match self.arduino.read_channel(msgs){
-            //    Ok(rcv) => {
-            //        let _taken_actions = match self.get_actions(&rcv){
-            //            Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
-            //            Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
-            //        };
-            //    },
-            //    Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),
-            //};
             loop {
                 let msg = r.recv();
                 println!("      ATTENTION!!! {:?}", msg);
