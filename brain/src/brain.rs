@@ -54,12 +54,14 @@ impl Brain<'static> {
             self.show_move();
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
+            let mut arduino = self.arduino.clone();
+            let mut this_name = self.name.clone();
             let _handle = thread::spawn(move || {
-                let _received = match self.arduino.read_channel(msgs){
+                let _received = match arduino.read_channel(msgs){
                     Ok(rcv) => {
                         let _taken_actions = match self.get_actions(&rcv){
                             Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
-                            Err(_) => log(Some(&self.name), "D", "No actions were found for trigger"),
+                            Err(_) => log(Some(this_name), "D", "No actions were found for trigger"),
                         };
                     },
                     Err(_) => log(Some(&self.name), "D", "Nothing read from Channel"),

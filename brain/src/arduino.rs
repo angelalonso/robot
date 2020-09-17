@@ -25,6 +25,7 @@ pub enum BrainArduinoError {
     AvrdudeError,
 }
 
+#[derive(Clone)]
 pub struct Arduino<'a> {
     pub name: &'a str,
     pub serialport: &'a str,
