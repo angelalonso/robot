@@ -1,30 +1,16 @@
 use rust_gpiozero::*;
 use std::io;
 use std::io::prelude::*;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::thread;
-use std::time::Duration;
-
-static RUNNING: AtomicBool = AtomicBool::new(true);
-
-fn watch_stdin() {
-    // wait for key press to exit
-    let _ = io::stdin().read(&mut [0u8]).unwrap();
-    RUNNING.store(false, Ordering::Relaxed);
-}
 
 fn main() {
-    std::thread::spawn(watch_stdin);
+    // Create a new LED attached to Pin 17
+    let mut led = PWMLED::new(3);
 
-    // Create a new Servo attached to Pin 23
-    let mut servo = Servo::new(3);
+    // blink the LED 5 times
+    led.set_blink_count(5);
+    println!("BLINKIN");
+    led.blink(2.0, 2.0, 1.0, 1.0);
 
-    while RUNNING.load(Ordering::Relaxed) {
-        println!("MAX");
-        servo.max();
-        thread::sleep(Duration::from_millis(2_000));
-        println!("MIN");
-        servo.min();
-        thread::sleep(Duration::from_millis(2_000));
-    }
+    // wait for key press to exit
+    let _ = io::stdin().read(&mut [0u8]).unwrap();
 }
