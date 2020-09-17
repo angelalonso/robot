@@ -20,7 +20,7 @@ pub fn get_now() -> String {
     datetime.format("%d/%m/%Y-%T").to_string()
 }
 
-static mut LOGLEVEL: &str = "DEBUG";
+//static mut LOGLEVEL: &str = "DEBUG";
 
 pub fn log(sender: Option<&str>, raw_log_level: &str, raw_message: &str) {
     // Make sure log_level is one of the expected values

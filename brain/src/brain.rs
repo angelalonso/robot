@@ -55,7 +55,7 @@ impl Brain<'static> {
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
-            let mut this_name = self.name.clone();
+            let this_name = self.name.clone();
             let _handle = thread::spawn(move || {
                 let _received = match arduino.read_channel(msgs){
                     Ok(rcv) => {
