@@ -28,6 +28,7 @@ pub struct Brain<'a> {
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
+    pub movement: (i16, i16),
 }
 
 impl Brain<'static> {
@@ -47,6 +48,7 @@ impl Brain<'static> {
             arduino: arduino_connector,
             serialport: serial_port,
             timeout: 4,
+            movement: (10, -10),
         })
     }
 
@@ -74,7 +76,7 @@ impl Brain<'static> {
                 println!("      ATTENTION!!! {:?}", msg);
                 let mut msg_actions = Vec::new();
                 msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
-                self.apply_actions(msg_actions);
+                self.apply_actions(msg_actions).unwrap();
                 self.show_move();
             }
         }
@@ -122,17 +124,18 @@ impl Brain<'static> {
         Ok(())
     }
 
+    /// Translate move_ commands into movement values for both engines
     pub fn edit_move(&mut self, movement: String) {
         match movement.as_str() {
-            "forwards" => {self.arduino.movement.0 = 255;self.arduino.movement.1 = 255;},
-            "backwards" => {self.arduino.movement.0 = -255;self.arduino.movement.1 = -255;},
-            "stop" => {self.arduino.movement.0 = 0;self.arduino.movement.1 = 0;},
+            "forwards" => {self.movement.0 = 255;self.movement.1 = 255;},
+            "backwards" => {self.movement.0 = -255;self.movement.1 = -255;},
+            "stop" => {self.movement.0 = 0;self.movement.1 = 0;},
             &_ => (),
         }
-        log(Some(&self.name), "I", &format!("GOT            {:?}", movement));
     }
 
+    /// Show current movement values at both engines
     pub fn show_move(&mut self) {
-        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.arduino.movement.0, self.arduino.movement.1));
+        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.movement.0, self.movement.1));
     }
 }

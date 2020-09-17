@@ -29,7 +29,6 @@ pub enum BrainArduinoError {
 pub struct Arduino<'a> {
     pub name: &'a str,
     pub serialport: &'a str,
-    pub movement: (i16, i16),
 }
 
 impl Arduino<'_> {
@@ -41,7 +40,6 @@ impl Arduino<'_> {
         Ok(Self {
             name: arduino_name,
             serialport: serial_port,
-            movement: (10, -10),
         })
     }
 
