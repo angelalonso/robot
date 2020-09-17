@@ -72,6 +72,9 @@ impl Brain<'static> {
             loop {
                 let msg = r.recv();
                 println!("      ATTENTION!!! {:?}", msg);
+                let mut msg_actions = Vec::new();
+                msg_actions.push(msg.unwrap());
+                self.apply_actions(msg_actions);
                 self.show_move();
             }
         }
@@ -106,6 +109,7 @@ impl Brain<'static> {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
+                "move" => self.edit_move(action_vec[1..].to_vec().join("_")),
                 _ => self.do_nothing().unwrap(),
             };
         }
@@ -116,6 +120,10 @@ impl Brain<'static> {
     pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
+    }
+
+    pub fn edit_move(&mut self, movement: String) {
+        log(Some(&self.name), "I", &format!("GOT            {:?}", movement));
     }
 
     pub fn show_move(&mut self) {
