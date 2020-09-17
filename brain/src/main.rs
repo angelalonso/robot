@@ -5,7 +5,7 @@ use std::thread::sleep;
 use std::time::Duration;
 
 fn main() {
-    let my_led = Pin::new(127); // number depends on chip, etc.
+    let my_led = Pin::new(40); // number depends on chip, etc.
     my_led.with_exported(|| {
         my_led.set_direction(Direction::Out).unwrap();
         loop {
