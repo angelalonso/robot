@@ -73,7 +73,7 @@ impl Brain<'static> {
                 let msg = r.recv();
                 println!("      ATTENTION!!! {:?}", msg);
                 let mut msg_actions = Vec::new();
-                msg_actions.push(msg.unwrap());
+                msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
                 self.apply_actions(msg_actions);
                 self.show_move();
             }

@@ -28,12 +28,12 @@ void loop() {
   Serial.println(distance);
   delay(50);
   if (distance < 20) {
-    Serial.println("ACTION: move backwards");
+    Serial.println("ACTION: move_backwards");
   } else {
     if (distance = 0) {
-    Serial.println("ACTION: stop");
+    Serial.println("ACTION: move_stop");
     } else {
-      Serial.println("ACTION: move forwards");
+      Serial.println("ACTION: move_forwards");
     }
   }
   // delay(2000);
