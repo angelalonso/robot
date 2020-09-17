@@ -112,6 +112,11 @@ sudo avrdude -c linuxgpio -p atmega328p -v
 ## test an installation of an actual program
 sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:arduino/001_test_pong/001_test_pong.ino.hex:i
 
+# Give your user access to the GPIO pins
+, assuming your user is on the gpio Group...   
+sudo chgrp gpio /sys/class/gpio/export  
+sudo chgrp gpio /sys/class/gpio/unexport  
+
 # Prepare Raspberry to run rust
 export RUSTUP_UNPACK_RAM=200000000  # For Raspberry pi 1 REV2 Model B
 export RUSTUP_UNPACK_RAM=220000000  # For Raspberry pi 1 B+
