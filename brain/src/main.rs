@@ -20,8 +20,8 @@ fn main() {
     motor_b_ena.set_value(0.0);
     println!("FORWARD");
     for i in 0..100 {
-        println!("{:?}", i);
         let i = i as f64 * 0.01;
+        println!("{:?}", i);
         motor_a_ena.set_value(i);
         motor_b_ena.set_value(i);
         thread::sleep(wait);
@@ -34,8 +34,8 @@ fn main() {
     motor_b_ena.set_value(0.0);
     println!("BACKWARD");
     for i in 0..100 {
-        println!("{:?}", i);
         let i = i as f64 * 0.01;
+        println!("{:?}", i);
         motor_a_ena.set_value(i);
         motor_b_ena.set_value(i);
         thread::sleep(wait);
