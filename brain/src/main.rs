@@ -22,4 +22,26 @@ fn main() {
     motor_a.stop();
     motor_a_ena.off();
 
+    let wait = time::Duration::from_millis(100);
+    motor_a.forward();
+    motor_a_ena.on();
+    motor_a_ena.set_value(0);
+    println!("FORWARD");
+    for i in 0..100 {
+        let i = i as f64 * 0.01;
+        motor_a_ena.set_value(i);
+        thread::sleep(wait);
+    }
+    motor_a.backward();
+    motor_a_ena.on();
+    motor_a_ena.set_value(0);
+    println!("BACKWARD");
+    for i in 0..100 {
+        let i = i as f64 * 0.01;
+        motor_a_ena.set_value(i);
+        thread::sleep(wait);
+    }
+    motor_a.stop();
+    motor_a_ena.off();
+
 }
