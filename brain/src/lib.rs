@@ -23,7 +23,7 @@ pub fn get_now() -> String {
 
 pub fn log(sender: Option<&str>, raw_log_level: &str, raw_message: &str) {
     // right now, static. This can be changed to ERROR, WARNING. INFO, DEBUG
-    let logging_type = "INFO";
+    let logging_type = "DEBUG";
 
     // Make sure log_level is one of the expected values
     let log_level = match raw_log_level {
