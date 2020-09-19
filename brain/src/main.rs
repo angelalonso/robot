@@ -1,6 +1,7 @@
 use rust_gpiozero::*;
 use std::io;
 use std::io::prelude::*;
+use std::{thread, time};
 
 fn main() {
     // Create a new LED attached to Pin 17
@@ -8,5 +9,10 @@ fn main() {
     let mut motor_a_ena = PWMLED::new(25);
 
     motor_a.forward();
+    let sec = time::Duration::from_millis(1000);
+    thread::sleep(sec);
+    motor_a.backward();
+    thread::sleep(sec);
+    motor_a.stop();
 
 }
