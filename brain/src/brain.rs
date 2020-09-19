@@ -135,37 +135,43 @@ impl Brain<'static> {
         let wait = time::Duration::from_millis(100);
         match movement.as_str() {
             "forwards" => {
-                self.movement.0 = 255;self.movement.1 = 255;
-                motor_a_ena.set_value(0.0);
-                motor_b_ena.set_value(0.0);
-                thread::sleep(wait);
-                motor_a.forward();
-                motor_a_ena.on();
-                motor_a_ena.set_value(2.0);
-                motor_b.forward();
-                motor_b_ena.on();
-                motor_b_ena.set_value(2.0);
+                if self.movement.0 != 255 {
+                    self.movement.0 = 255;self.movement.1 = 255;
+                    motor_a_ena.set_value(0.0);
+                    motor_b_ena.set_value(0.0);
+                    thread::sleep(wait);
+                    motor_a.forward();
+                    motor_a_ena.on();
+                    motor_a_ena.set_value(1.0);
+                    motor_b.forward();
+                    motor_b_ena.on();
+                    motor_b_ena.set_value(1.0);
+                }
             },
             "backwards" => {
+                if self.movement.0 != -255 {
                 self.movement.0 = -255;self.movement.1 = -255;
-                motor_a_ena.set_value(0.0);
-                motor_b_ena.set_value(0.0);
-                thread::sleep(wait);
-                motor_a.backward();
-                motor_a_ena.on();
-                motor_a_ena.set_value(1.0);
-                motor_b.backward();
-                motor_b_ena.on();
-                motor_b_ena.set_value(1.0);
+                    motor_a_ena.set_value(0.0);
+                    motor_b_ena.set_value(0.0);
+                    thread::sleep(wait);
+                    motor_a.backward();
+                    motor_a_ena.on();
+                    motor_a_ena.set_value(1.0);
+                    motor_b.backward();
+                    motor_b_ena.on();
+                    motor_b_ena.set_value(1.0);
+                }
             },
             "stop" => {
-                self.movement.0 = 0;self.movement.1 = 0;
-                motor_a_ena.set_value(0.0);
-                motor_b_ena.set_value(0.0);
-                motor_a.stop();
-                motor_a_ena.off();
-                motor_b.stop();
-                motor_b_ena.off();
+                if self.movement.0 != 0 {
+                    self.movement.0 = 0;self.movement.1 = 0;
+                    motor_a_ena.set_value(0.0);
+                    motor_b_ena.set_value(0.0);
+                    motor_a.stop();
+                    motor_a_ena.off();
+                    motor_b.stop();
+                    motor_b_ena.off();
+                }
             },
             &_ => (),
         }
