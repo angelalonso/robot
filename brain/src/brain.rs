@@ -4,7 +4,7 @@ use crate::log;
 use std::process;
 use std::str;
 use std::sync::mpsc::{Sender, Receiver};
-use std::thread;
+use std::{thread, time};
 use thiserror::Error;
 
 use rust_gpiozero::*;
