@@ -11,7 +11,7 @@ fn main() {
     motor_a_1.set_blink_count(5);
     println!("BLINKIN");
     motor_a_1.blink(2.0, 2.0, 1.0, 1.0);
-    motor_a_ena.set_value(1000);
+    motor_a_ena.set_value(1000.0);
 
     // wait for key press to exit
     let _ = io::stdin().read(&mut [0u8]).unwrap();
