@@ -1,48 +1,59 @@
-use rust_gpiozero::*;
-use std::io;
-use std::io::prelude::*;
-use std::{thread, time};
+use std::error::Error;
+use brain::brain::Brain;
+use std::process;
+use std::env;
 
-fn main() {
-    // Create a new LED attached to Pin 17
-    let mut motor_a = Motor::new(17, 27);
-    let mut motor_a_ena = PWMOutputDevice::new(22);
-    let mut motor_b = Motor::new(23, 24);
-    let mut motor_b_ena = PWMOutputDevice::new(25);
+fn show_help() {
+    println!("SYNTAX: ");
+    println!(" brain <config_file> [mode]");
+    println!("");
+    println!("   , where:");
+    println!(" - config_file - mandatory");
+    println!("     is the path to the config yaml for triggers. ");
+    println!(" - mode        - optional, default is start");
+    println!("     is the trigger with which the Brain starts. ");
+}
 
-
-    let wait = time::Duration::from_millis(100);
-    motor_a.forward();
-    motor_a_ena.on();
-    motor_a_ena.set_value(0.0);
-    motor_b.forward();
-    motor_b_ena.on();
-    motor_b_ena.set_value(0.0);
-    println!("FORWARD");
-    for i in 0..100 {
-        let i = i as f64 * 0.01;
-        println!("{:?}", i);
-        motor_a_ena.set_value(i);
-        motor_b_ena.set_value(i);
-        thread::sleep(wait);
+fn argparser() -> (String, String) {
+    let mut args: Vec<String> = env::args().collect();
+    match args.len() {
+        // No arguments passed? show error
+        1 => {
+            println!("ERROR: not enough parameters received");
+            show_help();
+            process::exit(1);
+        },
+        // one argument passed? then it's the config file, and mode is default one, "start"
+        2 => {
+            let ref configfile = &args[1];
+            (configfile.to_string(), "start".to_string())
+        },
+        // two or more argument(s) passed? join them with spaces to allow phrases
+        _ => {
+            // remove the prog name itself
+            args.remove(0);
+            // drain the config file path
+            let configfile : String = args.drain(0..1).collect();
+            (configfile.to_string(), args.join(" "))
+        },
     }
-    motor_a.backward();
-    motor_a_ena.on();
-    motor_a_ena.set_value(0.0);
-    motor_b.backward();
-    motor_b_ena.on();
-    motor_b_ena.set_value(0.0);
-    println!("BACKWARD");
-    for i in 0..100 {
-        let i = i as f64 * 0.01;
-        println!("{:?}", i);
-        motor_a_ena.set_value(i);
-        motor_b_ena.set_value(i);
-        thread::sleep(wait);
-    }
-    motor_a.stop();
-    motor_a_ena.off();
-    motor_b.stop();
-    motor_b_ena.off();
+}
 
+/// Load a new brain, send the first trigger, and enter the reading loop
+fn main() -> Result<(), Box<dyn Error>> {
+    let (config_file, start_mode) = argparser();
+    println!("Starting Brain with Mode {}", start_mode);
+    // Generate our Brain object
+    let mut main_brain = Brain::new("Main Brain", config_file, None).unwrap_or_else(|err| {
+        eprintln!("Problem Initializing Main Brain: {}", err);
+        process::exit(1);
+    });
+    // Send the first trigger to start.
+    let _send_start = main_brain.get_actions(&start_mode).unwrap_or_else(|err| {
+        eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
+        process::exit(1);
+    });
+    // Listening on Comm
+    main_brain.read();
+    Ok(())
 }

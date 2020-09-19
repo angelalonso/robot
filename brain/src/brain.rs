@@ -1,12 +1,13 @@
 use crate::config::Config;
 use crate::arduino::Arduino;
 use crate::log;
-use std::str;
-use thiserror::Error;
 use std::process;
-use std::thread;
-
+use std::str;
 use std::sync::mpsc::{Sender, Receiver};
+use std::thread;
+use thiserror::Error;
+
+use rust_gpiozero::*;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -125,10 +126,36 @@ impl Brain<'static> {
 
     /// Translate move_ commands into movement values for both engines
     pub fn edit_move(&mut self, movement: String) {
+        let mut motor_a = Motor::new(17, 27);
+        let mut motor_a_ena = PWMOutputDevice::new(22);
+        let mut motor_b = Motor::new(23, 24);
+        let mut motor_b_ena = PWMOutputDevice::new(25);
         match movement.as_str() {
-            "forwards" => {self.movement.0 = 255;self.movement.1 = 255;},
-            "backwards" => {self.movement.0 = -255;self.movement.1 = -255;},
-            "stop" => {self.movement.0 = 0;self.movement.1 = 0;},
+            "forwards" => {
+                self.movement.0 = 255;self.movement.1 = 255;
+                motor_a.forward();
+                motor_a_ena.on();
+                motor_a_ena.set_value(1.0);
+                motor_b.forward();
+                motor_b_ena.on();
+                motor_b_ena.set_value(1.0);
+            },
+            "backwards" => {
+                self.movement.0 = -255;self.movement.1 = -255;
+                motor_a.backward();
+                motor_a_ena.on();
+                motor_a_ena.set_value(1.0);
+                motor_b.backward();
+                motor_b_ena.on();
+                motor_b_ena.set_value(1.0);
+            },
+            "stop" => {
+                self.movement.0 = 0;self.movement.1 = 0;
+                motor_a.stop();
+                motor_a_ena.off();
+                motor_b.stop();
+                motor_b_ena.off();
+            },
             &_ => (),
         }
     }
