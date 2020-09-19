@@ -10,7 +10,7 @@ fn main() {
 
     motor_a.forward();
     motor_a_ena.on();
-    motor_a_ena.set_active_high();
+    motor_a_ena.set_active_high(true);
     let sec = time::Duration::from_millis(1000);
     thread::sleep(sec);
     motor_a.backward();
