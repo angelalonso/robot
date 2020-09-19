@@ -136,8 +136,6 @@ impl Brain<'static> {
             "forwards" => {
                 if self.movement.0 != 255 {
                     self.movement.0 = 255;self.movement.1 = 255;
-                    motor_a_ena.set_value(0.0);
-                    motor_b_ena.set_value(0.0);
                     motor_a.forward();
                     motor_a_ena.on();
                     motor_a_ena.set_value(1.0);
@@ -149,8 +147,6 @@ impl Brain<'static> {
             "backwards" => {
                 if self.movement.0 != -255 {
                 self.movement.0 = -255;self.movement.1 = -255;
-                    motor_a_ena.set_value(0.0);
-                    motor_b_ena.set_value(0.0);
                     motor_a.backward();
                     motor_a_ena.on();
                     motor_a_ena.set_value(1.0);
