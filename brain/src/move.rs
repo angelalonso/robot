@@ -17,6 +17,7 @@ pub enum BrainMoveError {
 }
 
 
+#[derive(Clone)]
 pub struct Move<'a > {
     pub name: &'a str,
     pub movement: &'a str,

@@ -1,5 +1,6 @@
 use crate::config::Config;
 use crate::arduino::Arduino;
+use crate::r#move::Move;
 use crate::log;
 use std::process;
 use std::str;
@@ -32,6 +33,7 @@ pub struct Brain<'a> {
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
+    pub mover: Move<'a>,
     pub movement: &'a str,
     pub motor1: Arc<Mutex<Motor>>,
     pub motor1_ena: Arc<Mutex<PWMOutputDevice>>,
@@ -42,20 +44,25 @@ pub struct Brain<'a> {
 impl Brain<'static> {
     pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         let configdata = Config::new(config_file);
-        let serial_port = match raw_serial_port {
+        let sp = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
-        let arduino_connector = Arduino::new("arduino", None).unwrap_or_else(|err| {
+        let a = Arduino::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
+            process::exit(1);
+        });
+        let m = Move::new().unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Mover: {}", err);
             process::exit(1);
         });
         Ok(Self {
             name: brain_name,
             config: configdata,
-            arduino: arduino_connector,
-            serialport: serial_port,
+            arduino: a,
+            serialport: sp,
             timeout: 4,
+            mover: m,
             movement: "stop",
                     // Temporarily inverted motor1: Arc::new(Mutex::new(Motor::new(17, 27))),
             motor1: Arc::new(Mutex::new(Motor::new(27, 17))),
@@ -124,7 +131,7 @@ impl Brain<'static> {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
-                "move" => self.edit_move(action_vec[1..].to_vec().join("_")),
+                "move" => self.mover.edit_move(action_vec[1..].to_vec().join("_")),
                 _ => self.do_nothing().unwrap(),
             };
         }
