@@ -143,7 +143,7 @@ impl Brain<'static> {
             "forwards" => {
                 if self.movement != "forwards"{
                     self.movement = "forwards";
-                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().forward();
                     self.motor2.lock().unwrap().forward();
                     self.motor1_ena.lock().unwrap().on();
@@ -155,7 +155,7 @@ impl Brain<'static> {
             "backwards" => {
                 if self.movement != "backwards"{
                     self.movement = "backwards";
-                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().backward();
                     self.motor2.lock().unwrap().backward();
                     self.motor1_ena.lock().unwrap().on();
@@ -167,7 +167,7 @@ impl Brain<'static> {
             "stop" => {
                 if self.movement != "stop"{
                     self.movement = "stop";
-                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().stop();
                     self.motor2.lock().unwrap().stop();
                     self.motor1_ena.lock().unwrap().off();
