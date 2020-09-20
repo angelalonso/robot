@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::arduino::Arduino;
-use crate::r#move::Move;
+use crate::mover::Mover;
 use crate::log;
 use std::process;
 use std::str;
@@ -28,7 +28,7 @@ pub struct Brain<'a> {
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
-    pub mover: Move<'a>,
+    pub mover: Mover<'a>,
 }
 
 impl Brain<'static> {
@@ -42,7 +42,7 @@ impl Brain<'static> {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
-        let m = Move::new().unwrap_or_else(|err| {
+        let m = Mover::new().unwrap_or_else(|err| {
             eprintln!("Problem Initializing Mover: {}", err);
             process::exit(1);
         });
@@ -114,7 +114,7 @@ impl Brain<'static> {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
-                "move" => self.mover.edit_move(action_vec[1..].to_vec().join("_")),
+                "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
                 _ => self.do_nothing().unwrap(),
             };
         }

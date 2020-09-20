@@ -4,7 +4,7 @@ pub mod brain;
 pub mod brain_test;
 pub mod arduino;
 pub mod arduino_test;
-pub mod r#move;
+pub mod mover;
 
 extern crate chrono;
 use chrono::offset::Utc;

@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 
 #[derive(Error, Debug)]
-pub enum BrainMoveError {
+pub enum BrainMoverError {
     /// It used to represent an empty source. For example, an empty text file being given
     /// as input to `count_words()`.
     /// Now it's just the most basic I dont care Error
@@ -18,7 +18,7 @@ pub enum BrainMoveError {
 
 
 #[derive(Clone)]
-pub struct Move<'a > {
+pub struct Mover<'a > {
     pub name: &'a str,
     pub movement: &'a str,
     pub motor1: Arc<Mutex<Motor>>,
@@ -27,7 +27,7 @@ pub struct Move<'a > {
     pub motor2_ena: Arc<Mutex<PWMOutputDevice>>,
 }
 
-impl Move<'_> {
+impl Mover<'_> {
     pub fn new() -> Result<Self, &'static str> {
         Ok(Self {
             name: "movement",
@@ -41,7 +41,7 @@ impl Move<'_> {
         })
     }
 
-    pub fn edit_move(&mut self, movement: String) {
+    pub fn set_move(&mut self, movement: String) {
         match movement.as_str() {
             "forwards" => {
                 if self.movement != "forwards"{
