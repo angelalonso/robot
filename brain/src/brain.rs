@@ -142,8 +142,8 @@ impl Brain<'static> {
         match movement.as_str() {
             "forwards" => {
                 if self.movement != "forwards"{
-                    println!("MOVING FORWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARDS");
                     self.movement = "forwards";
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().forward();
                     self.motor2.lock().unwrap().forward();
                     self.motor1_ena.lock().unwrap().on();
@@ -154,8 +154,8 @@ impl Brain<'static> {
             },
             "backwards" => {
                 if self.movement != "backwards"{
-                    println!("MOVING BACKWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARDS");
                     self.movement = "backwards";
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().backward();
                     self.motor2.lock().unwrap().backward();
                     self.motor1_ena.lock().unwrap().on();
@@ -166,7 +166,8 @@ impl Brain<'static> {
             },
             "stop" => {
                 if self.movement != "stop"{
-                    println!("MOVING STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHP");
+                    self.movement = "stop";
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().stop();
                     self.motor2.lock().unwrap().stop();
                     self.motor1_ena.lock().unwrap().off();
