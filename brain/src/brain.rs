@@ -9,6 +9,9 @@ use thiserror::Error;
 
 use rust_gpiozero::*;
 
+use std::sync::Arc;
+use std::sync::Mutex;
+
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
     /// It used to represent an empty source. For example, an empty text file being given
@@ -30,6 +33,10 @@ pub struct Brain<'a> {
     pub serialport: &'a str,
     pub timeout: u64,
     pub movement: &'a str,
+    pub motor1: Arc<Mutex<Motor>>,
+    pub motor1_ena: Arc<Mutex<PWMOutputDevice>>,
+    pub motor2: Arc<Mutex<Motor>>,
+    pub motor2_ena: Arc<Mutex<PWMOutputDevice>>,
 }
 
 impl Brain<'static> {
@@ -50,6 +57,12 @@ impl Brain<'static> {
             serialport: serial_port,
             timeout: 4,
             movement: "stop",
+                    // Temporarily inverted motor1: Arc::new(Mutex::new(Motor::new(17, 27))),
+            motor1: Arc::new(Mutex::new(Motor::new(27, 17))),
+            motor1_ena: Arc::new(Mutex::new(PWMOutputDevice::new(22))),
+                    // Temporarily inverted too 
+            motor2: Arc::new(Mutex::new(Motor::new(24, 23))),
+            motor2_ena: Arc::new(Mutex::new(PWMOutputDevice::new(25))),
         })
     }
 
@@ -130,19 +143,13 @@ impl Brain<'static> {
             "forwards" => {
                 if self.movement != "forwards"{
                     println!("MOVING FORWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARDS");
-                    // Temporarily inverted let mut motor_a = Motor::new(17, 27);
-                    let mut motor_a = Motor::new(27, 17);
-                    let mut motor_a_ena = PWMOutputDevice::new(22);
-                    // Temporarily inverted let mut motor_b = Motor::new(23, 24);
-                    let mut motor_b = Motor::new(24, 23);
-                    let mut motor_b_ena = PWMOutputDevice::new(25);
                     self.movement = "forwards";
-                    motor_a.forward();
-                    motor_a_ena.on();
-                    motor_a_ena.set_value(1.0);
-                    motor_b.forward();
-                    motor_b_ena.on();
-                    motor_b_ena.set_value(1.0);
+                    self.motor1.lock().unwrap().forward();
+                    self.motor2.lock().unwrap().forward();
+                    self.motor1_ena.lock().unwrap().on();
+                    self.motor2_ena.lock().unwrap().on();
+                    self.motor1_ena.lock().unwrap().set_value(1.0);
+                    self.motor2_ena.lock().unwrap().set_value(1.0);
                 }
             },
             "backwards" => {
