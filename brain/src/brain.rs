@@ -126,12 +126,6 @@ impl Brain<'static> {
 
     /// Translate move_ commands into movement values for both engines
     pub fn edit_move(&mut self, movement: String) {
-        // Temporarily inverted let mut motor_a = Motor::new(17, 27);
-        let mut motor_a = Motor::new(27, 17);
-        let mut motor_a_ena = PWMOutputDevice::new(22);
-        // Temporarily inverted let mut motor_b = Motor::new(23, 24);
-        let mut motor_b = Motor::new(24, 23);
-        let mut motor_b_ena = PWMOutputDevice::new(25);
         match movement.as_str() {
             "forwards" => {
                 if self.movement != "forwards"{
