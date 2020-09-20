@@ -135,6 +135,12 @@ impl Brain<'static> {
         match movement.as_str() {
             "forwards" => {
                 if self.movement != "forwards"{
+                    // Temporarily inverted let mut motor_a = Motor::new(17, 27);
+                    let mut motor_a = Motor::new(27, 17);
+                    let mut motor_a_ena = PWMOutputDevice::new(22);
+                    // Temporarily inverted let mut motor_b = Motor::new(23, 24);
+                    let mut motor_b = Motor::new(24, 23);
+                    let mut motor_b_ena = PWMOutputDevice::new(25);
                     self.movement = "forwards";
                     motor_a.forward();
                     motor_a_ena.on();
