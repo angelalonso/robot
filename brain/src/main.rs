@@ -12,6 +12,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     loop {
         println!("FWD");
         movin.edit_move("forwards".to_string());
+        movin.edit_move("forwards".to_string());
+        movin.edit_move("forwards".to_string());
+        movin.edit_move("forwards".to_string());
+        movin.edit_move("forwards".to_string());
         thread::sleep(wait);
         println!("BWD");
         movin.edit_move("backwards".to_string());
