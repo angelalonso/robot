@@ -34,11 +34,6 @@ pub struct Brain<'a> {
     pub serialport: &'a str,
     pub timeout: u64,
     pub mover: Move<'a>,
-    pub movement: &'a str,
-    pub motor1: Arc<Mutex<Motor>>,
-    pub motor1_ena: Arc<Mutex<PWMOutputDevice>>,
-    pub motor2: Arc<Mutex<Motor>>,
-    pub motor2_ena: Arc<Mutex<PWMOutputDevice>>,
 }
 
 impl Brain<'static> {
@@ -63,13 +58,6 @@ impl Brain<'static> {
             serialport: sp,
             timeout: 4,
             mover: m,
-            movement: "stop",
-                    // Temporarily inverted motor1: Arc::new(Mutex::new(Motor::new(17, 27))),
-            motor1: Arc::new(Mutex::new(Motor::new(27, 17))),
-            motor1_ena: Arc::new(Mutex::new(PWMOutputDevice::new(22))),
-                    // Temporarily inverted too 
-            motor2: Arc::new(Mutex::new(Motor::new(24, 23))),
-            motor2_ena: Arc::new(Mutex::new(PWMOutputDevice::new(25))),
         })
     }
 
@@ -144,51 +132,9 @@ impl Brain<'static> {
         Ok(())
     }
 
-    /// Translate move_ commands into movement values for both engines
-    pub fn edit_move(&mut self, movement: String) {
-        match movement.as_str() {
-            "forwards" => {
-                if self.movement != "forwards"{
-                    self.movement = "forwards";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
-                    self.motor1.lock().unwrap().forward();
-                    self.motor2.lock().unwrap().forward();
-                    self.motor1_ena.lock().unwrap().on();
-                    self.motor2_ena.lock().unwrap().on();
-                    self.motor1_ena.lock().unwrap().set_value(1.0);
-                    self.motor2_ena.lock().unwrap().set_value(1.0);
-                }
-            },
-            "backwards" => {
-                if self.movement != "backwards"{
-                    self.movement = "backwards";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
-                    self.motor1.lock().unwrap().backward();
-                    self.motor2.lock().unwrap().backward();
-                    self.motor1_ena.lock().unwrap().on();
-                    self.motor2_ena.lock().unwrap().on();
-                    self.motor1_ena.lock().unwrap().set_value(1.0);
-                    self.motor2_ena.lock().unwrap().set_value(1.0);
-                }
-            },
-            "stop" => {
-                if self.movement != "stop"{
-                    self.movement = "stop";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
-                    self.motor1.lock().unwrap().stop();
-                    self.motor2.lock().unwrap().stop();
-                    self.motor1_ena.lock().unwrap().off();
-                    self.motor2_ena.lock().unwrap().off();
-                    self.motor1_ena.lock().unwrap().set_value(0.0);
-                    self.motor2_ena.lock().unwrap().set_value(0.0);
-                }
-            },
-            &_ => (),
-        }
-    }
 
     /// Show current movement values at both engines
     pub fn show_move(&mut self) {
-        log(Some(&self.name), "I", &format!("Moving : {}", self.movement));
+        log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
     }
 }
