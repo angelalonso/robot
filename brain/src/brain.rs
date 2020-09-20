@@ -8,11 +8,6 @@ use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
 use thiserror::Error;
 
-use rust_gpiozero::*;
-
-use std::sync::Arc;
-use std::sync::Mutex;
-
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
     /// It used to represent an empty source. For example, an empty text file being given
