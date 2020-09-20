@@ -1,6 +1,4 @@
 use rust_gpiozero::*;
-use std::io;
-use std::io::prelude::*;
 use std::{thread, time};
 
 fn main() {
