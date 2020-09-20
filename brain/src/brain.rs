@@ -4,7 +4,7 @@ use crate::log;
 use std::process;
 use std::str;
 use std::sync::mpsc::{Sender, Receiver};
-use std::{thread, time};
+use std::thread;
 use thiserror::Error;
 
 use rust_gpiozero::*;
@@ -29,7 +29,7 @@ pub struct Brain<'a> {
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
-    pub movement: (i16, i16),
+    pub movement: &'a str,
 }
 
 impl Brain<'static> {
@@ -49,7 +49,7 @@ impl Brain<'static> {
             arduino: arduino_connector,
             serialport: serial_port,
             timeout: 4,
-            movement: (10, -10),
+            movement: "stop",
         })
     }
 
@@ -134,8 +134,8 @@ impl Brain<'static> {
         let mut motor_b_ena = PWMOutputDevice::new(25);
         match movement.as_str() {
             "forwards" => {
-                if self.movement.0 != 255 {
-                    self.movement.0 = 255;self.movement.1 = 255;
+                if self.movement != "forwards"{
+                    self.movement = "forwards";
                     motor_a.forward();
                     motor_a_ena.on();
                     motor_a_ena.set_value(1.0);
@@ -145,8 +145,8 @@ impl Brain<'static> {
                 }
             },
             "backwards" => {
-                if self.movement.0 != -255 {
-                self.movement.0 = -255;self.movement.1 = -255;
+                if self.movement != "backwards"{
+                    self.movement = "backwards";
                     motor_a.backward();
                     motor_a_ena.on();
                     motor_a_ena.set_value(1.0);
@@ -156,8 +156,8 @@ impl Brain<'static> {
                 }
             },
             "stop" => {
-                if self.movement.0 != 0 {
-                    self.movement.0 = 0;self.movement.1 = 0;
+                if self.movement != "stop"{
+                    self.movement = "stop";
                     motor_a_ena.set_value(0.0);
                     motor_b_ena.set_value(0.0);
                     motor_a.stop();
@@ -172,6 +172,6 @@ impl Brain<'static> {
 
     /// Show current movement values at both engines
     pub fn show_move(&mut self) {
-        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.movement.0, self.movement.1));
+        log(Some(&self.name), "I", &format!("Moving : {}", self.movement));
     }
 }
