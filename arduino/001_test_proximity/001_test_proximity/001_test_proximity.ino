@@ -27,10 +27,10 @@ void loop() {
   Serial.print("LOG: How far (cms)-> ");
   Serial.println(distance);
   delay(50);
-  if (distance < 20) {
+  if (distance < 10) {
     Serial.println("ACTION: move_backwards");
   } else {
-    if (distance = 0) {
+    if (distance < 30) {
     Serial.println("ACTION: move_stop");
     } else {
       Serial.println("ACTION: move_forwards");

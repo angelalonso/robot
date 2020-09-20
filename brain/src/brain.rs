@@ -167,19 +167,12 @@ impl Brain<'static> {
             "stop" => {
                 if self.movement != "stop"{
                     println!("MOVING STAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHP");
-                    // Temporarily inverted let mut motor_a = Motor::new(17, 27);
-                    let mut motor_a = Motor::new(27, 17);
-                    let mut motor_a_ena = PWMOutputDevice::new(22);
-                    // Temporarily inverted let mut motor_b = Motor::new(23, 24);
-                    let mut motor_b = Motor::new(24, 23);
-                    let mut motor_b_ena = PWMOutputDevice::new(25);
-                    self.movement = "stop";
-                    motor_a_ena.set_value(0.0);
-                    motor_b_ena.set_value(0.0);
-                    motor_a.stop();
-                    motor_a_ena.off();
-                    motor_b.stop();
-                    motor_b_ena.off();
+                    self.motor1.lock().unwrap().stop();
+                    self.motor2.lock().unwrap().stop();
+                    self.motor1_ena.lock().unwrap().off();
+                    self.motor2_ena.lock().unwrap().off();
+                    self.motor1_ena.lock().unwrap().set_value(0.0);
+                    self.motor2_ena.lock().unwrap().set_value(0.0);
                 }
             },
             &_ => (),
