@@ -155,19 +155,13 @@ impl Brain<'static> {
             "backwards" => {
                 if self.movement != "backwards"{
                     println!("MOVING BACKWAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARDS");
-                    // Temporarily inverted let mut motor_a = Motor::new(17, 27);
-                    let mut motor_a = Motor::new(27, 17);
-                    let mut motor_a_ena = PWMOutputDevice::new(22);
-                    // Temporarily inverted let mut motor_b = Motor::new(23, 24);
-                    let mut motor_b = Motor::new(24, 23);
-                    let mut motor_b_ena = PWMOutputDevice::new(25);
                     self.movement = "backwards";
-                    motor_a.backward();
-                    motor_a_ena.on();
-                    motor_a_ena.set_value(1.0);
-                    motor_b.backward();
-                    motor_b_ena.on();
-                    motor_b_ena.set_value(1.0);
+                    self.motor1.lock().unwrap().backward();
+                    self.motor2.lock().unwrap().backward();
+                    self.motor1_ena.lock().unwrap().on();
+                    self.motor2_ena.lock().unwrap().on();
+                    self.motor1_ena.lock().unwrap().set_value(1.0);
+                    self.motor2_ena.lock().unwrap().set_value(1.0);
                 }
             },
             "stop" => {
