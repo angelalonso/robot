@@ -18,6 +18,7 @@ check [RASPBERRY.md](RASPBERRY.md)
 # PHASE 1: Connect Raspberry to Arduino
 ## GPIO Map for Raspberry pi 1 REV2 Model B 
 
+```
            .___.              
     5v---1-|O O|--2--3.3v  
     5v---3-|O O|--4--2 SDA  
@@ -34,8 +35,10 @@ check [RASPBERRY.md](RASPBERRY.md)
      7--25-|O O|-26--GND  
            '---'
 
+```
 ## GPIO Map for Raspberry pi 1 B+ 
 (thanks to https://github.com/tvierb/raspberry-ascii)
+```
                            .___.              
                   +3V3---1-|O O|--2--+5V
           (SDA)  GPIO2---3-|O O|--4--+5V
@@ -58,9 +61,11 @@ check [RASPBERRY.md](RASPBERRY.md)
                 GPIO26--37-|O O|-38-----GPIO20
                       _-39-|O O|-40-----GPIO21
                            '---'
-                           (_ means Ground)
+(_ means Ground)
+```
 
 ## Arduino clone "ISCP" Map - yeah I know, freaking clones' typos
+```
 -----------
   |1|3|5|  
   |2|4|6|  
@@ -71,16 +76,19 @@ check [RASPBERRY.md](RASPBERRY.md)
 4 ICSP SCK  
 5 ICSP GND  
 6 ICSP RESET  
+```
 
 ## Connection
 ### Arduino -> Raspberry pi 1 REV2 Model B 
 TBD
 
 ### Arduino -> Raspberry pi 1 B+ 
+```
 1 -> 2  
 2 -> 21  
 3 -> 19  
 4 -> 23  
 5 -> 6  
 6 -> 7  
+```
 
