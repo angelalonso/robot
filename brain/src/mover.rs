@@ -16,6 +16,7 @@ pub enum BrainMoverError {
     NoConfigFound,
 }
 
+// TODO: change motor1, motor2 to motor_L and motor_R, when the robot is mounted properly
 
 #[derive(Clone)]
 pub struct Mover<'a > {
@@ -53,6 +54,18 @@ impl Mover<'_> {
                     self.motor2_ena.lock().unwrap().on();
                     self.motor1_ena.lock().unwrap().set_value(1.0);
                     self.motor2_ena.lock().unwrap().set_value(1.0);
+                }
+            },
+            "rotate_random" => {
+                if self.movement != "rotate_random"{
+                    self.movement = "rotate_random";
+                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
+                    self.motor1.lock().unwrap().forward();
+                    self.motor2.lock().unwrap().backward();
+                    self.motor1_ena.lock().unwrap().on();
+                    self.motor2_ena.lock().unwrap().on();
+                    self.motor1_ena.lock().unwrap().set_value(0.5);
+                    self.motor2_ena.lock().unwrap().set_value(0.5);
                 }
             },
             "backwards" => {
