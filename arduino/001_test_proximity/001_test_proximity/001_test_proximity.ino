@@ -27,13 +27,17 @@ void loop() {
   Serial.print("LOG: How far (cms)-> ");
   Serial.println(distance);
   delay(50);
-  if (distance < 10) {
-    Serial.println("ACTION: move_backwards");
-  } else {
-    if (distance < 30) {
+  if (distance < 5) {
     Serial.println("ACTION: move_stop");
+  } else {
+    if (distance < 10) {
+      Serial.println("ACTION: move_backwards");
     } else {
-      Serial.println("ACTION: move_forwards");
+      if (distance < 30) {
+      Serial.println("ACTION: move_rotate_random");
+      } else {
+        Serial.println("ACTION: move_forwards");
+      }
     }
   }
   // delay(2000);
