@@ -3,6 +3,7 @@ use crate::log;
 use rust_gpiozero::*;
 use std::sync::Arc;
 use std::sync::Mutex;
+use rand::random;
 
 #[derive(Error, Debug)]
 pub enum BrainMoverError {
@@ -56,12 +57,12 @@ impl Mover<'_> {
                     self.motor2_ena.lock().unwrap().set_value(1.0);
                 }
             },
-            "rotate_random" => {
-                if self.movement != "rotate_random"{
-                    self.movement = "rotate_random";
+            "forwards_slow" => {
+                if self.movement != "forwards_slow"{
+                    self.movement = "forwards_slow";
                     log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().forward();
-                    self.motor2.lock().unwrap().backward();
+                    self.motor2.lock().unwrap().forward();
                     self.motor1_ena.lock().unwrap().on();
                     self.motor2_ena.lock().unwrap().on();
                     self.motor1_ena.lock().unwrap().set_value(0.7);
@@ -78,6 +79,23 @@ impl Mover<'_> {
                     self.motor2_ena.lock().unwrap().on();
                     self.motor1_ena.lock().unwrap().set_value(1.0);
                     self.motor2_ena.lock().unwrap().set_value(1.0);
+                }
+            },
+            "rotate_random" => {
+                if self.movement != "rotate_random"{
+                    self.movement = "rotate_random";
+                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
+                    if rand::random() {
+                        self.motor1.lock().unwrap().forward();
+                        self.motor2.lock().unwrap().backward();
+                    } else {
+                        self.motor1.lock().unwrap().backward();
+                        self.motor2.lock().unwrap().forward();
+                    }
+                    self.motor1_ena.lock().unwrap().on();
+                    self.motor2_ena.lock().unwrap().on();
+                    self.motor1_ena.lock().unwrap().set_value(0.7);
+                    self.motor2_ena.lock().unwrap().set_value(0.7);
                 }
             },
             "stop" => {

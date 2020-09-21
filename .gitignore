@@ -2,4 +2,5 @@
 tests/**/build
 **/.env
 **/*.swp
+**/*.swo
 brain/Cargo.lock
