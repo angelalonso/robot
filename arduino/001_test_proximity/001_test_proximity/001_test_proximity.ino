@@ -29,16 +29,12 @@ void loop() {
   delay(50);
   if (distance = 0) {
     Serial.println("ACTION: move_stop");
+  } else if (distance < 10) {
+    Serial.println("ACTION: move_backwards");
+  } else if (distance < 30) {
+    Serial.println("ACTION: move_rotate_random");
   } else {
-    if (distance < 10) {
-      Serial.println("ACTION: move_backwards");
-    } else {
-      if (distance < 30) {
-      Serial.println("ACTION: move_rotate_random");
-      } else {
-        Serial.println("ACTION: move_forwards");
-      }
-    }
+    Serial.println("ACTION: move_forwards");
   }
   // delay(2000);
 }
