@@ -48,7 +48,7 @@ impl Mover<'_> {
             "forwards" => {
                 if self.movement != "forwards"{
                     self.movement = "forwards";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().forward();
                     self.motor2.lock().unwrap().forward();
                     self.motor1_ena.lock().unwrap().on();
@@ -60,7 +60,7 @@ impl Mover<'_> {
             "forwards_slow" => {
                 if self.movement != "forwards_slow"{
                     self.movement = "forwards_slow";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().forward();
                     self.motor2.lock().unwrap().forward();
                     self.motor1_ena.lock().unwrap().on();
@@ -72,7 +72,7 @@ impl Mover<'_> {
             "backwards" => {
                 if self.movement != "backwards"{
                     self.movement = "backwards";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().backward();
                     self.motor2.lock().unwrap().backward();
                     self.motor1_ena.lock().unwrap().on();
@@ -84,7 +84,7 @@ impl Mover<'_> {
             "rotate_random" => {
                 if self.movement != "rotate_random"{
                     self.movement = "rotate_random";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     if rand::random() {
                         self.motor1.lock().unwrap().forward();
                         self.motor2.lock().unwrap().backward();
@@ -101,7 +101,7 @@ impl Mover<'_> {
             "stop" => {
                 if self.movement != "stop"{
                     self.movement = "stop";
-                    log(Some(&self.name), "D", &format!("Moving : {}", self.movement));
+                    log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor1.lock().unwrap().stop();
                     self.motor2.lock().unwrap().stop();
                     self.motor1_ena.lock().unwrap().off();
