@@ -1,12 +1,12 @@
 use crate::config::Config;
 use crate::arduino::Arduino;
+use crate::mover::Mover;
 use crate::log;
-use std::str;
-use thiserror::Error;
 use std::process;
-use std::thread;
-
+use std::str;
 use std::sync::mpsc::{Sender, Receiver};
+use std::thread;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -28,27 +28,31 @@ pub struct Brain<'a> {
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
-    pub movement: (i16, i16),
+    pub mover: Mover<'a>,
 }
 
 impl Brain<'static> {
     pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         let configdata = Config::new(config_file);
-        let serial_port = match raw_serial_port {
+        let sp = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
-        let arduino_connector = Arduino::new("arduino", None).unwrap_or_else(|err| {
+        let a = Arduino::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
+            process::exit(1);
+        });
+        let m = Mover::new().unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Mover: {}", err);
             process::exit(1);
         });
         Ok(Self {
             name: brain_name,
             config: configdata,
-            arduino: arduino_connector,
-            serialport: serial_port,
+            arduino: a,
+            serialport: sp,
             timeout: 4,
-            movement: (10, -10),
+            mover: m,
         })
     }
 
@@ -110,7 +114,7 @@ impl Brain<'static> {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
-                "move" => self.edit_move(action_vec[1..].to_vec().join("_")),
+                "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
                 _ => self.do_nothing().unwrap(),
             };
         }
@@ -123,18 +127,9 @@ impl Brain<'static> {
         Ok(())
     }
 
-    /// Translate move_ commands into movement values for both engines
-    pub fn edit_move(&mut self, movement: String) {
-        match movement.as_str() {
-            "forwards" => {self.movement.0 = 255;self.movement.1 = 255;},
-            "backwards" => {self.movement.0 = -255;self.movement.1 = -255;},
-            "stop" => {self.movement.0 = 0;self.movement.1 = 0;},
-            &_ => (),
-        }
-    }
 
     /// Show current movement values at both engines
     pub fn show_move(&mut self) {
-        log(Some(&self.name), "I", &format!("Moving L: {}, R: {}", self.movement.0, self.movement.1));
+        log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
     }
 }

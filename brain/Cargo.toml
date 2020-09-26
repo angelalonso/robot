@@ -1,6 +1,6 @@
 [package]
 name = "brain"
-version = "0.2.0"
+version = "0.2.2"
 authors = ["Angel Alonso Fonseca <alonsofonseca.angel@gmail.com>"]
 edition = "2018"
 
@@ -8,6 +8,8 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4"
+rand = "0.5.6"
+rust_gpiozero = "0.2.0"
 serde = "1.0"
 serde_derive = "1.0"
 serde_yaml = "0.7"

@@ -12,12 +12,29 @@ Resources to build a home robot.
 
 Under development
 
-# PHASE 0: Install and prepare OS on Raspberry
-check [RASPBERRY.md](RASPBERRY.md)
+## Version 2020.09
+- Raspberry pi 1 B+ as Brain runner and movement controller. Check [RASPBERRY.md](RASPBERRY.md)  
+- Arduino UNO as sensor controller  
+- L298N as motor controller  
+- HC-SR04 as distance sensor  
+- 2 motors  
+- Chassis made of Cardboard and plastic  
+- Weight: 895 grams  
+![](diagram.202009.png?raw=true | width=300)
+### Challenges
+- Sensor is imprecise  
+- Sometimes the Brain process runs simultaneously  
+- Weight should be lowered but anything under 1 Kg is fine I guess  
+- It doesn't do much  
+- I have smaller powerbanks but they dont work well with the L298N motor controller  
+
+
+# FROM HERE ON, THE DOCS ARE OBSOLETE/NOT REVIEWED
 
 # PHASE 1: Connect Raspberry to Arduino
 ## GPIO Map for Raspberry pi 1 REV2 Model B 
 
+```
            .___.              
     5v---1-|O O|--2--3.3v  
     5v---3-|O O|--4--2 SDA  
@@ -34,8 +51,10 @@ check [RASPBERRY.md](RASPBERRY.md)
      7--25-|O O|-26--GND  
            '---'
 
+```
 ## GPIO Map for Raspberry pi 1 B+ 
 (thanks to https://github.com/tvierb/raspberry-ascii)
+```
                            .___.              
                   +3V3---1-|O O|--2--+5V
           (SDA)  GPIO2---3-|O O|--4--+5V
@@ -58,9 +77,11 @@ check [RASPBERRY.md](RASPBERRY.md)
                 GPIO26--37-|O O|-38-----GPIO20
                       _-39-|O O|-40-----GPIO21
                            '---'
-                           (_ means Ground)
+(_ means Ground)
+```
 
 ## Arduino clone "ISCP" Map - yeah I know, freaking clones' typos
+```
 -----------
   |1|3|5|  
   |2|4|6|  
@@ -71,16 +92,36 @@ check [RASPBERRY.md](RASPBERRY.md)
 4 ICSP SCK  
 5 ICSP GND  
 6 ICSP RESET  
+```
 
 ## Connection
 ### Arduino -> Raspberry pi 1 REV2 Model B 
 TBD
 
 ### Arduino -> Raspberry pi 1 B+ 
+```
 1 -> 2  
 2 -> 21  
 3 -> 19  
 4 -> 23  
 5 -> 6  
 6 -> 7  
+```
 
+### L298N -> Motors, Power, Raspberry
+```
+                _                       _
+MotorA, out 1--|O|                     |O|--MotorB, out 1
+MotorA, out 2--|O|        _         _  |O|--MotorB, out 2
+                "        |x|       |x|  "
+                 |O|O|x| |O|O|O|O|O|O|
+                  | |     | | | | | |
+             Vcc--+ |     | | | | | +-EnaMotorB ---> GPIO25, pin 22
+             GND----+     | | | | +---MotorB, in2 -> GPIO24, pin 18
+                          | | | +-----MotorB, in1 -> GPIO23, pin 16 
+                          | | +-------MotorA, in2 -> GPIO27, pin 13
+                          | +---------MotorA, in1 -> GPIO17, pin 11
+                          +-----------EnaMotorA ---> GPIO22, pin 15
+
+ ```
+ 

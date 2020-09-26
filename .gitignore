@@ -2,4 +2,6 @@
 tests/**/build
 **/.env
 **/*.swp
+**/*.swo
 brain/Cargo.lock
+test_svc
