@@ -12,8 +12,14 @@ Resources to build a home robot.
 
 Under development
 
-# PHASE 0: Install and prepare OS on Raspberry
-check [RASPBERRY.md](RASPBERRY.md)
+## Version 2020.09
+- Raspberry pi 1 B+ as Brain runner and movement controller. Check [RASPBERRY.md](RASPBERRY.md)  
+- Arduino UNO as sensor controller
+- L298N as motor controller
+- HC-SR04 as distance sensor
+- 2 motors
+
+# FROM HERE ON, THE DOCS ARE OBSOLETE/NOT REVIEWED
 
 # PHASE 1: Connect Raspberry to Arduino
 ## GPIO Map for Raspberry pi 1 REV2 Model B 
@@ -92,3 +98,20 @@ TBD
 6 -> 7  
 ```
 
+### L298N -> Motors, Power, Raspberry
+```
+                _                       _
+MotorA, out 1--|O|                     |O|--MotorB, out 1
+MotorA, out 2--|O|        _         _  |O|--MotorB, out 2
+                "        |x|       |x|  "
+                 |O|O|x| |O|O|O|O|O|O|
+                  | |     | | | | | |
+             Vcc--+ |     | | | | | +-EnaMotorB ---> GPIO25, pin 22
+             GND----+     | | | | +---MotorB, in2 -> GPIO24, pin 18
+                          | | | +-----MotorB, in1 -> GPIO23, pin 16 
+                          | | +-------MotorA, in2 -> GPIO27, pin 13
+                          | +---------MotorA, in1 -> GPIO17, pin 11
+                          +-----------EnaMotorA ---> GPIO22, pin 15
+
+ ```
+ 
