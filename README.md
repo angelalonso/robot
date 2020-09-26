@@ -14,10 +14,19 @@ Under development
 
 ## Version 2020.09
 - Raspberry pi 1 B+ as Brain runner and movement controller. Check [RASPBERRY.md](RASPBERRY.md)  
-- Arduino UNO as sensor controller
-- L298N as motor controller
-- HC-SR04 as distance sensor
-- 2 motors
+- Arduino UNO as sensor controller  
+- L298N as motor controller  
+- HC-SR04 as distance sensor  
+- 2 motors  
+- Chassis made of Cardboard and plastic  
+- Weight: 895 grams  
+### Challenges
+- Sensor is imprecise  
+- Sometimes the Brain process runs simultaneously  
+- Weight should be lowered but anything under 1 Kg is fine I guess  
+- It doesn't do much  
+- I have smaller powerbanks but they dont work well with the L298N motor controller  
+
 
 # FROM HERE ON, THE DOCS ARE OBSOLETE/NOT REVIEWED
 
