@@ -1,6 +1,7 @@
 use std::error::Error;
 use brain::brain::Brain;
 use std::process;
+use std::process::Command;
 use std::env;
 
 fn show_help() {
