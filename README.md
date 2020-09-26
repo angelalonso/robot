@@ -20,7 +20,9 @@ Under development
 - 2 motors  
 - Chassis made of Cardboard and plastic  
 - Weight: 895 grams  
-![](diagram.202009.png?raw=true | width=300)
+
+![Diagram as of September 2020](diagram.202009.png)
+
 ### Challenges
 - Sensor is imprecise  
 - Sometimes the Brain process runs simultaneously  
