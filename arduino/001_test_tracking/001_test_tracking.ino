@@ -14,12 +14,12 @@ void loop ()
   if (val == HIGH)
   {
     delay(50);    
-    Serial.println("LOG: RESULT W");
+    Serial.println("LOG: RESULT B");
   }
   else
   {
     delay(50);    
-    Serial.println("LOG: RESULT B");
+    Serial.println("LOG: RESULT W");
   }
   delay(250); // 
 }
