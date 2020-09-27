@@ -1,4 +1,4 @@
-const int TrackerPin = 8;
+const int TrackerPin = A5;
 int sensorValue = 0; 
 void setup() {
   // put your setup code here, to run once
