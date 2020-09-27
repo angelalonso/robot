@@ -1,25 +1,25 @@
-int Sensor = 3; // sensor input pin
- 
-void setup ()
-{
-  Serial.begin(9600); // Initialize serial output
-  pinMode (Sensor, INPUT) ;
+const int TrackerPin = A5;
+int sensorValue = 0; 
+void setup() {
+  // put your setup code here, to run once
+  pinMode(TrackerPin, INPUT);
+  Serial.begin(9600);
 }
- 
- 
-void loop ()
-{
-  bool val = digitalRead (Sensor) ; // The current signal of the sensor will be read
- 
-  if (val == HIGH)
+
+void loop() {
+  delay(50);    
+  Serial.println ("LOG: test");
+  sensorValue = analogRead (TrackerPin);
+  if (sensorValue < 50 && sensorValue < 500) 
   {
     delay(50);    
-    Serial.println("LOG: RESULT ON");
+    Serial.print("LOG: RESULT ON -> ");
+    Serial.println (sensorValue, DEC);
   }
-  else
-  {
+  else (sensorValue > 500&& sensorValue > 1023);
+    {
     delay(50);    
-    Serial.println("LOG: RESULT off");
+    Serial.print("LOG: RESULT off -> ");
+    Serial.println (sensorValue, DEC);
   }
-  delay(500); // 
 }
