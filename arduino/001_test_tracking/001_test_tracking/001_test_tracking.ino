@@ -26,4 +26,5 @@ void loop() {
     delay(50);
     Serial.println("ACTION: move_stop");
   }
+  delay(500);
 }
