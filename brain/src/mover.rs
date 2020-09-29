@@ -64,8 +64,8 @@ impl Mover<'_> {
                     self.motor2.lock().unwrap().forward();
                     self.motor1_ena.lock().unwrap().on();
                     self.motor2_ena.lock().unwrap().on();
-                    self.motor1_ena.lock().unwrap().set_value(0.5);
-                    self.motor2_ena.lock().unwrap().set_value(0.5);
+                    self.motor1_ena.lock().unwrap().set_value(0.55);
+                    self.motor2_ena.lock().unwrap().set_value(0.55);
                 }
             },
             "backwards" => {
