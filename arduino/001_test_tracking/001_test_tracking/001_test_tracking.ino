@@ -15,11 +15,15 @@ void loop() {
     delay(50);    
     Serial.print("LOG: RESULT ON -> ");
     Serial.println (sensorValue, DEC);
+    delay(50);
+    Serial.println("ACTION: move_forwards_slow");
   }
   else (sensorValue > 500&& sensorValue > 1023);
     {
     delay(50);    
     Serial.print("LOG: RESULT off -> ");
     Serial.println (sensorValue, DEC);
+    delay(50);
+    Serial.println("ACTION: move_stop");
   }
 }
