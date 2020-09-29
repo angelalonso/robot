@@ -3,7 +3,6 @@ use crate::log;
 use rust_gpiozero::*;
 use std::sync::Arc;
 use std::sync::Mutex;
-use rand::random;
 
 #[derive(Error, Debug)]
 pub enum BrainMoverError {
@@ -65,8 +64,8 @@ impl Mover<'_> {
                     self.motor2.lock().unwrap().forward();
                     self.motor1_ena.lock().unwrap().on();
                     self.motor2_ena.lock().unwrap().on();
-                    self.motor1_ena.lock().unwrap().set_value(0.6);
-                    self.motor2_ena.lock().unwrap().set_value(0.6);
+                    self.motor1_ena.lock().unwrap().set_value(0.5);
+                    self.motor2_ena.lock().unwrap().set_value(0.5);
                 }
             },
             "backwards" => {
