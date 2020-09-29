@@ -10,7 +10,7 @@ void loop() {
   if(val == HIGH) //if it is HiGH
   { 
     delay(50);    
-    Serial.print("LOG: RESULT ON -> ");
+    Serial.print("SENSOR: data_tracker_");
     Serial.println (sensorValue, DEC);
     delay(50);
     Serial.println("ACTION: move_forwards_slow");
@@ -18,7 +18,7 @@ void loop() {
   else
   {
     delay(50);    
-    Serial.print("LOG: RESULT off -> ");
+    Serial.print("SENSOR: data_tracker_");
     Serial.println (sensorValue, DEC);
     delay(50);
     Serial.println("ACTION: move_stop");

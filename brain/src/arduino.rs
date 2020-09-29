@@ -49,8 +49,11 @@ impl Arduino<'_> {
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
-                if got.contains("ACTION:") {
+                if got.contains("ACTION: ") {
                     log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
+                    channel.send(got).unwrap();
+                } else if got.contains("SENSOR: ") {
+                    log(Some(&self.name), "D", &format!("Got a Sensor message: {}", got));
                     channel.send(got).unwrap();
                 } else {
                     log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));

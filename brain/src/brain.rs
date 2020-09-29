@@ -78,7 +78,7 @@ impl Brain<'static> {
             loop {
                 let msg = r.recv();
                 let mut msg_actions = Vec::new();
-                msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
                 self.apply_actions(msg_actions).unwrap();
                 self.show_move();
             }
@@ -115,6 +115,7 @@ impl Brain<'static> {
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
                 "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
+                "data" => self.decide_on(action_vec[1..].to_vec().join("_")),
                 _ => self.do_nothing().unwrap(),
             };
         }
@@ -131,5 +132,9 @@ impl Brain<'static> {
     /// Show current movement values at both engines
     pub fn show_move(&mut self) {
         log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
+    }
+
+    pub fn decide_on(&mut self, info: String) {
+        println!("{}", info);
     }
 }
