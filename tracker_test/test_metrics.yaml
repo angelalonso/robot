@@ -1,0 +1,25 @@
+--- 
+- time: 1 
+  motor1: 70
+  motor2: 70
+  sensor: true
+- time: 2 
+  motor1: 70
+  motor2: 70
+  sensor: true
+- time: 3 
+  motor1: 70
+  motor2: 70
+  sensor: false
+- time: 4 
+  motor1: -70
+  motor2: -70
+  sensor: false
+- time: 5 
+  motor1: -70
+  motor2: -70
+  sensor: false
+- time: 6 
+  motor1: -70
+  motor2: -70
+  sensor: true

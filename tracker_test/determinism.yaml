@@ -1,0 +1,13 @@
+---
+- sensor: true
+  motor1: *
+  motor2: *
+  result:
+    motor1: -70
+    motor2: -70
+- sensor: false
+  motor1: *
+  motor2: *
+  result:
+    motor1: 70
+    motor2: 70
