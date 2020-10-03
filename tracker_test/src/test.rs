@@ -18,7 +18,10 @@ mod test {
                 Err(_) => panic!("SystemTime before UNIX EPOCH!"),
             };
             if new_time > time {
-                let m = crate::get_metrics_for_timestamp(&metrics, new_time);
+                let m = match get_metrics_for_timestamp(&metrics, new_time){
+                    Some(x) => x,
+                    None => break (),
+                };
                 println!("{:?}", m);
                 time = new_time;
             }

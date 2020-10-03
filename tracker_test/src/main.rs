@@ -1,8 +1,9 @@
 extern crate serde_yaml;
-use std::fs::File;
 
 use std::time::SystemTime;
-use tracker::{read_metrics_list, get_metrics_for_timestamp};
+use tracker::{read_metrics_list, 
+    get_metrics_for_timestamp,
+    act_from_metrics};
 
 fn main() -> Result<(), Box<std::error::Error>>{
     let metrics = read_metrics_list()?;
@@ -14,8 +15,11 @@ fn main() -> Result<(), Box<std::error::Error>>{
             Err(_) => panic!("SystemTime before UNIX EPOCH!"),
         };
         if new_time > time {
-            let m = get_metrics_for_timestamp(&metrics, new_time);
-            println!("{:?}", m);
+            let m = match get_metrics_for_timestamp(&metrics, new_time){
+                Some(x) => x,
+                None => break Ok(()),
+            };
+            act_from_metrics(m);
             time = new_time;
         }
     }

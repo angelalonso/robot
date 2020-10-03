@@ -1,0 +1,17 @@
+--- 
+- time: "*" 
+  movement:
+    motor_l: "*"
+    motor_r: "*"
+  sensor: "true"
+  action:
+    motor_l: 70
+    motor_r: 70
+- time: "*" 
+  movement:
+    motor_l: "*"
+    motor_r: "*"
+  sensor: "false"
+  action:
+    motor_l: -70
+    motor_r: -70
