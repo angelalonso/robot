@@ -15,3 +15,11 @@
   action:
     motor_l: -70
     motor_r: -70
+- time: "*" 
+  movement:
+    motor_l: "70"
+    motor_r: "70"
+  sensor: "false"
+  action:
+    motor_l: -70
+    motor_r: -70

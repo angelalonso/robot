@@ -1,26 +1,29 @@
 extern crate serde_yaml;
 
-use std::time::SystemTime;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tracker::{read_metrics_list, 
     get_metrics_for_timestamp,
     act_from_metrics};
 
 fn main() -> Result<(), Box<std::error::Error>>{
     let metrics = read_metrics_list()?;
-    let start = SystemTime::now();
-    let mut time = 0;
+    let st = SystemTime::now();
+    let start_time = st
+        .duration_since(UNIX_EPOCH)?.as_millis();
+    // Time is down to decs of a second
+    let mut time: u64 = 0;
     loop {
-        let new_time = match SystemTime::now().duration_since(start) {
-            Ok(n) => n.as_secs(),
-            Err(_) => panic!("SystemTime before UNIX EPOCH!"),
-        };
-        if new_time > time {
-            let m = match get_metrics_for_timestamp(&metrics, new_time){
+        let ct = SystemTime::now();
+        let current_time = ct
+            .duration_since(UNIX_EPOCH)?.as_millis();
+        let diff_time: u64 = (current_time as f64 - start_time as f64) as u64 / 100 as u64;
+        if diff_time > time {
+            let m = match get_metrics_for_timestamp(&metrics, diff_time){
                 Some(x) => x,
                 None => break Ok(()),
             };
             act_from_metrics(m);
-            time = new_time;
+            time = diff_time;
         }
     }
 }
