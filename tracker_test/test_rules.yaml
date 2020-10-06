@@ -1,25 +1,25 @@
 --- 
-- time: "*" 
-  movement:
+- input:
+  - time: "*" 
     motor_l: "*"
     motor_r: "*"
-  sensor: "true"
+    sensor: "true"
   action:
     motor_l: 70
     motor_r: 70
-- time: "*" 
-  movement:
-    motor_l: "*"
-    motor_r: "*"
-  sensor: "false"
+- input:
+  - time: "0.5" 
+    motor_l: "-70"
+    motor_r: "70"
+    sensor: "false"
   action:
-    motor_l: -70
+    motor_l: 70
     motor_r: -70
-- time: "*" 
-  movement:
+- input:
+  - time: "*" 
     motor_l: "70"
     motor_r: "70"
-  sensor: "false"
+    sensor: "false"
   action:
     motor_l: -70
-    motor_r: -70
+    motor_r: 70

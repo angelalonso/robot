@@ -1,12 +1,14 @@
 extern crate serde_yaml;
 
 use std::time::{SystemTime, UNIX_EPOCH};
-use tracker::{read_metrics_list, 
+use tracker::{MetricEntry, 
+    read_metrics_list, 
     get_metrics_for_timestamp,
     act_from_metrics};
 
 fn main() -> Result<(), Box<std::error::Error>>{
     let metrics = read_metrics_list()?;
+    let mut latest_metrics: Vec<MetricEntry> = [].to_vec();
     let st = SystemTime::now();
     let start_time = st
         .duration_since(UNIX_EPOCH)?.as_millis();
@@ -22,7 +24,7 @@ fn main() -> Result<(), Box<std::error::Error>>{
                 Some(x) => x,
                 None => break Ok(()),
             };
-            act_from_metrics(m);
+            act_from_metrics(m, & mut latest_metrics);
             time = diff_time;
         }
     }
