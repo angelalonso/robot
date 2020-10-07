@@ -24,7 +24,11 @@ fn main() -> Result<(), Box<std::error::Error>>{
                 Some(x) => x,
                 None => break Ok(()),
             };
-            act_from_metrics(m, & mut latest_metrics);
+            let action = act_from_metrics(m, & mut latest_metrics);
+            for i in &latest_metrics {
+                println!("    {:?}", i);
+            }
+            println!("   ACTION -> {:?}\n", action);
             time = diff_time;
         }
     }

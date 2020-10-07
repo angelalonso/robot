@@ -73,18 +73,13 @@ pub fn update_metrics<'a>(metric: &'a MetricEntry, mut latest_metrics: &'a mut V
     latest_metrics
 }
 
-pub fn act_from_metrics<'a>(metric: &'a MetricEntry, mut latest_metrics: &'a mut Vec<MetricEntry>) {
+pub fn act_from_metrics<'a>(metric: &'a MetricEntry, mut latest_metrics: &'a mut Vec<MetricEntry>) -> Vec<RuleEntry>{
     latest_metrics = update_metrics(metric, latest_metrics);
-    for i in latest_metrics {
-        println!("    {:?}", i);
-    }
     let ruleset = match read_rules(){
         Ok(r) => choose_rule(r, metric),
-        Err(_e) => return (),
+        Err(e) => Err(e),
     };
-    for rule in ruleset.unwrap() {
-        println!("||||||||||||||||||||||   -> {:?}", rule.action);
-    }
+    ruleset.unwrap()
 }
 
 pub fn choose_rule(rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, Box<std::error::Error>>{
