@@ -39,8 +39,8 @@ pub fn get_metrics_for_timestamp(metrics: &Vec<MetricEntry>, timestamp: u64) -> 
     the_metric
 }
 
-pub fn read_metrics_list() -> Result<Vec<MetricEntry>, Box<std::error::Error>> {
-    let filepointer = File::open("test_metrics.yaml").unwrap();
+pub fn read_metrics_list(filename: String) -> Result<Vec<MetricEntry>, Box<std::error::Error>> {
+    let filepointer = File::open(filename).unwrap();
     let metrics: Vec<MetricEntry> = serde_yaml::from_reader(filepointer).unwrap();
     Ok(metrics)
 }

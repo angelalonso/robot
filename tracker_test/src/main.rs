@@ -7,7 +7,7 @@ use tracker::{MetricEntry,
     act_from_metrics};
 
 fn main() -> Result<(), Box<std::error::Error>>{
-    let metrics = read_metrics_list()?;
+    let metrics = read_metrics_list("test_metrics.yaml".to_string())?;
     let mut latest_metrics: Vec<MetricEntry> = [].to_vec();
     let st = SystemTime::now();
     let start_time = st
