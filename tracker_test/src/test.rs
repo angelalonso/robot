@@ -27,4 +27,16 @@ mod test {
             }
         }
     }
+    #[test]
+    fn test_straightline() {
+    }
+    #[test]
+    fn test_straightline_angle45() {
+    }
+    #[test]
+    fn test_straightline_angle90() {
+    }
+    #[test]
+    fn test_straightline_angle315() {
+    }
 }
