@@ -51,7 +51,7 @@ pub fn read_rules() -> Result<Vec<RuleEntry>, Box<std::error::Error>> {
     Ok(rules)
 }
 
-pub fn update_metrics<'a>(metric: &'a MetricEntry, mut latest_metrics: &'a mut Vec<MetricEntry>) -> &'a mut Vec<MetricEntry> {
+pub fn update_metrics<'a>(metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> &'a mut Vec<MetricEntry> {
     if latest_metrics.len() == 0 {
         latest_metrics.push(metric.clone());
         
@@ -83,8 +83,6 @@ pub fn act_from_metrics<'a>(metric: &'a MetricEntry, mut latest_metrics: &'a mut
 }
 
 pub fn choose_rule(rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, Box<std::error::Error>>{
-    let mut matching_rules: Vec<RuleEntry> = [].to_vec();
-    //println!("{:?}", metric);
     // add partially matching rules, then add to matching_rules only those matching all
     let mut partial_rules: Vec<RuleEntry> = [].to_vec();
     // Check time
