@@ -9,7 +9,7 @@ mod brain_test {
     #[ignore]
     fn check_get_actions() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
@@ -18,9 +18,10 @@ mod brain_test {
         assert!(action_got.is_ok(), "getting an action did not go well");
     }
     #[test]
+    #[ignore]
     fn check_get_actions_notfound() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
@@ -30,9 +31,10 @@ mod brain_test {
     }
 
     #[test]
+    #[ignore]
     fn check_apply_actions() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
@@ -42,9 +44,10 @@ mod brain_test {
     }
 
     #[test]
+    #[ignore]
     fn check_do_nothing() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
