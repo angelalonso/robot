@@ -66,6 +66,7 @@ impl Brain<'static> {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
+        // TODO: add vector of latest metrics
         let a = Arduino::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
@@ -106,13 +107,16 @@ impl Brain<'static> {
             loop {
                 let msg = r.recv();
                 let mut msg_actions = Vec::new();
+                // TODO: is this needed with a ruleset?
                 msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
                 self.apply_actions(msg_actions).unwrap();
                 self.show_move();
             }
         }
     }
-
+    ///------------------------------------------------------///
+    ///  Actions
+    ///------------------------------------------------------///
     /// Get the action that relates to the trigger received and call to apply it
     /// Hm...maybe this one and apply_actions should go together?
     pub fn get_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
@@ -157,6 +161,9 @@ impl Brain<'static> {
     }
 
 
+    ///------------------------------------------------------///
+    ///  Movements
+    ///------------------------------------------------------///
     /// Show current movement values at both engines
     pub fn show_move(&mut self) {
         log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
@@ -168,6 +175,9 @@ impl Brain<'static> {
         Ok(rules)
     }
 
+    ///------------------------------------------------------///
+    ///  Metrics
+    ///------------------------------------------------------///
     pub fn update_metrics<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> &'a mut Vec<MetricEntry> {
         if latest_metrics.len() == 0 {
             latest_metrics.push(metric.clone());
@@ -190,13 +200,12 @@ impl Brain<'static> {
         latest_metrics
     }
 
-    /// -- Decission making
     pub fn decide_on(&mut self, info: String) {
         println!("{}", info);
     }
 
-    pub fn act_from_metrics<'a>(&mut self, metric: &'a MetricEntry, mut latest_metrics: &'a mut Vec<MetricEntry>) -> Vec<RuleEntry>{
-        latest_metrics = self.update_metrics(metric, latest_metrics);
+    pub fn act_from_metrics<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> Vec<RuleEntry>{
+        self.update_metrics(metric, latest_metrics);
         let ruleset = match self.read_rules(){
             Ok(r) => self.choose_rule(r, metric),
             Err(e) => Err(e),
@@ -204,6 +213,9 @@ impl Brain<'static> {
         ruleset.unwrap()
     }
 
+    ///------------------------------------------------------///
+    ///  Rules
+    ///------------------------------------------------------///
     pub fn choose_rule(&mut self, rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, Box<std::error::Error>>{
         // add partially matching rules, then add to matching_rules only those matching all
         let mut partial_rules: Vec<RuleEntry> = [].to_vec();
