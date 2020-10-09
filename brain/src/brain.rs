@@ -122,7 +122,7 @@ impl Brain<'static> {
                 // TODO: is this needed with a ruleset?
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
-                println!("TEST   {:?}", actionmsg.unwrap().split(": ").collect::<String>());
+                println!("TEST   {:?}", actionmsg.unwrap().split(": ").collect::<Vector>());
                 //if actionmsg.unwrap().split(": ").collect::<String>() == "ACTION".to_string() {
                 //    println!("got ACTION");
                 //    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
