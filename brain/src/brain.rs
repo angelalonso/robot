@@ -123,8 +123,10 @@ impl Brain<'static> {
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<String>() == "ACTION".to_string() {
+                    println!("got ACTION");
                     msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
                 } else if sensormsg.unwrap().split(": ").collect::<String>() == "SENSOR".to_string() {
+                    println!("got SENSOR");
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
                 //msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
