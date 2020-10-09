@@ -231,13 +231,13 @@ impl Brain<'static> {
         };
         let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
         println!("SENSORS {:?}", sensors);
-        let sns = sensors.replace("data_tracker_", "").parse::<i8>().unwrap().as_bool();
+        let sns = sensors.replace("data_tracker_", "").parse::<i8>().unwrap();
         println!("SNS   {:?}", sns);
         let m = MetricEntry {
             time: diff_time,
             motor_l: m_l,
             motor_r: m_r,
-            sensor: true,
+            sensor: sns != 0,
         };
         Ok(m)
     }
