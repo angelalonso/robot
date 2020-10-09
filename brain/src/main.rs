@@ -36,11 +36,9 @@ fn argparser() -> (String, String, String) {
         _ => {
             // remove the prog name itself
             args.remove(0);
-            // drain the config file path
+            // drain both config files paths
             let brain_configfile : String = args.drain(0..1).collect();
             let cerebellum_configfile : String = args.drain(0..1).collect();
-            println!("--{}", brain_configfile);
-            println!("--{}", cerebellum_configfile);
             (brain_configfile.to_string(), cerebellum_configfile.to_string(), args.join(" "))
         },
     }
