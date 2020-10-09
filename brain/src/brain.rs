@@ -118,11 +118,19 @@ impl Brain<'static> {
             loop {
                 let msg = r.recv();
                 let mut msg_actions = Vec::new();
+                let mut msg_sensors = String::new();
                 // TODO: is this needed with a ruleset?
-                msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
+                let actionmsg = msg.clone();
+                let sensormsg = msg.clone();
+                if actionmsg.unwrap().split(": ").collect::<String>() == "ACTION".to_string() {
+                    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                } else if sensormsg.unwrap().split(": ").collect::<String>() == "SENSOR".to_string() {
+                    msg_sensors = msg.unwrap().replace("SENSOR: ", "");
+                }
+                //msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: use the following ones to build the current metric
-                let current_metric = self.build_crbllum_input().unwrap();
+                let current_metric = self.build_crbllum_input(msg_sensors).unwrap();
                 println!("{:?}", current_metric);
                 self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
             }
@@ -185,7 +193,7 @@ impl Brain<'static> {
         Ok(rules)
     }
 
-    pub fn build_crbllum_input(&mut self) -> Result<MetricEntry, BrainDeadError> {
+    pub fn build_crbllum_input(&mut self, sensors: String) -> Result<MetricEntry, BrainDeadError> {
         log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
         let m_l: i16;
         let m_r: i16;
@@ -221,6 +229,7 @@ impl Brain<'static> {
             Err(_e) => return Err(BrainDeadError::SystemTimeError),
         };
         let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
+        println!("{:?}", sensors);
         let m = MetricEntry {
             time: diff_time,
             motor_l: m_l,
