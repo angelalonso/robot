@@ -168,7 +168,7 @@ impl Brain<'static> {
     ///  Cerebellum
     ///------------------------------------------------------///
     pub fn get_crbllum_config(&mut self) -> Result<Vec<RuleEntry>, BrainDeadError> {
-        let filepointer = File::open("predefined_rules.yaml").unwrap();
+        let filepointer = File::open("move_cfg.yaml").unwrap();
         let rules: Vec<RuleEntry> = serde_yaml::from_reader(filepointer).unwrap();
         Ok(rules)
     }
