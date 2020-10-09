@@ -117,15 +117,15 @@ impl Brain<'static> {
             });
             loop {
                 let msg = r.recv();
-                let msg_actions = Vec::new();
-                let msg_sensors = String::new();
+                let mut msg_actions = Vec::new();
+                let mut msg_sensors = String::new();
                 // TODO: is this needed with a ruleset?
                 let actionmsg = msg.clone();
-                let _sensormsg = msg.clone();
+                let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
                     println!("got ACTION");
                     msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
-                } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>() == "SENSOR".to_string() {
+                } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
                     println!("got SENSOR");
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
