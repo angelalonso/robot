@@ -115,7 +115,7 @@ impl Brain<'static> {
         }
     }
     ///------------------------------------------------------///
-    ///  Actions
+    ///  Brain
     ///------------------------------------------------------///
     /// Get the action that relates to the trigger received and call to apply it
     /// Hm...maybe this one and apply_actions should go together?
@@ -162,7 +162,7 @@ impl Brain<'static> {
 
 
     ///------------------------------------------------------///
-    ///  Movements
+    ///  Cerebellum
     ///------------------------------------------------------///
     /// Show current movement values at both engines
     pub fn show_move(&mut self) {
@@ -175,9 +175,6 @@ impl Brain<'static> {
         Ok(rules)
     }
 
-    ///------------------------------------------------------///
-    ///  Metrics
-    ///------------------------------------------------------///
     pub fn update_metrics<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> &'a mut Vec<MetricEntry> {
         if latest_metrics.len() == 0 {
             latest_metrics.push(metric.clone());
@@ -213,9 +210,6 @@ impl Brain<'static> {
         ruleset.unwrap()
     }
 
-    ///------------------------------------------------------///
-    ///  Rules
-    ///------------------------------------------------------///
     pub fn choose_rule(&mut self, rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, Box<std::error::Error>>{
         // add partially matching rules, then add to matching_rules only those matching all
         let mut partial_rules: Vec<RuleEntry> = [].to_vec();
