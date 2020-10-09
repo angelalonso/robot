@@ -122,14 +122,13 @@ impl Brain<'static> {
                 // TODO: is this needed with a ruleset?
                 let actionmsg = msg.clone();
                 let _sensormsg = msg.clone();
-                println!("TEST   {:?}", actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0]);
-                //if actionmsg.unwrap().split(": ").collect::<String>() == "ACTION".to_string() {
-                //    println!("got ACTION");
-                //    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
-                //} else if sensormsg.unwrap().split(": ").collect::<String>() == "SENSOR".to_string() {
-                //    println!("got SENSOR");
-                //    msg_sensors = msg.unwrap().replace("SENSOR: ", "");
-                //}
+                if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
+                    println!("got ACTION");
+                    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>() == "SENSOR".to_string() {
+                    println!("got SENSOR");
+                    msg_sensors = msg.unwrap().replace("SENSOR: ", "");
+                }
                 //msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: use the following ones to build the current metric
