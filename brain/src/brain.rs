@@ -129,7 +129,6 @@ impl Brain<'static> {
                     println!("got SENSOR");
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
-                //msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: use the following ones to build the current metric
                 let current_metric = self.build_crbllum_input(msg_sensors).unwrap();
@@ -236,7 +235,7 @@ impl Brain<'static> {
             time: diff_time,
             motor_l: m_l,
             motor_r: m_r,
-            sensor: true,
+            sensor: sensors.replace("data_tracker_", "").parse::<bool>().unwrap(),
         };
         Ok(m)
     }
