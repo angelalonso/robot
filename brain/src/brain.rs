@@ -192,15 +192,19 @@ impl Brain<'static> {
         } else if self.mover.movement == "rotate_right" {
             m_l = 70;
             m_r = -70;
-        } else if self.mover.movement == "stop" {
-            m_l = 0;
-            m_r = 0;
         } else {
-            let motor_values: Vec<i16> = self.mover.movement.split("_")
+            let motor_values: Vec<i16> = match self.mover.movement.split("_")
                 .map(|s| s.parse().unwrap())
-                .collect();
-            m_l = motor_values[0];
-            m_r = motor_values[1];
+                .collect() {
+                    Ok(v) => {
+                        m_l = v[0];
+                        m_r = v[1];
+                    },
+                    Err() => {
+                        m_l = 0;
+                        m_r = 0;
+                    }
+                }
         };
         //TODO: adapt time and sensor
         let m = MetricEntry {
