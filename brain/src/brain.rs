@@ -237,7 +237,7 @@ impl Brain<'static> {
             time: diff_time,
             motor_l: m_l,
             motor_r: m_r,
-            sensor: sns,
+            sensor: true,
         };
         Ok(m)
     }
