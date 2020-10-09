@@ -12,5 +12,5 @@ git push origin ${DEV_BRANCH}
 
 
 ${SSH_COMM} "cd robot/brain; pwd; git checkout ${DEV_BRANCH} && git pull && \
-  ${CARGO} run cfg.yaml
+  ${CARGO} run cfg.yaml move_cfg.yaml
   "
