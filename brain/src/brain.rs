@@ -61,7 +61,7 @@ pub struct Brain<'a> {
 
 impl Brain<'static> {
     pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
-        let configdata = Config::new(config_file);
+        let cfg = Config::new(config_file);
         let sp = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
@@ -77,7 +77,7 @@ impl Brain<'static> {
         });
         Ok(Self {
             name: brain_name,
-            config: configdata,
+            config: cfg,
             arduino: a,
             serialport: sp,
             timeout: 4,
@@ -85,9 +85,9 @@ impl Brain<'static> {
         })
     }
 
-    pub fn read(mut self) {
+    pub fn get_input(mut self) {
+        let mut latest_metrics: Vec<MetricEntry> = [].to_vec();
         loop {
-            self.show_move();
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
@@ -96,7 +96,7 @@ impl Brain<'static> {
             let _handle = thread::spawn(move || {
                 let _received = match arduino.read_channel(msgs){
                     Ok(rcv) => {
-                        let _taken_actions = match avatar.get_actions(&rcv){
+                        let _taken_actions = match avatar.get_brain_actions(&rcv){
                             Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
                             Err(_) => log(Some(&this_name), "D", "No actions were found for trigger"),
                         };
@@ -109,8 +109,10 @@ impl Brain<'static> {
                 let mut msg_actions = Vec::new();
                 // TODO: is this needed with a ruleset?
                 msg_actions.push(msg.unwrap().replace("ACTION: ", "").replace("SENSOR: ", ""));
-                self.apply_actions(msg_actions).unwrap();
-                self.show_move();
+                self.do_brain_actions(msg_actions).unwrap();
+                // TODO: use the following ones to build the current metric
+                let current_metric = self.build_crbllum_input().unwrap();
+                self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
             }
         }
     }
@@ -118,15 +120,15 @@ impl Brain<'static> {
     ///  Brain
     ///------------------------------------------------------///
     /// Get the action that relates to the trigger received and call to apply it
-    /// Hm...maybe this one and apply_actions should go together?
-    pub fn get_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
+    /// Hm...maybe this one and do_brain_actions should go together?
+    pub fn get_brain_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
         log(Some(&self.name), "D", &format!("Received {}", trigger));
         let actions = self.config.get_actions(&trigger);
         match actions {
             Ok(acts) => {
                 match acts {
                     Some(a) => {
-                        self.apply_actions(a.clone()).unwrap();
+                        self.do_brain_actions(a.clone()).unwrap();
                         Ok(a)
                     },
                     None => {
@@ -141,21 +143,22 @@ impl Brain<'static> {
 
     /// Call the action needed
     /// , which, right now, is just installing a new hex into the arduino
-    pub fn apply_actions(&mut self, actions: Vec<String>) -> Result<(), BrainDeadError> {
+    pub fn do_brain_actions(&mut self, actions: Vec<String>) -> Result<(), BrainDeadError> {
         for action in &actions {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
                 "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
                 "data" => self.decide_on(action_vec[1..].to_vec().join("_")),
-                _ => self.do_nothing().unwrap(),
+                _ => self.do_brain_nothing().unwrap(),
             };
         }
         Ok(())
     }
 
     /// Do nothing, but take note that we have nothing to do
-    pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
+    /// TODO: can this be removed?
+    pub fn do_brain_nothing(&mut self) -> Result<(), BrainDeadError> {
         log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
     }
@@ -164,18 +167,51 @@ impl Brain<'static> {
     ///------------------------------------------------------///
     ///  Cerebellum
     ///------------------------------------------------------///
-    /// Show current movement values at both engines
-    pub fn show_move(&mut self) {
-        log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
-    }
-
-    pub fn read_rules(&mut self) -> Result<Vec<RuleEntry>, Box<std::error::Error>> {
+    pub fn get_crbllum_config(&mut self) -> Result<Vec<RuleEntry>, BrainDeadError> {
         let filepointer = File::open("predefined_rules.yaml").unwrap();
         let rules: Vec<RuleEntry> = serde_yaml::from_reader(filepointer).unwrap();
         Ok(rules)
     }
 
-    pub fn update_metrics<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> &'a mut Vec<MetricEntry> {
+    pub fn build_crbllum_input(&mut self) -> Result<MetricEntry, BrainDeadError> {
+        log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
+        let m_l: i16;
+        let m_r: i16;
+        if self.mover.movement == "forwards" {
+            m_l = 100;
+            m_r = 100;
+        } else if self.mover.movement == "forwards_slow" {
+            m_l = 55;
+            m_r = 55;
+        } else if self.mover.movement == "backwards" {
+            m_l = -100;
+            m_r = -100;
+        } else if self.mover.movement == "rotate_left" {
+            m_l = -70;
+            m_r = 70;
+        } else if self.mover.movement == "rotate_right" {
+            m_l = 70;
+            m_r = -70;
+        } else {
+            let motor_values: Vec<i16> = self.mover.movement.split("_")
+                .map(|s| s.parse().unwrap())
+                .collect();
+            m_l = motor_values[0];
+            m_r = motor_values[1];
+        };
+        //TODO: adapt time and sensor
+        let m = MetricEntry {
+            time: 0.0,
+            motor_l: m_l,
+            motor_r: m_r,
+            sensor: true,
+        };
+        Ok(m)
+    }
+
+    /// TODO: modify this code to maybe do more of what the title mentions (probably take over the
+    /// previous function)
+    pub fn get_crbllum_input<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> Result<&'a mut Vec<MetricEntry>, BrainDeadError> {
         if latest_metrics.len() == 0 {
             latest_metrics.push(metric.clone());
             
@@ -194,23 +230,10 @@ impl Brain<'static> {
                 latest_metrics.pop();
             }
         }
-        latest_metrics
+        Ok(latest_metrics)
     }
 
-    pub fn decide_on(&mut self, info: String) {
-        println!("{}", info);
-    }
-
-    pub fn act_from_metrics<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> Vec<RuleEntry>{
-        self.update_metrics(metric, latest_metrics);
-        let ruleset = match self.read_rules(){
-            Ok(r) => self.choose_rule(r, metric),
-            Err(e) => Err(e),
-        };
-        ruleset.unwrap()
-    }
-
-    pub fn choose_rule(&mut self, rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, Box<std::error::Error>>{
+    pub fn choose_crbllum_actions(&mut self, rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, BrainDeadError>{
         // add partially matching rules, then add to matching_rules only those matching all
         let mut partial_rules: Vec<RuleEntry> = [].to_vec();
         // Check time
@@ -246,5 +269,19 @@ impl Brain<'static> {
             }
         }
         Ok(partial_rules)
+    }
+
+    pub fn do_crbllum_actions<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> Result<Vec<RuleEntry>, BrainDeadError> {
+        self.get_crbllum_input(metric, latest_metrics).unwrap();
+        let ruleset = match self.get_crbllum_config(){
+            Ok(r) => self.choose_crbllum_actions(r, metric),
+            Err(e) => Err(e),
+        };
+        ruleset
+    }
+
+    /// TODO: remove? move somewhere else?
+    pub fn decide_on(&mut self, info: String) {
+        println!("{}", info);
     }
 }

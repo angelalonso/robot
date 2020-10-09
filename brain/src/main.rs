@@ -74,11 +74,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         process::exit(1);
     });
     // Send the first trigger to start.
-    let _send_start = main_brain.get_actions(&start_mode).unwrap_or_else(|err| {
+    let _send_start = main_brain.get_brain_actions(&start_mode).unwrap_or_else(|err| {
         eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
         process::exit(1);
     });
     // Listening on Comm
-    main_brain.read();
+    main_brain.get_input();
     Ok(())
 }

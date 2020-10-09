@@ -7,6 +7,12 @@ use tracker::{MetricEntry,
     act_from_metrics};
 
 fn main() -> Result<(), Box<std::error::Error>>{
+    let movement = "-70_70";
+    let tester: Vec<f64> = movement.split("_")
+            .map(|s| s.parse().unwrap())
+            .collect();
+    println!("{:?}", tester[0]);
+    println!("{:?}", tester[1]);
     let metrics = read_metrics_list("test_metrics.yaml".to_string())?;
     let mut latest_metrics: Vec<MetricEntry> = [].to_vec();
     let st = SystemTime::now();
