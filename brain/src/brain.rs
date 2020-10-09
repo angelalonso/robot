@@ -131,7 +131,7 @@ impl Brain<'static> {
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: use the following ones to build the current metric
                 let current_metric = self.build_crbllum_input(msg_sensors).unwrap();
-                println!("{:?}", current_metric);
+                println!("CURRENT METRIC{:?}", current_metric);
                 self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
             }
         }
@@ -229,7 +229,7 @@ impl Brain<'static> {
             Err(_e) => return Err(BrainDeadError::SystemTimeError),
         };
         let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
-        println!("{:?}", sensors);
+        println!("SENSORS {:?}", sensors);
         let m = MetricEntry {
             time: diff_time,
             motor_l: m_l,
