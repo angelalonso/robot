@@ -1,13 +1,14 @@
-use crate::config::Config;
 use crate::arduino::Arduino;
-use crate::mover::Mover;
+use crate::config::Config;
 use crate::log;
+use crate::mover::Mover;
+use std::fs::File;
 use std::process;
 use std::str;
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
+use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
-use std::fs::File;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -19,6 +20,9 @@ pub enum BrainDeadError {
 
     #[error("Config contains no related entries")]
     NoConfigFound,
+
+    #[error("Something went wrong while working with timestamps")]
+    SystemTimeError,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -52,6 +56,7 @@ pub struct RuleEntry {
 #[derive(Clone)]
 pub struct Brain<'a> {
     pub name: &'a str,
+    pub starttime: u128,
     pub config: Config,
     pub arduino: Arduino<'a>,
     pub serialport: &'a str,
@@ -61,6 +66,11 @@ pub struct Brain<'a> {
 
 impl Brain<'static> {
     pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+        let st = SystemTime::now();
+        let start_time = match st.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis(),
+            Err(_e) => 0,
+        };
         let cfg = Config::new(config_file);
         let sp = match raw_serial_port {
             Some(port) => port,
@@ -77,6 +87,7 @@ impl Brain<'static> {
         });
         Ok(Self {
             name: brain_name,
+            starttime: start_time,
             config: cfg,
             arduino: a,
             serialport: sp,
@@ -112,6 +123,7 @@ impl Brain<'static> {
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: use the following ones to build the current metric
                 let current_metric = self.build_crbllum_input().unwrap();
+                println!("{:?}", current_metric);
                 self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
             }
         }
@@ -203,8 +215,14 @@ impl Brain<'static> {
             m_r = motor_values[1];
         };
         //TODO: adapt time and sensor
+        let ct = SystemTime::now();
+        let current_time = match ct.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis(),
+            Err(_e) => return Err(BrainDeadError::SystemTimeError),
+        };
+        let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
         let m = MetricEntry {
-            time: 0.0,
+            time: diff_time,
             motor_l: m_l,
             motor_r: m_r,
             sensor: true,
