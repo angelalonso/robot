@@ -116,6 +116,14 @@ impl Brain<'static> {
                     Err(_) => log(Some(&this_name), "D", "Nothing read from Channel"),
                 };
             });
+            let mut current_metric = MetricEntry {
+                time: 0.0,
+                motor_l: 0,
+                motor_r: 0,
+                tracker: false,
+                distance: 0,
+
+            };
             loop {
                 let msg = r.recv();
                 let mut msg_actions = Vec::new();
@@ -132,7 +140,8 @@ impl Brain<'static> {
                 }
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: use the following ones to build the current metric
-                let current_metric = self.build_crbllum_input(msg_sensors).unwrap();
+                let prev_metric = current_metric.clone();
+                current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
                 println!("CURRENT METRIC{:?}", current_metric);
                 self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
             }
@@ -195,7 +204,7 @@ impl Brain<'static> {
         Ok(rules)
     }
 
-    pub fn build_crbllum_input(&mut self, sensors: String) -> Result<MetricEntry, BrainDeadError> {
+    pub fn build_crbllum_input(&mut self, sensors: String, prev_metric: MetricEntry) -> Result<MetricEntry, BrainDeadError> {
         log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
         let m_l: i16;
         let m_r: i16;
@@ -232,7 +241,7 @@ impl Brain<'static> {
         };
         let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
         println!("SENSORS {:?}", sensors);
-        let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors);
+        let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors, prev_metric);
         let m = MetricEntry {
             time: diff_time,
             motor_l: m_l,
@@ -244,10 +253,10 @@ impl Brain<'static> {
     }
 
     // TODO: if there's no value for one, take the previous value
-    pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String) -> (bool, u16) {
+    pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String, prev_metric: MetricEntry) -> (bool, u16) {
         let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
-        let mut trck: bool = false;
-        let mut dist: u16 = 0;
+        let mut trck: bool = prev_metric.tracker;
+        let mut dist: u16 = prev_metric.distance;
         if split_msg[1] == "tracker" {
             let trck_int: u8 = split_msg[2].parse().unwrap();
             trck = trck_int != 0;
