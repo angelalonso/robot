@@ -122,7 +122,6 @@ impl Brain<'static> {
                 motor_r: 0,
                 tracker: false,
                 distance: 0,
-
             };
             loop {
                 let msg = r.recv();
@@ -143,7 +142,11 @@ impl Brain<'static> {
                 let prev_metric = current_metric.clone();
                 current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
                 println!("CURRENT METRIC{:?}", current_metric);
-                self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
+                let action = self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
+                for i in &latest_metrics {
+                    println!("    {:?}", i);
+                }
+                println!("   ACTION -> {:?}\n", action);
             }
         }
     }
