@@ -34,6 +34,7 @@ void loop() {
   digitalWrite(ProximityTriggerPin, LOW);
   long duration = pulseIn(ProximityEchoPin, HIGH);
   int distanceVALUE = duration*0.034/2;
+  delay(50);
   Serial.print("SENSOR: data_distance_");
   Serial.println (distanceVALUE, DEC);
   
