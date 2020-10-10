@@ -30,7 +30,8 @@ pub struct MetricEntry {
     time: f64,
     motor_l: i16,
     motor_r: i16,
-    sensor: bool,
+    tracker: bool,
+    distance: u16,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -231,15 +232,31 @@ impl Brain<'static> {
         };
         let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
         println!("SENSORS {:?}", sensors);
-        let sns = sensors.replace("data_tracker_", "").parse::<i8>().unwrap();
-        println!("SNS   {:?}", sns);
+        let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors);
+        //let (tracker, distance) = sensors.replace("data_tracker_", "").parse::<i8>().unwrap();
+        //println!("SNS   {:?}", sns);
         let m = MetricEntry {
             time: diff_time,
             motor_l: m_l,
             motor_r: m_r,
-            sensor: sns != 0,
+            tracker: trckr_msg,
+            distance: dist_msg,
         };
         Ok(m)
+    }
+
+    // TODO: if there's no value for one, take the previous value
+    pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String) -> (bool, u16) {
+        let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
+        let mut trck: bool = false;
+        let mut dist: u16 = 0;
+        if split_msg[1] == "tracker" {
+            let trck_int: u8 = split_msg[2].parse().unwrap();
+            trck = trck_int != 0;
+        } else if split_msg[1] == "distance" {
+            dist = split_msg[2].parse().unwrap();
+        }
+        (trck, dist)
     }
 
     /// TODO: modify this code to maybe do more of what the title mentions (probably take over the
@@ -251,7 +268,7 @@ impl Brain<'static> {
         } else {
             if metric.motor_l == latest_metrics[0].motor_l &&
                metric.motor_r == latest_metrics[0].motor_r &&
-               metric.sensor == latest_metrics[0].sensor
+               metric.tracker == latest_metrics[0].tracker
             {
                 latest_metrics[0].time += 0.1;
             } else {
@@ -296,7 +313,7 @@ impl Brain<'static> {
         }
         for rule in partial_rules.clone() {
             if rule.input[0].sensor != "*" {
-                if metric.sensor != rule.input[0].sensor.parse::<bool>().unwrap() {
+                if metric.tracker != rule.input[0].sensor.parse::<bool>().unwrap() {
                     partial_rules.retain(|x| *x != rule);
                 }
             }

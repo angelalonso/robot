@@ -1,25 +1,22 @@
-int Sensor = 2; // sensor input pin
- 
-void setup ()
-{
-  Serial.begin(9600); // Initialize serial output
-  pinMode (Sensor, INPUT) ;
+const int TrackerPin = 2;
+void setup() {
+  pinMode (TrackerPin, INPUT);
+  Serial.begin (9600);
 }
- 
- 
-void loop ()
-{
-  bool val = digitalRead (Sensor) ; // The current signal of the sensor will be read
- 
-  if (val == HIGH)
-  {
+
+void loop() {
+  boolean sensorValue = digitalRead(TrackerPin); // read the value of tracking module
+  if(sensorValue == HIGH) //if it is HiGH
+  { 
     delay(50);    
-    Serial.println("LOG: RESULT B");
+    Serial.print("SENSOR: data_tracker_");
+    Serial.println (sensorValue, DEC);
   }
   else
   {
     delay(50);    
-    Serial.println("LOG: RESULT W");
+    Serial.print("SENSOR: data_tracker_");
+    Serial.println (sensorValue, DEC);
   }
-  delay(250); // 
+  delay(100);
 }
