@@ -19,7 +19,7 @@ pub enum BrainMoverError {
 #[derive(Clone)]
 pub struct Mover<'a > {
     pub name: &'a str,
-    pub movement: &'a str,
+    pub movement: String,
     pub motor_l: Arc<Mutex<Motor>>,
     pub motor_l_ena: Arc<Mutex<PWMOutputDevice>>,
     pub motor_r: Arc<Mutex<Motor>>,
@@ -30,7 +30,7 @@ impl Mover<'_> {
     pub fn new() -> Result<Self, &'static str> {
         Ok(Self {
             name: "movement",
-            movement: "stop",
+            movement: "stop".to_string(),
                     // Temporarily inverted motor_l: Arc::new(Mutex::new(Motor::new(17, 27))),
             motor_l: Arc::new(Mutex::new(Motor::new(27, 17))),
             motor_l_ena: Arc::new(Mutex::new(PWMOutputDevice::new(22))),
@@ -41,11 +41,11 @@ impl Mover<'_> {
     }
 
     // TODO: change this from forwards,backwards... to "100_100", "-100_-100"
-    pub fn set_move(&mut self, movement: String) {
+    pub fn set_move<'r>(&mut self, movement: String) {
         match movement.as_str() {
             "forwards" => {
                 if self.movement != "forwards"{
-                    self.movement = "forwards";
+                    self.movement = "forwards".to_string();
                     log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor_l.lock().unwrap().forward();
                     self.motor_r.lock().unwrap().forward();
@@ -57,7 +57,7 @@ impl Mover<'_> {
             },
             "forwards_slow" => {
                 if self.movement != "forwards_slow"{
-                    self.movement = "forwards_slow";
+                    self.movement = "forwards_slow".to_string();
                     log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor_l.lock().unwrap().forward();
                     self.motor_r.lock().unwrap().forward();
@@ -69,7 +69,7 @@ impl Mover<'_> {
             },
             "backwards" => {
                 if self.movement != "backwards"{
-                    self.movement = "backwards";
+                    self.movement = "backwards".to_string();
                     log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor_l.lock().unwrap().backward();
                     self.motor_r.lock().unwrap().backward();
@@ -81,7 +81,7 @@ impl Mover<'_> {
             },
             "rotate_left" => {
                 if self.movement != "rotate_left"{
-                    self.movement = "rotate_left";
+                    self.movement = "rotate_left".to_string();
                     log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor_l.lock().unwrap().backward();
                     self.motor_r.lock().unwrap().forward();
@@ -93,7 +93,7 @@ impl Mover<'_> {
             },
             "rotate_right" => {
                 if self.movement != "rotate_right"{
-                    self.movement = "rotate_right";
+                    self.movement = "rotate_right".to_string();
                     log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor_l.lock().unwrap().forward();
                     self.motor_r.lock().unwrap().backward();
@@ -105,7 +105,7 @@ impl Mover<'_> {
             },
             "stop" => {
                 if self.movement != "stop"{
-                    self.movement = "stop";
+                    self.movement = "stop".to_string();
                     log(Some(&self.name), "E", &format!("Moving : {}", self.movement));
                     self.motor_l.lock().unwrap().stop();
                     self.motor_r.lock().unwrap().stop();
@@ -116,7 +116,45 @@ impl Mover<'_> {
                 }
             },
             &_ => {
-                println!("############## MOVE ############# {}", movement);
+                let move_vector = movement.split("_").collect::<Vec<_>>();
+                let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
+                if move_vector != prev_move_vector {
+                    println!("############## MOVE ############# {}", movement);
+                    let move_l = move_vector[0];
+                    let move_r = move_vector[1];
+                    if move_l != prev_move_vector[0] {
+                        if move_l.parse::<i16>().unwrap() == 0 {
+                            self.motor_l.lock().unwrap().stop();
+                            self.motor_l_ena.lock().unwrap().off();
+                        } else {
+                            self.motor_l_ena.lock().unwrap().on();
+                            if move_l.parse::<i16>().unwrap() > 0 {
+                                self.motor_l.lock().unwrap().forward();
+                            } else if move_l.parse::<i16>().unwrap() < 0 {
+                                self.motor_l.lock().unwrap().backward();
+                            }
+                        self.motor_l_ena.lock().unwrap().set_value(move_l.parse::<i16>().unwrap().abs().into());
+                        }
+                    }
+                    if move_r != prev_move_vector[1] {
+                        if move_r.parse::<i16>().unwrap() == 0 {
+                            self.motor_r.lock().unwrap().stop();
+                            self.motor_r_ena.lock().unwrap().off();
+                        } else {
+                            self.motor_r_ena.lock().unwrap().on();
+                            if move_r.parse::<i16>().unwrap() > 0 {
+                                self.motor_r.lock().unwrap().forward();
+                            } else if move_r.parse::<i16>().unwrap() < 0 {
+                                self.motor_r.lock().unwrap().backward();
+                            }
+                        self.motor_r_ena.lock().unwrap().set_value(move_r.parse::<i16>().unwrap().abs().into());
+                        }
+                    self.movement = movement.clone();
+                    }
+                } else {
+                    println!("------------ NO MOVE ------------ {}", movement);
+
+                }
             },
         }
     }
