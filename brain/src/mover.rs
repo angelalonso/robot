@@ -126,6 +126,7 @@ impl Mover<'_> {
                         if move_l.parse::<i16>().unwrap() == 0 {
                             self.motor_l.lock().unwrap().stop();
                             self.motor_l_ena.lock().unwrap().off();
+                            println!("############## Left is 0");
                         } else {
                             self.motor_l_ena.lock().unwrap().on();
                             if move_l.parse::<i16>().unwrap() > 0 {
@@ -133,7 +134,9 @@ impl Mover<'_> {
                             } else if move_l.parse::<i16>().unwrap() < 0 {
                                 self.motor_l.lock().unwrap().backward();
                             }
-                        self.motor_l_ena.lock().unwrap().set_value((move_l.parse::<i16>().unwrap().abs() as i16 / 100).into());
+                            let value = move_l.parse::<i16>().unwrap().abs() as i16 / 100).into();
+                            println!("############## Left is {}", value);
+                            self.motor_l_ena.lock().unwrap().set_value((move_l.parse::<i16>().unwrap().abs() as i16 / 100).into());
                         }
                     }
                     if move_r != prev_move_vector[1] {
@@ -154,7 +157,7 @@ impl Mover<'_> {
                     self.movement = movement.clone();
                     println!("{}", self.movement);
                 } else {
-                    println!("------------ NO MOVE ------------ {} vs {}", movement, self.movement);
+                    println!("------------ NO CHANGE ------------ {} vs {}", movement, self.movement);
 
                 }
             },
