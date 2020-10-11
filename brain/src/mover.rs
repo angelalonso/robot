@@ -115,7 +115,9 @@ impl Mover<'_> {
                     self.motor_r_ena.lock().unwrap().set_value(0.0);
                 }
             },
-            &_ => (),
+            &_ => {
+                println!("############## MOVE ############# {}", movement);
+            },
         }
     }
 }
