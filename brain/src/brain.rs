@@ -141,11 +141,11 @@ impl Brain<'static> {
                 // TODO: use the following ones to build the current metric
                 let prev_metric = current_metric.clone();
                 current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
-                //println!("CURRENT METRIC {:?}", current_metric);
+                println!("CURRENT METRIC {:?}", current_metric);
                 let crbllum_action = self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
-                //for i in &latest_metrics {
-                //    println!("    {:?}", i);
-                //}
+                for i in &latest_metrics {
+                    println!("    {:?}", i);
+                }
                 if crbllum_action.len() > 0 {
                     self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
                 } else {
