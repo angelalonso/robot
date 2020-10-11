@@ -134,7 +134,7 @@ impl Mover<'_> {
                             } else if move_l.parse::<i16>().unwrap() < 0 {
                                 self.motor_l.lock().unwrap().backward();
                             }
-                            let value = move_l.parse::<i16>().unwrap().abs() as i16 / 100 as i16;
+                            let value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
                             println!("############## Left is {}", value);
                             self.motor_l_ena.lock().unwrap().set_value((move_l.parse::<i16>().unwrap().abs() as i16 / 100).into());
                         }
