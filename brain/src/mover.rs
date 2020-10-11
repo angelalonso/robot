@@ -30,7 +30,7 @@ impl Mover<'_> {
     pub fn new() -> Result<Self, &'static str> {
         Ok(Self {
             name: "movement",
-            movement: "stop".to_string(),
+            movement: "0_0".to_string(),
                     // Temporarily inverted motor_l: Arc::new(Mutex::new(Motor::new(17, 27))),
             motor_l: Arc::new(Mutex::new(Motor::new(27, 17))),
             motor_l_ena: Arc::new(Mutex::new(PWMOutputDevice::new(22))),
