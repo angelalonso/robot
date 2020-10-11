@@ -146,7 +146,11 @@ impl Brain<'static> {
                 //for i in &latest_metrics {
                 //    println!("    {:?}", i);
                 //}
-                self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
+                if crbllum_action.len > 0 {
+                    self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
+                } else {
+                    println!("NO ACTIONS FOUND");
+                }
             }
         }
     }
