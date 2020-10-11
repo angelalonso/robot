@@ -119,9 +119,9 @@ impl Mover<'_> {
                 let move_vector = movement.split("_").collect::<Vec<_>>();
                 let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
                 if move_vector != prev_move_vector {
-                    println!("############## MOVE ############# {} vs {}", movement, self.movement);
                     let move_l = move_vector[0];
                     let move_r = move_vector[1];
+                    println!("############## MOVE ############# {} vs {} -> {},{}", movement, self.movement, move_l, move_r);
                     if move_l != prev_move_vector[0] {
                         if move_l.parse::<i16>().unwrap() == 0 {
                             self.motor_l.lock().unwrap().stop();
