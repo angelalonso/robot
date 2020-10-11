@@ -141,15 +141,15 @@ impl Brain<'static> {
                 // TODO: use the following ones to build the current metric
                 let prev_metric = current_metric.clone();
                 current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
-                println!("CURRENT METRIC {:?}", current_metric);
+                //println!("CURRENT METRIC {:?}", current_metric);
                 let crbllum_action = self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
-                for i in &latest_metrics {
-                    println!("    {:?}", i);
-                }
+                //for i in &latest_metrics {
+                //    println!("    {:?}", i);
+                //}
                 if crbllum_action.len() > 0 {
                     self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
                 } else {
-                    println!("NO ACTIONS FOUND");
+                    println!("NO ACTIONS FOUND for {:?}", &current_metric);
                 }
             }
         }
@@ -187,7 +187,7 @@ impl Brain<'static> {
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
                 "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
-                "data" => self.decide_on(action_vec[1..].to_vec().join("_")),
+                //"data" => self.decide_on(action_vec[1..].to_vec().join("_")),
                 _ => self.do_brain_nothing().unwrap(),
             };
         }
@@ -247,7 +247,7 @@ impl Brain<'static> {
             Err(_e) => return Err(BrainDeadError::SystemTimeError),
         };
         let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
-        println!("SENSORS {:?}", sensors);
+        //println!("SENSORS {:?}", sensors);
         let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors, prev_metric);
         let m = MetricEntry {
             time: diff_time,
