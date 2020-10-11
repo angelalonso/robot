@@ -149,10 +149,10 @@ impl Mover<'_> {
                             }
                         self.motor_r_ena.lock().unwrap().set_value((move_r.parse::<i16>().unwrap().abs() as i16 / 100).into());
                         }
+                    }
                     println!("{}", self.movement);
                     self.movement = movement.clone();
                     println!("{}", self.movement);
-                    }
                 } else {
                     println!("------------ NO MOVE ------------ {} vs {}", movement, self.movement);
 
