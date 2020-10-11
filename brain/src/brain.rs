@@ -131,21 +131,21 @@ impl Brain<'static> {
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
-                    println!("got ACTION");
+                    //println!("got ACTION");
                     msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
                 } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
-                    println!("got SENSOR");
+                    //println!("got SENSOR");
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: use the following ones to build the current metric
                 let prev_metric = current_metric.clone();
                 current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
-                println!("CURRENT METRIC {:?}", current_metric);
+                //println!("CURRENT METRIC {:?}", current_metric);
                 let crbllum_action = self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
-                for i in &latest_metrics {
-                    println!("    {:?}", i);
-                }
+                //for i in &latest_metrics {
+                //    println!("    {:?}", i);
+                //}
                 self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
             }
         }
