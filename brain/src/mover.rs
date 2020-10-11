@@ -134,9 +134,9 @@ impl Mover<'_> {
                             } else if move_l.parse::<i16>().unwrap() < 0 {
                                 self.motor_l.lock().unwrap().backward();
                             }
-                            let value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
-                            println!("############## Left is {}", value);
-                            self.motor_l_ena.lock().unwrap().set_value((move_l.parse::<i16>().unwrap().abs() as i16 / 100).into());
+                            let l_value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
+                            println!("############## Left is {}", l_value);
+                            self.motor_l_ena.lock().unwrap().set_value(l_value);
                         }
                     }
                     if move_r != prev_move_vector[1] {
@@ -150,7 +150,9 @@ impl Mover<'_> {
                             } else if move_r.parse::<i16>().unwrap() < 0 {
                                 self.motor_r.lock().unwrap().backward();
                             }
-                        self.motor_r_ena.lock().unwrap().set_value((move_r.parse::<i16>().unwrap().abs() as i16 / 100).into());
+                            let r_value = (move_r.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
+                            println!("############## Left is {}", r_value);
+                            self.motor_r_ena.lock().unwrap().set_value(r_value);
                         }
                     }
                     println!("{}", self.movement);
