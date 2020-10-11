@@ -13,5 +13,5 @@
     motor_r: "*"
     sensor: "false"
   action:
-    motor_l: -70
-    motor_r: 70
+    motor_l: -55
+    motor_r: 55
