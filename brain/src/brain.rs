@@ -146,7 +146,7 @@ impl Brain<'static> {
                 for i in &latest_metrics {
                     println!("    {:?}", i);
                 }
-                println!("   CRBLLUM ACTION -> {:?}\n", crbllum_action);
+                println!("   CRBLLUM ACTION -> {:?}-{:?}\n", crbllum_action.action.motor_l, crbllum_action.action.motor_r);
                 //self.mover.set_move("_");
             }
         }
