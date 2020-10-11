@@ -119,7 +119,7 @@ impl Mover<'_> {
                 let move_vector = movement.split("_").collect::<Vec<_>>();
                 let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
                 if move_vector != prev_move_vector {
-                    println!("############## MOVE ############# {}", movement);
+                    println!("############## MOVE ############# {} vs {}", movement, self.movement);
                     let move_l = move_vector[0];
                     let move_r = move_vector[1];
                     if move_l != prev_move_vector[0] {
