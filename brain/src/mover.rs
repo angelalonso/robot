@@ -152,7 +152,7 @@ impl Mover<'_> {
                     self.movement = movement.clone();
                     }
                 } else {
-                    println!("------------ NO MOVE ------------ {}", movement);
+                    println!("------------ NO MOVE ------------ {} vs {}", movement, self.movement);
 
                 }
             },
