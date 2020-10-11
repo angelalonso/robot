@@ -133,7 +133,7 @@ impl Mover<'_> {
                             } else if move_l.parse::<i16>().unwrap() < 0 {
                                 self.motor_l.lock().unwrap().backward();
                             }
-                        self.motor_l_ena.lock().unwrap().set_value(move_l.parse::<i16>().unwrap().abs().into());
+                        self.motor_l_ena.lock().unwrap().set_value((move_l.parse::<i16>().unwrap().abs() as i16 / 100).into());
                         }
                     }
                     if move_r != prev_move_vector[1] {
@@ -147,7 +147,7 @@ impl Mover<'_> {
                             } else if move_r.parse::<i16>().unwrap() < 0 {
                                 self.motor_r.lock().unwrap().backward();
                             }
-                        self.motor_r_ena.lock().unwrap().set_value(move_r.parse::<i16>().unwrap().abs().into());
+                        self.motor_r_ena.lock().unwrap().set_value((move_r.parse::<i16>().unwrap().abs() as i16 / 100).into());
                         }
                     self.movement = movement.clone();
                     }
