@@ -12,9 +12,7 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
-    /// It used to represent an empty source. For example, an empty text file being given
-    /// as input to `count_words()`.
-    /// Now it's just the most basic I dont care Error
+    /// This is just the most basic I dont care Error
     #[error("Source contains no data")]
     EmptyError,
 
@@ -59,9 +57,10 @@ pub struct Brain<'a> {
     pub name: &'a str,
     pub starttime: u128,
     pub config: Config,
-    pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
+    pub metrics: Vec<MetricEntry>,
+    pub arduino: Arduino<'a>,
     pub mover: Mover<'a>,
 }
 
@@ -77,7 +76,7 @@ impl Brain<'static> {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
-        // TODO: add vector of latest metrics
+        let mtr: Vec<MetricEntry> = [].to_vec();
         let a = Arduino::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
@@ -90,15 +89,15 @@ impl Brain<'static> {
             name: brain_name,
             starttime: start_time,
             config: cfg,
-            arduino: a,
             serialport: sp,
             timeout: 4,
+            metrics: mtr,
+            arduino: a,
             mover: m,
         })
     }
 
     pub fn get_input(mut self) {
-        let mut latest_metrics: Vec<MetricEntry> = [].to_vec();
         loop {
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
@@ -127,25 +126,17 @@ impl Brain<'static> {
                 let msg = r.recv();
                 let mut msg_actions = Vec::new();
                 let mut msg_sensors = String::new();
-                // TODO: is this needed with a ruleset?
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
-                    //println!("got ACTION");
                     msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
                 } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
-                    //println!("got SENSOR");
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
                 self.do_brain_actions(msg_actions).unwrap();
-                // TODO: use the following ones to build the current metric
                 let prev_metric = current_metric.clone();
                 current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
-                //println!("CURRENT METRIC {:?}", current_metric);
-                let crbllum_action = self.do_crbllum_actions(&current_metric, &mut latest_metrics).unwrap();
-                //for i in &latest_metrics {
-                //    println!("    {:?}", i);
-                //}
+                let crbllum_action = self.do_crbllum_actions(&current_metric).unwrap();
                 if crbllum_action.len() > 0 {
                     self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
                 }
@@ -185,17 +176,9 @@ impl Brain<'static> {
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
                 "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
-                //"data" => self.decide_on(action_vec[1..].to_vec().join("_")),
-                _ => self.do_brain_nothing().unwrap(),
+                _ => log(Some(&self.name), "D", "Relaxing here..."),
             };
         }
-        Ok(())
-    }
-
-    /// Do nothing, but take note that we have nothing to do
-    /// TODO: can this be removed?
-    pub fn do_brain_nothing(&mut self) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", "Relaxing here...");
         Ok(())
     }
 
@@ -238,7 +221,6 @@ impl Brain<'static> {
             m_l = motor_values[0];
             m_r = motor_values[1];
         };
-        //TODO: adapt time and sensor
         let ct = SystemTime::now();
         let current_time = match ct.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),
@@ -257,7 +239,6 @@ impl Brain<'static> {
         Ok(m)
     }
 
-    // TODO: if there's no value for one, take the previous value
     pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String, prev_metric: MetricEntry) -> (bool, u16) {
         let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
         let mut trck: bool = prev_metric.tracker;
@@ -271,28 +252,25 @@ impl Brain<'static> {
         (trck, dist)
     }
 
-    /// TODO: modify this code to maybe do more of what the title mentions (probably take over the
-    /// previous function)
-    pub fn get_crbllum_input<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> Result<&'a mut Vec<MetricEntry>, BrainDeadError> {
-        if latest_metrics.len() == 0 {
-            latest_metrics.push(metric.clone());
+    pub fn get_crbllum_input<'a>(&mut self, metric: &'a MetricEntry) {
+        if self.metrics.len() == 0 {
+            self.metrics.push(metric.clone());
             
         } else {
-            if metric.motor_l == latest_metrics[0].motor_l &&
-               metric.motor_r == latest_metrics[0].motor_r &&
-               metric.tracker == latest_metrics[0].tracker
+            if metric.motor_l == self.metrics[0].motor_l &&
+               metric.motor_r == self.metrics[0].motor_r &&
+               metric.tracker == self.metrics[0].tracker
             {
-                latest_metrics[0].time += 0.1;
+                self.metrics[0].time += 0.1;
             } else {
-                latest_metrics.push(metric.clone());
-                latest_metrics.rotate_right(1);
-                latest_metrics[0].time = 0.1;
+                self.metrics.push(metric.clone());
+                self.metrics.rotate_right(1);
+                self.metrics[0].time = 0.1;
             }
-            if latest_metrics.len() > 5{
-                latest_metrics.pop();
+            if self.metrics.len() > 5{
+                self.metrics.pop();
             }
         }
-        Ok(latest_metrics)
     }
 
     pub fn choose_crbllum_actions(&mut self, rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, BrainDeadError>{
@@ -333,17 +311,12 @@ impl Brain<'static> {
         Ok(partial_rules)
     }
 
-    pub fn do_crbllum_actions<'a>(&mut self, metric: &'a MetricEntry, latest_metrics: &'a mut Vec<MetricEntry>) -> Result<Vec<RuleEntry>, BrainDeadError> {
-        self.get_crbllum_input(metric, latest_metrics).unwrap();
+    pub fn do_crbllum_actions<'a>(&mut self, metric: &'a MetricEntry) -> Result<Vec<RuleEntry>, BrainDeadError> {
+        self.get_crbllum_input(metric);
         let ruleset = match self.get_crbllum_config(){
             Ok(r) => self.choose_crbllum_actions(r, metric),
             Err(e) => Err(e),
         };
         ruleset
-    }
-
-    /// TODO: remove? move somewhere else?
-    pub fn decide_on(&mut self, info: String) {
-        println!("{}", info);
     }
 }

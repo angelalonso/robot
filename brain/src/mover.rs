@@ -40,7 +40,6 @@ impl Mover<'_> {
         })
     }
 
-    // TODO: change this from forwards,backwards... to "100_100", "-100_-100"
     pub fn set_move<'r>(&mut self, movement: String) {
         match movement.as_str() {
             "forwards" => {
@@ -121,12 +120,10 @@ impl Mover<'_> {
                 if move_vector != prev_move_vector {
                     let move_l = move_vector[0];
                     let move_r = move_vector[1];
-                    println!("############## MOVE ############# {} vs {} -> {},{}", movement, self.movement, move_l, move_r);
                     if move_l != prev_move_vector[0] {
                         if move_l.parse::<i16>().unwrap() == 0 {
                             self.motor_l.lock().unwrap().stop();
                             self.motor_l_ena.lock().unwrap().off();
-                            println!("############## Left is 0");
                         } else {
                             self.motor_l_ena.lock().unwrap().on();
                             if move_l.parse::<i16>().unwrap() > 0 {
@@ -135,7 +132,6 @@ impl Mover<'_> {
                                 self.motor_l.lock().unwrap().backward();
                             }
                             let l_value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
-                            println!("############## Left is {}", l_value);
                             self.motor_l_ena.lock().unwrap().set_value(l_value);
                         }
                     }
@@ -151,16 +147,10 @@ impl Mover<'_> {
                                 self.motor_r.lock().unwrap().backward();
                             }
                             let r_value = (move_r.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
-                            println!("############## Left is {}", r_value);
                             self.motor_r_ena.lock().unwrap().set_value(r_value);
                         }
                     }
-                    println!("{}", self.movement);
                     self.movement = movement.clone();
-                    println!("{}", self.movement);
-                } else {
-                    println!("------------ NO CHANGE ------------ {} vs {}", movement, self.movement);
-
                 }
             },
         }

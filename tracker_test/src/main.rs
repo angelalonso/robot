@@ -7,35 +7,34 @@ use tracker::{MetricEntry,
     act_from_metrics};
 
 fn main() -> Result<(), Box<std::error::Error>>{
-    let movement = "-70_70";
-    let tester: Vec<f64> = movement.split("_")
-            .map(|s| s.parse().unwrap())
-            .collect();
-    println!("{:?}", tester[0]);
-    println!("{:?}", tester[1]);
-    let metrics = read_metrics_list("test_metrics.yaml".to_string())?;
-    let mut latest_metrics: Vec<MetricEntry> = [].to_vec();
-    let st = SystemTime::now();
-    let start_time = st
-        .duration_since(UNIX_EPOCH)?.as_millis();
-    // Time is down to decs of a second
-    let mut time: u64 = 0;
-    loop {
-        let ct = SystemTime::now();
-        let current_time = ct
-            .duration_since(UNIX_EPOCH)?.as_millis();
-        let diff_time: u64 = (current_time as f64 - start_time as f64) as u64 / 100 as u64;
-        if diff_time > time {
-            let m = match get_metrics_for_timestamp(&metrics, diff_time){
-                Some(x) => x,
-                None => break Ok(()),
-            };
-            let action = act_from_metrics(m, & mut latest_metrics);
-            for i in &latest_metrics {
-                println!("    {:?}", i);
-            }
-            println!("   ACTION -> {:?}\n", action);
-            time = diff_time;
-        }
-    }
+    let tester = "-70";
+    println!("{:?}", tester);
+    let value = (tester.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
+    println!("{:?}", value);
+    //let metrics = read_metrics_list("test_metrics.yaml".to_string())?;
+    //let mut latest_metrics: Vec<MetricEntry> = [].to_vec();
+    //let st = SystemTime::now();
+    //let start_time = st
+    //    .duration_since(UNIX_EPOCH)?.as_millis();
+    //// Time is down to decs of a second
+    //let mut time: u64 = 0;
+    //loop {
+    //    let ct = SystemTime::now();
+    //    let current_time = ct
+    //        .duration_since(UNIX_EPOCH)?.as_millis();
+    //    let diff_time: u64 = (current_time as f64 - start_time as f64) as u64 / 100 as u64;
+    //    if diff_time > time {
+    //        let m = match get_metrics_for_timestamp(&metrics, diff_time){
+    //            Some(x) => x,
+    //            None => break Ok(()),
+    //        };
+    //        let action = act_from_metrics(m, & mut latest_metrics);
+    //        for i in &latest_metrics {
+    //            println!("    {:?}", i);
+    //        }
+    //        println!("   ACTION -> {:?}\n", action);
+    //        time = diff_time;
+    //    }
+    //}
+    Ok(())
 }
