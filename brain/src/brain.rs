@@ -335,8 +335,37 @@ impl Brain<'static> {
         for rule in partial_rules.clone() {
             if rule.input[0].distance != "*" {
                 let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
-                println!("---------------------------{:?}", rule_dissected[0]);
-                println!("---------------------------{:?}", rule_dissected[1]);
+                if rule_dissected[0] == "=" {
+                    if metric.distance == rule_dissected[1] {
+                        partial_rules.retain(|x| *x != rule);
+                        println!("---------------------------{:?}", rule_dissected[0]);
+                        println!("---------------------------{:?}", rule_dissected[1]);
+                    }
+                } else if rule_dissected[0] == ">=" {
+                    if metric.distance >= rule_dissected[1] {
+                        partial_rules.retain(|x| *x != rule);
+                        println!("---------------------------{:?}", rule_dissected[0]);
+                        println!("---------------------------{:?}", rule_dissected[1]);
+                    }
+                } else if rule_dissected[0] == "<=" {
+                    if metric.distance <= rule_dissected[1] {
+                        partial_rules.retain(|x| *x != rule);
+                        println!("---------------------------{:?}", rule_dissected[0]);
+                        println!("---------------------------{:?}", rule_dissected[1]);
+                    }
+                } else if rule_dissected[0] == ">" {
+                    if metric.distance > rule_dissected[1] {
+                        partial_rules.retain(|x| *x != rule);
+                        println!("---------------------------{:?}", rule_dissected[0]);
+                        println!("---------------------------{:?}", rule_dissected[1]);
+                    }
+                } else if rule_dissected[0] == "<" {
+                    if metric.distance < rule_dissected[1] {
+                        partial_rules.retain(|x| *x != rule);
+                        println!("---------------------------{:?}", rule_dissected[0]);
+                        println!("---------------------------{:?}", rule_dissected[1]);
+                    }
+                }
             }
         }
         Ok(partial_rules)
