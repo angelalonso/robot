@@ -334,6 +334,7 @@ impl Brain<'static> {
                 }
             }
         }
+        println!("{:?}", partial_rules);
         for rule in partial_rules.clone() {
             if rule.input[0].distance != "*" {
                 let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
@@ -373,7 +374,7 @@ impl Brain<'static> {
                     //}
                 }
             }
-            println!("{:#x?}", partial_rules);
+            println!("{:?}", partial_rules);
         }
 
         println!("FINAL: {:#x?}", partial_rules);
