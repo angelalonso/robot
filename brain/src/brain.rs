@@ -337,6 +337,8 @@ impl Brain<'static> {
         for rule in partial_rules.clone() {
             if rule.input[0].distance != "*" {
                 let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
+                println!(" metric is {:?}", metric.distance);
+                println!(" rule is {:?}", rule_dissected[0]);
                 println!(" value is {:?}", rule_dissected[1]);
                 println!(" value is {:?}", rule_dissected[1].parse::<u16>().unwrap());
                 //if rule_dissected[0] == "=" {
