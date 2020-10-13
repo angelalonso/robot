@@ -68,12 +68,12 @@ fn check_self_running(self_comm: &str) -> Result<(), String>{
 
 /// Load a new brain, send the first trigger, and enter the reading loop
 fn main() -> Result<(), Box<dyn Error>> {
-    let (brain_config_file, _cerebellum_config_file, start_mode) = argparser();
+    let (brain_config_file, cerebellum_config_file, start_mode) = argparser();
     let args: Vec<String> = env::args().collect();
     check_self_running(&args[0]).unwrap();
     println!("Starting Brain with Mode {}", start_mode);
     // Generate our Brain object
-    let mut main_brain = Brain::new("Main Brain", brain_config_file, None).unwrap_or_else(|err| {
+    let mut main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
         eprintln!("Problem Initializing Main Brain: {}", err);
         process::exit(1);
     });

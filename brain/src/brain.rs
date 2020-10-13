@@ -5,6 +5,7 @@
 //    - installing a new .hex into arduino
 use crate::arduino::Arduino;
 use crate::config::Config;
+use crate::cerebellum::{Cerebellum, CrbllumEntry};
 use crate::log;
 use crate::mover::Mover;
 use std::fs::File;
@@ -63,6 +64,7 @@ pub struct Brain<'a> {
     pub name: &'a str,
     pub starttime: u128,
     pub config: Config,
+    pub cerebellum: Cerebellum,
     pub serialport: &'a str,
     pub timeout: u64,
     pub metrics: Vec<MetricEntry>,
@@ -72,7 +74,7 @@ pub struct Brain<'a> {
 
 /// Initialize all the things
 impl Brain<'static> {
-    pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+    pub fn new(brain_name: &'static str, config_file: String, cerebellum_config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         // This will be used to calculate our timestamps
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
@@ -82,6 +84,7 @@ impl Brain<'static> {
         // This loads the rules dictating what actions the brain takes
         // TODO: we should definitely do the same for the Cerebellum rules
         let cfg = Config::new(config_file);
+        let crb = Cerebellum::new(cerebellum_config_file);
         // Serial Port to communicate with Arduino
         let sp = match raw_serial_port {
             Some(port) => port,
@@ -103,6 +106,7 @@ impl Brain<'static> {
             name: brain_name,
             starttime: start_time,
             config: cfg,
+            cerebellum: crb,
             serialport: sp,
             timeout: 4,
             metrics: mtr,
@@ -299,9 +303,9 @@ impl Brain<'static> {
         }
     }
 
-    pub fn choose_crbllum_actions(&mut self, rules: Vec<RuleEntry>, metric: &MetricEntry) -> Result<Vec<RuleEntry>, BrainDeadError>{
+    pub fn choose_crbllum_actions(&mut self, rules: Vec<CrbllumEntry>, metric: &MetricEntry) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
         // add partially matching rules, then add to matching_rules only those matching all
-        let mut partial_rules: Vec<RuleEntry> = [].to_vec();
+        let mut partial_rules: Vec<CrbllumEntry> = [].to_vec();
         // Check time
         for rule in rules {
             if rule.input[0].time != "*" {
@@ -363,12 +367,9 @@ impl Brain<'static> {
         Ok(partial_rules)
     }
 
-    pub fn do_crbllum_actions<'a>(&mut self, metric: &'a MetricEntry) -> Result<Vec<RuleEntry>, BrainDeadError> {
+    pub fn do_crbllum_actions<'a>(&mut self, metric: &'a MetricEntry) -> Result<Vec<CrbllumEntry>, BrainDeadError> {
         self.get_crbllum_input(metric);
-        let ruleset = match self.get_crbllum_config(){
-            Ok(r) => self.choose_crbllum_actions(r, metric),
-            Err(e) => Err(e),
-        };
+        let ruleset = self.choose_crbllum_actions(self.cerebellum.entries.clone(), metric);
         ruleset
     }
 }
