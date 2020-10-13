@@ -334,7 +334,7 @@ impl Brain<'static> {
                 }
             }
         }
-        println!("{:?}", partial_rules);
+        println!("BEFORE: {:?}", partial_rules);
         for rule in partial_rules.clone() {
             if rule.input[0].distance != "*" {
                 let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
@@ -367,14 +367,9 @@ impl Brain<'static> {
                         println!("-------- ENTERED    -------{:?}", rule_dissected[0]);
                         partial_rules.retain(|x| *x != rule);
                     }
-                    //if metric.distance < rule_dissected[1].parse::<u16>().unwrap() {
-                    //    partial_rules.retain(|x| *x != rule);
-                    //    println!("---------------------------{:?}", rule_dissected[0]);
-                    //    println!("---------------------------{:?}", rule_dissected[1]);
-                    //}
                 }
             }
-            println!("{:?}", partial_rules);
+            println!("DURING: {:?}", partial_rules);
         }
 
         println!("FINAL: {:#x?}", partial_rules);
