@@ -283,7 +283,8 @@ impl Brain<'static> {
         } else {
             if metric.motor_l == self.metrics[0].motor_l &&
                metric.motor_r == self.metrics[0].motor_r &&
-               metric.tracker == self.metrics[0].tracker
+               metric.tracker == self.metrics[0].tracker &&
+               metric.distance == self.metrics[0].distance
             {
                 self.metrics[0].time += 0.1;
             } else {
