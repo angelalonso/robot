@@ -264,7 +264,6 @@ impl Brain<'static> {
     }
 
     pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String, prev_metric: MetricEntry) -> (bool, u16) {
-        println!("MESSAGE IS ->{}<-", sensor_msg);
         let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
         let mut trck: bool = prev_metric.tracker;
         let mut dist: u16 = prev_metric.distance;
@@ -273,6 +272,7 @@ impl Brain<'static> {
             trck = trck_int != 0;
         } else if split_msg[1] == "distance" {
             dist = split_msg[2].parse().unwrap();
+            println!("MESSAGE IS ->{}<-", sensor_msg);
         }
         (trck, dist)
     }
@@ -370,6 +370,8 @@ impl Brain<'static> {
                 }
             }
         }
+
+        println("{:?}", partial_rules);
         Ok(partial_rules)
     }
 
