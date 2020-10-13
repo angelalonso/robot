@@ -3,7 +3,8 @@
   - time: "*" 
     motor_l: "*"
     motor_r: "*"
-    sensor: "true"
+    tracker: "*"
+    distance: ">=_20"
   action:
     motor_l: 70
     motor_r: 70
@@ -11,7 +12,8 @@
   - time: "*" 
     motor_l: "*"
     motor_r: "*"
-    sensor: "false"
+    tracker: "*"
+    distance: "<_20"
   action:
     motor_l: -55
     motor_r: 55

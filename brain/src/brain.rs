@@ -48,7 +48,8 @@ pub struct RuleInput {
     time: String,
     motor_l: String,
     motor_r: String,
-    sensor: String,
+    tracker: String,
+    distance: String,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -325,10 +326,17 @@ impl Brain<'static> {
             }
         }
         for rule in partial_rules.clone() {
-            if rule.input[0].sensor != "*" {
-                if metric.tracker != rule.input[0].sensor.parse::<bool>().unwrap() {
+            if rule.input[0].tracker != "*" {
+                if metric.tracker != rule.input[0].tracker.parse::<bool>().unwrap() {
                     partial_rules.retain(|x| *x != rule);
                 }
+            }
+        }
+        for rule in partial_rules.clone() {
+            if rule.input[0].distance != "*" {
+                let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
+                println!("---------------------------{:?}", rule_dissected[0]);
+                println!("---------------------------{:?}", rule_dissected[1]);
             }
         }
         Ok(partial_rules)
