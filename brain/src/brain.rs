@@ -1,3 +1,8 @@
+// This is the actual central block of our robot
+// It is called Brain for obvious reasons, but is divided on two:
+//  - Cerebellum part: Manages any movement actions
+//  - Brain part: Manages any other actions, such as:
+//    - installing a new .hex into arduino
 use crate::arduino::Arduino;
 use crate::config::Config;
 use crate::log;
@@ -64,23 +69,31 @@ pub struct Brain<'a> {
     pub mover: Mover<'a>,
 }
 
+/// Initialize all the things
 impl Brain<'static> {
     pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+        // This will be used to calculate our timestamps
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
+        // This loads the rules dictating what actions the brain takes
+        // TODO: we should definitely do the same for the Cerebellum rules
         let cfg = Config::new(config_file);
+        // Serial Port to communicate with Arduino
         let sp = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
+        // Vector of latest metrics received from the Arduino
         let mtr: Vec<MetricEntry> = [].to_vec();
+        // Instance of the Arduino Module
         let a = Arduino::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
+        // Instance of the Mover module
         let m = Mover::new().unwrap_or_else(|err| {
             eprintln!("Problem Initializing Mover: {}", err);
             process::exit(1);
@@ -98,21 +111,31 @@ impl Brain<'static> {
     }
 
     pub fn get_input(mut self) {
+        // TODO: reorder and simplify:
+        // - Get input from Arduino
+        // - Call "do_brain_stuff"
+        //   - dissect_msg
+        //   - build_actions_from_msg
+        //   - do_crbllum_actions
+        // - Call "do_crbllum_stuff"
+        //   - build_metrics
+        //   - build_actions_from_metrics
+        //   - do_crbllum_actions
         loop {
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
-            let mut avatar = self.clone();
-            let this_name = self.name.clone();
+            let mut brain_clone = self.clone();
+            let brain_name = self.name.clone();
             let _handle = thread::spawn(move || {
                 let _received = match arduino.read_channel(msgs){
                     Ok(rcv) => {
-                        let _taken_actions = match avatar.get_brain_actions(&rcv){
+                        match brain_clone.get_brain_actions(&rcv){
                             Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
-                            Err(_) => log(Some(&this_name), "D", "No actions were found for trigger"),
+                            Err(_) => log(Some(&brain_name), "D", "No actions were found for trigger"),
                         };
                     },
-                    Err(_) => log(Some(&this_name), "D", "Nothing read from Channel"),
+                    Err(_) => log(Some(&brain_name), "D", "Nothing read from Channel"),
                 };
             });
             let mut current_metric = MetricEntry {
