@@ -341,37 +341,22 @@ impl Brain<'static> {
                 println!(" rule is {:?}", rule_dissected[0]);
                 println!(" value is {:?}", rule_dissected[1]);
                 println!(" value is {:?}", rule_dissected[1].parse::<u16>().unwrap());
-                //if rule_dissected[0] == "=" {
-                //    if metric.distance == rule_dissected[1].parse::<u16>().unwrap() {
-                //        partial_rules.retain(|x| *x != rule);
-                //        println!("---------------------------{:?}", rule_dissected[0]);
-                //        println!("---------------------------{:?}", rule_dissected[1]);
-                //    }
-                //} else if rule_dissected[0] == ">=" {
-                //    if metric.distance >= rule_dissected[1].parse::<u16>().unwrap() {
-                //        partial_rules.retain(|x| *x != rule);
-                //        println!("---------------------------{:?}", rule_dissected[0]);
-                //        println!("---------------------------{:?}", rule_dissected[1]);
-                //    }
-                //} else if rule_dissected[0] == "<=" {
-                //    if metric.distance <= rule_dissected[1].parse::<u16>().unwrap() {
-                //        partial_rules.retain(|x| *x != rule);
-                //        println!("---------------------------{:?}", rule_dissected[0]);
-                //        println!("---------------------------{:?}", rule_dissected[1]);
-                //    }
-                //} else if rule_dissected[0] == ">" {
-                //    if metric.distance > rule_dissected[1].parse::<u16>().unwrap() {
-                //        partial_rules.retain(|x| *x != rule);
-                //        println!("---------------------------{:?}", rule_dissected[0]);
-                //        println!("---------------------------{:?}", rule_dissected[1]);
-                //    }
-                //} else if rule_dissected[0] == "<" {
-                //    if metric.distance < rule_dissected[1].parse::<u16>().unwrap() {
-                //        partial_rules.retain(|x| *x != rule);
-                //        println!("---------------------------{:?}", rule_dissected[0]);
-                //        println!("---------------------------{:?}", rule_dissected[1]);
-                //    }
-                //}
+                if rule_dissected[0] == "=" {
+                    println!("-------- ENTERED    -------{:?}", rule_dissected[0]);
+                } else if rule_dissected[0] == ">=" {
+                    println!("-------- ENTERED    -------{:?}", rule_dissected[0]);
+                } else if rule_dissected[0] == "<=" {
+                    println!("-------- ENTERED    -------{:?}", rule_dissected[0]);
+                } else if rule_dissected[0] == ">" {
+                    println!("-------- ENTERED    -------{:?}", rule_dissected[0]);
+                } else if rule_dissected[0] == "<" {
+                    println!("-------- ENTERED    -------{:?}", rule_dissected[0]);
+                    //if metric.distance < rule_dissected[1].parse::<u16>().unwrap() {
+                    //    partial_rules.retain(|x| *x != rule);
+                    //    println!("---------------------------{:?}", rule_dissected[0]);
+                    //    println!("---------------------------{:?}", rule_dissected[1]);
+                    //}
+                }
             }
         }
 
