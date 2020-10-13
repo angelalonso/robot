@@ -4,7 +4,7 @@
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
-    distance: ">_20"
+    distance: ">=_20"
   action:
     motor_l: 70
     motor_r: 70
