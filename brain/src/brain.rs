@@ -373,9 +373,10 @@ impl Brain<'static> {
                     //}
                 }
             }
+            println!("{:#x?}", partial_rules);
         }
 
-        println!("{:?}", partial_rules);
+        println!("FINAL: {:#x?}", partial_rules);
         Ok(partial_rules)
     }
 
