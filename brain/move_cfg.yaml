@@ -15,5 +15,5 @@
     tracker: "*"
     distance: "<_20"
   action:
-    motor_l: -55
-    motor_r: 55
+    motor_l: -60
+    motor_r: 60
