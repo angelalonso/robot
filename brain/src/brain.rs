@@ -264,6 +264,7 @@ impl Brain<'static> {
     }
 
     pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String, prev_metric: MetricEntry) -> (bool, u16) {
+        println!("MESSAGE IS ->{}<-", sensor_msg);
         let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
         let mut trck: bool = prev_metric.tracker;
         let mut dist: u16 = prev_metric.distance;
