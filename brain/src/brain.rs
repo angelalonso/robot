@@ -31,11 +31,11 @@ pub enum BrainDeadError {
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct MetricEntry {
-    time: f64,
-    motor_l: i16,
-    motor_r: i16,
-    tracker: bool,
-    distance: u16,
+    pub time: f64,
+    pub motor_l: i16,
+    pub motor_r: i16,
+    pub tracker: bool,
+    pub distance: u16,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -163,8 +163,11 @@ impl Brain<'static> {
                 }
                 self.do_brain_actions(msg_actions).unwrap();
                 let prev_metric = current_metric.clone();
+                // TODO: move this to cerebellum
                 current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
-                let crbllum_action = self.do_crbllum_actions(&current_metric).unwrap();
+                // TODO: move this to cerebellum
+                self.get_crbllum_input(&current_metric);
+                let crbllum_action = self.cerebellum.do_actions(&current_metric).unwrap();
                 if crbllum_action.len() > 0 {
                     self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
                 }
@@ -255,7 +258,6 @@ impl Brain<'static> {
             Err(_e) => return Err(BrainDeadError::SystemTimeError),
         };
         let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
-        //println!("SENSORS {:?}", sensors);
         let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors, prev_metric);
         let m = MetricEntry {
             time: diff_time,
@@ -301,75 +303,5 @@ impl Brain<'static> {
                 self.metrics.pop();
             }
         }
-    }
-
-    pub fn choose_crbllum_actions(&mut self, rules: Vec<CrbllumEntry>, metric: &MetricEntry) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
-        // add partially matching rules, then add to matching_rules only those matching all
-        let mut partial_rules: Vec<CrbllumEntry> = [].to_vec();
-        // Check time
-        for rule in rules {
-            if rule.input[0].time != "*" {
-                if metric.time >= rule.input[0].time.parse::<f64>().unwrap() {
-                    partial_rules.push(rule);
-                }
-            } else {
-                partial_rules.push(rule);
-            }
-        }
-        // Check motors
-        for rule in partial_rules.clone() {
-            if rule.input[0].motor_l != "*" {
-                if metric.motor_l != rule.input[0].motor_l.parse::<i16>().unwrap() {
-                    partial_rules.retain(|x| *x != rule);
-                }
-            }
-        }
-        for rule in partial_rules.clone() {
-            if rule.input[0].motor_r != "*" {
-                if metric.motor_r != rule.input[0].motor_r.parse::<i16>().unwrap() {
-                    partial_rules.retain(|x| *x != rule);
-                }
-            }
-        }
-        for rule in partial_rules.clone() {
-            if rule.input[0].tracker != "*" {
-                if metric.tracker != rule.input[0].tracker.parse::<bool>().unwrap() {
-                    partial_rules.retain(|x| *x != rule);
-                }
-            }
-        }
-        for rule in partial_rules.clone() {
-            if rule.input[0].distance != "*" {
-                let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
-                if rule_dissected[0] == "=" {
-                    if metric.distance != rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
-                    }
-                } else if rule_dissected[0] == ">=" {
-                    if metric.distance < rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
-                    }
-                } else if rule_dissected[0] == "<=" {
-                    if metric.distance > rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
-                    }
-                } else if rule_dissected[0] == ">" {
-                    if metric.distance <= rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
-                    }
-                } else if rule_dissected[0] == "<" {
-                    if metric.distance >= rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
-                    }
-                }
-            }
-        }
-        Ok(partial_rules)
-    }
-
-    pub fn do_crbllum_actions<'a>(&mut self, metric: &'a MetricEntry) -> Result<Vec<CrbllumEntry>, BrainDeadError> {
-        self.get_crbllum_input(metric);
-        let ruleset = self.choose_crbllum_actions(self.cerebellum.entries.clone(), metric);
-        ruleset
     }
 }
