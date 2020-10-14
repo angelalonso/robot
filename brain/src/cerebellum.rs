@@ -11,7 +11,7 @@ pub struct MetricEntry {
     pub motor_l: i16,
     pub motor_r: i16,
     pub tracker: bool,
-    pub distance: u16,
+    pub distance: String,
 }
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -52,7 +52,7 @@ impl Cerebellum {
             motor_l: 0,
             motor_r: 0,
             tracker: false,
-            distance: 0,
+            distance: "0".to_string(),
         };
         let mtr: Vec<MetricEntry> = [].to_vec();
         Self {
@@ -83,7 +83,6 @@ impl Cerebellum {
                 partial_rules.push(rule.clone());
             }
         }
-        // Check motors
         for rule in partial_rules.clone() {
             if rule.input[0].motor_l != "*" {
                 if self.current_metric.motor_l != rule.input[0].motor_l.parse::<i16>().unwrap() {
@@ -105,33 +104,64 @@ impl Cerebellum {
                 }
             }
         }
-        for rule in partial_rules.clone() {
+        partial_rules = self.choose_actions_distance(partial_rules.clone()).unwrap();
+        //for rule in partial_rules.clone() {
+        //    if rule.input[0].distance != "*" {
+        //        let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
+        //        if rule_dissected[0] == "=" {
+        //            if self.current_metric.distance != rule_dissected[1].parse::<u16>().unwrap() {
+        //                partial_rules.retain(|x| *x != rule);
+        //            }
+        //        } else if rule_dissected[0] == ">=" {
+        //            if self.current_metric.distance < rule_dissected[1].parse::<u16>().unwrap() {
+        //                partial_rules.retain(|x| *x != rule);
+        //            }
+        //        } else if rule_dissected[0] == "<=" {
+        //            if self.current_metric.distance > rule_dissected[1].parse::<u16>().unwrap() {
+        //                partial_rules.retain(|x| *x != rule);
+        //            }
+        //        } else if rule_dissected[0] == ">" {
+        //            if self.current_metric.distance <= rule_dissected[1].parse::<u16>().unwrap() {
+        //                partial_rules.retain(|x| *x != rule);
+        //            }
+        //        } else if rule_dissected[0] == "<" {
+        //            if self.current_metric.distance >= rule_dissected[1].parse::<u16>().unwrap() {
+        //                partial_rules.retain(|x| *x != rule);
+        //            }
+        //        }
+        //    }
+        //}
+        Ok(partial_rules)
+    }
+
+    pub fn choose_actions_distance(&mut self, mut rules: Vec<CrbllumEntry>) -> Result<Vec<CrbllumEntry>, BrainDeadError> {
+        for rule in rules.clone() {
             if rule.input[0].distance != "*" {
                 let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
                 if rule_dissected[0] == "=" {
-                    if self.current_metric.distance != rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
+                    if self.current_metric.distance.parse::<u16>().unwrap() != rule_dissected[1].parse::<u16>().unwrap() {
+                        rules.retain(|x| *x != rule);
                     }
                 } else if rule_dissected[0] == ">=" {
-                    if self.current_metric.distance < rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
+                    if self.current_metric.distance.parse::<u16>().unwrap() < rule_dissected[1].parse::<u16>().unwrap() {
+                        rules.retain(|x| *x != rule);
                     }
                 } else if rule_dissected[0] == "<=" {
-                    if self.current_metric.distance > rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
+                    if self.current_metric.distance.parse::<u16>().unwrap() > rule_dissected[1].parse::<u16>().unwrap() {
+                        rules.retain(|x| *x != rule);
                     }
                 } else if rule_dissected[0] == ">" {
-                    if self.current_metric.distance <= rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
+                    if self.current_metric.distance.parse::<u16>().unwrap() <= rule_dissected[1].parse::<u16>().unwrap() {
+                        rules.retain(|x| *x != rule);
                     }
                 } else if rule_dissected[0] == "<" {
-                    if self.current_metric.distance >= rule_dissected[1].parse::<u16>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
+                    if self.current_metric.distance.parse::<u16>().unwrap() >= rule_dissected[1].parse::<u16>().unwrap() {
+                        rules.retain(|x| *x != rule);
                     }
                 }
             }
         }
-        Ok(partial_rules)
+        Ok(rules)
     }
 
     pub fn update_metrics<'a>(&mut self) {
@@ -156,17 +186,16 @@ impl Cerebellum {
         }
     }
 
-    pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String) -> (bool, u16) {
+    pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String) -> (bool, String) {
         let prev_metric = self.current_metric.clone();
         let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
         let mut trck: bool = prev_metric.tracker;
-        let mut dist: u16 = prev_metric.distance;
+        let mut dist: String = prev_metric.distance;
         if split_msg[1] == "tracker" {
             let trck_int: u8 = split_msg[2].parse().unwrap();
             trck = trck_int != 0;
         } else if split_msg[1] == "distance" {
-            dist = split_msg[2].parse().unwrap();
-            println!("MESSAGE IS ->{}<-", sensor_msg);
+            dist = split_msg[2].to_string();
         }
         (trck, dist)
     }
@@ -206,14 +235,14 @@ impl Cerebellum {
             Err(_e) => return Err(BrainDeadError::SystemTimeError),
         };
         let diff_time: f64 = (current_time as f64 - starttime as f64) as f64 / 100 as f64;
-        let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors);
-        println!("   diff time {:?}", diff_time);
+        let (trckr_msg, _dist_msg) = self.get_values_from_sensor_msg(sensors);
+        let aux_m = self.choose_actions_distance(self.entries.clone()).unwrap();
         let m = MetricEntry {
             time: diff_time,
             motor_l: m_l,
             motor_r: m_r,
             tracker: trckr_msg,
-            distance: dist_msg,
+            distance: aux_m[0].input[0].distance.clone(),
         };
         Ok(m)
     }
