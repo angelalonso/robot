@@ -179,13 +179,12 @@ impl Cerebellum {
         log(Some(&self.name), "I", &format!("Moving : {}", movement));
         let m_l: i16;
         let m_r: i16;
-        //TODO: remove these, leave just the specific ones
         if movement == "forwards" {
             m_l = 100;
             m_r = 100;
         } else if movement == "forwards_slow" {
-            m_l = 60;
-            m_r = 60;
+            m_l = 55;
+            m_r = 55;
         } else if movement == "backwards" {
             m_l = -100;
             m_r = -100;
@@ -210,11 +209,11 @@ impl Cerebellum {
             Ok(time) => time.as_millis(),
             Err(_e) => return Err(BrainDeadError::SystemTimeError),
         };
-        let _diff_time: f64 = (current_time as f64 - starttime as f64) as f64 / 100 as f64;
+        let diff_time: f64 = (current_time as f64 - starttime as f64) as f64 / 100 as f64;
         let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors);
-        println!("   diff time {:?}", current_time);
+        println!("   diff time {:?}", diff_time)
         let m = MetricEntry {
-            time: current_time as f64,
+            time: diff_time,
             motor_l: m_l,
             motor_r: m_r,
             tracker: trckr_msg,
