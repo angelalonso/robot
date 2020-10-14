@@ -1,9 +1,18 @@
-use crate::brain::{BrainDeadError, MetricEntry};
+use crate::brain::{BrainDeadError};
 use crate::log;
 use std::fs::File;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 extern crate serde_yaml;
+
+#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
+pub struct MetricEntry {
+    pub time: f64,
+    pub motor_l: i16,
+    pub motor_r: i16,
+    pub tracker: bool,
+    pub distance: u16,
+}
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct CrbllumAction {

@@ -28,45 +28,14 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
-#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct MetricEntry {
-    pub time: f64,
-    pub motor_l: i16,
-    pub motor_r: i16,
-    pub tracker: bool,
-    pub distance: u16,
-}
-
-#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct MoveAction {
-    motor_l: i16,
-    motor_r: i16,
-}
-
-#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct RuleInput {
-    time: String,
-    motor_l: String,
-    motor_r: String,
-    tracker: String,
-    distance: String,
-}
-
-#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct RuleEntry {
-    input: Vec<RuleInput>,
-    action: MoveAction,
-}
-
 #[derive(Clone)]
 pub struct Brain<'a> {
     pub name: &'a str,
     pub starttime: u128,
     pub config: Config,
-    pub cerebellum: Cerebellum,
     pub serialport: &'a str,
     pub timeout: u64,
-    pub metrics: Vec<MetricEntry>,
+    pub cerebellum: Cerebellum,
     pub arduino: Arduino<'a>,
     pub mover: Mover<'a>,
 }
@@ -82,15 +51,13 @@ impl Brain<'static> {
         };
         // This loads the rules dictating what actions the brain takes
         let cfg = Config::new(config_file);
-        // This loads the rules dictating what actions the cerebellum takes
+        // Instance of the Cerebellum Module
         let crb = Cerebellum::new(cerebellum_config_file);
         // Serial Port to communicate with Arduino
         let sp = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
-        // Vector of latest metrics received from the Arduino
-        let mtr: Vec<MetricEntry> = [].to_vec();
         // Instance of the Arduino Module
         let a = Arduino::new("arduino", None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
@@ -105,10 +72,9 @@ impl Brain<'static> {
             name: brain_name,
             starttime: start_time,
             config: cfg,
-            cerebellum: crb,
             serialport: sp,
             timeout: 4,
-            metrics: mtr,
+            cerebellum: crb,
             arduino: a,
             mover: m,
         })
