@@ -66,7 +66,7 @@ impl Cerebellum {
     pub fn manage_input(&mut self, starttime: u128, sensors: String, movement: String) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
         self.current_metric = self.build_crbllum_input(starttime, sensors, movement).unwrap();
         self.update_metrics();
-        println!("{:?}", self.metrics)
+        println!("{:?}", self.metrics);
         self.get_actions()
     }
 
