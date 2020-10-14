@@ -5,7 +5,7 @@
 //    - installing a new .hex into arduino
 use crate::arduino::Arduino;
 use crate::config::Config;
-use crate::cerebellum::{Cerebellum, CrbllumEntry};
+use crate::cerebellum::Cerebellum;
 use crate::log;
 use crate::mover::Mover;
 use std::fs::File;
@@ -143,7 +143,8 @@ impl Brain<'static> {
                     Err(_) => log(Some(&brain_name), "D", "Nothing read from Channel"),
                 };
             });
-            let mut current_metric = MetricEntry {
+            // TODO: move this to cerebellum
+            let mut _current_metric = MetricEntry {
                 time: 0.0,
                 motor_l: 0,
                 motor_r: 0,
@@ -162,12 +163,18 @@ impl Brain<'static> {
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
                 self.do_brain_actions(msg_actions).unwrap();
-                let prev_metric = current_metric.clone();
                 // TODO: move this to cerebellum
-                current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
-                // TODO: move this to cerebellum
-                self.get_crbllum_input(&current_metric);
-                let crbllum_action = self.cerebellum.do_actions(&current_metric).unwrap();
+                let prev_metric = self.cerebellum.current_metric.clone();
+                // TODO: move this call itself to cerebellum
+                self.cerebellum.current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
+                // TODO: remove this maybe?
+                //self.get_crbllum_input(&current_metric);
+                // TODO: move this call itself to cerebellum
+                self.cerebellum.get_input();
+                // TODO: move this call itself to cerebellum
+                //let crbllum_action = self.cerebellum.do_actions(&current_metric).unwrap();
+                let crbllum_action = self.cerebellum.do_actions().unwrap();
+                // TODO: move this call itself to cerebellum
                 if crbllum_action.len() > 0 {
                     self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
                 }
