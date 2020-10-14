@@ -53,7 +53,14 @@ impl Cerebellum {
             metrics: mtr,
         }
     }
-    pub fn do_actions<'a>(&mut self) -> Result<Vec<CrbllumEntry>, BrainDeadError> {
+
+    pub fn manage_input(&mut self, starttime: u128, sensors: String, movement: String) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
+        self.current_metric = self.build_crbllum_input(starttime, sensors, movement).unwrap();
+        self.get_input();
+        self.get_actions()
+    }
+
+    pub fn get_actions<'a>(&mut self) -> Result<Vec<CrbllumEntry>, BrainDeadError> {
         let ruleset = self.choose_actions();
         ruleset
     }

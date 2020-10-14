@@ -115,16 +115,6 @@ impl Brain<'static> {
     }
 
     pub fn get_input(mut self) {
-        // TODO: reorder and simplify:
-        // - Get input from Arduino
-        // - Call "do_brain_stuff"
-        //   - dissect_msg
-        //   - build_actions_from_msg
-        //   - do_crbllum_actions
-        // - Call "do_crbllum_stuff"
-        //   - build_metrics
-        //   - build_actions_from_metrics
-        //   - do_crbllum_actions
         loop {
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
@@ -154,17 +144,10 @@ impl Brain<'static> {
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
                 self.do_brain_actions(msg_actions).unwrap();
-                // TODO: move this call itself to cerebellum
-                //self.cerebellum.current_metric = self.build_crbllum_input(msg_sensors).unwrap();
-                self.cerebellum.current_metric = self.cerebellum.build_crbllum_input(self.starttime, msg_sensors, self.mover.movement.clone()).unwrap();
-                // TODO: move this call itself to cerebellum
-                self.cerebellum.get_input();
-                // TODO: move this call itself to cerebellum
-                //let crbllum_action = self.cerebellum.do_actions(&current_metric).unwrap();
-                let crbllum_action = self.cerebellum.do_actions().unwrap();
-                // TODO: move this call itself to cerebellum
-                if crbllum_action.len() > 0 {
-                    self.mover.set_move(format!("{:?}_{:?}", crbllum_action[0].action.motor_l, crbllum_action[0].action.motor_r));
+                
+                let crbllum_actions = self.cerebellum.manage_input(self.starttime, msg_sensors, self.mover.movement.clone()).unwrap();
+                if crbllum_actions.len() > 0 {
+                    self.mover.set_move(format!("{:?}_{:?}", crbllum_actions[0].action.motor_l, crbllum_actions[0].action.motor_r));
                 }
             }
         }
