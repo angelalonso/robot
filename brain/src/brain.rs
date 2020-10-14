@@ -1,6 +1,7 @@
 // This is the actual central block of our robot
-// It is called Brain for obvious reasons, but is divided on two:
-//  - Cerebellum part: Manages any movement actions
+// It is called Brain for obvious reasons, but is somehow divided on two:
+//  - Cerebellum part: Manages any movement actions -> lives on its own module but depends on this
+//  brain one
 //  - Brain part: Manages any other actions, such as:
 //    - installing a new .hex into arduino
 use crate::arduino::Arduino;
