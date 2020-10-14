@@ -154,11 +154,9 @@ impl Brain<'static> {
                     msg_sensors = msg.unwrap().replace("SENSOR: ", "");
                 }
                 self.do_brain_actions(msg_actions).unwrap();
-                // TODO: move this to cerebellum
-                let prev_metric = self.cerebellum.current_metric.clone();
-                // TODO: move build_crbllum_input to cerebellum
                 // TODO: move this call itself to cerebellum
-                self.cerebellum.current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
+                //self.cerebellum.current_metric = self.build_crbllum_input(msg_sensors).unwrap();
+                self.cerebellum.current_metric = self.cerebellum.build_crbllum_input(self.starttime, msg_sensors, self.mover.movement.clone()).unwrap();
                 // TODO: move this call itself to cerebellum
                 self.cerebellum.get_input();
                 // TODO: move this call itself to cerebellum
@@ -208,71 +206,5 @@ impl Brain<'static> {
             };
         }
         Ok(())
-    }
-
-
-    ///------------------------------------------------------///
-    ///  Cerebellum
-    ///------------------------------------------------------///
-
-    pub fn build_crbllum_input(&mut self, sensors: String, prev_metric: MetricEntry) -> Result<MetricEntry, BrainDeadError> {
-        log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
-        let m_l: i16;
-        let m_r: i16;
-        if self.mover.movement == "forwards" {
-            m_l = 100;
-            m_r = 100;
-        } else if self.mover.movement == "forwards_slow" {
-            m_l = 55;
-            m_r = 55;
-        } else if self.mover.movement == "backwards" {
-            m_l = -100;
-            m_r = -100;
-        } else if self.mover.movement == "rotate_left" {
-            m_l = -70;
-            m_r = 70;
-        } else if self.mover.movement == "rotate_right" {
-            m_l = 70;
-            m_r = -70;
-        } else {
-            let motor_values: Vec<i16> = match self.mover.movement.split("_")
-                .map(|s| s.parse())
-                .collect() {
-                    Ok(v) => v,
-                    Err(_e) => [0,0].to_vec(),
-                };
-            m_l = motor_values[0];
-            m_r = motor_values[1];
-        };
-        let ct = SystemTime::now();
-        let current_time = match ct.duration_since(UNIX_EPOCH) {
-            Ok(time) => time.as_millis(),
-            Err(_e) => return Err(BrainDeadError::SystemTimeError),
-        };
-        let diff_time: f64 = (current_time as f64 - self.starttime as f64) as f64 / 100 as f64;
-        let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors, prev_metric);
-        let m = MetricEntry {
-            time: diff_time,
-            motor_l: m_l,
-            motor_r: m_r,
-            tracker: trckr_msg,
-            distance: dist_msg,
-        };
-        Ok(m)
-    }
-
-    // TODO: move this to cerebellum
-    pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String, prev_metric: MetricEntry) -> (bool, u16) {
-        let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
-        let mut trck: bool = prev_metric.tracker;
-        let mut dist: u16 = prev_metric.distance;
-        if split_msg[1] == "tracker" {
-            let trck_int: u8 = split_msg[2].parse().unwrap();
-            trck = trck_int != 0;
-        } else if split_msg[1] == "distance" {
-            dist = split_msg[2].parse().unwrap();
-            println!("MESSAGE IS ->{}<-", sensor_msg);
-        }
-        (trck, dist)
     }
 }

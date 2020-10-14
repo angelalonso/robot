@@ -1,5 +1,7 @@
-use std::fs::File;
 use crate::brain::{BrainDeadError, MetricEntry};
+use crate::log;
+use std::fs::File;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 extern crate serde_yaml;
 
@@ -25,6 +27,7 @@ pub struct CrbllumEntry {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cerebellum {
+    pub name: String,
     pub entries: Vec<CrbllumEntry>,
     pub current_metric: MetricEntry,
     pub metrics: Vec<MetricEntry>,
@@ -44,6 +47,7 @@ impl Cerebellum {
         };
         let mtr: Vec<MetricEntry> = [].to_vec();
         Self {
+            name: "Cerebellum".to_string(),
             entries: e,
             current_metric: cm,
             metrics: mtr,
@@ -138,5 +142,66 @@ impl Cerebellum {
                 self.metrics.pop();
             }
         }
+    }
+
+    pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String) -> (bool, u16) {
+        let prev_metric = self.current_metric.clone();
+        let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
+        let mut trck: bool = prev_metric.tracker;
+        let mut dist: u16 = prev_metric.distance;
+        if split_msg[1] == "tracker" {
+            let trck_int: u8 = split_msg[2].parse().unwrap();
+            trck = trck_int != 0;
+        } else if split_msg[1] == "distance" {
+            dist = split_msg[2].parse().unwrap();
+            println!("MESSAGE IS ->{}<-", sensor_msg);
+        }
+        (trck, dist)
+    }
+
+    pub fn build_crbllum_input(&mut self, starttime: u128, sensors: String, movement: String) -> Result<MetricEntry, BrainDeadError> {
+        log(Some(&self.name), "I", &format!("Moving : {}", movement));
+        let m_l: i16;
+        let m_r: i16;
+        if movement == "forwards" {
+            m_l = 100;
+            m_r = 100;
+        } else if movement == "forwards_slow" {
+            m_l = 55;
+            m_r = 55;
+        } else if movement == "backwards" {
+            m_l = -100;
+            m_r = -100;
+        } else if movement == "rotate_left" {
+            m_l = -70;
+            m_r = 70;
+        } else if movement == "rotate_right" {
+            m_l = 70;
+            m_r = -70;
+        } else {
+            let motor_values: Vec<i16> = match movement.split("_")
+                .map(|s| s.parse())
+                .collect() {
+                    Ok(v) => v,
+                    Err(_e) => [0,0].to_vec(),
+                };
+            m_l = motor_values[0];
+            m_r = motor_values[1];
+        };
+        let ct = SystemTime::now();
+        let current_time = match ct.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis(),
+            Err(_e) => return Err(BrainDeadError::SystemTimeError),
+        };
+        let diff_time: f64 = (current_time as f64 - starttime as f64) as f64 / 100 as f64;
+        let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors);
+        let m = MetricEntry {
+            time: diff_time,
+            motor_l: m_l,
+            motor_r: m_r,
+            tracker: trckr_msg,
+            distance: dist_msg,
+        };
+        Ok(m)
     }
 }
