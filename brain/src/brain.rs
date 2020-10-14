@@ -32,6 +32,7 @@ pub enum BrainDeadError {
 pub struct Brain<'a> {
     pub name: &'a str,
     pub starttime: u128,
+    pub currenttime: u128,
     pub config: Config,
     pub serialport: &'a str,
     pub timeout: u64,
@@ -71,6 +72,7 @@ impl Brain<'static> {
         Ok(Self {
             name: brain_name,
             starttime: start_time,
+            currenttime: start_time,
             config: cfg,
             serialport: sp,
             timeout: 4,
@@ -100,6 +102,11 @@ impl Brain<'static> {
             });
             loop {
                 let msg = r.recv();
+                let ct = SystemTime::now();
+                self.currenttime = match ct.duration_since(UNIX_EPOCH) {
+                    Ok(time) => time.as_millis(),
+                    Err(_e) => 0,
+                };
                 let mut msg_actions = Vec::new();
                 let mut msg_sensors = String::new();
                 let actionmsg = msg.clone();
@@ -111,7 +118,7 @@ impl Brain<'static> {
                 }
                 self.do_brain_actions(msg_actions).unwrap();
                 
-                let crbllum_actions = self.cerebellum.manage_input(self.starttime, msg_sensors, self.mover.movement.clone()).unwrap();
+                let crbllum_actions = self.cerebellum.manage_input(self.currenttime, msg_sensors, self.mover.movement.clone()).unwrap();
                 if crbllum_actions.len() > 0 {
                     self.mover.set_move(format!("{:?}_{:?}", crbllum_actions[0].action.motor_l, crbllum_actions[0].action.motor_r));
                 }
