@@ -22,6 +22,15 @@
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
+    distance: "<=_20"
+  action:
+    motor_l: -60
+    motor_r: -60
+- input:
+  - time: "*" 
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
     distance: "<=_30"
   action:
     motor_l: -60

@@ -211,6 +211,7 @@ impl Cerebellum {
         };
         let diff_time: f64 = (current_time as f64 - starttime as f64) as f64 / 100 as f64;
         let (trckr_msg, dist_msg) = self.get_values_from_sensor_msg(sensors);
+        println!("   diff time {:?}", diff_time);
         let m = MetricEntry {
             time: diff_time,
             motor_l: m_l,
