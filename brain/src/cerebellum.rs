@@ -66,15 +66,10 @@ impl Cerebellum {
     pub fn manage_input(&mut self, starttime: u128, sensors: String, movement: String) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
         self.current_metric = self.build_crbllum_input(starttime, sensors, movement).unwrap();
         self.update_metrics();
-        println!("{:?}", self.metrics);
-        self.get_actions()
+        println!("{:#x?}", self.metrics);
+        self.choose_actions()
     }
 
-    pub fn get_actions<'a>(&mut self) -> Result<Vec<CrbllumEntry>, BrainDeadError> {
-        let ruleset = self.choose_actions();
-        ruleset
-    }
-    
     pub fn choose_actions(&mut self) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
         // add partially matching rules, then add to matching_rules only those matching all
         let mut partial_rules: Vec<CrbllumEntry> = [].to_vec();
