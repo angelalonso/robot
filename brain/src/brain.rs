@@ -8,7 +8,6 @@ use crate::config::Config;
 use crate::cerebellum::Cerebellum;
 use crate::log;
 use crate::mover::Mover;
-use std::fs::File;
 use std::process;
 use std::str;
 use std::sync::mpsc::{Sender, Receiver};
@@ -82,8 +81,8 @@ impl Brain<'static> {
             Err(_e) => 0,
         };
         // This loads the rules dictating what actions the brain takes
-        // TODO: we should definitely do the same for the Cerebellum rules
         let cfg = Config::new(config_file);
+        // This loads the rules dictating what actions the cerebellum takes
         let crb = Cerebellum::new(cerebellum_config_file);
         // Serial Port to communicate with Arduino
         let sp = match raw_serial_port {
@@ -143,14 +142,6 @@ impl Brain<'static> {
                     Err(_) => log(Some(&brain_name), "D", "Nothing read from Channel"),
                 };
             });
-            // TODO: move this to cerebellum
-            let mut _current_metric = MetricEntry {
-                time: 0.0,
-                motor_l: 0,
-                motor_r: 0,
-                tracker: false,
-                distance: 0,
-            };
             loop {
                 let msg = r.recv();
                 let mut msg_actions = Vec::new();
@@ -165,10 +156,9 @@ impl Brain<'static> {
                 self.do_brain_actions(msg_actions).unwrap();
                 // TODO: move this to cerebellum
                 let prev_metric = self.cerebellum.current_metric.clone();
+                // TODO: move build_crbllum_input to cerebellum
                 // TODO: move this call itself to cerebellum
                 self.cerebellum.current_metric = self.build_crbllum_input(msg_sensors, prev_metric).unwrap();
-                // TODO: remove this maybe?
-                //self.get_crbllum_input(&current_metric);
                 // TODO: move this call itself to cerebellum
                 self.cerebellum.get_input();
                 // TODO: move this call itself to cerebellum
@@ -224,11 +214,6 @@ impl Brain<'static> {
     ///------------------------------------------------------///
     ///  Cerebellum
     ///------------------------------------------------------///
-    pub fn get_crbllum_config(&mut self) -> Result<Vec<RuleEntry>, BrainDeadError> {
-        let filepointer = File::open("move_cfg.yaml").unwrap();
-        let rules: Vec<RuleEntry> = serde_yaml::from_reader(filepointer).unwrap();
-        Ok(rules)
-    }
 
     pub fn build_crbllum_input(&mut self, sensors: String, prev_metric: MetricEntry) -> Result<MetricEntry, BrainDeadError> {
         log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
@@ -276,6 +261,7 @@ impl Brain<'static> {
         Ok(m)
     }
 
+    // TODO: move this to cerebellum
     pub fn get_values_from_sensor_msg(&mut self, sensor_msg: String, prev_metric: MetricEntry) -> (bool, u16) {
         let split_msg = sensor_msg.split("_").collect::<Vec<_>>();
         let mut trck: bool = prev_metric.tracker;
@@ -288,27 +274,5 @@ impl Brain<'static> {
             println!("MESSAGE IS ->{}<-", sensor_msg);
         }
         (trck, dist)
-    }
-
-    pub fn get_crbllum_input<'a>(&mut self, metric: &'a MetricEntry) {
-        if self.metrics.len() == 0 {
-            self.metrics.push(metric.clone());
-            
-        } else {
-            if metric.motor_l == self.metrics[0].motor_l &&
-               metric.motor_r == self.metrics[0].motor_r &&
-               metric.tracker == self.metrics[0].tracker &&
-               metric.distance == self.metrics[0].distance
-            {
-                self.metrics[0].time += 0.1;
-            } else {
-                self.metrics.push(metric.clone());
-                self.metrics.rotate_right(1);
-                self.metrics[0].time = 0.1;
-            }
-            if self.metrics.len() > 5{
-                self.metrics.pop();
-            }
-        }
     }
 }
