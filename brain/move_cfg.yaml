@@ -4,7 +4,7 @@
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
-    distance: ">_20"
+    distance: ">_30"
   action:
     motor_l: 100
     motor_r: 100
@@ -13,7 +13,16 @@
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
-    distance: "<=_20"
+    distance: "<=_30"
+  action:
+    motor_l: -60
+    motor_r: 60
+- input:
+  - time: "*" 
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "<=_10"
   action:
     motor_l: 0
     motor_r: 0
