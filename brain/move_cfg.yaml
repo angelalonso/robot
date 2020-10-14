@@ -1,19 +1,28 @@
 --- 
 - input:
-  - time: "*" 
-    motor_l: "*"
-    motor_r: "*"
+  - time: "2" 
+    motor_l: "-100"
+    motor_r: "-100"
     tracker: "*"
-    distance: ">=_20"
+    distance: "*"
   action:
     motor_l: 100
     motor_r: 100
 - input:
-  - time: "*" 
-    motor_l: "*"
-    motor_r: "*"
+  - time: "2" 
+    motor_l: "100"
+    motor_r: "100"
     tracker: "*"
-    distance: "<_20"
+    distance: "*"
   action:
-    motor_l: -60
-    motor_r: 60
+    motor_l: 0
+    motor_r: 0
+- input:
+  - time: "4" 
+    motor_l: "0"
+    motor_r: "0"
+    tracker: "*"
+    distance: "*"
+  action:
+    motor_l: 100
+    motor_r: 100
