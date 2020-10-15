@@ -86,6 +86,8 @@ impl Cerebellum {
                 if self.current_metric.motor_l == rule.input[0].motor_l.parse::<i16>().unwrap() {
                     partial_rules.push(rule.clone());
                 }
+            } else {
+                    partial_rules.push(rule.clone());
             }
         }
         for rule in partial_rules.clone() {
