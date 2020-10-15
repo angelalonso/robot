@@ -132,9 +132,9 @@ impl Cerebellum {
         //    }
         //}
         // Check time
-        println!("CURRENT TIME {:?}", self.current_metric.time)
+        println!("CURRENT TIME {:?}", self.current_metric.time);
         for rule in partial_rules.clone() {
-            println!("        RULE {:?}", rule.input[0].time.parse::<f64>().unwrap())
+            println!("        RULE {:?}", rule.input[0].time.parse::<f64>().unwrap());
             if rule.input[0].time != "*" {
                 if self.current_metric.time < rule.input[0].time.parse::<f64>().unwrap() {
                     partial_rules.retain(|x| *x != rule);
