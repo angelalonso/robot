@@ -45,9 +45,9 @@ pub struct CrbllumEntry {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Cerebellum {
     pub name: String,
-    pub entries: Vec<CrbllumEntry>,
+    pub rules: Vec<CrbllumEntry>,
     pub current_metric: MetricEntry,
-    pub metrics: Vec<MetricEntry>,
+    pub metrics: Vec<RuledMetricEntry>,
 }
 
 impl Cerebellum {
@@ -62,10 +62,10 @@ impl Cerebellum {
             tracker: false,
             distance: 0,
         };
-        let mtr: Vec<MetricEntry> = [].to_vec();
+        let mtr: Vec<RuledMetricEntry> = [].to_vec();
         Self {
             name: "Cerebellum".to_string(),
-            entries: e,
+            rules: e,
             current_metric: cm,
             metrics: mtr,
         }
@@ -82,7 +82,7 @@ impl Cerebellum {
         // add partially matching rules, then add to matching_rules only those matching all
         let mut partial_rules: Vec<CrbllumEntry> = [].to_vec();
         // Check time
-        for rule in &self.entries {
+        for rule in &self.rules {
             if rule.input[0].time != "*" {
                 if self.current_metric.time >= rule.input[0].time.parse::<f64>().unwrap() {
                     partial_rules.push(rule.clone());
@@ -174,18 +174,27 @@ impl Cerebellum {
 
     // TODO: use RuledMetricEntry instead, change distance to the rule it matches
     pub fn update_metrics<'a>(&mut self) {
+        let rule_for_current_metric = self.choose_actions_distance(self.rules.clone());
+        let ruled_distance = rule_for_current_metric.unwrap()[0].input[0].distance.clone();
+        let ruled_current_metric = RuledMetricEntry {
+            time: self.current_metric.time.clone(),
+            motor_l: self.current_metric.motor_l.clone(),
+            motor_r: self.current_metric.motor_r.clone(),
+            tracker: self.current_metric.tracker.clone(),
+            distance: ruled_distance.clone(),
+        };
         if self.metrics.len() == 0 {
-            self.metrics.push(self.current_metric.clone());
+            self.metrics.push(ruled_current_metric);
             
         } else {
             if self.current_metric.motor_l == self.metrics[0].motor_l &&
                self.current_metric.motor_r == self.metrics[0].motor_r &&
                self.current_metric.tracker == self.metrics[0].tracker &&
-               self.current_metric.distance == self.metrics[0].distance
+               ruled_distance == self.metrics[0].distance
             {
                 self.metrics[0].time += 0.1;
             } else {
-                self.metrics.push(self.current_metric.clone());
+                self.metrics.push(ruled_current_metric.clone());
                 self.metrics.rotate_right(1);
                 self.metrics[0].time = 0.1;
             }
