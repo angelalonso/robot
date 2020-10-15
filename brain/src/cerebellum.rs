@@ -79,7 +79,7 @@ impl Cerebellum {
     }
 
     pub fn choose_actions(&mut self) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
-        // add partially matching rules, then add to matching_rules only those matching all
+        // 1/2 The first "value" checked adds all rules that match
         let mut partial_rules: Vec<CrbllumEntry> = [].to_vec();
         for rule in &self.rules {
             if rule.input[0].motor_l != "*" {
@@ -90,6 +90,7 @@ impl Cerebellum {
                     partial_rules.push(rule.clone());
             }
         }
+        // 2/2 the next ones do the opposite: remove any rules that dont match
         for rule in partial_rules.clone() {
             if rule.input[0].motor_r != "*" {
                 if self.current_metric.motor_r != rule.input[0].motor_r.parse::<i16>().unwrap() {
@@ -104,38 +105,10 @@ impl Cerebellum {
                 }
             }
         }
+        // distance "value" has a more complex ruleset, therefore we had to move it outside 
+        //   (and I also reuse that function to build the list of RuledMetrics)
         partial_rules = self.choose_actions_distance(partial_rules.clone()).unwrap();
-        //for rule in partial_rules.clone() {
-        //    if rule.input[0].distance != "*" {
-        //        let rule_dissected = rule.input[0].distance.split("_").collect::<Vec<_>>();
-        //        if rule_dissected[0] == "=" {
-        //            if self.current_metric.distance != rule_dissected[1].parse::<u16>().unwrap() {
-        //                partial_rules.retain(|x| *x != rule);
-        //            }
-        //        } else if rule_dissected[0] == ">=" {
-        //            if self.current_metric.distance < rule_dissected[1].parse::<u16>().unwrap() {
-        //                partial_rules.retain(|x| *x != rule);
-        //            }
-        //        } else if rule_dissected[0] == "<=" {
-        //            if self.current_metric.distance > rule_dissected[1].parse::<u16>().unwrap() {
-        //                partial_rules.retain(|x| *x != rule);
-        //            }
-        //        } else if rule_dissected[0] == ">" {
-        //            if self.current_metric.distance <= rule_dissected[1].parse::<u16>().unwrap() {
-        //                partial_rules.retain(|x| *x != rule);
-        //            }
-        //        } else if rule_dissected[0] == "<" {
-        //            if self.current_metric.distance >= rule_dissected[1].parse::<u16>().unwrap() {
-        //                partial_rules.retain(|x| *x != rule);
-        //            }
-        //        }
-        //    }
-        //}
-        // Check time
-        println!("CURRENT TIME {:?}", self.current_metric.time);
-        println!(" LATEST TIME {:?}", self.metrics[0].time);
         for rule in partial_rules.clone() {
-            println!("        RULE {:?}", rule.input[0].time.parse::<f64>().unwrap());
             if rule.input[0].time != "*" {
                 if self.metrics[0].time < rule.input[0].time.parse::<f64>().unwrap() {
                     partial_rules.retain(|x| *x != rule);
@@ -175,7 +148,6 @@ impl Cerebellum {
         Ok(rules)
     }
 
-    // TODO: use RuledMetricEntry instead, change distance to the rule it matches
     pub fn update_metrics<'a>(&mut self) {
         let rule_for_current_metric = self.choose_actions_distance(self.rules.clone());
         let ruled_distance = rule_for_current_metric.unwrap()[0].input[0].distance.clone();
