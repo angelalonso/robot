@@ -81,20 +81,10 @@ impl Cerebellum {
     pub fn choose_actions(&mut self) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
         // add partially matching rules, then add to matching_rules only those matching all
         let mut partial_rules: Vec<CrbllumEntry> = [].to_vec();
-        // Check time
         for rule in &self.rules {
-            if rule.input[0].time != "*" {
-                if self.current_metric.time >= rule.input[0].time.parse::<f64>().unwrap() {
-                    partial_rules.push(rule.clone());
-                }
-            } else {
-                partial_rules.push(rule.clone());
-            }
-        }
-        for rule in partial_rules.clone() {
             if rule.input[0].motor_l != "*" {
-                if self.current_metric.motor_l != rule.input[0].motor_l.parse::<i16>().unwrap() {
-                    partial_rules.retain(|x| *x != rule);
+                if self.current_metric.motor_l == rule.input[0].motor_l.parse::<i16>().unwrap() {
+                    partial_rules.push(rule.clone());
                 }
             }
         }
@@ -139,6 +129,14 @@ impl Cerebellum {
         //        }
         //    }
         //}
+        // Check time
+        for rule in partial_rules.clone() {
+            if rule.input[0].time != "*" {
+                if self.current_metric.time < rule.input[0].time.parse::<f64>().unwrap() {
+                    partial_rules.retain(|x| *x != rule);
+                }
+            }
+        }
         Ok(partial_rules)
     }
 
