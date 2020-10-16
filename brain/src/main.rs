@@ -37,14 +37,16 @@ fn argparser(modes: Vec<&str>) -> (String, String, String) {
             mode = args.drain(0..1).collect();
             if mode == modes[0] {
                 // fail because there arent enough parameters
-                println!("ERROR: not enough parameters received");
+                println!("ERROR: not enough parameters received for mode {}", mode);
                 show_help();
                 process::exit(1);
             } else if mode == modes[1] || mode == modes[2] {
                 ();
             } else {
                 // fail if mode is not recognized
-                println!("nothing");
+                println!("ERROR: mode not recognised");
+                show_help();
+                process::exit(1);
             }
        },
         _ => {
