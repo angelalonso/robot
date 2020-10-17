@@ -1,5 +1,4 @@
 extern crate serial;
-use crate::log;
 use serial::prelude::*;
 use std::io::{BufRead, BufReader};
 use std::io;
@@ -9,6 +8,7 @@ use thiserror::Error;
 use std::process::Command;
 
 use std::sync::mpsc::Sender;
+use log::{debug, error};
 
 #[derive(Error, Debug)]
 pub enum BrainArduinoError {
@@ -44,16 +44,19 @@ impl Arduino<'_> {
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
-        log(Some(&self.name), "D", &format!("Reading from Serial Port {}", self.serialport));
+        debug!("Reading from Serial Port {}", self.serialport);
         let mut port = serial::open(self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
-                if got.contains("ACTION:") {
-                    log(Some(&self.name), "D", &format!("Got an Action message: {}", got));
+                if got.contains("ACTION: ") {
+                    debug!("Got an Action message: {}", got);
+                    channel.send(got).unwrap();
+                } else if got.contains("SENSOR: ") {
+                    debug!("Got a Sensor message: {}", got);
                     channel.send(got).unwrap();
                 } else {
-                    log(Some(&self.name), "D", &format!("Read ->{}<- from Serial Port", got));
+                    debug!("Read ->{}<- from Serial Port", got);
                     break Ok(got)
                 }
             }
@@ -77,15 +80,13 @@ impl Arduino<'_> {
         match lines.next().unwrap() {
             Ok(res) => {
                 if res.contains("LOG:") {
-                    log(Some(&self.name), "D", &format!("Got a Log message: {}", &res));
+                    debug!("Got a Log message: {}", &res);
                     Ok("".to_string())
                 } else {
-                    //log(Some(&self.name), "D", &format!("Got a Result: ->{}<-", &res));
                     Ok(res)
                 }
             },
             Err(_e) => {
-                    //log(Some(&self.name), "D", &format!("Got an Error Reading from Port, {:?}", e));
                     Ok("".to_string())
                 },
         }
@@ -94,7 +95,7 @@ impl Arduino<'_> {
     /// This one should avrdude to send a given file to the arduino
     pub fn install(&mut self, filename: &str) -> Result<(), BrainArduinoError> {
         // First check that avrdude is installed
-        log(Some(&self.name), "D", &format!("Installing {} to arduino", filename));
+        debug!("Installing {} to arduino", filename);
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
     // To test avrdude manually: sudo avrdude -c linuxgpio -p atmega328p -v 
@@ -116,13 +117,13 @@ impl Arduino<'_> {
                         match code {
                             0 => return Ok(()),
                             _ => {
-                                log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
+                                error!("ERROR while installing {}!", filename);
                                 return Err(BrainArduinoError::AvrdudeError)
                             },
                         }
                     },
                     _ => {
-                        log(Some(&self.name), "E", &format!("ERROR while installing {}!", filename));
+                        error!("ERROR while installing {}!", filename);
                         return Err(BrainArduinoError::AvrdudeError)
                             },
                     };
@@ -142,13 +143,13 @@ impl Arduino<'_> {
                 match code {
                     0 => Ok(()),
                     _ => {
-                        log(Some(&self.name), "E", &format!("{} is not installed!", prog));
+                        error!("{} is not installed!", prog);
                         Err(BrainArduinoError::ProgNotInstalledError(prog.to_string()))
                     },
                 }
             },
             _ => {
-                log(Some(&self.name), "E", &format!("{} is not installed!", prog));
+                error!("{} is not installed!", prog);
                 Err(BrainArduinoError::ProgNotInstalledError(prog.to_string()))
             },
         }

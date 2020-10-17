@@ -1,13 +1,12 @@
 use std::fs::File;
 use thiserror::Error;
+use log::debug;
 
 extern crate serde_yaml;
 
 #[derive(Error, Debug)]
 pub enum BrainConfigError {
-    /// It used to represent an empty source. For example, an empty text file being given
-    /// as input to `count_words()`.
-    /// Now it's just the most basic I dont care Error
+    /// This is just the most basic I dont care Error
     #[error("Source contains no data")]
     EmptyError,
 
@@ -38,9 +37,8 @@ impl Config {
     }
 
     /// Print out the configs.
-    /// Note: I dont test this because why?
     pub fn print(&mut self) {
-        println!("{:?}", self.entries);
+        debug!("{:?}", self.entries);
     }
 
     /// Gets the actions related to a trigger

@@ -1,52 +1,75 @@
-# Current usage
+# Brain
 
-## A -> Arduino program
-- sudo arduino
-- make arduino be verbose (TODO: Document how)
-- create program
-- save it to ../tests/name_of_program (or whatever folder you want)
-- compile it locally 
-- check output of arduino, copy the /tmp/../...ino.hex file to the ../tests/name_of_program folder
-- chown the whole folder to your user
+Program to manage the Robot.
 
-### Notes on writing programs
-- There are two types of messages; information and Result  
-  - Information ones start with "LOG:", they allow the program to continue.
-  - The rest are taken as result, and from the brain's perspective, the program finishes there  
-E.g:
-  This one will finish after the message "j is 0"  
-```
-  int j;
-  for ( j = 0; j < 10; j++) {
-    Serial.print("j is ");
-    Serial.println(j);
-  }
-```
-  This one will send "LOG: j is 0", then "LOG: j is 1"... and so on  
-```
-  int j;
-  for ( j = 0; j < 10; j++) {
-    Serial.print("j is ");
-    Serial.println(j);
-  }
-```
-- We need to have a ```delay(50)``` (or more than 50) between two println, to allow brain to read both in two separate tries.
+The program manages: 
+- Communications with Arduino
+- Installing new .hex files into the Arduino
+- Movement of the motors
 
-## B -> config file
-- edit cfg.yaml
-- For each action, add one of the following:
+## Configuration
+
+Before a regular start, you need to configure two files:
+- cfg.yaml
+  - Defines actions taken after a trigger.
+  - Triggers are received as a message from the arduino (see [arduino README](./ARDUINO.md))
+  - Each entry has the following form:
 ```
-- trigger: "ping"
+- trigger: "wheel finished"
   actions:
-    - install_../tests/001_test_pong/001_test_pong.ino.hex  <- here you just put install_<and the path to the next .ino.hex file you want to install to the arduino>
+    - install_../arduino/000_ready/000_ready.ino.hex
 ```
+  - , where install\_ is the action to take. Available actions are:
+    - install, to install a program to the Arduino, where everything after the \_ is the path to the hex file to install
+    - move, to move the motors
+      - here we define the speed (-100 to 100) of each motor (Left_Right, as in 60_60 or -40_70) after the \_.
+- move_cfg.yaml
+  - Defines the next value for the motorsm based on the values of some metrics.
+  - Those metrics are currently:
+    - speed of each motor
+    - distance received by the L298N
+    - value of the tracking sensor 
+    - time since last change on metrics
+  - Each entry has the following form:
+```
+- input:
+  - time: "1" 
+    motor_l: "60"
+    motor_r: "60"
+    tracker: "*"
+    distance: "<=_30"
+  action:
+    motor_l: -60
+    motor_r: -60
+```
+  - where each of the inputs can take "\*" as a value if needs to be ignored, and then you can set each as follows if needed:
+    - time - seconds (accepts one dec) since last metric change (useful when you need to say "if it has been moving forward for two seconds, stop")
+      - It gets triggered when the time measured is equal or bigger than this
+    - motor_l and motor_r  are the speed of each motor, from -100 to 100 with 0 being a full stop.
+      - It triggered only when the values measured and the input are the exact same.
+      - The motors I use only actuall move for values over 55 (and -55)
+    - tracker has a true/false valuu and works like the previous ones.
+    - distance has a format of "comparison_value", and the metric gets stored like that (instead of the actual value), meaning two metrics of 20 and 26 might both count as the same input for something like "<=\_30" 
 
+## Run the code
+You will start your robot from the laptop once it is up, running and connected to your wifi.  
+I am assuming you know your robot's IP (if not, google).  
+- Copy the env template to generate your own
+```
+cp env.template .env
+```
+- Edit and fill up .env to your needs.  
+- Run the remote script
+```
+./install_and_run.sh
+```
+  - You might want to check and modify that script for things like changing the log level.
+- Honestly, at this point you can always use cargo build and call the exec file at your Raspberry directly.
 
-## Run tests
-- run cp env.template .env
-- modify .env to your needs 
-- run ./test_on_raspberry.sh 
+# Challenges
+- We are not actually building any exec, and we should.
+- We need a way for the robot to load Brain on bootup. This should include an automated update if necessary.  
+- We need to document or automate finding out the Robot's IP.
+- Event driven but only up to one layer. We need more flexibility.
+- We dont have a real way to test on a laptop
 
-
-# ISSUES
-- One has to manually get and copy the ino.hex files after compiling from arduino IDE :(

@@ -4,40 +4,65 @@ use std::process;
 use std::process::Command;
 use std::env;
 
+#[macro_use]
+extern crate log;
+
 fn show_help() {
-    println!("SYNTAX: ");
-    println!(" brain <config_file> [mode]");
+    println!("\nSYNTAX: ");
+    println!(" brain [mode] <actions_config_file> <auto_moves_config_file> [mode]");
     println!("");
     println!("   , where:");
-    println!(" - config_file - mandatory");
-    println!("     is the path to the config yaml for triggers. ");
     println!(" - mode        - optional, default is start");
     println!("     is the trigger with which the Brain starts. ");
+    println!("     accepted values: start, test and reset. \n");
+    println!(" - config_file - mandatory for mode start");
+    println!("     is the path to the config yaml for triggers and actions \n");
+    println!(" - auto_moves_config_file - mandatory for mode start");
+    println!("     is the path to the config yaml for rules to have the robot automatically move. ");
 }
 
-fn argparser() -> (String, String) {
+/// parse arguments given to the program itself
+fn argparser(modes: Vec<&str>) -> (String, String, String) {
     let mut args: Vec<String> = env::args().collect();
+    let mut b_cfg = String::from("");
+    let mut c_cfg = String::from("");
+    let mode: String;
     match args.len() {
-        // No arguments passed? show error
         1 => {
-            println!("ERROR: not enough parameters received");
+            error!("ERROR: not enough parameters received");
             show_help();
             process::exit(1);
         },
-        // one argument passed? then it's the config file, and mode is default one, "start"
-        2 => {
-            let ref configfile = &args[1];
-            (configfile.to_string(), "start".to_string())
-        },
         // two or more argument(s) passed? join them with spaces to allow phrases
+        2 | 3 => {
+            // remove the prog name itself
+            args.remove(0);
+            // drain variables
+            mode = args.drain(0..1).collect();
+            if mode == modes[0] {
+                // fail because there arent enough parameters
+                error!("ERROR: not enough parameters received for mode {}", mode);
+                show_help();
+                process::exit(1);
+            } else if mode == modes[1] || mode == modes[2] {
+                ();
+            } else {
+                // fail if mode is not recognized
+                error!("ERROR: mode not recognised");
+                show_help();
+                process::exit(1);
+            }
+       },
         _ => {
             // remove the prog name itself
             args.remove(0);
-            // drain the config file path
-            let configfile : String = args.drain(0..1).collect();
-            (configfile.to_string(), args.join(" "))
+            // drain variables
+            mode = args.drain(0..1).collect();
+            b_cfg = args.drain(0..1).collect();
+            c_cfg = args.drain(0..1).collect();
         },
     }
+    (b_cfg.to_string(), c_cfg.to_string(), mode.to_string())
 }
 
 /// Check if there is another instance of this running
@@ -62,23 +87,40 @@ fn check_self_running(self_comm: &str) -> Result<(), String>{
     }
 }
 
-/// Load a new brain, send the first trigger, and enter the reading loop
+/// check the parameters and start the related mode
 fn main() -> Result<(), Box<dyn Error>> {
-    let (config_file, start_mode) = argparser();
+    env_logger::init();
+    let modes = vec!["start", "test", "reset"];
+    let (brain_config_file, cerebellum_config_file, start_mode) = argparser(modes);
     let args: Vec<String> = env::args().collect();
     check_self_running(&args[0]).unwrap();
-    println!("Starting Brain with Mode {}", start_mode);
-    // Generate our Brain object
-    let mut main_brain = Brain::new("Main Brain", config_file, None).unwrap_or_else(|err| {
-        eprintln!("Problem Initializing Main Brain: {}", err);
-        process::exit(1);
-    });
-    // Send the first trigger to start.
-    let _send_start = main_brain.get_actions(&start_mode).unwrap_or_else(|err| {
-        eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
-        process::exit(1);
-    });
-    // Listening on Comm
-    main_brain.read();
+    info!("Starting Brain with Mode {}", start_mode);
+    match start_mode.as_str() {
+        // Load a new brain, send the first trigger, and enter the reading loop
+        // TODO: change start to "normal" maybe?
+        "start" => {
+            // Generate our Brain object
+            let mut main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
+                eprintln!("Problem Initializing Main Brain: {}", err);
+                process::exit(1);
+            });
+            // Send the first trigger to start.
+            let _send_start = main_brain.get_brain_actions(&start_mode).unwrap_or_else(|err| {
+                eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
+                process::exit(1);
+            });
+            // Listening on Comm
+            main_brain.get_input();
+        },
+        "reset" => {
+            ()
+        }
+        "test" => {
+            ()
+        }
+        &_ => {
+            ()
+        }
+    }
     Ok(())
 }

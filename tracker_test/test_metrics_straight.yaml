@@ -1,0 +1,21 @@
+--- 
+- time: 0.0 
+  motor_l: 0
+  motor_r: 0
+  sensor: true
+- time: 0.1 
+  motor_l: 70
+  motor_r: 70
+  sensor: true
+- time: 0.2 
+  motor_l: 70
+  motor_r: 70
+  sensor: false
+- time: 0.3 
+  motor_l: -70
+  motor_r: 70
+  sensor: true
+- time: 0.4 
+  motor_l: 70
+  motor_r: 70
+  sensor: true

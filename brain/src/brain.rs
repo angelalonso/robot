@@ -1,39 +1,56 @@
-use crate::config::Config;
+// This is the actual central block of our robot
+// It is called Brain for obvious reasons, but is somehow divided on two:
+//  - Cerebellum part: Manages any movement actions -> lives on its own module but depends on this
+//  brain one
+//  - Brain part: Manages any other actions, such as:
+//    - installing a new .hex into arduino
 use crate::arduino::Arduino;
+use crate::config::Config;
+use crate::cerebellum::Cerebellum;
 use crate::mover::Mover;
-use crate::log;
 use std::process;
 use std::str;
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
+use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
+use log::debug;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
-    /// It used to represent an empty source. For example, an empty text file being given
-    /// as input to `count_words()`.
-    /// Now it's just the most basic I dont care Error
+    /// This is just the most basic I dont care Error
     #[error("Source contains no data")]
     EmptyError,
 
     #[error("Config contains no related entries")]
     NoConfigFound,
-}
 
+    #[error("Something went wrong while working with timestamps")]
+    SystemTimeError,
+}
 
 #[derive(Clone)]
 pub struct Brain<'a> {
     pub name: &'a str,
+    pub starttime: u128,
     pub config: Config,
-    pub arduino: Arduino<'a>,
     pub serialport: &'a str,
     pub timeout: u64,
+    pub cerebellum: Cerebellum,
+    pub arduino: Arduino<'a>,
     pub mover: Mover<'a>,
 }
 
+/// Initialize all the things
 impl Brain<'static> {
-    pub fn new(brain_name: &'static str, config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
-        let configdata = Config::new(config_file);
+    pub fn new(brain_name: &'static str, config_file: String, cerebellum_config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+        let st = SystemTime::now();
+        let start_time = match st.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis(),
+            Err(_e) => 0,
+        };
+        let cfg = Config::new(config_file);
+        let crb = Cerebellum::new(cerebellum_config_file);
         let sp = match raw_serial_port {
             Some(port) => port,
             None => "/dev/ttyUSB0",
@@ -48,57 +65,74 @@ impl Brain<'static> {
         });
         Ok(Self {
             name: brain_name,
-            config: configdata,
-            arduino: a,
+            starttime: start_time,
+            config: cfg,
             serialport: sp,
             timeout: 4,
+            cerebellum: crb,
+            arduino: a,
             mover: m,
         })
     }
 
-    pub fn read(mut self) {
+    pub fn get_input(mut self) {
         loop {
-            self.show_move();
+            debug!("Reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
-            let mut avatar = self.clone();
-            let this_name = self.name.clone();
+            let mut brain_clone = self.clone();
             let _handle = thread::spawn(move || {
                 let _received = match arduino.read_channel(msgs){
                     Ok(rcv) => {
-                        let _taken_actions = match avatar.get_actions(&rcv){
-                            Ok(acts) => println!("Taking action {:?}", acts.join(", ")),
-                            Err(_) => log(Some(&this_name), "D", "No actions were found for trigger"),
+                        match brain_clone.get_brain_actions(&rcv){
+                            Ok(acts) => debug!("Taking action {:?}", acts.join(", ")),
+                            Err(_) => debug!("No actions were found for trigger"),
                         };
                     },
-                    Err(_) => log(Some(&this_name), "D", "Nothing read from Channel"),
+                    Err(_) => debug!("Nothing read from Channel"),
                 };
             });
             loop {
+                debug!("Getting messages at the other side of the channel with Arduino");
                 let msg = r.recv();
                 let mut msg_actions = Vec::new();
-                msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
-                self.apply_actions(msg_actions).unwrap();
-                self.show_move();
+                let mut msg_sensors = String::new();
+                let actionmsg = msg.clone();
+                let sensormsg = msg.clone();
+                if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
+                    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
+                    msg_sensors = msg.unwrap().replace("SENSOR: ", "");
+                }
+                debug!("Doing Brain actions");
+                self.do_brain_actions(msg_actions).unwrap();
+                
+                debug!("Doing Cerebellum actions");
+                debug!("Getting the list of Cerebellum actions to do");
+                let crbllum_actions = self.cerebellum.manage_input(self.starttime, msg_sensors, self.mover.movement.clone()).unwrap();
+                if crbllum_actions.len() > 0 {
+                    debug!("Moving stuff according to the list of Cerebellum actions to do");
+                    self.mover.set_move(format!("{:?}_{:?}", crbllum_actions[0].action.motor_l, crbllum_actions[0].action.motor_r));
+                }
             }
         }
     }
 
     /// Get the action that relates to the trigger received and call to apply it
-    /// Hm...maybe this one and apply_actions should go together?
-    pub fn get_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
-        log(Some(&self.name), "D", &format!("Received {}", trigger));
+    /// Hm...maybe this one and do_brain_actions should go together?
+    pub fn get_brain_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
+        debug!("Received {}", trigger);
         let actions = self.config.get_actions(&trigger);
         match actions {
             Ok(acts) => {
                 match acts {
                     Some(a) => {
-                        self.apply_actions(a.clone()).unwrap();
+                        self.do_brain_actions(a.clone()).unwrap();
                         Ok(a)
                     },
                     None => {
-                        log(Some(&self.name), "D", "Nothing to do");
+                        debug!("Nothing to do");
                         Err(BrainDeadError::NoConfigFound)
                     },
                 }
@@ -109,27 +143,15 @@ impl Brain<'static> {
 
     /// Call the action needed
     /// , which, right now, is just installing a new hex into the arduino
-    pub fn apply_actions(&mut self, actions: Vec<String>) -> Result<(), BrainDeadError> {
+    pub fn do_brain_actions(&mut self, actions: Vec<String>) -> Result<(), BrainDeadError> {
         for action in &actions {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
                 "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
-                _ => self.do_nothing().unwrap(),
+                _ => debug!("Relaxing here..."),
             };
         }
         Ok(())
-    }
-
-    /// Do nothing, but take note that we have nothing to do
-    pub fn do_nothing(&mut self) -> Result<(), BrainDeadError> {
-        log(Some(&self.name), "D", "Relaxing here...");
-        Ok(())
-    }
-
-
-    /// Show current movement values at both engines
-    pub fn show_move(&mut self) {
-        log(Some(&self.name), "I", &format!("Moving : {}", self.mover.movement));
     }
 }

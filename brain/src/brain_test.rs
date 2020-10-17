@@ -9,47 +9,50 @@ mod brain_test {
     #[ignore]
     fn check_get_actions() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let action_got = test.get_actions("ping\r\n");
+        let action_got = test.get_brain_actions("ping\r\n");
         assert!(action_got.is_ok(), "getting an action did not go well");
     }
     #[test]
+    #[ignore]
     fn check_get_actions_notfound() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let action_got = test.get_actions("unexistingping\r\n");
+        let action_got = test.get_brain_actions("unexistingping\r\n");
         assert!(action_got.is_err(), "getting an error for a non existing action did not go well");
     }
 
     #[test]
-    fn check_apply_actions() {
+    #[ignore]
+    fn check_do_brain_actions() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let action_applied = test.apply_actions(Vec::from(["sendfile_../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex".to_string()]));
+        let action_applied = test.do_brain_actions(["sendfile_../tests/000_blick_internal_led_seconds/000_blick_internal_led_seconds.ino.hex".to_string()].to_vec());
         assert!(action_applied.is_ok(), "applying an action did not go well");
     }
 
     #[test]
+    #[ignore]
     fn check_do_nothing() {
         let mut test = Brain::new("test",
-                                  "testfiles/cfg.yaml", 
+                                  "testfiles/cfg.yaml".to_string(), 
                                   None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
-        let avrdude = test.do_nothing();
+        let avrdude = test.do_brain_nothing();
         assert!(avrdude.is_ok(), "nothing is being done");
     }
 }

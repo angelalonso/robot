@@ -4,7 +4,7 @@
     - install_../arduino/000_ready/000_ready.ino.hex
 - trigger: "start"
   actions:
-    - install_../arduino/001_test_proximity/001_test_proximity.ino.hex
+    - install_../arduino/000_sensors/000_sensors.ino.hex
 - trigger: "dance"
   actions:
     - install_../arduino/001_test_wheel/001_test_wheel.ino.hex
