@@ -1,5 +1,6 @@
 use std::fs::File;
 use thiserror::Error;
+use log::debug;
 
 extern crate serde_yaml;
 
@@ -36,9 +37,8 @@ impl Config {
     }
 
     /// Print out the configs.
-    /// Note: I dont test this because why?
     pub fn print(&mut self) {
-        println!("{:?}", self.entries);
+        debug!("{:?}", self.entries);
     }
 
     /// Gets the actions related to a trigger

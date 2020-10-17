@@ -4,20 +4,24 @@ use std::process;
 use std::process::Command;
 use std::env;
 
+#[macro_use]
+extern crate log;
+
 fn show_help() {
-    println!("SYNTAX: ");
+    println!("\nSYNTAX: ");
     println!(" brain [mode] <actions_config_file> <auto_moves_config_file> [mode]");
     println!("");
     println!("   , where:");
     println!(" - mode        - optional, default is start");
     println!("     is the trigger with which the Brain starts. ");
-    println!("     accepted values: start, test and reset. ");
+    println!("     accepted values: start, test and reset. \n");
     println!(" - config_file - mandatory for mode start");
-    println!("     is the path to the config yaml for triggers and actions ");
+    println!("     is the path to the config yaml for triggers and actions \n");
     println!(" - auto_moves_config_file - mandatory for mode start");
     println!("     is the path to the config yaml for rules to have the robot automatically move. ");
 }
 
+/// parse arguments given to the program itself
 fn argparser(modes: Vec<&str>) -> (String, String, String) {
     let mut args: Vec<String> = env::args().collect();
     let mut b_cfg = String::from("");
@@ -25,7 +29,7 @@ fn argparser(modes: Vec<&str>) -> (String, String, String) {
     let mode: String;
     match args.len() {
         1 => {
-            println!("ERROR: not enough parameters received");
+            error!("ERROR: not enough parameters received");
             show_help();
             process::exit(1);
         },
@@ -37,14 +41,14 @@ fn argparser(modes: Vec<&str>) -> (String, String, String) {
             mode = args.drain(0..1).collect();
             if mode == modes[0] {
                 // fail because there arent enough parameters
-                println!("ERROR: not enough parameters received for mode {}", mode);
+                error!("ERROR: not enough parameters received for mode {}", mode);
                 show_help();
                 process::exit(1);
             } else if mode == modes[1] || mode == modes[2] {
                 ();
             } else {
                 // fail if mode is not recognized
-                println!("ERROR: mode not recognised");
+                error!("ERROR: mode not recognised");
                 show_help();
                 process::exit(1);
             }
@@ -83,14 +87,17 @@ fn check_self_running(self_comm: &str) -> Result<(), String>{
     }
 }
 
-/// Load a new brain, send the first trigger, and enter the reading loop
+/// check the parameters and start the related mode
 fn main() -> Result<(), Box<dyn Error>> {
+    env_logger::init();
     let modes = vec!["start", "test", "reset"];
     let (brain_config_file, cerebellum_config_file, start_mode) = argparser(modes);
     let args: Vec<String> = env::args().collect();
     check_self_running(&args[0]).unwrap();
-    println!("Starting Brain with Mode {}", start_mode);
+    debug!("Starting Brain with Mode {}", start_mode);
     match start_mode.as_str() {
+        // Load a new brain, send the first trigger, and enter the reading loop
+        // TODO: change start to "normal" maybe?
         "start" => {
             // Generate our Brain object
             let mut main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {

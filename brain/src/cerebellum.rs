@@ -1,7 +1,7 @@
 use crate::brain::{BrainDeadError};
-use crate::log;
 use std::fs::File;
 use std::time::{SystemTime, UNIX_EPOCH};
+use log::debug;
 
 extern crate serde_yaml;
 
@@ -74,7 +74,7 @@ impl Cerebellum {
     pub fn manage_input(&mut self, starttime: u128, sensors: String, movement: String) -> Result<Vec<CrbllumEntry>, BrainDeadError>{
         self.current_metric = self.build_crbllum_input(starttime, sensors, movement).unwrap();
         self.update_metrics();
-        println!("{:#x?}", self.metrics);
+        debug!("{:#x?}", self.metrics);
         self.choose_actions()
     }
 
@@ -194,7 +194,7 @@ impl Cerebellum {
     }
 
     pub fn build_crbllum_input(&mut self, starttime: u128, sensors: String, movement: String) -> Result<MetricEntry, BrainDeadError> {
-        log(Some(&self.name), "I", &format!("Moving : {}", movement));
+        debug!("Moving : {}", movement);
         let m_l: i16;
         let m_r: i16;
         if movement == "forwards" {
