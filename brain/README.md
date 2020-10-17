@@ -1,38 +1,31 @@
-# Current usage
+# Brain
 
-## A -> Arduino program
-- sudo arduino
-- make arduino be verbose (TODO: Document how)
-- create program
-- save it to ../tests/name_of_program (or whatever folder you want)
-- compile it locally 
-- check output of arduino, copy the /tmp/../...ino.hex file to the ../tests/name_of_program folder
-- chown the whole folder to your user
+Program to manage the Robot.
 
-### Notes on writing programs
-- There are two types of messages; information and Result  
-  - Information ones start with "LOG:", they allow the program to continue.
-  - The rest are taken as result, and from the brain's perspective, the program finishes there  
-E.g:
-  This one will finish after the message "j is 0"  
-```
-  int j;
-  for ( j = 0; j < 10; j++) {
-    Serial.print("j is ");
-    Serial.println(j);
-  }
-```
-  This one will send "LOG: j is 0", then "LOG: j is 1"... and so on  
-```
-  int j;
-  for ( j = 0; j < 10; j++) {
-    Serial.print("j is ");
-    Serial.println(j);
-  }
-```
-- We need to have a ```delay(50)``` (or more than 50) between two println, to allow brain to read both in two separate tries.
+The program manages: 
+- Communications with Arduino
+- Installing new .hex files into the Arduino
+- Movement of the motors
 
-## B -> config file
+## Configuration
+
+Before a regular start, you need to configure two files:
+- cfg.yaml
+  - Defines actions taken after a trigger.
+  - Triggers are received as a message from the arduino (see [arduino README](./ARDUINO.md))
+  - Each entry has the following form:
+```
+- trigger: "wheel finished"
+  actions:
+    - install_../arduino/000_ready/000_ready.ino.hex
+```
+  - , where install\_ is the action to take. Available actions are:
+    - install, to install a program to the Arduino, where everything after the \_ is the path to the hex file to install
+    - move, to move the motors, where everything after the \_ defines the values we want for each enging (Left_Right, as in 60_60 or -40_70)
+- move_cfg.yaml
+
+
+## Edit the -> config file
 - edit cfg.yaml
 - For each action, add one of the following:
 ```
@@ -48,5 +41,6 @@ E.g:
 - run ./test_on_raspberry.sh 
 
 
-# ISSUES
-- One has to manually get and copy the ino.hex files after compiling from arduino IDE :(
+# Challenges
+- Event driven but only up to one layer. We need more flexibility.
+- 

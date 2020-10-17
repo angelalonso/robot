@@ -1,38 +1,43 @@
 # Robot
 
-Resources to build a home robot.
+Resources to build a robot.
 
 
 # WHY this guide?
-- I have very specific Hardware, most notable an <old> Raspberry pi B.  
-- Most of the docs online refer to the newer boards.  
-- Everything I document here was either not-so-easy to find or directly a result of my trial and error.  
+- I invested some time to make the first version work, and now I want to take a snapshot and move on to version 2.  
+- I have very specific Hardware, most notably an <old> Raspberry pi B. Most of the docs online refer to the newer boards.  
+- I want to share a reproduceable code and docs for other people to possibly improve on.
 
 # Status
 
-Under development
+First version works with some caveats.
 
-## Version 2020.09
+## Version 1
 ### Hardware
 - Raspberry pi 1 B+ as Brain runner and movement controller. Check [RASPBERRY.md](RASPBERRY.md)  
-- Arduino UNO as sensor controller. Check [ARDUINO.md](ARDUINO.md) 
-- L298N as motor controller. Check [L298N.md](L298N.md)  
-- HC-SR04 as distance sensor  
-- 2 motors  
+- [Bought this pack for the following:](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
+  - Arduino UNO as sensor controller. Check [ARDUINO.md](ARDUINO.md). [Bought this one](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
+  - L298N as motor controller. Check [L298N.md](L298N.md).
+  - HC-SR04 as distance sensor  
+  - 2 motors  
+- Several Jumper cables Male, female...get from both.
 - Chassis made of Cardboard and plastic  
-- Weight: 895 grams  
+- [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
+- Weight: 897 grams  
 
 ### Connections
 ![Diagram as of September 2020](diagram.202009.png)
 
 ### Software
-Check [BRAIN'S own README](brain/README.md)
+- Brain runs on the Raspberry pi from the ./brain folder. Check [BRAIN'S own README](brain/README.md)
+  - Brain hot-installs .hex files from the ./arduino folder. Check [ARDUINO's README](ARDUINO.md) for further details on how the arduino programs should work.
 
-### Challenges
-- Sensor is imprecise  
-- Sometimes the Brain process runs simultaneously  
-- Weight should be lowered but anything under 1 Kg is fine I guess  
-- It doesn't do much  
+### Challenges for v2
+- Installation is not straghtforward
+- Chassis is not reproducible
+- Weight should be lowered, anything under 1 Kg is fine I guess  
+- It doesn't do much on its own  
 - I have smaller powerbanks but they dont work well with the L298N motor controller  
+- Further software challenges, check bottom of [BRAIN'S own README](https://github.com/angelalonso/robot/blob/master/brain/README.md)
 
  
