@@ -1,7 +1,6 @@
-# Robot
+# Robot v1.0.0
 
 Resources to build a robot.
-
 
 # WHY this guide?
 - I invested some time to make the first version work, and now I want to take a snapshot and move on to version 2.  
@@ -10,7 +9,7 @@ Resources to build a robot.
 
 # Status
 
-First version works with some caveats.
+First version works with some caveats. The robot will not kill you unless you build that feature on top of this. Therefore, version 1.
 
 ## Version 1
 ### Hardware
