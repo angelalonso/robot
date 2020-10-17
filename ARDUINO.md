@@ -2,9 +2,7 @@
 
 For the Raspberry pi to install .hex programs into the Arduino you'll need to setup the ICSP connection between both.
 
-After that, you'll need avrdude to be installed and configured on the Raspberry. 
-
-The Brain program uses avrdude to get this part done.
+After that, you'll need avrdude to be installed and configured on the Raspberry. For that follow [Raspberry's own setup docs](./RASPBERRY.md).
 
 ## PINS on the Arduino clone "ISCP" Map - yeah I know, freaking clones' typos
 ```
