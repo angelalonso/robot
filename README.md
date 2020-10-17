@@ -36,10 +36,11 @@ First version works with some caveats. The robot will not kill you unless you bu
 - By the end of that process, and after you have everything connected, just plugin the battery in and everything should just work. Hopefully
 
 ### Challenges for v2
+- We will add a compass among other sensors
+- It doesn't do much on its own. We should focus on skills.  
 - Installation is not straghtforward
 - Chassis is not reproducible
 - Weight should be lowered, anything under 1 Kg is fine I guess  
-- It doesn't do much on its own  
 - I have smaller powerbanks but they dont work well with the L298N motor controller  
 - Further software challenges, check bottom of [BRAIN'S own README](https://github.com/angelalonso/robot/blob/master/brain/README.md)
 
