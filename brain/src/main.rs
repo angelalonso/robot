@@ -94,7 +94,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (brain_config_file, cerebellum_config_file, start_mode) = argparser(modes);
     let args: Vec<String> = env::args().collect();
     check_self_running(&args[0]).unwrap();
-    debug!("Starting Brain with Mode {}", start_mode);
+    info!("Starting Brain with Mode {}", start_mode);
     match start_mode.as_str() {
         // Load a new brain, send the first trigger, and enter the reading loop
         // TODO: change start to "normal" maybe?
