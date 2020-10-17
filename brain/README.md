@@ -21,26 +21,43 @@ Before a regular start, you need to configure two files:
 ```
   - , where install\_ is the action to take. Available actions are:
     - install, to install a program to the Arduino, where everything after the \_ is the path to the hex file to install
-    - move, to move the motors, where everything after the \_ defines the values we want for each enging (Left_Right, as in 60_60 or -40_70)
+    - move, to move the motors
+      - here we define the speed (-100 to 100) of each motor (Left_Right, as in 60_60 or -40_70) after the \_.
 - move_cfg.yaml
-
-
-## Edit the -> config file
-- edit cfg.yaml
-- For each action, add one of the following:
+  - Defines the next value for the motorsm based on the values of some metrics.
+  - Those metrics are currently:
+    - speed of each motor
+    - distance received by the L298N
+    - value of the tracking sensor 
+    - time since last change on metrics
+  - Each entry has the following form:
 ```
-- trigger: "ping"
-  actions:
-    - install_../tests/001_test_pong/001_test_pong.ino.hex  <- here you just put install_<and the path to the next .ino.hex file you want to install to the arduino>
+- input:
+  - time: "1" 
+    motor_l: "60"
+    motor_r: "60"
+    tracker: "*"
+    distance: "<=_30"
+  action:
+    motor_l: -60
+    motor_r: -60
 ```
+  - where each of the inputs can take "\*" as a value if needs to be ignored, and then you can set each as follows if needed:
+    - time - seconds (accepts one dec) since last metric change (useful when you need to say "if it has been moving forward for two seconds, stop")
+      - It gets triggered when the time measured is equal or bigger than this
+    - motor_l and motor_r  are the speed of each motor, from -100 to 100 with 0 being a full stop.
+      - It triggered only when the values measured and the input are the exact same.
+      - The motors I use only actuall move for values over 55 (and -55)
+    - tracker has a true/false valuu and works like the previous ones.
+    - distance has a format of "comparison_value", and the metric gets stored like that (instead of the actual value), meaning two metrics of 20 and 26 might both count as the same input for something like "<=\_30" 
 
+## Prepare your Raspberry
+TBD
 
-## Run tests
-- run cp env.template .env
-- modify .env to your needs 
-- run ./test_on_raspberry.sh 
-
+## Run the code
+TBD
 
 # Challenges
 - Event driven but only up to one layer. We need more flexibility.
-- 
+- We dont have a real way to test on a laptop
+

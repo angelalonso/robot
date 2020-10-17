@@ -20,6 +20,7 @@ First version works with some caveats.
   - L298N as motor controller. Check [L298N.md](L298N.md).
   - HC-SR04 as distance sensor  
   - 2 motors  
+- A tracking sensor (got mine from [HERE](https://www.banggood.com/Geekcreit-37-In-1-Sensor-Module-Board-Set-Starter-Kits-SENSOR-KIT-For-Arduino-Plastic-Bag-Package-p-1137051.html?rmmds=myorder&cur_warehouse=UK))
 - Several Jumper cables Male, female...get from both.
 - Chassis made of Cardboard and plastic  
 - [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
@@ -27,6 +28,7 @@ First version works with some caveats.
 
 ### Connections
 ![Diagram as of September 2020](diagram.202009.png)
+TBD - Diagram as of October 2020, with the added tracking sensor
 
 ### Software
 - Brain runs on the Raspberry pi from the ./brain folder. Check [BRAIN'S own README](brain/README.md)

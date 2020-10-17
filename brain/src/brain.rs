@@ -119,9 +119,6 @@ impl Brain<'static> {
         }
     }
 
-    ///------------------------------------------------------///
-    ///  Brain
-    ///------------------------------------------------------///
     /// Get the action that relates to the trigger received and call to apply it
     /// Hm...maybe this one and do_brain_actions should go together?
     pub fn get_brain_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
