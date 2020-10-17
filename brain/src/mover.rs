@@ -2,7 +2,7 @@ use thiserror::Error;
 use rust_gpiozero::*;
 use std::sync::Arc;
 use std::sync::Mutex;
-use log::{debug, error};
+use log::{info, error};
 
 #[derive(Error, Debug)]
 pub enum BrainMoverError {
@@ -45,7 +45,7 @@ impl Mover<'_> {
             "forwards" => {
                 if self.movement != "forwards"{
                     self.movement = "forwards".to_string();
-                    debug!("Moving : {}", self.movement);
+                    info!("Changing Move to {}", self.movement);
                     self.motor_l.lock().unwrap().forward();
                     self.motor_r.lock().unwrap().forward();
                     self.motor_l_ena.lock().unwrap().on();
@@ -57,7 +57,7 @@ impl Mover<'_> {
             "forwards_slow" => {
                 if self.movement != "forwards_slow"{
                     self.movement = "forwards_slow".to_string();
-                    debug!("Moving : {}", self.movement);
+                    info!("Changing Move to {}", self.movement);
                     self.motor_l.lock().unwrap().forward();
                     self.motor_r.lock().unwrap().forward();
                     self.motor_l_ena.lock().unwrap().on();
@@ -69,7 +69,7 @@ impl Mover<'_> {
             "backwards" => {
                 if self.movement != "backwards"{
                     self.movement = "backwards".to_string();
-                    debug!("Moving : {}", self.movement);
+                    info!("Changing Move to {}", self.movement);
                     self.motor_l.lock().unwrap().backward();
                     self.motor_r.lock().unwrap().backward();
                     self.motor_l_ena.lock().unwrap().on();
@@ -81,7 +81,7 @@ impl Mover<'_> {
             "rotate_left" => {
                 if self.movement != "rotate_left"{
                     self.movement = "rotate_left".to_string();
-                    debug!("Moving : {}", self.movement);
+                    info!("Changing Move to {}", self.movement);
                     self.motor_l.lock().unwrap().backward();
                     self.motor_r.lock().unwrap().forward();
                     self.motor_l_ena.lock().unwrap().on();
@@ -93,7 +93,7 @@ impl Mover<'_> {
             "rotate_right" => {
                 if self.movement != "rotate_right"{
                     self.movement = "rotate_right".to_string();
-                    debug!("Moving : {}", self.movement);
+                    info!("Changing Move to {}", self.movement);
                     self.motor_l.lock().unwrap().forward();
                     self.motor_r.lock().unwrap().backward();
                     self.motor_l_ena.lock().unwrap().on();
@@ -105,7 +105,7 @@ impl Mover<'_> {
             "stop" => {
                 if self.movement != "stop"{
                     self.movement = "stop".to_string();
-                    debug!("Moving : {}", self.movement);
+                    info!("Changing Move to {}", self.movement);
                     self.motor_l.lock().unwrap().stop();
                     self.motor_r.lock().unwrap().stop();
                     self.motor_l_ena.lock().unwrap().off();
@@ -151,7 +151,7 @@ impl Mover<'_> {
                         }
                     }
                     self.movement = movement.clone();
-                    debug!("Moving : {}", self.movement);
+                    info!("Changing Move to {}", self.movement);
                 }
             },
         }
