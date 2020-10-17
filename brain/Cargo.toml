@@ -2,7 +2,7 @@
 name = "brain"
 version = "1.0.0"
 authors = ["Angel Alonso Fonseca <alonsofonseca.angel@gmail.com>"]
-edition = "2020"
+edition = "2018"
 
 [dependencies]
 chrono = "0.4"

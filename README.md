@@ -14,7 +14,8 @@ First version works with some caveats.
 
 ## Version 1
 ### Hardware
-- Raspberry pi 1 B+ as Brain runner and movement controller. Check [RASPBERRY.md](RASPBERRY.md)  
+- Raspberry pi 1 B+. Probably anything newer will even work better.
+  - A Wifi dongle like [this one](https://www.amazon.com/Edimax-EW-7611ULB-Wi-Fi-Bluetooth-Adapter/dp/B01KVZB3A4/ref=sr_1_2?dchild=1&keywords=edimax+wifi+dongle&qid=1599231989&sr=8-2)
 - [Bought this pack for the following:](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
   - Arduino UNO as sensor controller. Check [ARDUINO.md](ARDUINO.md). [Bought this one](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
   - L298N as motor controller. Check [L298N.md](L298N.md).
@@ -22,17 +23,18 @@ First version works with some caveats.
   - 2 motors  
 - A tracking sensor (got mine from [HERE](https://www.banggood.com/Geekcreit-37-In-1-Sensor-Module-Board-Set-Starter-Kits-SENSOR-KIT-For-Arduino-Plastic-Bag-Package-p-1137051.html?rmmds=myorder&cur_warehouse=UK))
 - Several Jumper cables Male, female...get from both.
+- Some 3mm nuts and bolts to fix chips to the chassis.
 - Chassis made of Cardboard and plastic  
 - [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
 - Weight: 897 grams  
 
 ### Connections
-![Diagram as of September 2020](diagram.202009.png)
-TBD - Diagram as of October 2020, with the added tracking sensor
+![Diagram as of September 2020](diagram.202010.png)
 
 ### Software
-- Brain runs on the Raspberry pi from the ./brain folder. Check [BRAIN'S own README](brain/README.md)
-  - Brain hot-installs .hex files from the ./arduino folder. Check [ARDUINO's README](ARDUINO.md) for further details on how the arduino programs should work.
+- Prepare the programs you want to run on the arudino. Check [ARDUINO's README](ARDUINO.md) for details on how the arduino programs should work, or have a look at the ones under ./arduino.
+- Install everything required on the Raspberry pi. Check [our Raspberry Install process](RASPBERRY.md) for a HOW-TO.
+- By the end of that process, and after you have everything connected, just plugin the battery in and everything should just work. Hopefully
 
 ### Challenges for v2
 - Installation is not straghtforward

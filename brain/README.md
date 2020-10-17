@@ -51,13 +51,25 @@ Before a regular start, you need to configure two files:
     - tracker has a true/false valuu and works like the previous ones.
     - distance has a format of "comparison_value", and the metric gets stored like that (instead of the actual value), meaning two metrics of 20 and 26 might both count as the same input for something like "<=\_30" 
 
-## Prepare your Raspberry
-TBD
-
 ## Run the code
-TBD
+You will start your robot from the laptop once it is up, running and connected to your wifi.  
+I am assuming you know your robot's IP (if not, google).  
+- Copy the env template to generate your own
+```
+cp env.template .env
+```
+- Edit and fill up .env to your needs.  
+- Run the remote script
+```
+./install_and_run.sh
+```
+  - You might want to check and modify that script for things like changing the log level.
+- Honestly, at this point you can always use cargo build and call the exec file at your Raspberry directly.
 
 # Challenges
+- We are not actually building any exec, and we should.
+- We need a way for the robot to load Brain on bootup. This should include an automated update if necessary.  
+- We need to document or automate finding out the Robot's IP.
 - Event driven but only up to one layer. We need more flexibility.
 - We dont have a real way to test on a laptop
 
