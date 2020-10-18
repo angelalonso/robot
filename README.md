@@ -37,9 +37,9 @@ Follow a list of rules regarding movements. Those rules can be based off what we
 #### How to put it together
 So far I don't have much more than a testing platform built with two small-ish boxes glued together and put on top of the Robot car kit chassis.  
 
-![front_closed](./img/chassis_front_closed.jpg =300x) ![front_closed](./img/chassis_bottom.jpg =300x)  
-![front_closed](./img/chassis_front_open_bottom.jpg =300x)
-![front_closed](./img/chassis_front_open_top.jpg =300x)    
+![front_closed](./img/chassis_front_closed.jpg) ![bottom](./img/chassis_bottom.jpg)  
+![open_bottom](./img/chassis_front_open_bottom.jpg)
+![open_top](./img/chassis_front_open_top.jpg)    
 ### Connections
 ![Diagram as of September 2020](./img/diagram.202010.png)
 
