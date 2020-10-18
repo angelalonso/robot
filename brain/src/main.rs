@@ -12,9 +12,9 @@ fn show_help() {
     println!(" brain [mode] <actions_config_file> <auto_moves_config_file> [mode]");
     println!("");
     println!("   , where:");
-    println!(" - mode        - optional, default is start");
+    println!(" - mode        - optional, default is classic");
     println!("     is the trigger with which the Brain starts. ");
-    println!("     accepted values: start, test and reset. \n");
+    println!("     accepted values: classic, test and reset. \n");
     println!(" - config_file - mandatory for mode start");
     println!("     is the path to the config yaml for triggers and actions \n");
     println!(" - auto_moves_config_file - mandatory for mode start");
@@ -39,12 +39,12 @@ fn argparser(modes: Vec<&str>) -> (String, String, String) {
             args.remove(0);
             // drain variables
             mode = args.drain(0..1).collect();
-            if mode == modes[0] {
+            if mode == modes[0] || mode == modes[1] {
                 // fail because there arent enough parameters
                 error!("ERROR: not enough parameters received for mode {}", mode);
                 show_help();
                 process::exit(1);
-            } else if mode == modes[1] || mode == modes[2] {
+            } else if mode == modes[2] {
                 ();
             } else {
                 // fail if mode is not recognized
@@ -90,7 +90,7 @@ fn check_self_running(self_comm: &str) -> Result<(), String>{
 /// check the parameters and start the related mode
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
-    let modes = vec!["start", "test", "reset"];
+    let modes = vec!["classic", "test", "reset"];
     let (brain_config_file, cerebellum_config_file, start_mode) = argparser(modes);
     let args: Vec<String> = env::args().collect();
     check_self_running(&args[0]).unwrap();
@@ -98,7 +98,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     match start_mode.as_str() {
         // Load a new brain, send the first trigger, and enter the reading loop
         // TODO: change start to "normal" maybe?
-        "start" => {
+        "classic" => {
             // Generate our Brain object
             let mut main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
@@ -116,10 +116,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             ()
         }
         "test" => {
-            ()
+            // Generate our Brain object
+            let _main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
+                eprintln!("Problem Initializing Main Brain: {}", err);
+                process::exit(1);
+            });
         }
         &_ => {
-            ()
+            error!("ERROR: Mode {} not recognized", start_mode);
+            show_help();
+            process::exit(1);
         }
     }
     Ok(())

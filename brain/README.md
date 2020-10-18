@@ -9,7 +9,7 @@ The program manages:
 
 ## Configuration
 
-Before a regular start, you need to configure two files:
+Before a regular start "aka classic", you need to configure two files:
 - cfg.yaml
   - Defines actions taken after a trigger.
   - Triggers are received as a message from the arduino (see [arduino README](./ARDUINO.md))

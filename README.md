@@ -1,4 +1,4 @@
-# Robot v1.0.0
+# Robot v1.0.2
 
 Resources to build a robot.
 
@@ -11,8 +11,15 @@ Resources to build a robot.
 
 First version works with some caveats. The robot will not kill you unless you build that feature on top of this. Therefore, version 1.
 
+## What it can do
+Follow a list of rules regarding movements. Those rules can be based off what we get from the sensors. Basically it can do both of the following by choosing a different set of move_cfg.yaml rules:
+- Time-based movements. One second to the front, two seconds turn to the left, ten seconds to the back...
+- Objects avoiding robot. Move forward until an object is closer than 10 cms, then turn until there's nothing closer than 10 cms, then move forwards again.
+- A mix of both. Move forward until an object is closer than 10 cms, rotate clockwise for a second, if still there's somthing closer than 10 cms, rotate counter-clockwise until there's nothing close than 10 cms, then move forwards again.
+
 ## Version 1
 ### Hardware
+#### What to get
 - Raspberry pi 1 B+. Probably anything newer will even work better.
   - A Wifi dongle like [this one](https://www.amazon.com/Edimax-EW-7611ULB-Wi-Fi-Bluetooth-Adapter/dp/B01KVZB3A4/ref=sr_1_2?dchild=1&keywords=edimax+wifi+dongle&qid=1599231989&sr=8-2)
 - [Bought this pack for the following:](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
@@ -27,8 +34,14 @@ First version works with some caveats. The robot will not kill you unless you bu
 - [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
 - Weight: 897 grams  
 
+#### How to put it together
+So far I don't have much more than a testing platform built with two small-ish boxes glued together and put on top of the Robot car kit chassis.  
+
+![front_closed](./img/chassis_front_closed.jpg =300x) ![front_closed](./img/chassis_bottom.jpg =300x)  
+![front_closed](./img/chassis_front_open_bottom.jpg =300x)
+![front_closed](./img/chassis_front_open_top.jpg =300x)    
 ### Connections
-![Diagram as of September 2020](diagram.202010.png)
+![Diagram as of September 2020](./img/diagram.202010.png)
 
 ### Software
 - Prepare the programs you want to run on the arudino. Check [ARDUINO's README](ARDUINO.md) for details on how the arduino programs should work, or have a look at the ones under ./arduino.
@@ -36,7 +49,8 @@ First version works with some caveats. The robot will not kill you unless you bu
 - By the end of that process, and after you have everything connected, just plugin the battery in and everything should just work. Hopefully
 
 ### Challenges for v2
-- We will add a compass among other sensors
+- We need to add a compass among other sensors to keep our robot moving straight
+- We want to add some LEDs for output, and a microphone for input
 - It doesn't do much on its own. We should focus on skills.  
 - Installation is not straghtforward
 - Chassis is not reproducible
