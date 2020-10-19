@@ -15,17 +15,17 @@ void setup() {
 }
 
 void loop() {
-  int buttonValue = digitalRead(ButtonPin); // read the value of the button
+  boolean buttonValue = digitalRead(ButtonPin); // read the value of the button
   if(buttonValue == HIGH)
-  { 
+  {
     delay(50);    
-    Serial.print("LOG: data_button_");
+    Serial.print("SENSOR: data_button_");
     Serial.println (buttonValue, DEC);
   }
   else
-  { 
+  {
     delay(50);    
-    Serial.print("LOG: data_button_");
+    Serial.print("SENSOR: data_button_");
     Serial.println (buttonValue, DEC);
   }
   boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
