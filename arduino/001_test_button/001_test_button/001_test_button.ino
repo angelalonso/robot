@@ -12,8 +12,8 @@ void loop() {
   buttonState = digitalRead(ButtonPin); // read the value of the button
   
   delay(50);    
-  Serial.print("LOG: data_button_");
-  Serial.println (buttonState, DEC);
+  Serial.print("SENSOR: data_button_");
+  Serial.println (buttonState);
   
   
   delay(100);
