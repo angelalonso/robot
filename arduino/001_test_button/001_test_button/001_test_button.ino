@@ -1,6 +1,6 @@
 // Button Sensor
 const int ButtonPin = 8;
-int buttonState = 0;
+int buttonState = 1;
 
 
 void setup() {
@@ -12,7 +12,7 @@ void loop() {
   buttonState = digitalRead(ButtonPin); // read the value of the button
   
   delay(50);    
-  Serial.print("SENSOR: data_button_");
+  Serial.print("LOG: data_button_");
   Serial.println (buttonState);
   
   
