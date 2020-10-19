@@ -1,3 +1,5 @@
+// Button Sensor
+const int ButtonPin = 9;
 // Tracker Sensor
 const int TrackerPin = 2;
 // Proximity Sensor
@@ -5,6 +7,7 @@ const int ProximityTriggerPin = 7;
 const int ProximityEchoPin = 6;
 
 void setup() {
+  pinMode (ButtonPin, INPUT) ;
   pinMode (TrackerPin, INPUT);
   pinMode(ProximityTriggerPin, OUTPUT);
   pinMode(ProximityEchoPin, INPUT);
@@ -12,6 +15,13 @@ void setup() {
 }
 
 void loop() {
+  int buttonValue = digitalRead(ButtonPin); // read the value of the button
+  if(buttonValue == HIGH)
+  { 
+    delay(50);    
+    Serial.print("LOG: data_button_");
+    Serial.println (buttonValue, DEC);
+  }
   boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
   if(trackerValue == HIGH) //if it is HiGH
   { 
