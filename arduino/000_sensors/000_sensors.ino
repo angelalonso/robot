@@ -1,5 +1,7 @@
 // Button Sensor
 const int ButtonPin = 9;
+bool SwitchValue = false;
+int buttonValue;
 // Tracker Sensor
 const int TrackerPin = 2;
 // Proximity Sensor
@@ -15,18 +17,24 @@ void setup() {
 }
 
 void loop() {
-  boolean buttonValue = digitalRead(ButtonPin); // read the value of the button
+  buttonValue = digitalRead(ButtonPin); // read the value of the button
   if(buttonValue == HIGH)
   {
+    if(SwitchValue == false){
+      SwitchValue = true;
+    } else {
+      SwitchValue = false;
+    }
+  }
+  if(SwitchValue == true)
+  {
     delay(50);    
-    Serial.print("SENSOR: data_button_");
-    Serial.println (buttonValue, DEC);
+    Serial.println("SENSOR: data_button_1");
   }
   else
   {
     delay(50);    
-    Serial.print("SENSOR: data_button_");
-    Serial.println (buttonValue, DEC);
+    Serial.println("SENSOR: data_button_0");
   }
   boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
   if(trackerValue == HIGH) //if it is HiGH
