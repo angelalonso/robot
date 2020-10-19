@@ -2,7 +2,7 @@
 - trigger: "wheel finished"
   actions:
     - install_../arduino/000_ready/000_ready.ino.hex
-- trigger: "start"
+- trigger: "classic"
   actions:
     - install_../arduino/000_sensors/000_sensors.ino.hex
 - trigger: "dance"
