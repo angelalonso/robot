@@ -67,8 +67,8 @@ cp env.template .env
 - Honestly, at this point you can always use cargo build and call the exec file at your Raspberry directly.
 
 # Challenges
-- Event driven but only up to one layer. We should switch to skills.
-- We need to load different "move_cfg.yaml" files on the go.
+- Let's go for the first v2 challenge: Callibration system.
+- Event driven but only up to one layer. We will switch to skills that use the above callibration system.
 - We are not actually building any exec, and we should.
 - We need a way for the robot to load Brain on bootup. This should include an automated update if necessary.  
 - We need to document or automate finding out the Robot's IP.
