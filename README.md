@@ -49,9 +49,10 @@ So far I don't have much more than a testing platform built with two small-ish b
 - By the end of that process, and after you have everything connected, just plugin the battery in and everything should just work. Hopefully
 
 ### Challenges for v2
-- We need to add a compass among other sensors to keep our robot moving straight
-- We want to add some LEDs for output, and a microphone for input
 - It doesn't do much on its own. We should focus on skills.  
+  - Those skills will need a means of callibration. Eg.: try to move straight, was it ok? save it, was it not? modify a bit, try again, ask for input.
+  - That means we need some way to I/O physically with the robot. E.g: an LED and a button
+- We need to add more sensors and find a way to make it flexible.
 - Installation is not straghtforward
 - Chassis is not reproducible
 - Weight should be lowered, anything under 1 Kg is fine I guess  
