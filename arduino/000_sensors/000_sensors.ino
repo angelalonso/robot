@@ -22,6 +22,12 @@ void loop() {
     Serial.print("LOG: data_button_");
     Serial.println (buttonValue, DEC);
   }
+  else
+  { 
+    delay(50);    
+    Serial.print("LOG: data_button_");
+    Serial.println (buttonValue, DEC);
+  }
   boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
   if(trackerValue == HIGH) //if it is HiGH
   { 
