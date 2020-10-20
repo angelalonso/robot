@@ -78,6 +78,29 @@ fn check_self_running(self_comm: &str) -> Result<(), String>{
     let mut blocked = false;
     for s in split {
         if s.contains(self_comm) && !s.contains(&own_ps.to_string()){
+            println!(s);
+            blocked = true;
+        };
+    }
+    if blocked {
+        Err("There is another instance of this program running right now".to_string())
+    } else {
+        Ok(())
+    }
+}
+
+/// Check if there is another instance of this running
+fn kill_self_running(self_comm: &str) -> Result<(), String>{
+    let own_ps = process::id();
+    let ps_aux = Command::new("ps")
+            .arg("aux")
+            .output()
+            .expect("process failed to execute");
+    let result = String::from_utf8_lossy(&ps_aux.stdout);
+    let split = result.split("\n");
+    let mut blocked = false;
+    for s in split {
+        if s.contains(self_comm) && !s.contains(&own_ps.to_string()){
             blocked = true;
         };
     }
