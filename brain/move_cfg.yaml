@@ -1,7 +1,7 @@
 --- 
 - input:
   - time: "1" 
-    motor_l: "60"
+    motor_l: "65"
     motor_r: "60"
     tracker: "*"
     distance: "*"
@@ -24,5 +24,5 @@
     tracker: "*"
     distance: "*"
   action:
-    motor_l: 70
+    motor_l: 65
     motor_r: 60
