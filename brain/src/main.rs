@@ -39,7 +39,8 @@ fn argparser(modes: Vec<&str>) -> (String, String, String) {
             args.remove(0);
             // drain variables
             mode = args.drain(0..1).collect();
-            if mode == modes[0] || mode == modes[1] {
+            // we have this in case we ever have a mode that does not need the config files
+            if mode == modes[0] || mode == modes[1] || mode == modes[2]{
                 // fail because there arent enough parameters
                 error!("ERROR: not enough parameters received for mode {}", mode);
                 show_help();
@@ -113,7 +114,17 @@ fn main() -> Result<(), Box<dyn Error>> {
             main_brain.get_input();
         },
         "reset" => {
-            ()
+            // Generate our Brain object
+            let mut main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
+                eprintln!("Problem Initializing Main Brain: {}", err);
+                process::exit(1);
+            });
+            // Send the first trigger to start.
+            let _send_start = main_brain.get_brain_actions(&start_mode).unwrap_or_else(|err| {
+                eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
+                process::exit(1);
+            });
+            
         }
         "test" => {
             // Generate our Brain object

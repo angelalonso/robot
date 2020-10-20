@@ -1,10 +1,13 @@
 ---
-- trigger: "wheel finished"
-  actions:
-    - install_../arduino/000_ready/000_ready.ino.hex
 - trigger: "classic"
   actions:
     - install_../arduino/001_test_button/001_test_button.ino.hex
+- trigger: "reset"
+  actions:
+    - move_0_0
+- trigger: "wheel finished"
+  actions:
+    - install_../arduino/000_ready/000_ready.ino.hex
 - trigger: "dance"
   actions:
     - install_../arduino/001_test_wheel/001_test_wheel.ino.hex
