@@ -79,7 +79,6 @@ fn check_self_running(self_comm: &str) -> Result<(), String>{
     println!("{:?}", split);
     for s in split {
         if s.contains(self_comm) && !s.contains(&own_ps.to_string()){
-            println!("{}",s);
             blocked = true;
         };
     }
@@ -102,6 +101,7 @@ fn kill_self_running(self_comm: &str) -> Result<(), String>{
     let mut blocked = false;
     for s in split {
         if s.contains(self_comm) && !s.contains(&own_ps.to_string()){
+            println!("{}",s);
             blocked = true;
         };
     }
@@ -118,13 +118,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let modes = vec!["classic", "test", "reset"];
     let (brain_config_file, cerebellum_config_file, start_mode) = argparser(modes);
     let args: Vec<String> = env::args().collect();
-    check_self_running(&args[0]).unwrap();
     info!("Starting Brain with Mode {}", start_mode);
     match start_mode.as_str() {
         // Load a new brain, send the first trigger, and enter the reading loop
         // TODO: change start to "normal" maybe?
         "classic" => {
             // Generate our Brain object
+            check_self_running(&args[0]).unwrap();
             let mut main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
@@ -138,6 +138,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             main_brain.get_input();
         },
         "reset" => {
+            kill_self_running(&args[0]).unwrap();
             // Generate our Brain object
             let mut main_brain = Brain::new("Main Brain", brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
