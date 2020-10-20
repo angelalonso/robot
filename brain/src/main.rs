@@ -147,8 +147,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
                 process::exit(1);
             });
-            // Listening on Comm -> we'll remove it after testing
-            main_brain.get_input();
             
         }
         "test" => {
