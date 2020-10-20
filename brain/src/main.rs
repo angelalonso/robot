@@ -100,6 +100,7 @@ fn kill_self_running(self_comm: &str) -> Result<(), String>{
     let split = result.split("\n");
     let mut blocked = false;
     for s in split {
+        println!("{}",s);
         if s.contains(self_comm) && !s.contains(&own_ps.to_string()){
             println!("{}",s);
             blocked = true;
