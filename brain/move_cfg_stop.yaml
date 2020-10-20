@@ -1,0 +1,8 @@
+--- 
+- input:
+  - time: "*" 
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "*"
+  action: "move_0_0"
