@@ -40,6 +40,7 @@ pub struct Rule {
 pub struct CrbllumEntry {
     pub input: Vec<Rule>,
     pub action: CrbllumAction,
+    pub output: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

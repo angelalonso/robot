@@ -1,13 +1,14 @@
 --- 
 - input:
   - time: "1" 
-    motor_l: "62"
+    motor_l: "60"
     motor_r: "60"
     tracker: "*"
     distance: "*"
   action:
     motor_l: -60
     motor_r: -60
+  output: "move_-60_-60"
 - input:
   - time: "1" 
     motor_l: "-60"
@@ -17,6 +18,7 @@
   action:
     motor_l: 0
     motor_r: 0
+  output: "move_0_0"
 - input:
   - time: "4" 
     motor_l: "0"
@@ -24,5 +26,6 @@
     tracker: "*"
     distance: "*"
   action:
-    motor_l: 62
+    motor_l: 60
     motor_r: 60
+  output: "move_60_60"

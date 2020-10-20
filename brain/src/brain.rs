@@ -113,7 +113,8 @@ impl Brain<'static> {
                 let crbllum_actions = self.cerebellum.manage_input(self.starttime, msg_sensors, self.mover.movement.clone()).unwrap();
                 if crbllum_actions.len() > 0 {
                     debug!("Moving stuff according to the list of Cerebellum actions to do");
-                    self.mover.set_move(format!("{:?}_{:?}", crbllum_actions[0].action.motor_l, crbllum_actions[0].action.motor_r));
+                    //self.mover.set_move(format!("{:?}_{:?}", crbllum_actions[0].action.motor_l, crbllum_actions[0].action.motor_r));
+                    self.mover.set_move(crbllum_actions[0].output.replace("move_", ""));
                 }
             }
         }
