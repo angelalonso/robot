@@ -114,7 +114,7 @@ impl Brain<'static> {
                 if crbllum_actions.len() > 0 {
                     debug!("Moving stuff according to the list of Cerebellum actions to do");
                     //self.mover.set_move(format!("{:?}_{:?}", crbllum_actions[0].action.motor_l, crbllum_actions[0].action.motor_r));
-                    self.mover.set_move(crbllum_actions[0].output.replace("move_", ""));
+                    self.mover.set_move(crbllum_actions[0].action.replace("move_", ""));
                 }
             }
         }

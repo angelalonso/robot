@@ -22,11 +22,6 @@ pub struct RuledMetricEntry {
     pub tracker: bool,
     pub distance: String,
 }
-#[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
-pub struct CrbllumAction {
-    pub motor_l: i16,
-    pub motor_r: i16,
-}
 
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Rule {
@@ -39,8 +34,7 @@ pub struct Rule {
 #[derive(Debug, Clone, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct CrbllumEntry {
     pub input: Vec<Rule>,
-    pub action: CrbllumAction,
-    pub output: String,
+    pub action: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
