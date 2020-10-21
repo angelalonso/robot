@@ -24,6 +24,8 @@ pub struct Mover<'a > {
     pub motor_l_ena: Arc<Mutex<PWMOutputDevice>>,
     pub motor_r: Arc<Mutex<Motor>>,
     pub motor_r_ena: Arc<Mutex<PWMOutputDevice>>,
+    pub led: Arc<Mutex<LED>>,
+    pub led_on: bool,
 }
 
 impl Mover<'_> {
@@ -37,10 +39,20 @@ impl Mover<'_> {
                     // Temporarily inverted too 
             motor_r: Arc::new(Mutex::new(Motor::new(24, 23))),
             motor_r_ena: Arc::new(Mutex::new(PWMOutputDevice::new(25))),
+            led: Arc::new(Mutex::new(LED::new(21))),
+            led_on: false,
         })
     }
 
     pub fn set_move<'r>(&mut self, movement: String) {
+        if self.led_on {
+            self.led.lock().unwrap().on();
+            self.led_on = false;
+        } else {
+            self.led.lock().unwrap().off();
+            self.led_on = true;
+        }
+
         match movement.as_str() {
             "forwards" => {
                 if self.movement != "forwards"{
