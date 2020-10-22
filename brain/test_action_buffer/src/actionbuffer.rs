@@ -38,5 +38,18 @@ impl ActionBuffer {
             println!("{:#x?}", a)
         };
     }
+    pub fn do_next(&mut self, timestamp: f64) -> Result<Option<Action>, String>{
+        if self.buffer.len() == 0 {
+            Err("No more actions to take".to_string())
+        } else {
+            if timestamp >= self.buffer[0].time {
+                let a = &self.buffer.clone()[0];
+                self.buffer.retain(|x| *x != *a);
+                Ok(Some(a.clone()))
+            } else {
+                Ok(None)
+            }
+        }
+    }
     //TODO: do "do_all" based on time
 }
