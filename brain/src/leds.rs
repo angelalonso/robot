@@ -2,10 +2,10 @@ use rust_gpiozero::LED;
 
 pub struct LEDs {
     name: String,
-    pub led_y: Option<LED>,
-    pub led_r: Option<LED>,
-    pub led_g: Option<LED>,
-    pub led_b: Option<LED>,
+    led_y: Option<LED>,
+    led_r: Option<LED>,
+    led_g: Option<LED>,
+    led_b: Option<LED>,
     led_y_on: bool,
     led_r_on: bool,
     led_g_on: bool,
@@ -13,11 +13,17 @@ pub struct LEDs {
 }
 
 impl LEDs {
-    pub fn new() -> Result<Self, &'static str> {
+    pub fn new(mode: String) -> Result<Self, &'static str> {
         //TODO define LEDs based on mode, (if on laptop, set the to None)
+        let l_y: std::option::Option<LED>;
+        if mode == "classic" {
+            l_y = Some(LED::new(21));
+        } else {
+            l_y = None;
+        }
         Ok(Self {
             name: "LEDs".to_string(),
-            led_y: Some(LED::new(21)),
+            led_y: l_y,
             led_r: None,
             led_g: None,
             led_b: None,
