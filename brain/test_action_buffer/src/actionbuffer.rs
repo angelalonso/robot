@@ -1,5 +1,5 @@
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Action {
     pub action_type: String,
     pub value: String,
@@ -26,6 +26,17 @@ impl ActionBuffer {
             println!("{:#x?}", a)
         };
     }
-    //TODO: add an order on the buffer, read them in that order (and empty the buffer)
-    //TODO: do that read based on time
+    pub fn do_all_lifo(&mut self) {
+        while self.buffer.len() > 0 {
+            let b = self.buffer.pop();
+            println!("{:#x?}", b)
+        };
+    }
+    pub fn do_all(&mut self) {
+        for a in self.buffer.clone() {
+            self.buffer.retain(|x| *x != a);
+            println!("{:#x?}", a)
+        };
+    }
+    //TODO: do "do_all" based on time
 }
