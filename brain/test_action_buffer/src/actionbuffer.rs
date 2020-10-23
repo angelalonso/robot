@@ -7,6 +7,7 @@ pub struct Action {
     pub time: f64,
 }
 
+#[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct ActionBuffer {
     buffer: Vec<Action>,
     timer: f64,
