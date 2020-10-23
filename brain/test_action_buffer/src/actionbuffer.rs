@@ -39,6 +39,7 @@ impl ActionBuffer {
     pub fn do_next(&mut self, timestamp: f64) -> Result<Option<Action>, String>{
         if timestamp >= self.timer {
             if self.buffer.len() == 0 {
+                self.timer = 0.0;
                 Err("No more actions to take".to_string())
             } else {
                 let a = &self.buffer.clone()[0];
@@ -50,10 +51,10 @@ impl ActionBuffer {
             Ok(None)
         }
     }
-    pub fn do_all(&mut self, start_time: f64) {
-    // TODO: run as a thread and be able to add new entries. Avoid breaking the loop
+    pub fn do_all(&mut self, start_time: f64) -> String {
         let mut latest_change = start_time;
         'outer: loop {
+        //loop {
             let ct = SystemTime::now();
             let current_time = match ct.duration_since(UNIX_EPOCH) {
                 Ok(time) => time.as_millis(),
@@ -69,10 +70,11 @@ impl ActionBuffer {
                     None => (),
                 },
                 Err(e) => {
-                    println!("{:?} - {:?}", timestamp, e);
+                    latest_change = current_time as f64;
                     break 'outer;
                 },
             };
         }
+        self.timer.to_string()
     }
 }
