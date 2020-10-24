@@ -1,7 +1,6 @@
 use rust_gpiozero::LED;
 
 pub struct LEDs {
-    name: String,
     led_y: Option<LED>,
     led_r: Option<LED>,
     led_g: Option<LED>,
@@ -22,7 +21,6 @@ impl LEDs {
             l_y = None;
         }
         Ok(Self {
-            name: "LEDs".to_string(),
             led_y: l_y,
             led_r: None,
             led_g: None,

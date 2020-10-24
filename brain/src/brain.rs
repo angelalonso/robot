@@ -7,7 +7,7 @@
 use crate::arduino::Arduino;
 use crate::config::Config;
 use crate::cerebellum::Cerebellum;
-use crate::mover::Mover;
+use crate::motors::Motors;
 use std::process;
 use std::str;
 use std::sync::mpsc::{Sender, Receiver};
@@ -38,7 +38,7 @@ pub struct Brain<'a> {
     pub timeout: u64,
     pub cerebellum: Cerebellum,
     pub arduino: Arduino<'a>,
-    pub mover: Mover<'a>,
+    pub motors: Motors,
 }
 
 /// Initialize all the things
@@ -59,8 +59,9 @@ impl Brain<'static> {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
-        let m = Mover::new().unwrap_or_else(|err| {
-            eprintln!("Problem Initializing Mover: {}", err);
+        // TODO: receive "classic" as a parameter
+        let m = Motors::new("classic".to_string()).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
         Ok(Self {
@@ -71,7 +72,7 @@ impl Brain<'static> {
             timeout: 4,
             cerebellum: crb,
             arduino: a,
-            mover: m,
+            motors: m,
         })
     }
 
@@ -110,11 +111,10 @@ impl Brain<'static> {
                 
                 debug!("Doing Cerebellum actions");
                 debug!("Getting the list of Cerebellum actions to do");
-                let crbllum_actions = self.cerebellum.manage_input(self.starttime, msg_sensors, self.mover.movement.clone()).unwrap();
+                let crbllum_actions = self.cerebellum.manage_input(self.starttime, msg_sensors, self.motors.movement.clone()).unwrap();
                 if crbllum_actions.len() > 0 {
                     debug!("Moving stuff according to the list of Cerebellum actions to do");
-                    //self.mover.set_move(format!("{:?}_{:?}", crbllum_actions[0].action.motor_l, crbllum_actions[0].action.motor_r));
-                    self.mover.set_move(crbllum_actions[0].action.replace("move_", ""));
+                    self.motors.set(crbllum_actions[0].action.replace("move_", ""));
                 }
             }
         }
@@ -149,7 +149,7 @@ impl Brain<'static> {
             let action_vec: Vec<&str> = action.split('_').collect();
             match action_vec[0] {
                 "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
-                "move" => self.mover.set_move(action_vec[1..].to_vec().join("_")),
+                "move" => self.motors.set(action_vec[1..].to_vec().join("_")),
                 _ => debug!("Relaxing here..."),
             };
         }
