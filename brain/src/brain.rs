@@ -32,6 +32,7 @@ pub enum BrainDeadError {
 #[derive(Clone)]
 pub struct Brain<'a> {
     pub name: &'a str,
+    pub mode: String,
     pub starttime: u128,
     pub config: Config,
     pub serialport: &'a str,
@@ -43,7 +44,7 @@ pub struct Brain<'a> {
 
 /// Initialize all the things
 impl Brain<'static> {
-    pub fn new(brain_name: &'static str, config_file: String, cerebellum_config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+    pub fn new(brain_name: &'static str, run_mode: String, config_file: String, cerebellum_config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),
@@ -59,13 +60,13 @@ impl Brain<'static> {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
-        // TODO: receive "classic" as a parameter
-        let m = Motors::new("classic".to_string()).unwrap_or_else(|err| {
+        let m = Motors::new(run_mode.clone()).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
         Ok(Self {
             name: brain_name,
+            mode: run_mode,
             starttime: start_time,
             config: cfg,
             serialport: sp,
