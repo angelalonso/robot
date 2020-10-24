@@ -1,4 +1,5 @@
 use rust_gpiozero::{Motor, PWMOutputDevice};
+use log::info;
 
 pub struct Motors {
     name: String,
@@ -50,32 +51,32 @@ impl Motors {
                     let move_r = move_vector[1];
                     if move_l != prev_move_vector[0] {
                         if move_l.parse::<i16>().unwrap() == 0 {
-                            self.motor_l.lock().unwrap().stop();
-                            self.motor_l_ena.lock().unwrap().off();
+                            self.motor_l.stop();
+                            self.motor_l_ena.off();
                         } else {
-                            self.motor_l_ena.lock().unwrap().on();
+                            self.motor_l_ena.on();
                             if move_l.parse::<i16>().unwrap() > 0 {
-                                self.motor_l.lock().unwrap().forward();
+                                self.motor_l.forward();
                             } else if move_l.parse::<i16>().unwrap() < 0 {
-                                self.motor_l.lock().unwrap().backward();
+                                self.motor_l.backward();
                             }
                             let l_value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
-                            self.motor_l_ena.lock().unwrap().set_value(l_value);
+                            self.motor_l_ena.set_value(l_value);
                         }
                     }
                     if move_r != prev_move_vector[1] {
                         if move_r.parse::<i16>().unwrap() == 0 {
-                            self.motor_r.lock().unwrap().stop();
-                            self.motor_r_ena.lock().unwrap().off();
+                            self.motor_r.stop();
+                            self.motor_r_ena.off();
                         } else {
-                            self.motor_r_ena.lock().unwrap().on();
+                            self.motor_r_ena.on();
                             if move_r.parse::<i16>().unwrap() > 0 {
-                                self.motor_r.lock().unwrap().forward();
+                                self.motor_r.forward();
                             } else if move_r.parse::<i16>().unwrap() < 0 {
-                                self.motor_r.lock().unwrap().backward();
+                                self.motor_r.backward();
                             }
                             let r_value = (move_r.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
-                            self.motor_r_ena.lock().unwrap().set_value(r_value);
+                            self.motor_r_ena.set_value(r_value);
                         }
                     }
                     self.movement = movement.clone();
