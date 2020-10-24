@@ -6,6 +6,7 @@ pub mod brain_test;
 pub mod arduino;
 pub mod arduino_test;
 pub mod mover;
+pub mod motors;
 pub mod leds;
 
 extern crate chrono;
