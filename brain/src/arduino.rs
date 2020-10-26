@@ -26,16 +26,16 @@ pub enum BrainArduinoError {
 }
 
 #[derive(Clone)]
-pub struct Arduino<'a> {
-    pub name: &'a str,
-    pub serialport: &'a str,
+pub struct Arduino {
+    pub name: String,
+    pub serialport: String,
 }
 
-impl Arduino<'_> {
-    pub fn new(arduino_name: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+impl Arduino {
+    pub fn new(arduino_name: String, raw_serial_port: Option<String>) -> Result<Self, String> {
         let serial_port = match raw_serial_port {
             Some(port) => port,
-            None => "/dev/ttyUSB0",
+            None => "/dev/ttyUSB0".to_string(),
         };
         Ok(Self {
             name: arduino_name,
@@ -45,7 +45,7 @@ impl Arduino<'_> {
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
         debug!("Reading from Serial Port {}", self.serialport);
-        let mut port = serial::open(self.serialport).unwrap();
+        let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {

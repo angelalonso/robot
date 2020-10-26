@@ -152,10 +152,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         "test" => {
             // Generate our Brain object
-            let _main = Crbro::new("Main Brain".to_string(), start_mode.clone()).unwrap_or_else(|err| {
+            let mut main_brain = Crbro::new("Main Brain".to_string(), start_mode.clone()).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
+            main_brain.do_io();
         }
         &_ => {
             error!("ERROR: Mode {} not recognized", start_mode);

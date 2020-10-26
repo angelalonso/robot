@@ -38,7 +38,8 @@ pub struct Brain<'a> {
     pub serialport: &'a str,
     pub timeout: u64,
     pub cerebellum: Cerebellum,
-    pub arduino: Arduino<'a>,
+    //pub arduino: Arduino<'a>,
+    pub arduino: Arduino,
     pub motors: Motors,
 }
 
@@ -56,7 +57,7 @@ impl Brain<'static> {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
-        let a = Arduino::new("arduino", None).unwrap_or_else(|err| {
+        let a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
