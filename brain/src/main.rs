@@ -1,5 +1,6 @@
 use std::error::Error;
 use brain::brain::Brain;
+use brain::crbro::Crbro;
 use std::process;
 use std::process::Command;
 use std::env;
@@ -151,7 +152,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         "test" => {
             // Generate our Brain object
-            let _main_brain = Brain::new("Main Brain", start_mode.clone(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
+            let _main = Crbro::new("Main Brain".to_string(), start_mode.clone()).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });

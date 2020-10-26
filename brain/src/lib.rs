@@ -3,6 +3,7 @@ pub mod config;
 pub mod config_test;
 pub mod brain;
 pub mod brain_test;
+pub mod crbro;
 pub mod arduino;
 pub mod arduino_test;
 pub mod motors;
