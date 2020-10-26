@@ -57,10 +57,16 @@ impl Brain<'static> {
             Some(port) => port,
             None => "/dev/ttyUSB0",
         };
-        let a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
+        let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
+        if run_mode.clone() == "classic" {
+            a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
+                eprintln!("Problem Initializing Arduino: {}", err);
+                process::exit(1);
+            });
+        };
         let m = Motors::new(run_mode.clone()).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);

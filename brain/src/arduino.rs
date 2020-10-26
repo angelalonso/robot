@@ -6,6 +6,7 @@ use std::str;
 use std::time::Duration;
 use thiserror::Error;
 use std::process::Command;
+use std::{thread, time};
 
 use std::sync::mpsc::Sender;
 use log::{debug, error};
@@ -41,6 +42,19 @@ impl Arduino {
             name: arduino_name,
             serialport: serial_port,
         })
+    }
+
+
+    pub fn read_channel_mock(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
+        debug!("Reading from Mocked Serial Port");
+        loop {
+            let got = "ACTION: test".to_string();
+            thread::sleep(time::Duration::from_secs(2));
+            match channel.send(got){
+                Ok(c) => println!("Sent {:?}", c),
+                Err(_e) => (),
+            };
+        }
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {

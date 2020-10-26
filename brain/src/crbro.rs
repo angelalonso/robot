@@ -53,23 +53,25 @@ impl Crbro {
     pub fn do_io(&mut self) {
         loop {
             debug!("Reading from channel with Arduino");
-            let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+            let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
             let mut brain_clone = self.clone();
-            let _handle = thread::spawn(move || {
-                // TODO: from here, we should have a list of actions to add to the buffers
-                // , either received as a message or matching from the configs
-                let _received = match arduino.read_channel(msgs){
-                    Ok(rcv) => {
-                        match brain_clone.get_brain_actions(&rcv){
-                            Ok(acts) => debug!("Taking action {:?}", acts.join(", ")),
-                            Err(_) => debug!("No actions were found for trigger"),
-                        };
-                    },
-                    Err(_) => debug!("Nothing read from Channel"),
-                };
-            });
+            if self.mode == "classic" {
+                let _handle = thread::spawn(move || {
+                    arduino.read_channel(msgs);
+                });
+            } else {
+                let _handle = thread::spawn(move || {
+                    arduino.read_channel_mock(msgs);
+                });
+            };
+            // TODO: from here, we should have a list of actions to add to the buffers
+            // , either received as a message or matching from the configs
+            loop {
+                let msg = r.recv();
+                debug!("GOT {}", msg.unwrap());
+            }
             // TODO: here we should call for the actions to get done
         }
     }
