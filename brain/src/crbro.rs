@@ -70,7 +70,18 @@ impl Crbro {
             // , either received as a message or matching from the configs
             loop {
                 let msg = r.recv();
-                debug!("GOT {}", msg.unwrap());
+                debug!("GOT {}", msg.clone().unwrap());
+                let mut msg_actions = Vec::new();
+                let mut msg_sensors = String::new();
+                let actionmsg = msg.clone();
+                let sensormsg = msg.clone();
+                // TODO: define how actions are stored
+                // TODO: define how metrics are stored
+                if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
+                    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
+                    msg_sensors = msg.unwrap().replace("SENSOR: ", "");
+                }
             }
             // TODO: here we should call for the actions to get done
         }
