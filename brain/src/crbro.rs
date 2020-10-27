@@ -19,10 +19,10 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
-#[derive(Clone)]
-struct TimedData {
+#[derive(Clone, Debug)]
+pub struct TimedData {
     data: String,
-    time: u64,
+    time: f64,
 }
 
 #[derive(Clone)]
@@ -80,8 +80,6 @@ impl Crbro {
                     arduino.read_channel_mock(msgs).unwrap();
                 });
             };
-            // TODO: from here, we should have a list of actions to add to the buffers
-            // , either received as a message or matching from the configs
             loop {
                 let msg = r.recv();
                 debug!("GOT {}", msg.clone().unwrap());
@@ -99,13 +97,26 @@ impl Crbro {
                 debug!("Checking rules, adding actions");
                 debug!("Doing actions");
             }
-            // TODO: here we should call for the actions to get done
         }
+    }
+
+    pub fn get_action_from_string(&mut self, action: String) -> Result<TimedData, String> {
+        // Format would be motor_l=-60,time=2.6
+        let format = action.split(",").collect::<Vec<_>>();
+        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
+        let proper_action = TimedData {
+            data: format[0].to_string(),
+            time: t,
+        };
+        Ok(proper_action)
     }
 
     pub fn add_action(&mut self, action: String) {
         debug!("Adding action {}", action);
-        // TODO: define how actions are stored
+        self.actions_buffer.push(
+            self.clone().get_action_from_string(action).unwrap()
+            );
+        println!("{:#x?}", self.actions_buffer);
     }
 
     pub fn add_metric(&mut self, metric: String) {
