@@ -33,7 +33,7 @@ impl Crbro {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
-        if mode.clone() == "classic" {
+        if mode.clone() != "dryrun" {
             a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Arduino: {}", err);
                 process::exit(1);
@@ -56,14 +56,14 @@ impl Crbro {
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
-            let mut brain_clone = self.clone();
-            if self.mode == "classic" {
+            let _brain_clone = self.clone();
+            if self.mode != "dryrun" {
                 let _handle = thread::spawn(move || {
-                    arduino.read_channel(msgs);
+                    arduino.read_channel(msgs).unwrap();
                 });
             } else {
                 let _handle = thread::spawn(move || {
-                    arduino.read_channel_mock(msgs);
+                    arduino.read_channel_mock(msgs).unwrap();
                 });
             };
             // TODO: from here, we should have a list of actions to add to the buffers

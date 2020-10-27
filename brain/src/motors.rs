@@ -25,7 +25,7 @@ impl Motors {
         let mut m_l_e = None;
         let mut m_r_o = None;
         let mut m_r_e = None;
-        if mode == "classic" {
+        if mode != "dryrun" {
             m_l_o = Some(Arc::new(Mutex::new(Motor::new(27, 17))));
             m_l_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(22))));
             m_r_o = Some(Arc::new(Mutex::new(Motor::new(24, 23))));

@@ -61,7 +61,7 @@ impl Brain<'static> {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
-        if run_mode.clone() == "classic" {
+        if run_mode.clone() != "dryrun" {
             a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Arduino: {}", err);
                 process::exit(1);

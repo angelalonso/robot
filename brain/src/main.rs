@@ -139,7 +139,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         "reset" => {
             kill_self_running(&args[0]).unwrap();
             // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain", start_mode.clone(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain", "dryrun".to_string(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
@@ -152,7 +152,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         "test2" => {
             // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain", start_mode.clone(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
+            let main_brain = Brain::new("Main Brain", "dryrun".to_string(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
@@ -160,7 +160,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         "test" => {
             // Generate our Brain object
-            let mut main_brain = Crbro::new("Main Brain".to_string(), start_mode.clone()).unwrap_or_else(|err| {
+            let mut main_brain = Crbro::new("Main Brain".to_string(), "dryrun".to_string()).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });

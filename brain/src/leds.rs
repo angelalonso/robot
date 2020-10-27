@@ -15,7 +15,7 @@ impl LEDs {
     pub fn new(mode: String) -> Result<Self, &'static str> {
         //TODO define LEDs based on mode, (if on laptop, set the to None)
         let l_y: std::option::Option<LED>;
-        if mode == "classic" {
+        if mode != "dryrun" {
             l_y = Some(LED::new(21));
         } else {
             l_y = None;
