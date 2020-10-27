@@ -85,24 +85,40 @@ impl Crbro {
             loop {
                 let msg = r.recv();
                 debug!("GOT {}", msg.clone().unwrap());
-                let mut msg_actions = Vec::new();
-                let mut msg_sensors = String::new();
+                //let mut msg_actions = Vec::new();
+                //let mut msg_sensor = String::new();
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
-                // TODO: define how actions are stored
-                // TODO: define how metrics are stored
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
-                    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                    let msg_action = msg.unwrap().replace("ACTION: ", "");
+                    self.add_action(msg_action);
                 } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
-                    msg_sensors = msg.unwrap().replace("SENSOR: ", "");
+                    let msg_sensor = msg.unwrap().replace("SENSOR: ", "");
+                    self.add_metric(msg_sensor);
                 }
+                debug!("Checking rules, adding actions");
+                debug!("Doing actions");
             }
             // TODO: here we should call for the actions to get done
         }
     }
 
-    pub fn get_brain_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
-        debug!("Received {}", trigger);
-        Err(BrainDeadError::NoConfigFound)
+    pub fn add_action(&mut self, action: String) {
+        debug!("Adding action {}", action);
+        // TODO: define how actions are stored
+    }
+
+    pub fn add_metric(&mut self, metric: String) {
+        debug!("Adding metric {}", metric);
+        // TODO: define how metrics are stored
+
+    }
+
+    pub fn check_rules(&mut self) {
+
+    }
+
+    pub fn run_actions(&mut self) {
+
     }
 }
