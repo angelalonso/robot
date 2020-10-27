@@ -20,11 +20,21 @@ pub enum BrainDeadError {
 }
 
 #[derive(Clone)]
+struct TimedData {
+    data: String,
+    time: u64,
+}
+
+#[derive(Clone)]
 pub struct Crbro {
     name: String,
     mode: String,
     arduino: Arduino,
     motors: Motors,
+    actions_buffer: Vec<TimedData>,
+    max_actions_buffer: u8,
+    metrics_led_y: Vec<TimedData>,
+    max_metrics_led_y: u8,
 }
 
 impl Crbro {
@@ -48,6 +58,10 @@ impl Crbro {
             mode: mode,
             arduino: a,
             motors: m,
+            actions_buffer: [].to_vec(),
+            max_actions_buffer: 10,
+            metrics_led_y: [].to_vec(),
+            max_metrics_led_y: 10,
         })
     }
     pub fn do_io(&mut self) {
