@@ -25,13 +25,19 @@ pub struct TimedData {
     time: f64,
 }
 
+#[derive(Clone, Debug)]
+pub struct ResultAction {
+    resource: String,
+    action: TimedData,
+}
+
 #[derive(Clone)]
 pub struct Crbro {
     name: String,
     mode: String,
     arduino: Arduino,
     motors: Motors,
-    actions_buffer: Vec<TimedData>,
+    actions_buffer_led_y: Vec<TimedData>,
     max_actions_buffer: u8,
     metrics_led_y: Vec<TimedData>,
     max_metrics_led_y: u8,
@@ -58,7 +64,7 @@ impl Crbro {
             mode: mode,
             arduino: a,
             motors: m,
-            actions_buffer: [].to_vec(),
+            actions_buffer_led_y: [].to_vec(),
             max_actions_buffer: 10,
             metrics_led_y: [].to_vec(),
             max_metrics_led_y: 10,
@@ -83,8 +89,6 @@ impl Crbro {
             loop {
                 let msg = r.recv();
                 debug!("GOT {}", msg.clone().unwrap());
-                //let mut msg_actions = Vec::new();
-                //let mut msg_sensor = String::new();
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
@@ -100,23 +104,49 @@ impl Crbro {
         }
     }
 
-    pub fn get_action_from_string(&mut self, action: String) -> Result<TimedData, String> {
+    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
         // Format would be motor_l=-60,time=2.6
         let format = action.split(",").collect::<Vec<_>>();
         let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
-        let proper_action = TimedData {
-            data: format[0].to_string(),
-            time: t,
-        };
-        Ok(proper_action)
+        let data = format[0].split("=").collect::<Vec<_>>();
+        match data[0] {
+            "led_y" => {
+                let action_item = TimedData {
+                    data: data[1].to_string(),
+                    time: t,
+                };
+                let result = ResultAction {
+                    resource: data[0].to_string(),
+                    action: action_item,
+                };
+                Ok(result)
+            },
+            _ => {
+                let action_item = TimedData {
+                    data: data[1].to_string(),
+                    time: t,
+                };
+                let result = ResultAction {
+                    resource: data[0].to_string(),
+                    action: action_item,
+                };
+                Ok(result)
+            },
+
+        }
     }
 
     pub fn add_action(&mut self, action: String) {
         debug!("Adding action {}", action);
-        self.actions_buffer.push(
-            self.clone().get_action_from_string(action).unwrap()
-            );
-        println!("{:#x?}", self.actions_buffer);
+        let action_to_add = self.clone().get_action_from_string(action).unwrap();
+        match action_to_add.resource.as_str() {
+            "led_y" => {
+                self.actions_buffer_led_y.push(action_to_add.action);
+            },
+            _ => ()
+        }
+        println!("{:#x?}", action_to_add.resource);
+        println!("{:#x?}", self.actions_buffer_led_y);
     }
 
     pub fn add_metric(&mut self, metric: String) {
