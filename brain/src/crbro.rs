@@ -5,6 +5,7 @@ use std::process;
 use thiserror::Error;
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -22,7 +23,7 @@ pub enum BrainDeadError {
 #[derive(Clone, Debug)]
 pub struct TimedData {
     data: String,
-    time: f64,
+    time: u128,
 }
 
 #[derive(Clone, Debug)]
@@ -31,13 +32,20 @@ pub struct ResultAction {
     action: TimedData,
 }
 
+#[derive(Clone, Debug)]
+pub struct ActionBuffer {
+    buffer: Vec<TimedData>,
+    timer: f64,
+}
+
 #[derive(Clone)]
 pub struct Crbro {
     name: String,
     mode: String,
+    start_time: u128,
     arduino: Arduino,
     motors: Motors,
-    actions_buffer_led_y: Vec<TimedData>,
+    actions_buffer_led_y: ActionBuffer,
     max_actions_buffer: u8,
     metrics_led_y: Vec<TimedData>,
     max_metrics_led_y: u8,
@@ -45,6 +53,11 @@ pub struct Crbro {
 
 impl Crbro {
     pub fn new(brain_name: String, mode: String) -> Result<Self, String> {
+        let st = SystemTime::now();
+        let start_time = match st.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis(),
+            Err(_e) => 0,
+        };
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
@@ -59,12 +72,17 @@ impl Crbro {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
+        let ab_ly = ActionBuffer {
+            buffer: [].to_vec(),
+            timer: 0.0,
+        };
         Ok(Self {
             name: brain_name,
             mode: mode,
+            start_time: start_time,
             arduino: a,
             motors: m,
-            actions_buffer_led_y: [].to_vec(),
+            actions_buffer_led_y: ab_ly,
             max_actions_buffer: 10,
             metrics_led_y: [].to_vec(),
             max_metrics_led_y: 10,
@@ -100,6 +118,28 @@ impl Crbro {
                 }
                 debug!("Checking rules, adding actions");
                 debug!("Doing actions");
+                let mut latest_change = self.start_time;
+                'outer: loop {
+                    let ct = SystemTime::now();
+                    let current_time = match ct.duration_since(UNIX_EPOCH) {
+                        Ok(time) => time.as_millis(),
+                        Err(_e) => 0,
+                    };
+                    let timestamp: u128 = (current_time as u128 - latest_change as u128) as u128 / 1000 as u128;
+                    match self.do_next_actions(timestamp) {
+                        Ok(a) => match a {
+                            Some(action) => {
+                                println!("{:?} - {:?}", timestamp, action);
+                                latest_change = current_time as u128;
+                            },
+                            None => (),
+                        },
+                        Err(e) => {
+                            latest_change = current_time as u128;
+                            break 'outer;
+                        },
+                    };
+                }
             }
         }
     }
@@ -107,7 +147,7 @@ impl Crbro {
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
         // Format would be motor_l=-60,time=2.6
         let format = action.split(",").collect::<Vec<_>>();
-        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
+        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<u128>().unwrap();
         let data = format[0].split("=").collect::<Vec<_>>();
         match data[0] {
             "led_y" => {
@@ -146,7 +186,6 @@ impl Crbro {
             _ => ()
         }
         println!("{:#x?}", action_to_add.resource);
-        println!("{:#x?}", self.actions_buffer_led_y);
     }
 
     pub fn add_metric(&mut self, metric: String) {
@@ -159,7 +198,22 @@ impl Crbro {
 
     }
 
-    pub fn run_actions(&mut self) {
+    pub fn do_next_actions(&mut self, timestamp: u128) -> Result<Option<ResultAction>, String>{
+        println!("{:#x?}", self.actions_buffer_led_y);
+        if timestamp >= self.timer {
+            if self.buffer.len() == 0 {
+                self.timer = 0.0;
+                Err("No more actions to take".to_string())
+            } else {
+                let a = &self.buffer.clone()[0];
+                self.buffer.retain(|x| *x != *a);
+                self.timer = a.time;
+                Ok(Some(a.clone()))
+            }
+        } else {
+            Ok(None)
+        }
+        
 
     }
 }
