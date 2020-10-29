@@ -1,11 +1,12 @@
 use crate::arduino::Arduino;
 use crate::motors::Motors;
-use log::debug;
+use log::{debug, error};
 use std::process;
 use thiserror::Error;
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -22,6 +23,7 @@ pub enum BrainDeadError {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimedData {
+    id: usize,
     data: String,
     time: f64,
 }
@@ -35,7 +37,8 @@ pub struct ResultAction {
 #[derive(Clone, Debug)]
 pub struct ActionBuffer {
     buffer: Vec<TimedData>,
-    timer: f64,
+    last_change_timestamp: f64,
+    max_size: u8,
 }
 
 #[derive(Clone)]
@@ -43,13 +46,15 @@ pub struct Crbro {
     name: String,
     mode: String,
     start_time: u128,
+    timestamp: f64,
     arduino: Arduino,
     motors: Motors,
-    actions_buffer_led_y: ActionBuffer,
-    max_actions_buffer: u8,
+    buffer_led_y: ActionBuffer,
     metrics_led_y: Vec<TimedData>,
     max_metrics_led_y: u8,
 }
+
+static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 
 impl Crbro {
     pub fn new(brain_name: String, mode: String) -> Result<Self, String> {
@@ -72,18 +77,19 @@ impl Crbro {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
-        let ab_ly = ActionBuffer {
+        let b_ly = ActionBuffer {
             buffer: [].to_vec(),
-            timer: 0.0,
+            last_change_timestamp: 0.0,
+            max_size: 10,
         };
         Ok(Self {
             name: brain_name,
             mode: mode,
             start_time: start_time,
+            timestamp: 0.0,
             arduino: a,
             motors: m,
-            actions_buffer_led_y: ab_ly,
-            max_actions_buffer: 10,
+            buffer_led_y: b_ly,
             metrics_led_y: [].to_vec(),
             max_metrics_led_y: 10,
         })
@@ -118,18 +124,18 @@ impl Crbro {
                 }
                 debug!("Checking rules, adding actions");
                 debug!("Doing actions");
-                let mut latest_change = self.start_time;
+                //let mut latest_change = self.start_time;
                 'outer: loop {
                     let ct = SystemTime::now();
-                    let current_time = match ct.duration_since(UNIX_EPOCH) {
-                        Ok(time) => time.as_millis(),
-                        Err(_e) => 0,
+                    self.timestamp = match ct.duration_since(UNIX_EPOCH) {
+                        Ok(time) => time.as_millis() as f64,
+                        Err(_e) => 0.0,
                     };
-                    let timestamp: u128 = (current_time as u128 - latest_change as u128) as u128 / 1000 as u128;
-                    match self.do_next_actions(timestamp) {
+                    //let timestamp: u128 = (current_time as u128 - latest_change as u128) as u128 / 1000 as u128;
+                    match self.do_next_actions() {
                         Ok(a) => {
-                            println!("{:?} - {:?}", timestamp, a);
-                            latest_change = current_time as u128;
+                            println!("{:?} - {:?}", self.timestamp, a);
+                            //latest_change = current_time as u128;
                             break 'outer;
                         },
                         Err(_e) => {
@@ -150,6 +156,7 @@ impl Crbro {
         match data[0] {
             "led_y" => {
                 let action_item = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
                     data: data[1].to_string(),
                     time: t,
                 };
@@ -161,6 +168,7 @@ impl Crbro {
             },
             _ => {
                 let action_item = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
                     data: data[1].to_string(),
                     time: t,
                 };
@@ -179,8 +187,11 @@ impl Crbro {
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         match action_to_add.resource.as_str() {
             "led_y" => {
-
-                self.actions_buffer_led_y.buffer.push(action_to_add.action);
+                if self.buffer_led_y.buffer.len() >= self.buffer_led_y.max_size.into() {
+                    error!("Buffer for LED_y reached its max size!");
+                } else {
+                    self.buffer_led_y.buffer.push(action_to_add.action);
+                };
             },
             _ => ()
         }
@@ -197,18 +208,23 @@ impl Crbro {
 
     }
 
-    pub fn do_next_actions(&mut self, timestamp: u128) -> Result<String, String>{
-        println!("{:#x?}", self.actions_buffer_led_y);
-        if timestamp as f64 >= self.actions_buffer_led_y.timer {
-            if self.actions_buffer_led_y.buffer.len() == 0 {
-                self.actions_buffer_led_y.timer = 0.0;
+    pub fn do_next_actions(&mut self) -> Result<String, String>{
+        // TODO: trigger the actual action
+        if self.timestamp >= self.buffer_led_y.last_change_timestamp {
+            if self.buffer_led_y.buffer.len() == 0 {
+                self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
-                let a = &self.actions_buffer_led_y.buffer.clone()[0];
-                self.actions_buffer_led_y.buffer.retain(|x| *x != *a);
-                self.actions_buffer_led_y.timer = a.time as f64;
-                println!("{:#x?}", self.actions_buffer_led_y);
-                Ok(format!("done {:?}", a))
+                let a = &self.buffer_led_y.buffer.clone()[0];
+                let time_passed = (self.timestamp - self.buffer_led_y.last_change_timestamp) / 1000 as f64;
+                if time_passed >= a.time {
+                    self.buffer_led_y.buffer.retain(|x| *x != *a);
+                    self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
+                    println!("{:#x?}", self.buffer_led_y);
+                    Ok(format!("done {:?}", a))
+                } else {
+                    Ok("done nothing".to_string())
+                }
             }
         } else {
             Ok("done nothing".to_string())
