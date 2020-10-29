@@ -20,10 +20,10 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct TimedData {
     data: String,
-    time: u128,
+    time: f64,
 }
 
 #[derive(Clone, Debug)]
@@ -134,8 +134,8 @@ impl Crbro {
                             },
                             None => (),
                         },
-                        Err(e) => {
-                            latest_change = current_time as u128;
+                        Err(_e) => {
+                            //latest_change = current_time as u128;
                             break 'outer;
                         },
                     };
@@ -147,7 +147,7 @@ impl Crbro {
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
         // Format would be motor_l=-60,time=2.6
         let format = action.split(",").collect::<Vec<_>>();
-        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<u128>().unwrap();
+        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
         let data = format[0].split("=").collect::<Vec<_>>();
         match data[0] {
             "led_y" => {
@@ -181,7 +181,8 @@ impl Crbro {
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         match action_to_add.resource.as_str() {
             "led_y" => {
-                self.actions_buffer_led_y.push(action_to_add.action);
+
+                self.actions_buffer_led_y.buffer.push(action_to_add.action);
             },
             _ => ()
         }
@@ -200,15 +201,19 @@ impl Crbro {
 
     pub fn do_next_actions(&mut self, timestamp: u128) -> Result<Option<ResultAction>, String>{
         println!("{:#x?}", self.actions_buffer_led_y);
-        if timestamp >= self.timer {
-            if self.buffer.len() == 0 {
-                self.timer = 0.0;
+        if timestamp as f64 >= self.actions_buffer_led_y.timer {
+            if self.actions_buffer_led_y.buffer.len() == 0 {
+                self.actions_buffer_led_y.timer = 0.0;
                 Err("No more actions to take".to_string())
             } else {
-                let a = &self.buffer.clone()[0];
-                self.buffer.retain(|x| *x != *a);
-                self.timer = a.time;
-                Ok(Some(a.clone()))
+                let a = &self.actions_buffer_led_y.buffer.clone()[0];
+                self.actions_buffer_led_y.buffer.retain(|x| *x != *a);
+                self.actions_buffer_led_y.timer = a.time as f64;
+                let result = ResultAction {
+                    resource: "led_y".to_string(),
+                    action: self.actions_buffer_led_y.buffer[0].clone(),
+                };
+                Ok(Some(result))
             }
         } else {
             Ok(None)
