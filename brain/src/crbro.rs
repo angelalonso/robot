@@ -127,12 +127,10 @@ impl Crbro {
                     };
                     let timestamp: u128 = (current_time as u128 - latest_change as u128) as u128 / 1000 as u128;
                     match self.do_next_actions(timestamp) {
-                        Ok(a) => match a {
-                            Some(action) => {
-                                println!("{:?} - {:?}", timestamp, action);
-                                latest_change = current_time as u128;
-                            },
-                            None => (),
+                        Ok(a) => {
+                            println!("{:?} - {:?}", timestamp, a);
+                            latest_change = current_time as u128;
+                            break 'outer;
                         },
                         Err(_e) => {
                             //latest_change = current_time as u128;
@@ -199,7 +197,7 @@ impl Crbro {
 
     }
 
-    pub fn do_next_actions(&mut self, timestamp: u128) -> Result<Option<ResultAction>, String>{
+    pub fn do_next_actions(&mut self, timestamp: u128) -> Result<String, String>{
         println!("{:#x?}", self.actions_buffer_led_y);
         if timestamp as f64 >= self.actions_buffer_led_y.timer {
             if self.actions_buffer_led_y.buffer.len() == 0 {
@@ -209,14 +207,11 @@ impl Crbro {
                 let a = &self.actions_buffer_led_y.buffer.clone()[0];
                 self.actions_buffer_led_y.buffer.retain(|x| *x != *a);
                 self.actions_buffer_led_y.timer = a.time as f64;
-                let result = ResultAction {
-                    resource: "led_y".to_string(),
-                    action: self.actions_buffer_led_y.buffer[0].clone(),
-                };
-                Ok(Some(result))
+                println!("{:#x?}", self.actions_buffer_led_y);
+                Ok(format!("done {:?}", a))
             }
         } else {
-            Ok(None)
+            Ok("done nothing".to_string())
         }
         
 
