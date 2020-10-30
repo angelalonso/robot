@@ -2,12 +2,13 @@ use crate::arduino::Arduino;
 use crate::motors::Motors;
 use crate::leds::LEDs;
 use log::{debug, error};
+use std::fs::File;
 use std::process;
-use thiserror::Error;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -22,6 +23,7 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
+#[derive(Clone, Deserialize)]
 pub struct ConfigInput {
     pub time: String,
     pub led_y: String,
@@ -31,6 +33,7 @@ pub struct ConfigInput {
     pub distance: String,
 }
 
+#[derive(Clone, Deserialize)]
 pub struct ConfigOutput {
     pub object: String,
     pub value: String,
@@ -38,7 +41,8 @@ pub struct ConfigOutput {
     pub repeat: String,
 }
 
-pub struct ConfigList {
+#[derive(Clone, Deserialize)]
+pub struct ConfigEntry {
     input: Vec<ConfigInput>,
     output: Vec<ConfigOutput>
 }
@@ -69,6 +73,7 @@ pub struct Crbro {
     mode: String,
     start_time: u128,
     timestamp: f64,
+    config: Vec<ConfigEntry>,
     arduino: Arduino,
     motors: Motors,
     leds: LEDs,
@@ -90,6 +95,8 @@ impl Crbro {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
+        let cfg_file_pointer = File::open(config_file).unwrap();
+        let c: Vec<ConfigEntry> = serde_yaml::from_reader(cfg_file_pointer).unwrap();
         if mode.clone() != "dryrun" {
             a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Arduino: {}", err);
@@ -114,6 +121,7 @@ impl Crbro {
             mode: mode,
             start_time: start_time,
             timestamp: 0.0,
+            config: c,
             arduino: a,
             motors: m,
             leds: l,
