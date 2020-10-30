@@ -1,5 +1,6 @@
 use crate::arduino::Arduino;
 use crate::motors::Motors;
+use crate::leds::LEDs;
 use log::{debug, error};
 use std::process;
 use thiserror::Error;
@@ -49,6 +50,7 @@ pub struct Crbro {
     timestamp: f64,
     arduino: Arduino,
     motors: Motors,
+    leds: LEDs,
     buffer_led_y: ActionBuffer,
     metrics_led_y: Vec<TimedData>,
     max_metrics_led_y: u8,
@@ -77,6 +79,10 @@ impl Crbro {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
+        let l = LEDs::new(mode.clone()).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing LEDs: {}", err);
+            process::exit(1);
+        });
         let b_ly = ActionBuffer {
             buffer: [].to_vec(),
             last_change_timestamp: 0.0,
@@ -89,6 +95,7 @@ impl Crbro {
             timestamp: 0.0,
             arduino: a,
             motors: m,
+            leds: l,
             buffer_led_y: b_ly,
             metrics_led_y: [].to_vec(),
             max_metrics_led_y: 10,
@@ -219,7 +226,9 @@ impl Crbro {
                     self.buffer_led_y.buffer.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
                     println!("{:#x?}", self.buffer_led_y);
+                    self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     Ok(format!("done {:?}", a))
+
                 } else {
                     Ok("done nothing".to_string())
                 }
