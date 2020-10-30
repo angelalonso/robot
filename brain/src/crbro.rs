@@ -22,6 +22,27 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
+pub struct ConfigInput {
+    pub time: String,
+    pub led_y: String,
+    pub motor_l: String,
+    pub motor_r: String,
+    pub tracker: String,
+    pub distance: String,
+}
+
+pub struct ConfigOutput {
+    pub object: String,
+    pub value: String,
+    pub time: String,
+    pub repeat: String,
+}
+
+pub struct ConfigList {
+    input: Vec<ConfigInput>,
+    output: Vec<ConfigOutput>
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimedData {
     id: usize,
@@ -59,7 +80,7 @@ pub struct Crbro {
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 
 impl Crbro {
-    pub fn new(brain_name: String, mode: String) -> Result<Self, String> {
+    pub fn new(brain_name: String, mode: String, config_file: String) -> Result<Self, String> {
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),

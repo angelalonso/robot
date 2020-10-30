@@ -160,7 +160,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         "test" => {
             // Generate our Brain object
-            let mut main_brain = Crbro::new("Main Brain".to_string(), "dryrun".to_string()).unwrap_or_else(|err| {
+            let mut main_brain = Crbro::new("Main Brain".to_string(), "dryrun".to_string(), cerebellum_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
