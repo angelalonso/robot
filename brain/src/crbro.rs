@@ -1,7 +1,7 @@
 use crate::arduino::Arduino;
 use crate::motors::Motors;
 use crate::leds::LEDs;
-use log::{debug, error};
+use log::{debug, error, info, warn};
 use std::fs::File;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -54,6 +54,12 @@ pub struct TimedData {
     time: f64,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct Metrics {
+    metrics: Vec<TimedData>,
+    last_change_timestamp: f64,
+}
+
 #[derive(Clone, Debug)]
 pub struct ResultAction {
     resource: String,
@@ -78,7 +84,7 @@ pub struct Crbro {
     motors: Motors,
     leds: LEDs,
     buffer_led_y: ActionBuffer,
-    metrics_led_y: Vec<TimedData>,
+    metrics_led_y: Metrics,
     max_metrics_led_y: u8,
 }
 
@@ -116,6 +122,10 @@ impl Crbro {
             last_change_timestamp: 0.0,
             max_size: 10,
         };
+        let m_ly = Metrics {
+            metrics: [].to_vec(),
+            last_change_timestamp: 0.0,
+        };
         Ok(Self {
             name: brain_name,
             mode: mode,
@@ -126,13 +136,12 @@ impl Crbro {
             motors: m,
             leds: l,
             buffer_led_y: b_ly,
-            metrics_led_y: [].to_vec(),
+            metrics_led_y: m_ly,
             max_metrics_led_y: 10,
         })
     }
     pub fn do_io(&mut self) {
         loop {
-            println!("_");
             debug!("Reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
@@ -146,7 +155,11 @@ impl Crbro {
                 };
             });
             loop {
-                println!(".");
+                let ct = SystemTime::now();
+                self.timestamp = match ct.duration_since(UNIX_EPOCH) {
+                    Ok(time) => time.as_millis() as f64,
+                    Err(_e) => 0.0,
+                };
                 let msg = r.recv();
                 debug!("GOT {}", msg.clone().unwrap());
                 let actionmsg = msg.clone();
@@ -155,20 +168,23 @@ impl Crbro {
                     let msg_action = msg.unwrap().replace("ACTION: ", "");
                     self.add_action(msg_action);
                 } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
+                    // NOTE: Sensor messages format go like "SENSOR: object_x__value"
                     let msg_sensor = msg.unwrap().replace("SENSOR: ", "");
                     self.add_metric(msg_sensor);
                 }
+                debug!("add current metrics");
+                self.add_current_metrics();
                 debug!("Checking rules, adding actions");
+                self.get_actions_from_rules();
                 debug!("Doing actions");
                 'outer: loop {
-                    let ct = SystemTime::now();
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
                         Ok(time) => time.as_millis() as f64,
                         Err(_e) => 0.0,
                     };
                     match self.do_next_actions() {
                         Ok(a) => {
-                            println!("{:?} - {:?}", self.timestamp, a);
+                            info!("{:?} - {:?}", self.timestamp, a);
                             //latest_change = current_time as u128;
                             break 'outer;
                         },
@@ -180,6 +196,45 @@ impl Crbro {
                 }
             }
         }
+    }
+
+    pub fn add_current_metrics(&mut self) {
+        // TODO: define how metrics are stored
+        info!("led_y metrics - {:#x?}", self.metrics_led_y);
+    }
+
+    pub fn add_metric(&mut self, metric: String) {
+        // TODO: retain a max number of metrics
+        debug!("Adding metric {}", metric);
+        let metric_decomp = metric.split("__").collect::<Vec<_>>();
+        match metric_decomp[0] {
+            "led_y" => {
+                if self.metrics_led_y.metrics.len() == 0 {
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        data: metric_decomp[1].to_string(),
+                        time: self.timestamp.clone(), // here time means "since_timestamp"
+                    };
+                    self.metrics_led_y.metrics.push(new_m);
+                    self.metrics_led_y.last_change_timestamp = self.timestamp;
+                } else {
+                    if self.metrics_led_y.metrics[0].data != metric_decomp[1].to_string() {
+                        let new_m = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            data: metric_decomp[1].to_string(),
+                            time: self.timestamp.clone(),
+                        };
+                        self.metrics_led_y.metrics.insert(0, new_m);
+                        self.metrics_led_y.last_change_timestamp = self.timestamp;
+                    }
+                }; 
+            },
+            _ => (),
+        }
+        println!("{:?}", self.metrics_led_y.metrics[0].data);
+    }
+
+    pub fn get_actions_from_rules(&mut self) {
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
@@ -222,28 +277,17 @@ impl Crbro {
         match action_to_add.resource.as_str() {
             "led_y" => {
                 if self.buffer_led_y.buffer.len() >= self.buffer_led_y.max_size.into() {
-                    error!("Buffer for LED_y reached its max size!");
+                    warn!("Buffer for LED_y is full! not adding new actions...");
                 } else {
                     self.buffer_led_y.buffer.push(action_to_add.action);
                 };
             },
             _ => ()
         }
-        println!("{:#x?}", action_to_add.resource);
-    }
-
-    pub fn add_metric(&mut self, metric: String) {
-        debug!("Adding metric {}", metric);
-        // TODO: define how metrics are stored
-
-    }
-
-    pub fn check_rules(&mut self) {
-
+        debug!("RESOURCE - {:#x?}", action_to_add.resource);
     }
 
     pub fn do_next_actions(&mut self) -> Result<String, String>{
-        // TODO: trigger the actual action
         if self.timestamp >= self.buffer_led_y.last_change_timestamp {
             if self.buffer_led_y.buffer.len() == 0 {
                 self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
@@ -254,8 +298,9 @@ impl Crbro {
                 if time_passed >= a.time {
                     self.buffer_led_y.buffer.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
-                    println!("{:#x?}", self.buffer_led_y);
+                    debug!("{:#x?}", self.buffer_led_y);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_y__{}", a.data));
                     Ok(format!("done {:?}", a))
 
                 } else {
