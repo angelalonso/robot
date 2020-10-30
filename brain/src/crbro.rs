@@ -96,21 +96,21 @@ impl Crbro {
     }
     pub fn do_io(&mut self) {
         loop {
+            println!("_");
             debug!("Reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
-            let _brain_clone = self.clone();
-            if self.mode != "dryrun" {
-                let _handle = thread::spawn(move || {
+            let brain_clone = self.clone();
+            let _handle = thread::spawn(move || {
+                if brain_clone.mode != "dryrun" {
                     arduino.read_channel(msgs).unwrap();
-                });
             } else {
-                let _handle = thread::spawn(move || {
                     arduino.read_channel_mock(msgs).unwrap();
-                });
-            };
+                };
+            });
             loop {
+                println!(".");
                 let msg = r.recv();
                 debug!("GOT {}", msg.clone().unwrap());
                 let actionmsg = msg.clone();
@@ -124,14 +124,12 @@ impl Crbro {
                 }
                 debug!("Checking rules, adding actions");
                 debug!("Doing actions");
-                //let mut latest_change = self.start_time;
                 'outer: loop {
                     let ct = SystemTime::now();
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
                         Ok(time) => time.as_millis() as f64,
                         Err(_e) => 0.0,
                     };
-                    //let timestamp: u128 = (current_time as u128 - latest_change as u128) as u128 / 1000 as u128;
                     match self.do_next_actions() {
                         Ok(a) => {
                             println!("{:?} - {:?}", self.timestamp, a);
