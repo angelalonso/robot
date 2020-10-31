@@ -166,7 +166,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             main_brain.do_io();
         }
-        "test3" => {
+        "test_live" => {
             // Generate our Brain object
             let mut main_brain = Crbro::new("Main Brain".to_string(), "classic".to_string(), cerebellum_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);

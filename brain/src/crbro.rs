@@ -129,8 +129,13 @@ impl Crbro {
             last_change_timestamp: 0.0,
             max_size: 10,
         };
+        let m_ly_m = [TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            data: "0".to_string(),
+            time: 0.0,
+        },].to_vec();
         let m_ly = Metrics {
-            metrics: [].to_vec(),
+            metrics: m_ly_m,
             last_change_timestamp: 0.0,
             max_size: 8,
         };
@@ -277,7 +282,7 @@ impl Crbro {
             },
             _ => (),
         }
-        //debug!("{:?}", self.metrics_led_y.metrics[0].data);
+        debug!("{:?}", self.metrics_led_y.metrics[0].data);
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {

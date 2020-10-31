@@ -1,4 +1,7 @@
 ---
+- trigger: "test_live"
+  actions:
+    - install_../arduino/001_test_led/001_test_led.ino.hex
 - trigger: "classic"
   actions:
     - install_../arduino/001_test_button/001_test_button.ino.hex
