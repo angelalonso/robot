@@ -282,7 +282,7 @@ impl Crbro {
             },
             _ => (),
         }
-        info!("{:?}", self.metrics_led_y.metrics[0].data);
+        info!("Metrics 0 - {:?}", self.metrics_led_y.metrics[0].data);
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
