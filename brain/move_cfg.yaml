@@ -1,6 +1,6 @@
 --- 
 - input:
-  - time: "0.9" 
+  - time: "0.2" 
     led_y: "1"
     motor_l: "*"
     motor_r: "*"
@@ -12,7 +12,7 @@
     time: "1"
     repeat: false
 - input:
-  - time: "0.9" 
+  - time: "0.2" 
     led_y: "0"
     motor_l: "*"
     motor_r: "*"
