@@ -1,0 +1,22 @@
+--- 
+- input:
+  - time: "1" 
+    motor_l: "-60"
+    motor_r: "60"
+    tracker: "*"
+    distance: "*"
+  action: "move_60_-60"
+- input:
+  - time: "1" 
+    motor_l: "60"
+    motor_r: "-60"
+    tracker: "*"
+    distance: "*"
+  action: "move_0_0"
+- input:
+  - time: "4" 
+    motor_l: "0"
+    motor_r: "0"
+    tracker: "*"
+    distance: "*"
+  action: "move_-60_60"
