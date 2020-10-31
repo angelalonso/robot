@@ -207,7 +207,7 @@ impl Crbro {
                     };
                     match self.do_next_actions() {
                         Ok(a) => {
-                            info!("{:?} - {:?}", self.timestamp, a);
+                            info!("ACTION {:?} - {:?}", self.timestamp, a);
                             //latest_change = current_time as u128;
                             break 'outer;
                         },
@@ -223,10 +223,6 @@ impl Crbro {
 
     pub fn get_actions_from_rules(&mut self) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         // Start with led_y
-        // START WITH ONLY ONE RULE for now
-        // look from the latest up, 
-        // collect metrics with same value as our rule.value together, 
-        // see if the combined time is longer than our rule.time.
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
             if self.metrics_led_y.metrics.len() > 0 {
@@ -282,7 +278,7 @@ impl Crbro {
             },
             _ => (),
         }
-        info!("Metrics 0 - {:?}", self.metrics_led_y.metrics[0].data);
+        debug!("{:?}", self.metrics_led_y.metrics[0].data);
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
