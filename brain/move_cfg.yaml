@@ -1,22 +1,25 @@
 --- 
 - input:
-  - time: "1" 
-    motor_l: "-60"
-    motor_r: "60"
+  - time: "2" 
+    led_y: "1"
+    motor_l: "*"
+    motor_r: "*"
     tracker: "*"
     distance: "*"
-  action: "move_60_-60"
+  output:
+  - object: "led_y"
+    value: "0"
+    time: "1"
+    repeat: false
 - input:
-  - time: "1" 
-    motor_l: "60"
-    motor_r: "-60"
+  - time: "0.5" 
+    led_y: "0"
+    motor_l: "*"
+    motor_r: "*"
     tracker: "*"
     distance: "*"
-  action: "move_0_0"
-- input:
-  - time: "4" 
-    motor_l: "0"
-    motor_r: "0"
-    tracker: "*"
-    distance: "*"
-  action: "move_-60_60"
+  output:
+  - object: "led_y"
+    value: "1"
+    time: "1"
+    repeat: false
