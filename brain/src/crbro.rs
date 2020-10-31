@@ -73,7 +73,7 @@ pub struct ActionBuffer {
     last_change_timestamp: f64,
     max_size: u8,
 }
-
+// TODO use this as Metrics and ActionBuffer
 #[derive(Clone, Debug)]
 pub struct Buffer {
     entries: Vec<TimedData>,
@@ -94,7 +94,8 @@ pub struct Crbro {
     buffer_led_y: ActionBuffer,
     metrics_led_y: Metrics,
 }
-
+// TODO: use timestamps starting at 0
+// TODO: check why buffer for led_y is not working as expected
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 
 impl Crbro {

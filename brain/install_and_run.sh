@@ -14,5 +14,5 @@ git push origin ${DEV_BRANCH}
 
 
 ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
-  RUST_LOG=debug ${CARGO} run test_live cfg.yaml move_cfg.yaml
+  RUST_LOG=info ${CARGO} run test_live cfg.yaml move_cfg.yaml
   "
