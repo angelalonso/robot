@@ -58,6 +58,7 @@ pub struct TimedData {
 pub struct Metrics {
     metrics: Vec<TimedData>,
     last_change_timestamp: f64,
+    max_size: u8,
 }
 
 #[derive(Clone, Debug)]
@@ -69,6 +70,13 @@ pub struct ResultAction {
 #[derive(Clone, Debug)]
 pub struct ActionBuffer {
     buffer: Vec<TimedData>,
+    last_change_timestamp: f64,
+    max_size: u8,
+}
+
+#[derive(Clone, Debug)]
+pub struct Buffer {
+    entries: Vec<TimedData>,
     last_change_timestamp: f64,
     max_size: u8,
 }
@@ -125,6 +133,7 @@ impl Crbro {
         let m_ly = Metrics {
             metrics: [].to_vec(),
             last_change_timestamp: 0.0,
+            max_size: 8,
         };
         Ok(Self {
             name: brain_name,
@@ -198,13 +207,20 @@ impl Crbro {
         }
     }
 
+    pub fn get_actions_from_rules(&mut self) {
+        // Start with led_y
+        // START WITH ONLY ONE RULE for now
+        // look from the latest up, 
+        // collect metrics with same value as our rule.value together, 
+        // see if the combined time is longer than our rule.time.
+    }
+
     pub fn add_current_metrics(&mut self) {
-        // TODO: define how metrics are stored
-        info!("led_y metrics - {:#x?}", self.metrics_led_y);
+        // TODO: define how and when metrics are stored
+        debug!("led_y metrics - {:#x?}", self.metrics_led_y);
     }
 
     pub fn add_metric(&mut self, metric: String) {
-        // TODO: retain a max number of metrics
         debug!("Adding metric {}", metric);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match metric_decomp[0] {
@@ -228,13 +244,13 @@ impl Crbro {
                         self.metrics_led_y.last_change_timestamp = self.timestamp;
                     }
                 }; 
+                if self.metrics_led_y.metrics.len() > self.metrics_led_y.max_size.into() {
+                    self.metrics_led_y.metrics.pop();
+                };
             },
             _ => (),
         }
-        println!("{:?}", self.metrics_led_y.metrics[0].data);
-    }
-
-    pub fn get_actions_from_rules(&mut self) {
+        debug!("{:?}", self.metrics_led_y.metrics[0].data);
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
