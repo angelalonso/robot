@@ -192,7 +192,7 @@ impl Crbro {
                     Ok(a) => {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
-                            // TODO: make this work for other outputs
+                            // TODO: make this work for other outputs (motors...)
                             // if we got actions from a rule, previous actions get overriden
                             self.buffer_led_y.buffer = Vec::new();
                             let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
