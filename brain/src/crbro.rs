@@ -23,7 +23,7 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct ConfigInput {
     pub time: String,
     pub led_y: String,
@@ -33,7 +33,7 @@ pub struct ConfigInput {
     pub distance: String,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct ConfigOutput {
     pub object: String,
     pub value: String,
@@ -41,7 +41,7 @@ pub struct ConfigOutput {
     pub repeat: String,
 }
 
-#[derive(Clone, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct ConfigEntry {
     input: Vec<ConfigInput>,
     output: Vec<ConfigOutput>
@@ -93,7 +93,6 @@ pub struct Crbro {
     leds: LEDs,
     buffer_led_y: ActionBuffer,
     metrics_led_y: Metrics,
-    max_metrics_led_y: u8,
 }
 
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
@@ -146,7 +145,6 @@ impl Crbro {
             leds: l,
             buffer_led_y: b_ly,
             metrics_led_y: m_ly,
-            max_metrics_led_y: 10,
         })
     }
     pub fn do_io(&mut self) {
@@ -213,6 +211,9 @@ impl Crbro {
         // look from the latest up, 
         // collect metrics with same value as our rule.value together, 
         // see if the combined time is longer than our rule.time.
+        for rule in self.config.clone() {
+            println!("{:#x?}", rule.input);
+        }
     }
 
     pub fn add_current_metrics(&mut self) {
@@ -283,7 +284,6 @@ impl Crbro {
                 };
                 Ok(result)
             },
-
         }
     }
 
@@ -326,7 +326,5 @@ impl Crbro {
         } else {
             Ok("done nothing".to_string())
         }
-        
-
     }
 }
