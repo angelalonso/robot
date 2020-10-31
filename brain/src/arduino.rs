@@ -48,12 +48,6 @@ impl Arduino {
     pub fn read_channel_mock(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
         debug!("Reading from Mocked Serial Port");
         loop {
-            let got = "ACTION: led_y=0,time=4.3".to_string();
-            thread::sleep(time::Duration::from_secs(1));
-            match channel.send(got){
-                Ok(c) => println!("Sent {:?}", c),
-                Err(_e) => (),
-            };
             let got = "ACTION: led_y=1,time=0.7".to_string();
             thread::sleep(time::Duration::from_secs(1));
             match channel.send(got){

@@ -182,7 +182,18 @@ impl Crbro {
                 debug!("add current metrics");
                 self.add_current_metrics();
                 debug!("Checking rules, adding actions");
-                self.get_actions_from_rules();
+                let _actions_from_config = match self.get_actions_from_rules(){
+                    Ok(a) => {
+                        if a.len() > 0 {
+                            // Format would be motor_l=-60,time=2.6
+                            let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
+                            println!("{:#x?}", aux);
+                            self.add_action(aux);
+                        };
+                    },
+                    Err(_e) => debug!("No matching rules found"),
+                };
+
                 debug!("Doing actions");
                 'outer: loop {
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
@@ -205,15 +216,30 @@ impl Crbro {
         }
     }
 
-    pub fn get_actions_from_rules(&mut self) {
+    pub fn get_actions_from_rules(&mut self) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         // Start with led_y
         // START WITH ONLY ONE RULE for now
         // look from the latest up, 
         // collect metrics with same value as our rule.value together, 
         // see if the combined time is longer than our rule.time.
+        let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
-            println!("{:#x?}", rule.input);
-        }
+            if self.metrics_led_y.metrics.len() > 0 {
+                if rule.input[0].led_y != "*" {
+                    if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
+                        if (self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
+                            partial_rules.push(rule.clone());
+                        };
+                    };
+                } else {
+                    if (self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
+                        partial_rules.push(rule.clone());
+                    };
+                };
+
+            };
+        };
+        Ok(partial_rules)
     }
 
     pub fn add_current_metrics(&mut self) {
