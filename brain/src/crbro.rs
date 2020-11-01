@@ -193,7 +193,6 @@ impl Crbro {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
                             // TODO: make this work for other outputs (motors...)
-                            // if we got actions from a rule, previous actions get overriden
                             self.buffer_led_y.buffer = Vec::new();
                             let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
                             self.add_action(aux);
@@ -202,7 +201,7 @@ impl Crbro {
                     Err(_e) => debug!("No matching rules found"),
                 };
                 //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y);
-                //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y.buffer.iter());
+                info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y.buffer.iter());
                 debug!("Doing actions");
                 'outer: loop {
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
@@ -216,11 +215,9 @@ impl Crbro {
                             } else {
                                 debug!("ACTION {:?} - {:?}", self.timestamp, a);
                             }
-                            //latest_change = current_time as u128;
                             break 'outer;
                         },
                         Err(_e) => {
-                            //latest_change = current_time as u128;
                             break 'outer;
                         },
                     };
@@ -233,7 +230,6 @@ impl Crbro {
         // Start with led_y
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
-            //info!("{:#x?}", rule);
             if self.metrics_led_y.metrics.len() > 0 {
                 if rule.input[0].led_y != "*" {
                     if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
