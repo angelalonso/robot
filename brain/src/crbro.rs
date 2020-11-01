@@ -344,7 +344,7 @@ impl Crbro {
                 Err("No more actions to take".to_string())
             } else {
                 let a = &self.buffer_led_y.buffer.clone()[0];
-                let time_passed = (self.timestamp - self.buffer_led_y.last_change_timestamp) / 1000 as f64;
+                let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
                 info!("TIME_PASSED {:?}", time_passed);
                 if time_passed >= a.time {
                     info!("IN");
