@@ -51,7 +51,7 @@ impl Arduino {
             let got = "ACTION: led_y=1,time=0.7".to_string();
             thread::sleep(time::Duration::from_secs(1));
             match channel.send(got){
-                Ok(c) => println!("Sent {:?}", c),
+                Ok(c) => debug!("Sent {:?}", c),
                 Err(_e) => (),
             };
         }

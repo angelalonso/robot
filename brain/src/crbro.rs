@@ -54,27 +54,13 @@ pub struct TimedData {
     time: f64,
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Metrics {
-    metrics: Vec<TimedData>,
-    last_change_timestamp: f64,
-    max_size: u8,
-}
-
 #[derive(Clone, Debug)]
 pub struct ResultAction {
     resource: String,
     action: TimedData,
 }
 
-#[derive(Clone, Debug)]
-pub struct ActionBuffer {
-    buffer: Vec<TimedData>,
-    last_change_timestamp: f64,
-    max_size: u8,
-}
-// TODO use this as Metrics and ActionBuffer
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Buffer {
     entries: Vec<TimedData>,
     last_change_timestamp: f64,
@@ -91,8 +77,8 @@ pub struct Crbro {
     arduino: Arduino,
     motors: Motors,
     leds: LEDs,
-    buffer_led_y: ActionBuffer,
-    metrics_led_y: Metrics,
+    buffer_led_y: Buffer,
+    metrics_led_y: Buffer,
 }
 // TODO: use timestamps starting at 0
 // TODO: check why buffer for led_y is not working as expected
@@ -125,18 +111,18 @@ impl Crbro {
             eprintln!("Problem Initializing LEDs: {}", err);
             process::exit(1);
         });
-        let b_ly = ActionBuffer {
-            buffer: [].to_vec(),
+        let b_ly = Buffer {
+            entries: [].to_vec(),
             last_change_timestamp: 0.0,
             max_size: 10,
         };
-        let m_ly_m = [TimedData {
+        let m_ly_e = [TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
             data: "0".to_string(),
             time: 0.0,
         },].to_vec();
-        let m_ly = Metrics {
-            metrics: m_ly_m,
+        let m_ly = Buffer {
+            entries: m_ly_e,
             last_change_timestamp: 0.0,
             max_size: 8,
         };
@@ -193,7 +179,7 @@ impl Crbro {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
                             // TODO: make this work for other outputs (motors...)
-                            self.buffer_led_y.buffer = Vec::new();
+                            self.buffer_led_y.entries = Vec::new();
                             let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
                             self.add_action(aux);
                         };
@@ -228,28 +214,34 @@ impl Crbro {
         // Start with led_y
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
-            if self.metrics_led_y.metrics.len() > 0 {
+            if self.metrics_led_y.entries.len() > 0 {
                 if rule.input[0].led_y != "*" {
-                    if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
-                        if (self.timestamp - self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
+                    if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
+                        if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
                             partial_rules.push(rule.clone());
                         };
                     };
                 } else {
-                    if (self.timestamp - self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
+                    if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
                         partial_rules.push(rule.clone());
                     };
                 };
 
             };
         };
-        debug!("Rules matching {:#x?}", partial_rules);
+        debug!("RULES matching :");
+        for (ix, rule) in partial_rules.clone().iter().enumerate() {
+            info!(" #{} |{:?}|", ix, rule);
+        }
         Ok(partial_rules)
     }
 
     pub fn add_current_metrics(&mut self) {
         // TODO: define how and when metrics are stored
-        debug!("led_y metrics - {:#x?}", self.metrics_led_y);
+        debug!("METRICS - LED Y:");
+        for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
+            info!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        }
     }
 
     pub fn add_metric(&mut self, metric: String) {
@@ -257,32 +249,32 @@ impl Crbro {
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match metric_decomp[0] {
             "led_y" => {
-                if self.metrics_led_y.metrics.len() == 0 {
+                if self.metrics_led_y.entries.len() == 0 {
                     let new_m = TimedData {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
                         data: metric_decomp[1].to_string(),
                         time: self.timestamp.clone(), // here time means "since_timestamp"
                     };
-                    self.metrics_led_y.metrics.push(new_m);
+                    self.metrics_led_y.entries.push(new_m);
                     self.metrics_led_y.last_change_timestamp = self.timestamp;
                 } else {
-                    if self.metrics_led_y.metrics[0].data != metric_decomp[1].to_string() {
+                    if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
                         let new_m = TimedData {
                             id: COUNTER.fetch_add(1, Ordering::Relaxed),
                             data: metric_decomp[1].to_string(),
                             time: self.timestamp.clone(),
                         };
-                        self.metrics_led_y.metrics.insert(0, new_m);
+                        self.metrics_led_y.entries.insert(0, new_m);
                         self.metrics_led_y.last_change_timestamp = self.timestamp;
                     }
                 }; 
-                if self.metrics_led_y.metrics.len() > self.metrics_led_y.max_size.into() {
-                    self.metrics_led_y.metrics.pop();
+                if self.metrics_led_y.entries.len() > self.metrics_led_y.max_size.into() {
+                    self.metrics_led_y.entries.pop();
                 };
             },
             _ => (),
         }
-        debug!("{:?}", self.metrics_led_y.metrics[0].data);
+        debug!("{:?}", self.metrics_led_y.entries[0].data);
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
@@ -323,10 +315,10 @@ impl Crbro {
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         match action_to_add.resource.as_str() {
             "led_y" => {
-                if self.buffer_led_y.buffer.len() >= self.buffer_led_y.max_size.into() {
+                if self.buffer_led_y.entries.len() >= self.buffer_led_y.max_size.into() {
                     warn!("Buffer for LED_y is full! not adding new actions...");
                 } else {
-                    self.buffer_led_y.buffer.push(action_to_add.action);
+                    self.buffer_led_y.entries.push(action_to_add.action);
                 };
             },
             _ => ()
@@ -335,22 +327,22 @@ impl Crbro {
     }
 
     pub fn do_next_actions(&mut self) -> Result<String, String>{
-        if self.timestamp >= self.buffer_led_y.last_change_timestamp {
-            if self.buffer_led_y.buffer.len() == 0 {
+        if self.timestamp >= self.metrics_led_y.last_change_timestamp {
+            if self.buffer_led_y.entries.len() == 0 {
                 self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
                 info!("ACTIONS BUFFER - LED Y:");
-                for (ix, action) in self.buffer_led_y.buffer.clone().iter().enumerate() {
+                for (ix, action) in self.buffer_led_y.entries.clone().iter().enumerate() {
                     info!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 }
-                let a = &self.buffer_led_y.buffer.clone()[0];
+                let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
                 debug!("Time passed on current value - {:?}", time_passed);
                 if time_passed >= a.time {
-                    self.buffer_led_y.buffer.retain(|x| *x != *a);
+                    self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
-                    debug!("{:#x?}", self.buffer_led_y);
+                    debug!("Buffer: {:#x?}", self.buffer_led_y.entries);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
                     Ok(format!("done {:?}", a))
