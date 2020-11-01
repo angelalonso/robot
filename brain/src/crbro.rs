@@ -202,7 +202,7 @@ impl Crbro {
                 };
                 //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y);
                 for action in self.buffer_led_y.buffer {
-                    info!("ACTIONS BUFFER LED Y - data={}|time={}", self.buffer_led_y.buffer.data, self.buffer_led_y.buffer.time);
+                    info!("ACTIONS BUFFER LED Y - data={}|time={}", action.data, action.time);
                 }
                 debug!("Doing actions");
                 'outer: loop {
