@@ -342,7 +342,7 @@ impl Crbro {
             } else {
                 info!("ACTIONS BUFFER - LED Y:");
                 for (ix, action) in self.buffer_led_y.buffer.clone().iter().enumerate() {
-                    info!("{}- data={}|time={}", ix, action.data, action.time);
+                    info!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 }
                 let a = &self.buffer_led_y.buffer.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
