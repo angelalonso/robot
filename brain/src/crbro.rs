@@ -235,6 +235,7 @@ impl Crbro {
             if self.metrics_led_y.metrics.len() > 0 {
                 info!("METRIC {:#x?}", self.metrics_led_y.metrics[0].time);
                 info!("RULE {:#x?}", rule.input[0].time.parse::<f64>().unwrap());
+                info!("CURRENT {:#x?}", self.timestamp);
                 if rule.input[0].led_y != "*" {
                     if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
                         if (self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
