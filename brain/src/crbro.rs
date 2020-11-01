@@ -201,7 +201,9 @@ impl Crbro {
                     Err(_e) => debug!("No matching rules found"),
                 };
                 //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y);
-                info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y.buffer.iter());
+                for action in self.buffer_led_y.buffer {
+                    info!("ACTIONS BUFFER LED Y - data={}|time={}", self.buffer_led_y.buffer.data, self.buffer_led_y.buffer.time);
+                }
                 debug!("Doing actions");
                 'outer: loop {
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
