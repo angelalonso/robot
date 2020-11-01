@@ -343,6 +343,7 @@ impl Crbro {
                 self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
+                info!("IN");
                 let a = &self.buffer_led_y.buffer.clone()[0];
                 let time_passed = (self.timestamp - self.buffer_led_y.last_change_timestamp) / 1000 as f64;
                 if time_passed >= a.time {
