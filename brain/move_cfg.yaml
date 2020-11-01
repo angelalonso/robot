@@ -35,3 +35,7 @@
     value: "1"
     time: "2"
     repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "1"
+    repeat: false
