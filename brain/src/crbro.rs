@@ -233,7 +233,8 @@ impl Crbro {
             //info!("{:#x?}", rule);
             //info!("LENGTH {:?}", self.metrics_led_y.metrics.len() as u16);
             if self.metrics_led_y.metrics.len() > 0 {
-                info!("{:#x?}", self.metrics_led_y.metrics[0]);
+                info!("METRIC {:#x?}", self.metrics_led_y.metrics[0].time);
+                info!("RULE {:#x?}", rule.input[0].time.parse::<f64>().unwrap());
                 if rule.input[0].led_y != "*" {
                     if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
                         if (self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
