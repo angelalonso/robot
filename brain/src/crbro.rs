@@ -196,13 +196,13 @@ impl Crbro {
                             // if we got actions from a rule, previous actions get overriden
                             self.buffer_led_y.buffer = Vec::new();
                             let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
-                            println!("{:#x?}", aux);
+                            debug!("{:#x?}", aux);
                             self.add_action(aux);
                         };
                     },
                     Err(_e) => debug!("No matching rules found"),
                 };
-                info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y);
+                //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y);
                 //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y.buffer.iter());
                 debug!("Doing actions");
                 'outer: loop {
@@ -230,6 +230,7 @@ impl Crbro {
         // Start with led_y
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
+            info!("{:#x?}", rule);
             if self.metrics_led_y.metrics.len() > 0 {
                 if rule.input[0].led_y != "*" {
                     if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
