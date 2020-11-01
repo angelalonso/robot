@@ -200,10 +200,6 @@ impl Crbro {
                     },
                     Err(_e) => debug!("No matching rules found"),
                 };
-                info!("ACTIONS BUFFER - LED Y:");
-                for (ix, action) in self.buffer_led_y.buffer.clone().iter().enumerate() {
-                    info!("{}- data={}|time={}", ix, action.data, action.time);
-                }
                 debug!("Doing actions");
                 'outer: loop {
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
@@ -344,6 +340,10 @@ impl Crbro {
                 self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
+                info!("ACTIONS BUFFER - LED Y:");
+                for (ix, action) in self.buffer_led_y.buffer.clone().iter().enumerate() {
+                    info!("{}- data={}|time={}", ix, action.data, action.time);
+                }
                 let a = &self.buffer_led_y.buffer.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
                 debug!("Time passed on current value - {:?}", time_passed);
