@@ -229,9 +229,12 @@ impl Crbro {
 
             };
         };
-        debug!("RULES matching :");
+        info!("RULES matching :");
         for (ix, rule) in partial_rules.clone().iter().enumerate() {
-            info!(" #{} |{:?}|", ix, rule);
+            info!(" #{} input:", ix);
+            info!("      |{:?}|", rule.input);
+            info!("     output:");
+            info!("      |{:?}|", rule.output);
         }
         Ok(partial_rules)
     }
