@@ -1,17 +1,5 @@
 --- 
 - input:
-  - time: "0.5" 
-    led_y: "1"
-    motor_l: "*"
-    motor_r: "*"
-    tracker: "*"
-    distance: "*"
-  output:
-  - object: "led_y"
-    value: "0"
-    time: "2"
-    repeat: false
-- input:
   - time: "1.0" 
     led_y: "0"
     motor_l: "*"
