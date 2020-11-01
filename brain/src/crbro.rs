@@ -190,7 +190,9 @@ impl Crbro {
                 debug!("Checking rules, adding actions");
                 let _actions_from_config = match self.get_actions_from_rules(){
                     Ok(a) => {
+                        info!("IN");
                         if a.len() > 0 {
+                            info!("IN 2");
                             // Format would be motor_l=-60,time=2.6
                             // TODO: make this work for other outputs (motors...)
                             // if we got actions from a rule, previous actions get overriden
@@ -231,13 +233,10 @@ impl Crbro {
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
             //info!("{:#x?}", rule);
-            //info!("LENGTH {:?}", self.metrics_led_y.metrics.len() as u16);
             if self.metrics_led_y.metrics.len() > 0 {
                 if rule.input[0].led_y != "*" {
                     if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
-                        info!("IN");
                         if (self.timestamp - self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
-                            info!("IN 2");
                             partial_rules.push(rule.clone());
                         };
                     };
