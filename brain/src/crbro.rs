@@ -170,7 +170,7 @@ impl Crbro {
             loop {
                 let ct = SystemTime::now();
                 self.timestamp = match ct.duration_since(UNIX_EPOCH) {
-                    Ok(time) => time.as_millis() as f64,
+                    Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                     Err(_e) => 0.0,
                 };
                 let msg = r.recv();
@@ -203,10 +203,11 @@ impl Crbro {
                     Err(_e) => debug!("No matching rules found"),
                 };
                 info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y);
+                //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y.buffer.iter());
                 debug!("Doing actions");
                 'outer: loop {
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
-                        Ok(time) => time.as_millis() as f64,
+                        Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                         Err(_e) => 0.0,
                     };
                     match self.do_next_actions() {
