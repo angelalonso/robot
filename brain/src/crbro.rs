@@ -211,7 +211,11 @@ impl Crbro {
                     };
                     match self.do_next_actions() {
                         Ok(a) => {
-                            info!("ACTION {:?} - {:?}", self.timestamp, a);
+                            if a != "done nothing" {
+                                info!("ACTION {:?} - {:?}", self.timestamp, a);
+                            } else {
+                                debug!("ACTION {:?} - {:?}", self.timestamp, a);
+                            }
                             //latest_change = current_time as u128;
                             break 'outer;
                         },
