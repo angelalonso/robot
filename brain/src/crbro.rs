@@ -201,7 +201,7 @@ impl Crbro {
                     Err(_e) => debug!("No matching rules found"),
                 };
                 //info!("ACTIONS BUFFER - {:#x?}", self.buffer_led_y);
-                for action in self.buffer_led_y.buffer {
+                for action in self.buffer_led_y.buffer.clone() {
                     info!("ACTIONS BUFFER LED Y - data={}|time={}", action.data, action.time);
                 }
                 debug!("Doing actions");
