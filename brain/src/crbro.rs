@@ -196,7 +196,6 @@ impl Crbro {
                             // if we got actions from a rule, previous actions get overriden
                             self.buffer_led_y.buffer = Vec::new();
                             let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
-                            info!("ADDING ACTION {:#x?}", aux);
                             self.add_action(aux);
                         };
                     },
@@ -246,6 +245,8 @@ impl Crbro {
 
             };
         };
+        info!("RULES FOUND {:#x?}", partial_rules);
+        info!("CURR METRIC {:#x?}", self.metrics_led_y.metrics[0].data);
         Ok(partial_rules)
     }
 
