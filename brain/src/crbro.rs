@@ -190,15 +190,13 @@ impl Crbro {
                 debug!("Checking rules, adding actions");
                 let _actions_from_config = match self.get_actions_from_rules(){
                     Ok(a) => {
-                        info!("IN");
                         if a.len() > 0 {
-                            info!("IN 2");
                             // Format would be motor_l=-60,time=2.6
                             // TODO: make this work for other outputs (motors...)
                             // if we got actions from a rule, previous actions get overriden
                             self.buffer_led_y.buffer = Vec::new();
                             let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
-                            debug!("{:#x?}", aux);
+                            info!("ADDING ACTION {:#x?}", aux);
                             self.add_action(aux);
                         };
                     },
