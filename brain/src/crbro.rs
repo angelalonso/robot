@@ -234,9 +234,10 @@ impl Crbro {
             //info!("LENGTH {:?}", self.metrics_led_y.metrics.len() as u16);
             if self.metrics_led_y.metrics.len() > 0 {
                 if rule.input[0].led_y != "*" {
-                    info!("IN");
                     if self.metrics_led_y.metrics[0].data == rule.input[0].led_y {
+                        info!("IN");
                         if (self.timestamp - self.metrics_led_y.metrics[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.metrics[0].time == 0.0){
+                            info!("IN 2");
                             partial_rules.push(rule.clone());
                         };
                     };
