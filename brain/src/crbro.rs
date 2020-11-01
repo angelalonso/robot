@@ -245,8 +245,7 @@ impl Crbro {
 
             };
         };
-        info!("RULES FOUND {:#x?}", partial_rules);
-        info!("CURR METRIC {:#x?}", self.metrics_led_y.metrics[0].data);
+        debug!("Rules matching {:#x?}", partial_rules);
         Ok(partial_rules)
     }
 
@@ -345,9 +344,8 @@ impl Crbro {
             } else {
                 let a = &self.buffer_led_y.buffer.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
-                info!("TIME_PASSED {:?}", time_passed);
+                debug!("Time passed on current value - {:?}", time_passed);
                 if time_passed >= a.time {
-                    info!("IN");
                     self.buffer_led_y.buffer.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
                     debug!("{:#x?}", self.buffer_led_y);
