@@ -180,8 +180,10 @@ impl Crbro {
                             // Format would be motor_l=-60,time=2.6
                             // TODO: make this work for other outputs (motors...)
                             self.buffer_led_y.entries = Vec::new();
-                            let aux = format!("{}={},time={}", a[0].output[0].object, a[0].output[0].value, a[0].output[0].time);
-                            self.add_action(aux);
+                            for action in a {
+                                let aux = format!("{}={},time={}", action.output[0].object, action.output[0].value, action.output[0].time);
+                                self.add_action(aux);
+                            }
                         };
                     },
                     Err(_e) => debug!("...no matching rules found"),
