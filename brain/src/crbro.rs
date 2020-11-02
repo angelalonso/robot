@@ -181,8 +181,10 @@ impl Crbro {
                             // TODO: make this work for other outputs (motors...)
                             self.buffer_led_y.entries = Vec::new();
                             for action in a {
-                                let aux = format!("{}={},time={}", action.output[0].object, action.output[0].value, action.output[0].time);
-                                self.add_action(aux);
+                                for o in action.output {
+                                    let aux = format!("{}={},time={}", o.object, o.value, o.time);
+                                    self.add_action(aux);
+                                }
                             }
                         };
                     },
