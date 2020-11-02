@@ -50,7 +50,7 @@ impl LEDs {
                     }
                 }
             }            
-            None => debug!("This would have set -{:?}- to LED Y, if we had one", new_state)
+            None => debug!("- Mocked - Setting -{:?}- to LED Y", new_state)
         }
     }
 

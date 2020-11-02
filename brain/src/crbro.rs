@@ -141,7 +141,7 @@ impl Crbro {
     }
     pub fn do_io(&mut self) {
         loop {
-            debug!("Reading from channel with Arduino");
+            debug!("...reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
@@ -160,7 +160,7 @@ impl Crbro {
                     Err(_e) => 0.0,
                 };
                 let msg = r.recv();
-                debug!("GOT {}", msg.clone().unwrap());
+                debug!("- Received {}", msg.clone().unwrap());
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
@@ -171,9 +171,9 @@ impl Crbro {
                     let msg_sensor = msg.unwrap().replace("SENSOR: ", "");
                     self.add_metric(msg_sensor);
                 }
-                debug!("add current metrics");
+                debug!("...adding current metrics");
                 self.add_current_metrics();
-                debug!("Checking rules, adding actions");
+                debug!("...checking rules, adding actions");
                 let _actions_from_config = match self.get_actions_from_rules(){
                     Ok(a) => {
                         if a.len() > 0 {
@@ -184,9 +184,9 @@ impl Crbro {
                             self.add_action(aux);
                         };
                     },
-                    Err(_e) => debug!("No matching rules found"),
+                    Err(_e) => debug!("...no matching rules found"),
                 };
-                debug!("Doing actions");
+                debug!("...doing actions");
                 'outer: loop {
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
                         Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
@@ -195,9 +195,9 @@ impl Crbro {
                     match self.do_next_actions() {
                         Ok(a) => {
                             if a != "done nothing" {
-                                info!("ACTION {:?} - {:?}", self.timestamp, a);
+                                info!("- Action {:?} - {:?}", self.timestamp, a);
                             } else {
-                                debug!("ACTION {:?} - {:?}", self.timestamp, a);
+                                debug!("- Action {:?} - {:?}", self.timestamp, a);
                             }
                             break 'outer;
                         },
@@ -229,26 +229,28 @@ impl Crbro {
 
             };
         };
-        info!("RULES matching :");
-        for (ix, rule) in partial_rules.clone().iter().enumerate() {
-            info!(" #{} input:", ix);
-            info!("      |{:?}|", rule.input);
-            info!("     output:");
-            info!("      |{:?}|", rule.output);
+        if partial_rules.len() > 0 {
+            info!("- Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                info!(" #{} input:", ix);
+                info!("      |{:?}|", rule.input);
+                info!("     output:");
+                info!("      |{:?}|", rule.output);
+            }
         }
         Ok(partial_rules)
     }
 
     pub fn add_current_metrics(&mut self) {
         // TODO: define how and when metrics are stored
-        debug!("METRICS - LED Y:");
+        debug!("- Metrics - LED Y:");
         for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
-            info!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
         }
     }
 
     pub fn add_metric(&mut self, metric: String) {
-        debug!("Adding metric {}", metric);
+        debug!("- Adding metric {}", metric);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match metric_decomp[0] {
             "led_y" => {
@@ -277,7 +279,7 @@ impl Crbro {
             },
             _ => (),
         }
-        debug!("{:?}", self.metrics_led_y.entries[0].data);
+        debug!("- Metric #0:{:?}", self.metrics_led_y.entries[0].data);
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
@@ -314,7 +316,7 @@ impl Crbro {
     }
 
     pub fn add_action(&mut self, action: String) {
-        debug!("Adding action {}", action);
+        debug!("- Adding action {}", action);
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         match action_to_add.resource.as_str() {
             "led_y" => {
@@ -326,7 +328,6 @@ impl Crbro {
             },
             _ => ()
         }
-        debug!("RESOURCE - {:#x?}", action_to_add.resource);
     }
 
     pub fn do_next_actions(&mut self) -> Result<String, String>{
@@ -335,17 +336,17 @@ impl Crbro {
                 self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
-                info!("ACTIONS BUFFER - LED Y:");
+                info!("- Actions buffer - LED Y:");
                 for (ix, action) in self.buffer_led_y.entries.clone().iter().enumerate() {
                     info!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 }
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
-                debug!("Time passed on current value - {:?}", time_passed);
+                debug!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= a.time {
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
-                    debug!("Buffer: {:#x?}", self.buffer_led_y.entries);
+                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
                     Ok(format!("done {:?}", a))

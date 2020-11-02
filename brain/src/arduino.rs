@@ -46,31 +46,31 @@ impl Arduino {
 
 
     pub fn read_channel_mock(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
-        debug!("Reading from Mocked Serial Port");
+        debug!("...reading from Mocked Serial Port");
         loop {
             let got = "ACTION: led_y=1,time=0.7".to_string();
             thread::sleep(time::Duration::from_secs(1));
             match channel.send(got){
-                Ok(c) => debug!("Sent {:?}", c),
+                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
         }
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
-        debug!("Reading from Serial Port {}", self.serialport);
+        debug!("...reading from Serial Port {}", self.serialport);
         let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
                 if got.contains("ACTION: ") {
-                    debug!("Got an Action message: {}", got);
+                    debug!("- Received Action message: {}", got);
                     channel.send(got).unwrap();
                 } else if got.contains("SENSOR: ") {
-                    debug!("Got a Sensor message: {}", got);
+                    debug!("- Received Sensor message: {}", got);
                     channel.send(got).unwrap();
                 } else {
-                    debug!("Read ->{}<- from Serial Port", got);
+                    debug!("- Read ->{}<- from Serial Port", got);
                     break Ok(got)
                 }
             }
@@ -94,7 +94,7 @@ impl Arduino {
         match lines.next().unwrap() {
             Ok(res) => {
                 if res.contains("LOG:") {
-                    debug!("Got a Log message: {}", &res);
+                    debug!("- Received Log message: {}", &res);
                     Ok("".to_string())
                 } else {
                     Ok(res)
@@ -109,7 +109,7 @@ impl Arduino {
     /// This one should avrdude to send a given file to the arduino
     pub fn install(&mut self, filename: &str) -> Result<(), BrainArduinoError> {
         // First check that avrdude is installed
-        debug!("Installing {} to arduino", filename);
+        debug!("- Installing {} to arduino", filename);
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
     // To test avrdude manually: sudo avrdude -c linuxgpio -p atmega328p -v 
