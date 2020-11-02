@@ -221,6 +221,8 @@ impl Crbro {
     }
 
     pub fn get_actions_from_rules(&mut self) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+        // TODO: check if the output we want to add is already on the actions buffer, and dont add
+        // anything if so
         // Start with led_y
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
@@ -228,6 +230,9 @@ impl Crbro {
                 if rule.input[0].led_y != "*" {
                     if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
                         if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
+                            // for ix, action in rule.output -> if same index on buffer_led_y has
+                            // same action, then take note, anf if all of them are the same, dont
+                            // add the rule
                             partial_rules.push(rule.clone());
                         };
                     };
