@@ -194,6 +194,12 @@ impl Crbro {
                         Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                         Err(_e) => 0.0,
                     };
+                    info!("- Actions buffer - LED Y:");
+                    info!("  {:?}", self.buffer_led_y.entries);
+                    //info!("- Actions buffer - LED Y:");
+                    //for (ix, action) in self.buffer_led_y.entries.clone().iter().enumerate() {
+                    //    info!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                    //}
                     match self.do_next_actions() {
                         Ok(a) => {
                             if a != "done nothing" {
@@ -338,10 +344,6 @@ impl Crbro {
                 self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
-                info!("- Actions buffer - LED Y:");
-                for (ix, action) in self.buffer_led_y.entries.clone().iter().enumerate() {
-                    info!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                }
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
                 debug!("- Time passed on current value - {:?}", time_passed);
