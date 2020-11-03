@@ -346,21 +346,19 @@ impl Crbro {
         }
     }
 
-    //TODO: why does this work the opposite way as it should?
     pub fn do_next_actions(&mut self) -> Result<String, String>{
         if self.timestamp >= self.metrics_led_y.last_change_timestamp {
             if self.buffer_led_y.entries.len() == 0 {
-                //self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
-                info!("- Time passed on current value - {:?}", time_passed);
+                debug!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= self.buffer_led_y.current_entry.time {
                     self.buffer_led_y.current_entry = a.clone();
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
-                    info!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
