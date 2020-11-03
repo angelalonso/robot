@@ -351,7 +351,7 @@ impl Crbro {
                 if time_passed >= a.time {
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
-                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+                    info!("- Buffer: {:#x?}", self.buffer_led_y.entries);
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
