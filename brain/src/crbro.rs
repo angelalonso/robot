@@ -80,8 +80,6 @@ pub struct Crbro {
     buffer_led_y: Buffer,
     metrics_led_y: Buffer,
 }
-// TODO: use timestamps starting at 0
-// TODO: check why buffer for led_y is not working as expected
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 
 impl Crbro {
@@ -233,7 +231,9 @@ impl Crbro {
                             // for ix, action in rule.output -> if same index on buffer_led_y has
                             // same action, then take note, anf if all of them are the same, dont
                             // add the rule
-                            partial_rules.push(rule.clone());
+                            if ! self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.push(rule.clone());
+                            }
                         };
                     };
                 } else {
@@ -257,7 +257,6 @@ impl Crbro {
     }
 
     pub fn add_current_metrics(&mut self) {
-        // TODO: define how and when metrics are stored
         debug!("- Metrics - LED Y:");
         for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
             debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -369,5 +368,28 @@ impl Crbro {
         } else {
             Ok("done nothing".to_string())
         }
+    }
+
+    pub fn are_actions_in_buffer(&self, rule: ConfigEntry) -> bool {
+        // first loop to fill up vectors of actions separately
+        let mut rule_out_led_y = [].to_vec();
+        let mut rule_out_other = [].to_vec();
+        for r in rule.output {
+            match r.object.as_str() {
+                "led_y" => rule_out_led_y.push(r),
+                _ => rule_out_other.push(r),
+            }
+        }
+        let mut result = true;
+        for (ix, r) in rule_out_led_y.iter().enumerate() {
+            if self.buffer_led_y.entries.len() > ix {
+                if format!("{}_{}", r.value, r.time) != format!("{}_{}", self.buffer_led_y.entries[ix].data, self.buffer_led_y.entries[ix].time) {
+                   result = false; 
+                }
+            } else {
+               result = false; 
+            }
+        }
+        result
     }
 }
