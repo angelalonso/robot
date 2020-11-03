@@ -345,15 +345,14 @@ impl Crbro {
     }
 
     pub fn do_next_actions(&mut self) -> Result<String, String>{
-        info!("- Last change timestamp led y - {}", self.metrics_led_y.last_change_timestamp);
         if self.timestamp >= self.metrics_led_y.last_change_timestamp {
             if self.buffer_led_y.entries.len() == 0 {
-                self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
+                //self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
                 Err("No more actions to take".to_string())
             } else {
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
-                debug!("- Time passed on current value - {:?}", time_passed);
+                info!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= a.time {
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
