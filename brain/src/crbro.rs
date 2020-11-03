@@ -215,8 +215,6 @@ impl Crbro {
     }
 
     pub fn get_actions_from_rules(&mut self) -> Result<Vec<ConfigEntry>, BrainDeadError>{
-        // TODO: check if the output we want to add is already on the actions buffer, and dont add
-        // anything if so
         // Start with led_y
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
@@ -340,6 +338,7 @@ impl Crbro {
         }
     }
 
+    //TODO: why does this work the opposite way as it should?
     pub fn do_next_actions(&mut self) -> Result<String, String>{
         if self.timestamp >= self.metrics_led_y.last_change_timestamp {
             if self.buffer_led_y.entries.len() == 0 {
