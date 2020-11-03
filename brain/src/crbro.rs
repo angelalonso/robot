@@ -257,6 +257,7 @@ impl Crbro {
     }
 
     pub fn add_current_metrics(&mut self) {
+        info!("- Current timestamp: {}", self.timestamp);
         info!("- Metrics - LED Y:");
         for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
             info!(" #{} |data={}|time={}|", ix, action.data, action.time);
