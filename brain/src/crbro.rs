@@ -348,7 +348,7 @@ impl Crbro {
             } else {
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
-                debug!("- Time passed on current value - {:?}", time_passed);
+                info!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= a.time {
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
