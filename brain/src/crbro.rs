@@ -345,6 +345,7 @@ impl Crbro {
     }
 
     pub fn do_next_actions(&mut self) -> Result<String, String>{
+        info!("- Last change timestamp led y - {}", self.metrics_led_y.last_change_timestamp);
         if self.timestamp >= self.metrics_led_y.last_change_timestamp {
             if self.buffer_led_y.entries.len() == 0 {
                 self.buffer_led_y.last_change_timestamp = 0.0; // if a new action enters, we want it to run for as long as it's defined
