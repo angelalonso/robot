@@ -13,5 +13,5 @@
     repeat: false
   - object: "led_y"
     value: "0"
-    time: "3"
+    time: "1"
     repeat: false
