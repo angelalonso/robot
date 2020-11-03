@@ -1,6 +1,6 @@
 --- 
 - input:
-  - time: "1.7" 
+  - time: "0.2" 
     led_y: "0"
     motor_l: "*"
     motor_r: "*"
