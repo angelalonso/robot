@@ -64,6 +64,7 @@ pub struct ResultAction {
 pub struct Buffer {
     entries: Vec<TimedData>,
     last_change_timestamp: f64,
+    current_entry: TimedData,
     max_size: u8,
 }
 
@@ -109,19 +110,26 @@ impl Crbro {
             eprintln!("Problem Initializing LEDs: {}", err);
             process::exit(1);
         });
-        let b_ly = Buffer {
-            entries: [].to_vec(),
-            last_change_timestamp: 0.0,
-            max_size: 10,
-        };
-        let m_ly_e = [TimedData {
+        let b_ly_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
             data: "0".to_string(),
             time: 0.0,
-        },].to_vec();
-        let m_ly = Buffer {
-            entries: m_ly_e,
+        };
+        let b_ly = Buffer {
+            entries: [].to_vec(),
             last_change_timestamp: 0.0,
+            current_entry: b_ly_e,
+            max_size: 10,
+        };
+        let m_ly_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            data: "0".to_string(),
+            time: 0.0,
+        };
+        let m_ly = Buffer {
+            entries: [m_ly_e.clone()].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: m_ly_e,
             max_size: 8,
         };
         Ok(Self {
@@ -348,7 +356,8 @@ impl Crbro {
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
                 info!("- Time passed on current value - {:?}", time_passed);
-                if time_passed >= a.time {
+                if time_passed >= self.buffer_led_y.current_entry.time {
+                    self.buffer_led_y.current_entry = a.clone();
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
                     info!("- Buffer: {:#x?}", self.buffer_led_y.entries);
