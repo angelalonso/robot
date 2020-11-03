@@ -257,9 +257,9 @@ impl Crbro {
     }
 
     pub fn add_current_metrics(&mut self) {
-        debug!("- Metrics - LED Y:");
+        info!("- Metrics - LED Y:");
         for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
-            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            info!(" #{} |data={}|time={}|", ix, action.data, action.time);
         }
     }
 
@@ -293,7 +293,6 @@ impl Crbro {
             },
             _ => (),
         }
-        debug!("- Metric #0:{:?}", self.metrics_led_y.entries[0].data);
     }
 
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
