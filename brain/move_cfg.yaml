@@ -1,6 +1,6 @@
 --- 
 - input:
-  - time: "4.0" 
+  - time: "0.5" 
     led_y: "0"
     motor_l: "*"
     motor_r: "*"
@@ -8,10 +8,10 @@
     distance: "*"
   output:
   - object: "led_y"
-    value: "1"
+    value: "0.1"
     time: "2"
     repeat: false
   - object: "led_y"
     value: "0"
-    time: "0.3"
+    time: "3"
     repeat: false
