@@ -1,8 +1,6 @@
 use std::error::Error;
 use brain::brain::Brain;
-use brain::crbro::Crbro;
 use std::process;
-use std::process::Command;
 use std::env;
 
 #[macro_use]
@@ -23,10 +21,9 @@ fn show_help() {
 }
 
 /// parse arguments given to the program itself
-fn argparser(modes: Vec<&str>) -> (String, String, String) {
+fn argparser(modes: Vec<&str>) -> (String, String) {
     let mut args: Vec<String> = env::args().collect();
     let mut b_cfg = String::from("");
-    let mut c_cfg = String::from("");
     let mode: String;
     match args.len() {
         1 => {
@@ -35,13 +32,13 @@ fn argparser(modes: Vec<&str>) -> (String, String, String) {
             process::exit(1);
         },
         // two or more argument(s) passed? join them with spaces to allow phrases
-        2 | 3 => {
+        2 => {
             // remove the prog name itself
             args.remove(0);
             // drain variables
             mode = args.drain(0..1).collect();
             // we have this in case we ever have a mode that does not need the config files
-            if mode == modes[0] || mode == modes[1] || mode == modes[2]{
+            if mode == modes[0] || mode == modes[1]{
                 // fail because there arent enough parameters
                 error!("ERROR: not enough parameters received for mode {}", mode);
                 show_help();
@@ -61,114 +58,31 @@ fn argparser(modes: Vec<&str>) -> (String, String, String) {
             // drain variables
             mode = args.drain(0..1).collect();
             b_cfg = args.drain(0..1).collect();
-            c_cfg = args.drain(0..1).collect();
         },
     }
-    (b_cfg.to_string(), c_cfg.to_string(), mode.to_string())
-}
-
-/// Check if there is another instance of this running
-fn check_self_running(self_comm: &str) -> Result<(), String>{
-    let own_ps = process::id();
-    let ps_aux = Command::new("ps")
-            .arg("aux")
-            .output()
-            .expect("process failed to execute");
-    let result = String::from_utf8_lossy(&ps_aux.stdout);
-    let split = result.split("\n");
-    let mut blocked = false;
-    for s in split {
-        if s.contains(self_comm) && !s.contains(&own_ps.to_string()){
-            blocked = true;
-        };
-    }
-    if blocked {
-        Err("There is another instance of this program running right now".to_string())
-    } else {
-        Ok(())
-    }
-}
-
-/// Check if there is another instance of this running
-fn kill_self_running(self_comm: &str) -> Result<(), String>{
-    let own_ps = process::id();
-    let ps_aux = Command::new("ps")
-            .arg("aux")
-            .output()
-            .expect("process failed to execute");
-    let result = String::from_utf8_lossy(&ps_aux.stdout);
-    let split = result.split("\n");
-    let mut blocked = false;
-    for s in split {
-        if s.contains(self_comm) && !s.contains(&own_ps.to_string()){
-            blocked = true;
-        };
-    }
-    if blocked {
-        Err("There is another instance of this program running right now".to_string())
-    } else {
-        Ok(())
-    }
+    (b_cfg.to_string(), mode.to_string())
 }
 
 /// check the parameters and start the related mode
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
-    let modes = vec!["classic", "test", "reset"];
-    let (brain_config_file, cerebellum_config_file, start_mode) = argparser(modes);
-    let args: Vec<String> = env::args().collect();
+    let modes = vec!["live", "test"];
+    let (move_config_file, start_mode) = argparser(modes);
+    let _args: Vec<String> = env::args().collect();
     info!("...starting Brain with Mode {}", start_mode);
     match start_mode.as_str() {
-        // Load a new brain, send the first trigger, and enter the reading loop
-        // TODO: change start to "normal" maybe?
-        "classic" => {
+        // Generate our Brain object
+        "live" => {
             // Generate our Brain object
-            check_self_running(&args[0]).unwrap();
-            let mut main_brain = Brain::new("Main Brain", start_mode.clone(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
-                eprintln!("Problem Initializing Main Brain: {}", err);
-                process::exit(1);
-            });
-            // Send the first trigger to start.
-            let _send_start = main_brain.get_brain_actions(&start_mode).unwrap_or_else(|err| {
-                eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
-                process::exit(1);
-            });
-            // Listening on Comm
-            main_brain.get_input();
-        },
-        "reset" => {
-            kill_self_running(&args[0]).unwrap();
-            // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain", "dryrun".to_string(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
-                eprintln!("Problem Initializing Main Brain: {}", err);
-                process::exit(1);
-            });
-            // Send the first trigger to start.
-            let _send_start = main_brain.get_brain_actions(&start_mode).unwrap_or_else(|err| {
-                eprintln!("Problem sending the first trigger to the Arduino: '{}' - {}", &start_mode, err);
-                process::exit(1);
-            });
-            
-        }
-        "test2" => {
-            // Generate our Brain object
-            let main_brain = Brain::new("Main Brain", "dryrun".to_string(), brain_config_file, cerebellum_config_file, None).unwrap_or_else(|err| {
-                eprintln!("Problem Initializing Main Brain: {}", err);
-                process::exit(1);
-            });
-            main_brain.get_input();
-        }
-        "test" => {
-            // Generate our Brain object
-            let mut main_brain = Crbro::new("Main Brain".to_string(), "dryrun".to_string(), cerebellum_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
             main_brain.do_io();
-        }
-        "test_live" => {
+        },
+        "test" => {
             // Generate our Brain object
-            let mut main_brain = Crbro::new("Main Brain".to_string(), "classic".to_string(), cerebellum_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });

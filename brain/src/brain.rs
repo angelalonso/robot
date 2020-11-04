@@ -1,20 +1,14 @@
-// This is the actual central block of our robot
-// It is called Brain for obvious reasons, but is somehow divided on two:
-//  - Cerebellum part: Manages any movement actions -> lives on its own module but depends on this
-//  brain one
-//  - Brain part: Manages any other actions, such as:
-//    - installing a new .hex into arduino
 use crate::arduino::Arduino;
-use crate::config::Config;
-use crate::cerebellum::Cerebellum;
 use crate::motors::Motors;
+use crate::leds::LEDs;
+use log::{debug, error, info, warn};
+use std::fs::File;
 use std::process;
-use std::str;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
-use log::debug;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -29,138 +23,383 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
-#[derive(Clone)]
-pub struct Brain<'a> {
-    pub name: &'a str,
-    pub mode: String,
-    pub starttime: u128,
-    pub config: Config,
-    pub serialport: &'a str,
-    pub timeout: u64,
-    pub cerebellum: Cerebellum,
-    //pub arduino: Arduino<'a>,
-    pub arduino: Arduino,
-    pub motors: Motors,
+#[derive(Clone, Debug, Deserialize)]
+pub struct ConfigInput {
+    pub time: String,
+    pub led_y: String,
+    pub motor_l: String,
+    pub motor_r: String,
+    pub tracker: String,
+    pub distance: String,
 }
 
-/// Initialize all the things
-impl Brain<'static> {
-    pub fn new(brain_name: &'static str, run_mode: String, config_file: String, cerebellum_config_file: String, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+#[derive(Clone, Debug, Deserialize)]
+pub struct ConfigOutput {
+    pub object: String,
+    pub value: String,
+    pub time: String,
+    pub repeat: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct ConfigEntry {
+    input: Vec<ConfigInput>,
+    output: Vec<ConfigOutput>
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TimedData {
+    id: usize,
+    data: String,
+    time: f64,
+}
+
+#[derive(Clone, Debug)]
+pub struct ResultAction {
+    resource: String,
+    action: TimedData,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Buffer {
+    entries: Vec<TimedData>,
+    last_change_timestamp: f64,
+    current_entry: TimedData,
+    max_size: u8,
+}
+
+#[derive(Clone)]
+pub struct Brain {
+    name: String,
+    mode: String,
+    start_time: u128,
+    timestamp: f64,
+    config: Vec<ConfigEntry>,
+    arduino: Arduino,
+    motors: Motors,
+    leds: LEDs,
+    buffer_led_y: Buffer,
+    metrics_led_y: Buffer,
+}
+static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
+
+impl Brain {
+    pub fn new(brain_name: String, mode: String, config_file: String) -> Result<Self, String> {
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        let cfg = Config::new(config_file);
-        let crb = Cerebellum::new(cerebellum_config_file);
-        let sp = match raw_serial_port {
-            Some(port) => port,
-            None => "/dev/ttyUSB0",
-        };
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
-        if run_mode.clone() != "dryrun" {
+        let cfg_file_pointer = File::open(config_file).unwrap();
+        let c: Vec<ConfigEntry> = serde_yaml::from_reader(cfg_file_pointer).unwrap();
+        if mode.clone() != "dryrun" {
             a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Arduino: {}", err);
                 process::exit(1);
             });
         };
-        let m = Motors::new(run_mode.clone()).unwrap_or_else(|err| {
+        let m = Motors::new(mode.clone()).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
+        let l = LEDs::new(mode.clone()).unwrap_or_else(|err| {
+            eprintln!("Problem Initializing LEDs: {}", err);
+            process::exit(1);
+        });
+        let b_ly_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            data: "0".to_string(),
+            time: 0.0,
+        };
+        let b_ly = Buffer {
+            entries: [].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: b_ly_e,
+            max_size: 10,
+        };
+        let m_ly_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            data: "0".to_string(),
+            time: 0.0,
+        };
+        let m_ly = Buffer {
+            entries: [m_ly_e.clone()].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: m_ly_e,
+            max_size: 8,
+        };
         Ok(Self {
             name: brain_name,
-            mode: run_mode,
-            starttime: start_time,
-            config: cfg,
-            serialport: sp,
-            timeout: 4,
-            cerebellum: crb,
+            mode: mode,
+            start_time: start_time,
+            timestamp: 0.0,
+            config: c,
             arduino: a,
             motors: m,
+            leds: l,
+            buffer_led_y: b_ly,
+            metrics_led_y: m_ly,
         })
     }
 
-    pub fn get_input(mut self) {
+    /// takes care of inputs and outputs to the brain
+    ///  in a constant loop
+    pub fn do_io(&mut self) {
         loop {
-            debug!("Reading from channel with Arduino");
+            debug!("...reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
-            let mut brain_clone = self.clone();
+            let brain_clone = self.clone();
             let _handle = thread::spawn(move || {
-                let _received = match arduino.read_channel(msgs){
-                    Ok(rcv) => {
-                        match brain_clone.get_brain_actions(&rcv){
-                            Ok(acts) => debug!("Taking action {:?}", acts.join(", ")),
-                            Err(_) => debug!("No actions were found for trigger"),
-                        };
-                    },
-                    Err(_) => debug!("Nothing read from Channel"),
+                if brain_clone.mode != "dryrun" {
+                    arduino.read_channel(msgs).unwrap();
+            } else {
+                    arduino.read_channel_mock(msgs).unwrap();
                 };
             });
             loop {
-                debug!("Getting messages at the other side of the channel with Arduino");
+                let ct = SystemTime::now();
+                self.timestamp = match ct.duration_since(UNIX_EPOCH) {
+                    Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
+                    Err(_e) => 0.0,
+                };
                 let msg = r.recv();
-                let mut msg_actions = Vec::new();
-                let mut msg_sensors = String::new();
+                debug!("- Received {}", msg.clone().unwrap());
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
-                    msg_actions.push(msg.unwrap().replace("ACTION: ", ""));
+                    let msg_action = msg.unwrap().replace("ACTION: ", "");
+                    self.add_action(msg_action);
                 } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
-                    msg_sensors = msg.unwrap().replace("SENSOR: ", "");
+                    // NOTE: Sensor messages format go like "SENSOR: object_x__value"
+                    let msg_sensor = msg.unwrap().replace("SENSOR: ", "");
+                    self.add_metric(msg_sensor);
                 }
-                debug!("Doing Brain actions");
-                self.do_brain_actions(msg_actions).unwrap();
-                
-                debug!("Doing Cerebellum actions");
-                debug!("Getting the list of Cerebellum actions to do");
-                let crbllum_actions = self.cerebellum.manage_input(self.starttime, msg_sensors, self.motors.movement.clone()).unwrap();
-                if crbllum_actions.len() > 0 {
-                    debug!("Moving stuff according to the list of Cerebellum actions to do");
-                    self.motors.set(crbllum_actions[0].action.replace("move_", ""));
+                debug!("- Current timestamp: {}", self.timestamp);
+                debug!("- Metrics - LED Y:");
+                for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
+                    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                }
+                debug!("...checking rules, adding actions");
+                let _actions_from_config = match self.get_actions_from_rules(){
+                    Ok(a) => {
+                        if a.len() > 0 {
+                            // Format would be motor_l=-60,time=2.6
+                            // TODO: make this work for other outputs (motors...)
+                            self.buffer_led_y.entries = Vec::new();
+                            for action in a {
+                                for o in action.output {
+                                    let aux = format!("{}={},time={}", o.object, o.value, o.time);
+                                    self.add_action(aux);
+                                }
+                            }
+                        };
+                    },
+                    Err(_e) => debug!("...no matching rules found"),
+                };
+                debug!("...doing actions");
+                'outer: loop {
+                    self.timestamp = match ct.duration_since(UNIX_EPOCH) {
+                        Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
+                        Err(_e) => 0.0,
+                    };
+                    debug!("- Actions buffer - LED Y:");
+                    debug!("  {:?}", self.buffer_led_y.entries);
+                    match self.do_next_actions() {
+                        Ok(a) => {
+                            if a != "done nothing" {
+                                debug!("- Action {:?} - {:?}", self.timestamp, a);
+                            } else {
+                                debug!("- Action {:?} - {:?}", self.timestamp, a);
+                            }
+                            break 'outer;
+                        },
+                        Err(_e) => {
+                            break 'outer;
+                        },
+                    };
                 }
             }
         }
     }
 
-    /// Get the action that relates to the trigger received and call to apply it
-    /// Hm...maybe this one and do_brain_actions should go together?
-    pub fn get_brain_actions(&mut self, trigger: &str) -> Result<Vec<String>, BrainDeadError> {
-        debug!("Received {}", trigger);
-        let actions = self.config.get_actions(&trigger);
-        match actions {
-            Ok(acts) => {
-                match acts {
-                    Some(a) => {
-                        self.do_brain_actions(a.clone()).unwrap();
-                        Ok(a)
-                    },
-                    None => {
-                        debug!("Nothing to do");
-                        Err(BrainDeadError::NoConfigFound)
-                    },
-                }
+    /// adds metric to the related metrics buffer
+    pub fn add_metric(&mut self, metric: String) {
+        debug!("- Adding metric {}", metric);
+        let metric_decomp = metric.split("__").collect::<Vec<_>>();
+        match metric_decomp[0] {
+            "led_y" => {
+                if self.metrics_led_y.entries.len() == 0 {
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        data: metric_decomp[1].to_string(),
+                        time: self.timestamp.clone(), // here time means "since_timestamp"
+                    };
+                    self.metrics_led_y.entries.push(new_m);
+                    self.metrics_led_y.last_change_timestamp = self.timestamp;
+                } else {
+                    if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
+                        let new_m = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            data: metric_decomp[1].to_string(),
+                            time: self.timestamp.clone(),
+                        };
+                        self.metrics_led_y.entries.insert(0, new_m);
+                        self.metrics_led_y.last_change_timestamp = self.timestamp;
+                    }
+                }; 
+                if self.metrics_led_y.entries.len() > self.metrics_led_y.max_size.into() {
+                    self.metrics_led_y.entries.pop();
+                };
             },
-            Err(_e) => Err(BrainDeadError::NoConfigFound),
+            _ => (),
         }
     }
 
-    /// Call the action needed
-    /// , which, right now, is just installing a new hex into the arduino
-    pub fn do_brain_actions(&mut self, actions: Vec<String>) -> Result<(), BrainDeadError> {
-        for action in &actions {
-            let action_vec: Vec<&str> = action.split('_').collect();
-            match action_vec[0] {
-                "install" => self.arduino.install(&action_vec[1..].to_vec().join("_")).unwrap(),
-                "move" => self.motors.set(action_vec[1..].to_vec().join("_")),
-                _ => debug!("Relaxing here..."),
+    /// Goes through all rules loaded from config, checks if they match what is currently on our
+    /// metrics, and iif so, it returns them
+    pub fn get_actions_from_rules(&mut self) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+        // Start with led_y
+        let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
+        for rule in self.config.clone() {
+            if self.metrics_led_y.entries.len() > 0 {
+                if rule.input[0].led_y != "*" {
+                    if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
+                        if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
+                            // for ix, action in rule.output -> if same index on buffer_led_y has
+                            // same action, then take note, anf if all of them are the same, dont
+                            // add the rule
+                            if ! self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.push(rule.clone());
+                            }
+                        };
+                    };
+                } else {
+                    if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
+                        partial_rules.push(rule.clone());
+                    };
+                };
+
             };
+        };
+        if partial_rules.len() > 0 {
+            debug!("- Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                debug!(" #{} input:", ix);
+                debug!("      |{:?}|", rule.input);
+                debug!("     output:");
+                debug!("      |{:?}|", rule.output);
+            }
         }
-        Ok(())
+        Ok(partial_rules)
+    }
+
+    /// turns a String containing an action into the related object
+    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
+        // Format would be motor_l=-60,time=2.6
+        let format = action.split(",").collect::<Vec<_>>();
+        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
+        let data = format[0].split("=").collect::<Vec<_>>();
+        match data[0] {
+            "led_y" => {
+                let action_item = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    data: data[1].to_string(),
+                    time: t,
+                };
+                let result = ResultAction {
+                    resource: data[0].to_string(),
+                    action: action_item,
+                };
+                Ok(result)
+            },
+            _ => {
+                let action_item = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    data: data[1].to_string(),
+                    time: t,
+                };
+                let result = ResultAction {
+                    resource: data[0].to_string(),
+                    action: action_item,
+                };
+                Ok(result)
+            },
+        }
+    }
+
+    /// Adds action to the related actions buffer
+    pub fn add_action(&mut self, action: String) {
+        debug!("- Adding action {}", action);
+        let action_to_add = self.clone().get_action_from_string(action).unwrap();
+        match action_to_add.resource.as_str() {
+            "led_y" => {
+                if self.buffer_led_y.entries.len() >= self.buffer_led_y.max_size.into() {
+                    warn!("Buffer for LED_y is full! not adding new actions...");
+                } else {
+                    self.buffer_led_y.entries.push(action_to_add.action);
+                };
+            },
+            _ => ()
+        }
+    }
+
+    /// Checks the time passed for the current action and, when it goes over the time set, 
+    /// it "moves" to the next one
+    pub fn do_next_actions(&mut self) -> Result<String, String>{
+        if self.timestamp >= self.metrics_led_y.last_change_timestamp {
+            if self.buffer_led_y.entries.len() == 0 {
+                Err("No more actions to take".to_string())
+            } else {
+                let a = &self.buffer_led_y.entries.clone()[0];
+                let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
+                debug!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_led_y.current_entry.time {
+                    self.buffer_led_y.current_entry = a.clone();
+                    self.buffer_led_y.entries.retain(|x| *x != *a);
+                    self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
+                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+                    info!("- Just did LED_Y -> {}", a.data);
+                    self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_y__{}", a.data));
+                    Ok(format!("done {:?}", a))
+
+                } else {
+                    Ok("done nothing".to_string())
+                }
+            }
+        } else {
+            Ok("done nothing".to_string())
+        }
+    }
+
+    /// Returns whether a set of actions are already on the buffer, 
+    /// to avoid constantly adding the same ones
+    pub fn are_actions_in_buffer(&self, rule: ConfigEntry) -> bool {
+        // first loop to fill up vectors of actions separately
+        let mut rule_out_led_y = [].to_vec();
+        let mut rule_out_other = [].to_vec();
+        for r in rule.output {
+            match r.object.as_str() {
+                "led_y" => rule_out_led_y.push(r),
+                _ => rule_out_other.push(r),
+            }
+        }
+        let mut result = true;
+        for (ix, r) in rule_out_led_y.iter().enumerate() {
+            if self.buffer_led_y.entries.len() > ix {
+                if format!("{}_{}", r.value, r.time) != format!("{}_{}", self.buffer_led_y.entries[ix].data, self.buffer_led_y.entries[ix].time) {
+                   result = false; 
+                }
+            } else {
+               result = false; 
+            }
+        }
+        result
     }
 }
