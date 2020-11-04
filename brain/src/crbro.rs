@@ -1,7 +1,7 @@
 use crate::arduino::Arduino;
 use crate::motors::Motors;
 use crate::leds::LEDs;
-use log::{debug, error, info, warn};
+use log::{debug, error, info, trace, warn};
 use std::fs::File;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -81,6 +81,7 @@ pub struct Crbro {
     buffer_led_y: Buffer,
     metrics_led_y: Buffer,
 }
+
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 
 impl Crbro {
@@ -90,12 +91,12 @@ impl Crbro {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
+        let cfg_file_pointer = File::open(config_file).unwrap();
+        let c: Vec<ConfigEntry> = serde_yaml::from_reader(cfg_file_pointer).unwrap();
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
         });
-        let cfg_file_pointer = File::open(config_file).unwrap();
-        let c: Vec<ConfigEntry> = serde_yaml::from_reader(cfg_file_pointer).unwrap();
         if mode.clone() != "dryrun" {
             a = Arduino::new("arduino".to_string(), None).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Arduino: {}", err);
@@ -147,6 +148,7 @@ impl Crbro {
     }
     pub fn do_io(&mut self) {
         loop {
+            // setup the channel read and continue
             debug!("...reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
@@ -165,8 +167,11 @@ impl Crbro {
                     Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                     Err(_e) => 0.0,
                 };
+                // TODO: this recv is what blocks the loop
+                // maybe we want to refactor it and just make a constant loop independent from
+                // messages?
                 let msg = r.recv();
-                debug!("- Received {}", msg.clone().unwrap());
+                info!("- Received {}", msg.clone().unwrap());
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
@@ -180,6 +185,7 @@ impl Crbro {
                 debug!("...adding current metrics");
                 self.add_current_metrics();
                 debug!("...checking rules, adding actions");
+                info!("TIME: {}", self.timestamp);
                 let _actions_from_config = match self.get_actions_from_rules(){
                     Ok(a) => {
                         if a.len() > 0 {
@@ -202,8 +208,8 @@ impl Crbro {
                         Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                         Err(_e) => 0.0,
                     };
-                    debug!("- Actions buffer - LED Y:");
-                    debug!("  {:?}", self.buffer_led_y.entries);
+                    trace!("- Actions buffer - LED Y:");
+                    trace!("  {:?}", self.buffer_led_y.entries);
                     match self.do_next_actions() {
                         Ok(a) => {
                             if a != "done nothing" {
@@ -247,12 +253,16 @@ impl Crbro {
             };
         };
         if partial_rules.len() > 0 {
-            debug!("- Rules matching :");
+            trace!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                debug!(" #{} input:", ix);
-                debug!("      |{:?}|", rule.input);
-                debug!("     output:");
-                debug!("      |{:?}|", rule.output);
+                trace!(" #{} input:", ix);
+                for ri in rule.input.clone() {
+                    trace!("      |{:?}|", ri);
+                }
+                trace!("     output:");
+                for ro in rule.output.clone() {
+                    trace!("      |{:?}|", ro);
+                }
             }
         }
         Ok(partial_rules)
@@ -260,9 +270,9 @@ impl Crbro {
 
     pub fn add_current_metrics(&mut self) {
         debug!("- Current timestamp: {}", self.timestamp);
-        debug!("- Metrics - LED Y:");
+        trace!("- Metrics - LED Y:");
         for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
-            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
         }
     }
 
@@ -358,7 +368,7 @@ impl Crbro {
                     self.buffer_led_y.current_entry = a.clone();
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
-                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+                    trace!("- Buffer: {:#x?}", self.buffer_led_y.entries);
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
