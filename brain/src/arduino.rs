@@ -54,6 +54,12 @@ impl Arduino {
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
+            let got = "ACTION: led_r=1,time=0.5".to_string();
+            thread::sleep(time::Duration::from_secs(1));
+            match channel.send(got){
+                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                Err(_e) => (),
+            };
         }
     }
 

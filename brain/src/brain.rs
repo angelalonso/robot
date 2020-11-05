@@ -23,7 +23,7 @@ pub enum BrainDeadError {
     SystemTimeError,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigInput {
     pub time: String,
     pub led_y: String,
@@ -34,7 +34,7 @@ pub struct ConfigInput {
     pub distance: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigOutput {
     pub object: String,
     pub value: String,
@@ -42,7 +42,7 @@ pub struct ConfigOutput {
     pub repeat: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigEntry {
     input: Vec<ConfigInput>,
     output: Vec<ConfigOutput>
@@ -285,7 +285,7 @@ impl Brain {
                     Ok(a) => {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
-                            //TODO: this should be done only it the action refers to the object
+                            //TODO: this should be done only if the action refers to the object
                             self.buffer_led_y.entries = Vec::new();
                             self.buffer_led_r.entries = Vec::new();
                             //self.buffer_led_g.entries = Vec::new();
@@ -448,7 +448,7 @@ impl Brain {
                     if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
                         if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
                             // for ix, action in rule.output -> if same index on buffer_led_y has
-                            // same action, then take note, anf if all of them are the same, dont
+                            // same action, then take note, and if all of them are the same, dont
                             // add the rule
                             if ! self.are_actions_in_buffer(rule.clone()) {
                                 partial_rules.push(rule.clone());
@@ -464,23 +464,24 @@ impl Brain {
             };
         };
         // Then remove those that dont fit led_r
-        //TODO: I think this should go the opposite way: dont add, remove!
+        //TODO: Check that this actually works
         for rule in partial_rules.clone() {
             if self.metrics_led_r.entries.len() > 0 {
                 if rule.input[0].led_r != "*" {
-                    if self.metrics_led_r.entries[0].data == rule.input[0].led_r {
-                        if (self.timestamp - self.metrics_led_r.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_r.entries[0].time == 0.0){
-                            // for ix, action in rule.output -> if same index on buffer_led_r has
-                            // same action, then take note, anf if all of them are the same, dont
-                            // add the rule
-                            if ! self.are_actions_in_buffer(rule.clone()) {
-                                partial_rules.push(rule.clone());
+                    if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
+                        partial_rules.retain(|x| *x != rule);
+                    } else {
+                        if (self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_r.entries[0].time == 0.0){
+                            partial_rules.retain(|x| *x != rule);
+                        } else {
+                            if self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.retain(|x| *x != rule);
                             }
                         };
                     };
                 } else {
-                    if (self.timestamp - self.metrics_led_r.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_r.entries[0].time == 0.0){
-                        partial_rules.push(rule.clone());
+                    if self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap() {
+                        partial_rules.retain(|x| *x != rule);
                     };
                 };
 
@@ -563,11 +564,14 @@ impl Brain {
     /// Checks the time passed for the current action and, when it goes over the time set, 
     /// it "moves" to the next one
     pub fn do_next_actions(&mut self) -> Result<String, String>{
-        // TODO: add led_r here...but HOW?
+        // TODO: check if a loop is not needed here...
+        let mut done = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            data: "0".to_string(),
+            time: 0.0,
+        };
         if self.timestamp >= self.metrics_led_y.last_change_timestamp {
-            if self.buffer_led_y.entries.len() == 0 {
-                Err("No more actions to take".to_string())
-            } else {
+            if self.buffer_led_y.entries.len() > 0 {
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
                 debug!("- Time passed on current value - {:?}", time_passed);
@@ -579,15 +583,29 @@ impl Brain {
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
-                    Ok(format!("done {:?}", a))
-
-                } else {
-                    Ok("done nothing".to_string())
+                    done = a.clone();
                 }
             }
-        } else {
-            Ok("done nothing".to_string())
-        }
+        };
+        if self.timestamp >= self.metrics_led_r.last_change_timestamp {
+            if self.buffer_led_r.entries.len() > 0 {
+                let a = &self.buffer_led_r.entries.clone()[0];
+                let time_passed = self.timestamp - self.buffer_led_r.last_change_timestamp;
+                debug!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_led_r.current_entry.time {
+                    self.buffer_led_r.current_entry = a.clone();
+                    self.buffer_led_r.entries.retain(|x| *x != *a);
+                    self.buffer_led_r.last_change_timestamp = self.timestamp.clone();
+                    trace!("- Buffer: {:#x?}", self.buffer_led_r.entries);
+                    info!("- Just did led_r -> {}", a.data);
+                    self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_r__{}", a.data));
+                    done = a.clone();
+                }
+            }
+        };
+        Ok(format!("{:#x?}", done))
+
     }
 
     /// Returns whether a set of actions are already on the buffer, 
