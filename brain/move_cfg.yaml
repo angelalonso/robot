@@ -2,6 +2,7 @@
 - input:
   - time: "0.2" 
     led_y: "0"
+    led_r: "*"
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
@@ -14,6 +15,7 @@
 - input:
   - time: "0.2" 
     led_y: "1"
+    led_r: "*"
     motor_l: "*"
     motor_r: "*"
     tracker: "*"

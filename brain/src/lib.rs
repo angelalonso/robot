@@ -1,4 +1,3 @@
-pub mod cerebellum;
 pub mod config;
 pub mod config_test;
 pub mod brain;
