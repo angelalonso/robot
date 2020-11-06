@@ -500,15 +500,15 @@ impl Brain {
             };
         };
         if partial_rules.len() > 0 {
-            debug!("- Rules matching :");
+            info!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                debug!(" #{} input:", ix);
+                info!(" #{} input:", ix);
                 for ri in rule.input.clone() {
-                    debug!("      |{:?}|", ri);
+                    info!("      |{:?}|", ri);
                 }
-                debug!("     output:");
+                info!("     output:");
                 for ro in rule.output.clone() {
-                    debug!("      |{:?}|", ro);
+                    info!("      |{:?}|", ro);
                 }
             }
         }
