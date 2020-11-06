@@ -491,6 +491,7 @@ impl Brain {
         // Then remove those that dont fit led_r
         //TODO: Check that this actually works
         for rule in partial_rules.clone() {
+            println!("############### {:#x?}", rule);
             if self.metrics_led_r.entries.len() > 0 {
                 if rule.input[0].led_r != "*" {
                     if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
