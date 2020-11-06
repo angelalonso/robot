@@ -21,7 +21,7 @@ impl LEDs {
     pub fn new(mode: String) -> Result<Self, &'static str> {
         let mut l_y_o = None;
         if mode != "dryrun" {
-            l_y_o = Some(Arc::new(Mutex::new(LED::new(21))));
+            l_y_o = Some(Arc::new(Mutex::new(LED::new(16))));
         }
         let l_y = LEDObj {
             name: "led_y".to_string(),
@@ -30,7 +30,7 @@ impl LEDs {
         };
         let mut l_r_o = None;
         if mode != "dryrun" {
-            l_r_o = Some(Arc::new(Mutex::new(LED::new(20))));
+            l_r_o = Some(Arc::new(Mutex::new(LED::new(12))));
         }
         let l_r = LEDObj {
             name: "led_r".to_string(),
@@ -40,7 +40,7 @@ impl LEDs {
         let l_g_o = None;
         //let mut l_g_o = None;
         //if mode != "dryrun" {
-        //    l_g_o = Some(Arc::new(Mutex::new(LED::new(XX))));
+        //    l_g_o = Some(Arc::new(Mutex::new(LED::new(20))));
         //}
         let l_g = LEDObj {
             name: "led_g".to_string(),
@@ -50,7 +50,7 @@ impl LEDs {
         let l_b_o = None;
         //let mut l_b_o = None;
         //if mode != "dryrun" {
-        //    l_b_o = Some(Arc::new(Mutex::new(LED::new(XX))));
+        //    l_b_o = Some(Arc::new(Mutex::new(LED::new(21))));
         //}
         let l_b = LEDObj {
             name: "led_b".to_string(),
