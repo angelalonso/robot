@@ -47,20 +47,21 @@ impl Arduino {
 
     pub fn read_channel_mock(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
         debug!("...reading from Mocked Serial Port");
-        loop {
-            let got = "ACTION: led_y=1,time=0.7".to_string();
-            thread::sleep(time::Duration::from_secs(1));
-            match channel.send(got){
-                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-                Err(_e) => (),
-            };
-            let got = "ACTION: led_r=1,time=0.5".to_string();
-            thread::sleep(time::Duration::from_secs(1));
-            match channel.send(got){
-                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-                Err(_e) => (),
-            };
+//        loop {
+        let got = "ACTION: led_y=1,time=0.7".to_string();
+        thread::sleep(time::Duration::from_secs(1));
+        match channel.send(got){
+            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+            Err(_e) => (),
+        };
+        let got = "ACTION: led_r=1,time=0.5".to_string();
+        thread::sleep(time::Duration::from_secs(1));
+        match channel.send(got){
+            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+            Err(_e) => (),
         }
+        Ok("".to_string())
+//        }
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {

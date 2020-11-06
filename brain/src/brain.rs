@@ -251,18 +251,23 @@ impl Brain {
                     Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                     Err(_e) => 0.0,
                 };
-                let msg = r.recv();
-                trace!("- Received {}", msg.clone().unwrap());
-                let actionmsg = msg.clone();
-                let sensormsg = msg.clone();
-                if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
-                    let msg_action = msg.unwrap().replace("ACTION: ", "");
-                    self.add_action(msg_action);
-                } else if sensormsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
-                    // NOTE: Sensor messages format go like "SENSOR: object_x__value"
-                    let msg_sensor = msg.unwrap().replace("SENSOR: ", "");
-                    self.add_metric(msg_sensor);
-                }
+                let msg = match r.try_recv() {
+                    Ok(m) => {
+                        trace!("- Received {}", m);
+                        let actionmsg = m.clone();
+                        let sensormsg = m.clone();
+                        if actionmsg.split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
+                            let msg_action = m.replace("ACTION: ", "");
+                            self.add_action(msg_action);
+                        } else if sensormsg.split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
+                            // NOTE: Sensor messages format go like "SENSOR: object_x__value"
+                            let msg_sensor = m.replace("SENSOR: ", "");
+                            self.add_metric(msg_sensor);
+                        }
+
+                    },
+                    Err(_) => (),
+                };
                 trace!("- Current timestamp: {}", self.timestamp);
                 debug!("- Metrics - LED Y:");
                 for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
