@@ -494,13 +494,19 @@ impl Brain {
             println!("############### {:#x?}", rule);
             if self.metrics_led_r.entries.len() > 0 {
                 if rule.input[0].led_r != "*" {
+                    println!("HERE");
                     if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
+                        println!("HERE A");
                         partial_rules.retain(|x| *x != rule);
                     } else {
+                        println!("HERE B");
                         if (self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_r.entries[0].time == 0.0){
+                            println!("HERE BA");
                             partial_rules.retain(|x| *x != rule);
                         } else {
+                            println!("HERE BB");
                             if self.are_actions_in_buffer(rule.clone()) {
+                                println!("HERE BBA");
                                 partial_rules.retain(|x| *x != rule);
                             }
                         };
