@@ -285,11 +285,18 @@ impl Brain {
                     Ok(a) => {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
-                            //TODO: this should be done only if the action refers to the object
-                            self.buffer_led_y.entries = Vec::new();
-                            self.buffer_led_r.entries = Vec::new();
-                            //self.buffer_led_g.entries = Vec::new();
-                            //self.buffer_led_b.entries = Vec::new();
+                            // first a round to check which objects we are adding new actions to
+                            for action in a.clone() {
+                                for o in action.output {
+                                    match o.object.as_str() {
+                                        "led_y" => self.buffer_led_y.entries = Vec::new(),
+                                        "led_r" => self.buffer_led_r.entries = Vec::new(),
+                                        _ => (),
+                                    }
+
+                                }
+                            }
+                            // then do the actions
                             for action in a {
                                 for o in action.output {
                                     let aux = format!("{}={},time={}", o.object, o.value, o.time);
@@ -597,7 +604,7 @@ impl Brain {
                     self.buffer_led_r.entries.retain(|x| *x != *a);
                     self.buffer_led_r.last_change_timestamp = self.timestamp.clone();
                     trace!("- Buffer: {:#x?}", self.buffer_led_r.entries);
-                    info!("- Just did led_r -> {}", a.data);
+                    info!("- Just did LED_R -> {}", a.data);
                     self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_r__{}", a.data));
                     done = a.clone();
