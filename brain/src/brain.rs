@@ -475,6 +475,19 @@ impl Brain {
 
             };
         };
+        if partial_rules.len() > 0 {
+            debug!("- AUX Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                debug!(" #{} input:", ix);
+                for ri in rule.input.clone() {
+                    debug!("      |{:?}|", ri);
+                }
+                debug!("     output:");
+                for ro in rule.output.clone() {
+                    debug!("      |{:?}|", ro);
+                }
+            }
+        }
         // Then remove those that dont fit led_r
         //TODO: Check that this actually works
         for rule in partial_rules.clone() {
@@ -500,15 +513,15 @@ impl Brain {
             };
         };
         if partial_rules.len() > 0 {
-            info!("- Rules matching :");
+            debug!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                info!(" #{} input:", ix);
+                debug!(" #{} input:", ix);
                 for ri in rule.input.clone() {
-                    info!("      |{:?}|", ri);
+                    debug!("      |{:?}|", ri);
                 }
-                info!("     output:");
+                debug!("     output:");
                 for ro in rule.output.clone() {
-                    info!("      |{:?}|", ro);
+                    debug!("      |{:?}|", ro);
                 }
             }
         }
