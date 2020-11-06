@@ -504,10 +504,6 @@ impl Brain {
                             }
                         };
                     };
-                } else {
-                    if self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap() {
-                        partial_rules.retain(|x| *x != rule);
-                    };
                 };
 
             };
