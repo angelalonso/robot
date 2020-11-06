@@ -31,7 +31,7 @@ impl LEDs {
         };
         let mut l_r_o = None;
         if mode != "dryrun" {
-            l_r_o = Some(Arc::new(Mutex::new(LED::new(12))));
+            l_r_o = Some(Arc::new(Mutex::new(LED::new(20))));
         }
         let l_r = LEDObj {
             name: "led_r".to_string(),
