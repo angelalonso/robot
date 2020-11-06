@@ -233,7 +233,7 @@ impl Brain {
     ///  in a constant loop
     pub fn do_io(&mut self) {
         loop {
-            debug!("...reading from channel with Arduino");
+            trace!("...reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
             let mut arduino = self.arduino.clone();
@@ -252,7 +252,7 @@ impl Brain {
                     Err(_e) => 0.0,
                 };
                 let msg = r.recv();
-                debug!("- Received {}", msg.clone().unwrap());
+                trace!("- Received {}", msg.clone().unwrap());
                 let actionmsg = msg.clone();
                 let sensormsg = msg.clone();
                 if actionmsg.unwrap().split(": ").collect::<Vec<_>>()[0] == "ACTION".to_string() {
@@ -263,22 +263,22 @@ impl Brain {
                     let msg_sensor = msg.unwrap().replace("SENSOR: ", "");
                     self.add_metric(msg_sensor);
                 }
-                debug!("- Current timestamp: {}", self.timestamp);
-                trace!("- Metrics - LED Y:");
+                trace!("- Current timestamp: {}", self.timestamp);
+                debug!("- Metrics - LED Y:");
                 for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
-                    trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 }
-                trace!("- Metrics - LED R:");
+                debug!("- Metrics - LED R:");
                 for (ix, action) in self.metrics_led_r.entries.clone().iter().enumerate() {
-                    trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 }
-                //trace!("- Metrics - LED G:");
+                //debug!("- Metrics - LED G:");
                 //for (ix, action) in self.metrics_led_g.entries.clone().iter().enumerate() {
-                //    trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 //}
-                //trace!("- Metrics - LED B:");
+                //debug!("- Metrics - LED B:");
                 //for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
-                //    trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 //}
                 trace!("...checking rules, adding actions");
                 let _actions_from_config = match self.get_actions_from_rules(){
@@ -305,28 +305,28 @@ impl Brain {
                             }
                         };
                     },
-                    Err(_e) => debug!("...no matching rules found"),
+                    Err(_e) => trace!("...no matching rules found"),
                 };
-                debug!("...doing actions");
+                trace!("...doing actions");
                 'outer: loop {
                     self.timestamp = match ct.duration_since(UNIX_EPOCH) {
                         Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                         Err(_e) => 0.0,
                     };
-                    trace!("- Actions buffer - LED Y:");
-                    trace!("  {:?}", self.buffer_led_y.entries);
-                    trace!("- Actions buffer - LED R:");
-                    trace!("  {:?}", self.buffer_led_r.entries);
-                    //trace!("- Actions buffer - LED G:");
-                    //trace!("  {:?}", self.buffer_led_g.entries);
-                    //trace!("- Actions buffer - LED B:");
-                    //trace!("  {:?}", self.buffer_led_b.entries);
+                    debug!("- Actions buffer - LED Y:");
+                    debug!("  {:?}", self.buffer_led_y.entries);
+                    debug!("- Actions buffer - LED R:");
+                    debug!("  {:?}", self.buffer_led_r.entries);
+                    //debug!("- Actions buffer - LED G:");
+                    //debug!("  {:?}", self.buffer_led_g.entries);
+                    //debug!("- Actions buffer - LED B:");
+                    //debug!("  {:?}", self.buffer_led_b.entries);
                     match self.do_next_actions() {
                         Ok(a) => {
                             if a != "done nothing" {
-                                debug!("- Action {:?} - {:?}", self.timestamp, a);
+                                trace!("- Action {:?} - {:?}", self.timestamp, a);
                             } else {
-                                debug!("- Action {:?} - {:?}", self.timestamp, a);
+                                trace!("- Action {:?} - {:?}", self.timestamp, a);
                             }
                             break 'outer;
                         },
@@ -341,7 +341,7 @@ impl Brain {
 
     /// adds metric to the related metrics buffer
     pub fn add_metric(&mut self, metric: String) {
-        debug!("- Adding metric {}", metric);
+        trace!("- Adding metric {}", metric);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match metric_decomp[0] {
             "led_y" => {
@@ -495,15 +495,15 @@ impl Brain {
             };
         };
         if partial_rules.len() > 0 {
-            trace!("- Rules matching :");
+            debug!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                trace!(" #{} input:", ix);
+                debug!(" #{} input:", ix);
                 for ri in rule.input.clone() {
-                    trace!("      |{:?}|", ri);
+                    debug!("      |{:?}|", ri);
                 }
-                trace!("     output:");
+                debug!("     output:");
                 for ro in rule.output.clone() {
-                    trace!("      |{:?}|", ro);
+                    debug!("      |{:?}|", ro);
                 }
             }
         }
@@ -547,7 +547,7 @@ impl Brain {
 
     /// Adds action to the related actions buffer
     pub fn add_action(&mut self, action: String) {
-        debug!("- Adding action {}", action);
+        trace!("- Adding action {}", action);
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         match action_to_add.resource.as_str() {
             "led_y" => {
@@ -581,12 +581,12 @@ impl Brain {
             if self.buffer_led_y.entries.len() > 0 {
                 let a = &self.buffer_led_y.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_y.last_change_timestamp;
-                debug!("- Time passed on current value - {:?}", time_passed);
+                trace!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= self.buffer_led_y.current_entry.time {
                     self.buffer_led_y.current_entry = a.clone();
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = self.timestamp.clone();
-                    trace!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
@@ -598,12 +598,12 @@ impl Brain {
             if self.buffer_led_r.entries.len() > 0 {
                 let a = &self.buffer_led_r.entries.clone()[0];
                 let time_passed = self.timestamp - self.buffer_led_r.last_change_timestamp;
-                debug!("- Time passed on current value - {:?}", time_passed);
+                trace!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= self.buffer_led_r.current_entry.time {
                     self.buffer_led_r.current_entry = a.clone();
                     self.buffer_led_r.entries.retain(|x| *x != *a);
                     self.buffer_led_r.last_change_timestamp = self.timestamp.clone();
-                    trace!("- Buffer: {:#x?}", self.buffer_led_r.entries);
+                    debug!("- Buffer: {:#x?}", self.buffer_led_r.entries);
                     info!("- Just did LED_R -> {}", a.data);
                     self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_r__{}", a.data));
