@@ -251,7 +251,7 @@ impl Brain {
                     Ok(time) => (time.as_millis() as f64 - self.start_time as f64) / 1000 as f64,
                     Err(_e) => 0.0,
                 };
-                let msg = match r.try_recv() {
+                let _msg = match r.try_recv() {
                     Ok(m) => {
                         trace!("- Received {}", m);
                         let actionmsg = m.clone();
