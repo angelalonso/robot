@@ -4,6 +4,7 @@
     led_y: "0"
     led_r: "*"
     led_g: "*"
+    led_b: "*"
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
@@ -22,6 +23,7 @@
     led_y: "*"
     led_r: "0"
     led_g: "*"
+    led_b: "*"
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
@@ -40,6 +42,7 @@
     led_y: "*"
     led_r: "*"
     led_g: "0"
+    led_b: "*"
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
@@ -50,6 +53,25 @@
     time: "1"
     repeat: false
   - object: "led_g"
+    value: "0"
+    time: "1"
+    repeat: false
+- input:
+  - time: "2" 
+    led_y: "*"
+    led_r: "*"
+    led_g: "*"
+    led_b: "0"
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "*"
+  output:
+  - object: "led_b"
+    value: "1"
+    time: "1"
+    repeat: false
+  - object: "led_b"
     value: "0"
     time: "1"
     repeat: false
