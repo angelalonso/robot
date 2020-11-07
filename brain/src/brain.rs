@@ -397,30 +397,30 @@ impl Brain {
                     self.metrics_led_r.entries.pop();
                 };
             },
-            //"led_g" => {
-            //    if self.metrics_led_g.entries.len() == 0 {
-            //        let new_m = TimedData {
-            //            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            //            data: metric_decomp[1].to_string(),
-            //            time: self.timestamp.clone(), // here time means "since_timestamp"
-            //        };
-            //        self.metrics_led_g.entries.push(new_m);
-            //        self.metrics_led_g.last_change_timestamp = self.timestamp;
-            //    } else {
-            //        if self.metrics_led_g.entries[0].data != metric_decomp[1].to_string() {
-            //            let new_m = TimedData {
-            //                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            //                data: metric_decomp[1].to_string(),
-            //                time: self.timestamp.clone(),
-            //            };
-            //            self.metrics_led_g.entries.insert(0, new_m);
-            //            self.metrics_led_g.last_change_timestamp = self.timestamp;
-            //        }
-            //    }; 
-            //    if self.metrics_led_g.entries.len() > self.metrics_led_g.max_size.into() {
-            //        self.metrics_led_g.entries.pop();
-            //    };
-            //},
+            "led_g" => {
+                if self.metrics_led_g.entries.len() == 0 {
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        data: metric_decomp[1].to_string(),
+                        time: self.timestamp.clone(), // here time means "since_timestamp"
+                    };
+                    self.metrics_led_g.entries.push(new_m);
+                    self.metrics_led_g.last_change_timestamp = self.timestamp;
+                } else {
+                    if self.metrics_led_g.entries[0].data != metric_decomp[1].to_string() {
+                        let new_m = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            data: metric_decomp[1].to_string(),
+                            time: self.timestamp.clone(),
+                        };
+                        self.metrics_led_g.entries.insert(0, new_m);
+                        self.metrics_led_g.last_change_timestamp = self.timestamp;
+                    }
+                }; 
+                if self.metrics_led_g.entries.len() > self.metrics_led_g.max_size.into() {
+                    self.metrics_led_g.entries.pop();
+                };
+            },
             //"led_b" => {
             //    if self.metrics_led_b.entries.len() == 0 {
             //        let new_m = TimedData {
@@ -496,6 +496,26 @@ impl Brain {
 
             };
         };
+        // Then remove those that dont fit led_g
+        //TODO: does this work always and in sync?
+        for rule in partial_rules.clone() {
+            if self.metrics_led_g.entries.len() > 0 {
+                if rule.input[0].led_g != "*" {
+                    if self.metrics_led_g.entries[0].data != rule.input[0].led_g {
+                        partial_rules.retain(|x| *x != rule);
+                    } else {
+                        if (self.timestamp - self.metrics_led_g.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+                            partial_rules.retain(|x| *x != rule);
+                        } else {
+                            if self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.retain(|x| *x != rule);
+                            }
+                        };
+                    };
+                };
+
+            };
+        };
         if partial_rules.len() > 0 {
             debug!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
@@ -519,7 +539,7 @@ impl Brain {
         let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
         let data = format[0].split("=").collect::<Vec<_>>();
         match data[0] {
-            "led_y" | "led_r" => {
+            "led_y" | "led_r" | "led_g"=> {
                 let action_item = TimedData {
                     id: COUNTER.fetch_add(1, Ordering::Relaxed),
                     data: data[1].to_string(),
@@ -563,6 +583,13 @@ impl Brain {
                     warn!("Buffer for LED_r is full! not adding new actions...");
                 } else {
                     self.buffer_led_r.entries.push(action_to_add.action);
+                };
+            },
+            "led_g" => {
+                if self.buffer_led_g.entries.len() >= self.buffer_led_g.max_size.into() {
+                    warn!("Buffer for LED_g is full! not adding new actions...");
+                } else {
+                    self.buffer_led_g.entries.push(action_to_add.action);
                 };
             },
             _ => ()
@@ -612,6 +639,23 @@ impl Brain {
                 }
             }
         };
+        if self.timestamp >= self.metrics_led_g.last_change_timestamp {
+            if self.buffer_led_g.entries.len() > 0 {
+                let a = &self.buffer_led_g.entries.clone()[0];
+                let time_passed = self.timestamp - self.buffer_led_g.last_change_timestamp;
+                trace!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_led_g.current_entry.time {
+                    self.buffer_led_g.current_entry = a.clone();
+                    self.buffer_led_g.entries.retain(|x| *x != *a);
+                    self.buffer_led_g.last_change_timestamp = self.timestamp.clone();
+                    debug!("- Buffer: {:#x?}", self.buffer_led_g.entries);
+                    info!("- Just did LED_G -> {}", a.data);
+                    self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_g__{}", a.data));
+                    done = a.clone();
+                }
+            }
+        };
         Ok(format!("{:#x?}", done))
 
     }
@@ -629,7 +673,7 @@ impl Brain {
             match r.object.as_str() {
                 "led_y" => rule_out_led_y.push(r),
                 "led_r" => rule_out_led_r.push(r),
-                //"led_g" => rule_out_led_g.push(r),
+                "led_g" => rule_out_led_g.push(r),
                 //"led_b" => rule_out_led_b.push(r),
                 _ => rule_out_other.push(r),
             }
@@ -653,15 +697,15 @@ impl Brain {
                result = false; 
             }
         }
-        //for (ix, r) in rule_out_led_g.iter().enumerate() {
-        //    if self.buffer_led_g.entries.len() > ix {
-        //        if format!("{}_{}", r.value, r.time) != format!("{}_{}", self.buffer_led_g.entries[ix].data, self.buffer_led_g.entries[ix].time) {
-        //           result = false; 
-        //        }
-        //    } else {
-        //       result = false; 
-        //    }
-        //}
+        for (ix, r) in rule_out_led_g.iter().enumerate() {
+            if self.buffer_led_g.entries.len() > ix {
+                if format!("{}_{}", r.value, r.time) != format!("{}_{}", self.buffer_led_g.entries[ix].data, self.buffer_led_g.entries[ix].time) {
+                   result = false; 
+                }
+            } else {
+               result = false; 
+            }
+        }
         //for (ix, r) in rule_out_led_b.iter().enumerate() {
         //    if self.buffer_led_b.entries.len() > ix {
         //        if format!("{}_{}", r.value, r.time) != format!("{}_{}", self.buffer_led_b.entries[ix].data, self.buffer_led_b.entries[ix].time) {
