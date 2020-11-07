@@ -20,7 +20,7 @@ mod arduino_test {
     #[ignore]
     fn check_interact() {
             
-        let mut test = Arduino::new("testduino", Some("/dev/ttyUSB0")).unwrap_or_else(|err| {
+        let mut test = Arduino::new("testduino".to_string(), Some("/dev/ttyUSB0".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
@@ -39,7 +39,7 @@ mod arduino_test {
     #[test]
     #[ignore]
     fn check_install() {
-        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+        let mut test = Arduino::new("testduino".to_string(), None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
@@ -49,7 +49,7 @@ mod arduino_test {
     #[test]
     #[ignore]
     fn check_install_nofile () {
-        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+        let mut test = Arduino::new("testduino".to_string(), None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
@@ -58,7 +58,7 @@ mod arduino_test {
     }
     #[test]
     fn check_install_noconnection () {
-        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+        let mut test = Arduino::new("testduino".to_string(), None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
@@ -68,7 +68,7 @@ mod arduino_test {
 
     #[test]
     fn check_check_requirement() {
-        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+        let mut test = Arduino::new("testduino".to_string(), None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
@@ -78,7 +78,7 @@ mod arduino_test {
     #[test]
     #[ignore]
     fn check_avrdude() {
-        let mut test = Arduino::new("testduino", None).unwrap_or_else(|err| {
+        let mut test = Arduino::new("testduino".to_string(), None).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
         });
