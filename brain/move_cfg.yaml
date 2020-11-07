@@ -39,7 +39,7 @@
     time: "0.1"
     repeat: false
 - input:
-  - time: "0.2" 
+  - time: "0.4" 
     led_y: "*"
     led_r: "1"
     motor_l: "*"

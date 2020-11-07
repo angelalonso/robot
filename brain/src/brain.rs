@@ -468,15 +468,16 @@ impl Brain {
                         };
                     };
                 } else {
-                    if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
-                        partial_rules.push(rule.clone());
-                    };
+                    partial_rules.push(rule.clone());
+                    //if (self.timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
+                    //    partial_rules.push(rule.clone());
+                    //};
                 };
 
             };
         };
         // Then remove those that dont fit led_r
-        //TODO: do we need a special check for when time is 0??
+        //TODO: does this work always and in sync?
         for rule in partial_rules.clone() {
             if self.metrics_led_r.entries.len() > 0 {
                 if rule.input[0].led_r != "*" {
@@ -518,7 +519,6 @@ impl Brain {
         let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
         let data = format[0].split("=").collect::<Vec<_>>();
         match data[0] {
-            // TODO: will this work??
             "led_y" | "led_r" => {
                 let action_item = TimedData {
                     id: COUNTER.fetch_add(1, Ordering::Relaxed),
