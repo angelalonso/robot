@@ -37,21 +37,19 @@ impl LEDs {
             object: l_r_o,
             on: false,
         };
-        let l_g_o = None;
-        //let mut l_g_o = None;
-        //if mode != "dryrun" {
-        //    l_g_o = Some(Arc::new(Mutex::new(LED::new(20))));
-        //}
+        let mut l_g_o = None;
+        if mode != "dryrun" {
+            l_g_o = Some(Arc::new(Mutex::new(LED::new(16))));
+        }
         let l_g = LEDObj {
             name: "led_g".to_string(),
             object: l_g_o,
             on: false,
         };
-        let l_b_o = None;
-        //let mut l_b_o = None;
-        //if mode != "dryrun" {
-        //    l_b_o = Some(Arc::new(Mutex::new(LED::new(16))));
-        //}
+        let mut l_b_o = None;
+        if mode != "dryrun" {
+            l_b_o = Some(Arc::new(Mutex::new(LED::new(12))));
+        }
         let l_b = LEDObj {
             name: "led_b".to_string(),
             object: l_b_o,
