@@ -476,11 +476,10 @@ impl Brain {
             };
         };
         // Then remove those that dont fit led_r
-        //TODO: Check that this actually works
+        //TODO: do we need a special check for when time is 0??
         for rule in partial_rules.clone() {
             if self.metrics_led_r.entries.len() > 0 {
                 if rule.input[0].led_r != "*" {
-                    println!("HERE");
                     if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
                         partial_rules.retain(|x| *x != rule);
                     } else {
