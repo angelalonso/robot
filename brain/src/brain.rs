@@ -28,6 +28,7 @@ pub struct ConfigInput {
     pub time: String,
     pub led_y: String,
     pub led_r: String,
+    pub led_g: String,
     pub motor_l: String,
     pub motor_r: String,
     pub tracker: String,
@@ -666,7 +667,7 @@ impl Brain {
         // first loop to fill up vectors of actions separately
         let mut rule_out_led_y = [].to_vec();
         let mut rule_out_led_r = [].to_vec();
-        //let mut rule_out_led_g = [].to_vec();
+        let mut rule_out_led_g = [].to_vec();
         //let mut rule_out_led_b = [].to_vec();
         let mut rule_out_other = [].to_vec();
         for r in rule.output {
