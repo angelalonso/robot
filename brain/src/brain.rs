@@ -504,7 +504,7 @@ impl Brain {
                         println!("     self.metrics_led_r.entries[0].time {}", self.metrics_led_r.entries[0].time );
                         println!("     rule.input[0].time.parse::<f64>().unwrap() {}", rule.input[0].time.parse::<f64>().unwrap());
                         println!("     self.metrics_led_r.entries[0].time {}", self.metrics_led_r.entries[0].time );
-                        if (self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_r.entries[0].time == 0.0){
+                        if (self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()){
                             println!("HERE BA");
                             partial_rules.retain(|x| *x != rule);
                         } else {
