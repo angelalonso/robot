@@ -55,3 +55,11 @@
     value: "0"
     time: "0.1"
     repeat: false
+  - object: "led_r"
+    value: "1"
+    time: "0.1"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "0.1"
+    repeat: false
