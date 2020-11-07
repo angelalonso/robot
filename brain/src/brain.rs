@@ -483,7 +483,7 @@ impl Brain {
                     if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
                         partial_rules.retain(|x| *x != rule);
                     } else {
-                        if self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap(){
+                        if (self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
                             partial_rules.retain(|x| *x != rule);
                         } else {
                             if self.are_actions_in_buffer(rule.clone()) {

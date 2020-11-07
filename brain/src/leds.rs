@@ -22,7 +22,6 @@ impl LEDs {
         let mut l_y_o = None;
         if mode != "dryrun" {
             l_y_o = Some(Arc::new(Mutex::new(LED::new(21))));
-            println!("IN");
         }
         let l_y = LEDObj {
             name: "led_y".to_string(),
