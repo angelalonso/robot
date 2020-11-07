@@ -83,8 +83,8 @@ pub struct Brain {
     metrics_led_y: Buffer,
     buffer_led_r: Buffer,
     metrics_led_r: Buffer,
-    //buffer_led_g: Buffer,
-    //metrics_led_g: Buffer,
+    buffer_led_g: Buffer,
+    metrics_led_g: Buffer,
     //buffer_led_b: Buffer,
     //metrics_led_b: Buffer,
 }
@@ -163,29 +163,29 @@ impl Brain {
             current_entry: m_lr_e,
             max_size: 8,
         };
-        //// LED GREEN
-        //let b_lg_e = TimedData {
-        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //    data: "0".to_string(),
-        //    time: 0.0,
-        //};
-        //let b_lg = Buffer {
-        //    entries: [].to_vec(),
-        //    last_change_timestamp: 0.0,
-        //    current_entry: b_lg_e,
-        //    max_size: 10,
-        //};
-        //let m_lg_e = TimedData {
-        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //    data: "0".to_string(),
-        //    time: 0.0,
-        //};
-        //let m_lg = Buffer {
-        //    entries: [m_lg_e.clone()].to_vec(),
-        //    last_change_timestamp: 0.0,
-        //    current_entry: m_lg_e,
-        //    max_size: 8,
-        //};
+        // LED GREEN
+        let b_lg_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            data: "0".to_string(),
+            time: 0.0,
+        };
+        let b_lg = Buffer {
+            entries: [].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: b_lg_e,
+            max_size: 10,
+        };
+        let m_lg_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            data: "0".to_string(),
+            time: 0.0,
+        };
+        let m_lg = Buffer {
+            entries: [m_lg_e.clone()].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: m_lg_e,
+            max_size: 8,
+        };
         //// LED BLUE
         //let b_lb_e = TimedData {
         //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -222,8 +222,8 @@ impl Brain {
             metrics_led_y: m_ly,
             buffer_led_r: b_lr,
             metrics_led_r: m_lr,
-            //buffer_led_g: b_lg,
-            //metrics_led_g: m_lg,
+            buffer_led_g: b_lg,
+            metrics_led_g: m_lg,
             //buffer_led_b: b_lb,
             //metrics_led_b: m_lb,
         })
@@ -277,10 +277,10 @@ impl Brain {
                 for (ix, action) in self.metrics_led_r.entries.clone().iter().enumerate() {
                     debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 }
-                //debug!("- Metrics - LED G:");
-                //for (ix, action) in self.metrics_led_g.entries.clone().iter().enumerate() {
-                //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                //}
+                debug!("- Metrics - LED G:");
+                for (ix, action) in self.metrics_led_g.entries.clone().iter().enumerate() {
+                    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                }
                 //debug!("- Metrics - LED B:");
                 //for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
                 //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -322,8 +322,8 @@ impl Brain {
                     debug!("  {:?}", self.buffer_led_y.entries);
                     debug!("- Actions buffer - LED R:");
                     debug!("  {:?}", self.buffer_led_r.entries);
-                    //debug!("- Actions buffer - LED G:");
-                    //debug!("  {:?}", self.buffer_led_g.entries);
+                    debug!("- Actions buffer - LED G:");
+                    debug!("  {:?}", self.buffer_led_g.entries);
                     //debug!("- Actions buffer - LED B:");
                     //debug!("  {:?}", self.buffer_led_b.entries);
                     match self.do_next_actions() {
