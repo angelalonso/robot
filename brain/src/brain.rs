@@ -475,42 +475,19 @@ impl Brain {
 
             };
         };
-        if partial_rules.len() > 0 {
-            info!("- AUX Rules matching :");
-            for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                info!(" #{} input:", ix);
-                for ri in rule.input.clone() {
-                    info!("      |{:?}|", ri);
-                }
-                info!("     output:");
-                for ro in rule.output.clone() {
-                    info!("      |{:?}|", ro);
-                }
-            }
-        }
         // Then remove those that dont fit led_r
         //TODO: Check that this actually works
         for rule in partial_rules.clone() {
-            println!("############### {:#x?}", rule);
             if self.metrics_led_r.entries.len() > 0 {
                 if rule.input[0].led_r != "*" {
                     println!("HERE");
                     if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
-                        println!("HERE A");
                         partial_rules.retain(|x| *x != rule);
                     } else {
-                        println!("HERE B");
-                        println!("     self.timestamp {}", self.timestamp);
-                        println!("     self.metrics_led_r.entries[0].time {}", self.metrics_led_r.entries[0].time );
-                        println!("     rule.input[0].time.parse::<f64>().unwrap() {}", rule.input[0].time.parse::<f64>().unwrap());
-                        println!("     self.metrics_led_r.entries[0].time {}", self.metrics_led_r.entries[0].time );
-                        if (self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()){
-                            println!("HERE BA");
+                        if self.timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap(){
                             partial_rules.retain(|x| *x != rule);
                         } else {
-                            println!("HERE BB");
                             if self.are_actions_in_buffer(rule.clone()) {
-                                println!("HERE BBA");
                                 partial_rules.retain(|x| *x != rule);
                             }
                         };
@@ -520,15 +497,15 @@ impl Brain {
             };
         };
         if partial_rules.len() > 0 {
-            info!("- Rules matching :");
+            debug!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                info!(" #{} input:", ix);
+                debug!(" #{} input:", ix);
                 for ri in rule.input.clone() {
-                    info!("      |{:?}|", ri);
+                    debug!("      |{:?}|", ri);
                 }
-                info!("     output:");
+                debug!("     output:");
                 for ro in rule.output.clone() {
-                    info!("      |{:?}|", ro);
+                    debug!("      |{:?}|", ro);
                 }
             }
         }
