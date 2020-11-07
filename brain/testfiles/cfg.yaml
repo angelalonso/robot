@@ -1,7 +1,77 @@
----
-- trigger: "ping"
-  actions:
-    - sendfileserial_../arduino/001_test_pong/001_test_pong.ino.hex
-- trigger: "pong"
-  actions:
-    - sendfileserial_../arduino/001_test_ping/001_test_ping.ino.hex
+--- 
+- input:
+  - time: "2" 
+    led_y: "0"
+    led_r: "*"
+    led_g: "*"
+    led_b: "*"
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "*"
+  output:
+  - object: "led_y"
+    value: "1"
+    time: "1"
+    repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "1"
+    repeat: false
+- input:
+  - time: "3" 
+    led_y: "*"
+    led_r: "0"
+    led_g: "*"
+    led_b: "*"
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "*"
+  output:
+  - object: "led_r"
+    value: "1"
+    time: "1"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "1"
+    repeat: false
+- input:
+  - time: "1" 
+    led_y: "*"
+    led_r: "*"
+    led_g: "0"
+    led_b: "*"
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "*"
+  output:
+  - object: "led_g"
+    value: "1"
+    time: "1"
+    repeat: false
+  - object: "led_g"
+    value: "0"
+    time: "1"
+    repeat: false
+- input:
+  - time: "2" 
+    led_y: "*"
+    led_r: "*"
+    led_g: "*"
+    led_b: "0"
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "*"
+  output:
+  - object: "led_b"
+    value: "1"
+    time: "1"
+    repeat: false
+  - object: "led_b"
+    value: "0"
+    time: "1"
+    repeat: false
