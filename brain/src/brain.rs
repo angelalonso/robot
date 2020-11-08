@@ -762,4 +762,52 @@ impl Brain {
         }
         result
     }
+ //
+ // ======================================================================== //
+ //
+    pub fn get_current_time(&mut self) -> f64 {
+        let now = SystemTime::now();
+        let timestamp = match now.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis() as f64,
+            Err(_e) => 0.0,
+        };
+        return timestamp;
+    }
+
+    pub fn get_timestamp_since(&mut self, start_timestamp: f64) -> f64 {
+        let now = SystemTime::now();
+        let timestamp = match now.duration_since(UNIX_EPOCH) {
+            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
+            Err(_e) => 0.0,
+        };
+        return timestamp;
+    }
+
+    ///
+    /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
+    /// - precission: how often we do stuff
+    ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
+    pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+        let start_timestamp = self.get_current_time();
+        let mut ct: f64 = 0.0;
+        loop {
+            let ct_raw = self.get_timestamp_since(start_timestamp);
+            // CONTROL RUNNING
+            let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
+            if new_ct > ct { 
+                ct = new_ct;
+                sender.send(format!("{:?}", ct));
+            };
+            // GET METRICS AND MESSAGES
+            // GET ACTIONS
+            // DO ACTIONS
+            // BREAK MECHANISM
+            match secs_to_run {
+                Some(s) => {
+                    if ct >= s {break}
+                },
+                None => (),
+            }
+        }
+    }
 }
