@@ -235,6 +235,7 @@ impl Brain {
     ///  in a constant loop
     pub fn do_io(&mut self) {
         loop {
+            // GET MESSAGES FROM ARDUINO  - START
             trace!("...reading from channel with Arduino");
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let msgs = s.clone();
@@ -332,10 +333,10 @@ impl Brain {
                     debug!("  {:?}", self.buffer_led_b.entries);
                     match self.do_next_actions() {
                         Ok(a) => {
-                            if a != "done nothing" {
+                            if a.len() > 0 {
                                 trace!("- Action {:?} - {:?}", self.timestamp, a);
                             } else {
-                                trace!("- Action {:?} - {:?}", self.timestamp, a);
+                                trace!("- Action {:?} - Done nothing", self.timestamp);
                             }
                             break 'outer;
                         },
@@ -626,13 +627,9 @@ impl Brain {
 
     /// Checks the time passed for the current action and, when it goes over the time set, 
     /// it "moves" to the next one
-    pub fn do_next_actions(&mut self) -> Result<String, String>{
+    pub fn do_next_actions(&mut self) -> Result<Vec<String>, String>{
         // TODO: check if a loop is not needed here...
-        let mut done = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            data: "0".to_string(),
-            time: 0.0,
-        };
+        let mut result = [].to_vec();
         if self.timestamp >= self.metrics_led_y.last_change_timestamp {
             if self.buffer_led_y.entries.len() > 0 {
                 let a = &self.buffer_led_y.entries.clone()[0];
@@ -646,7 +643,7 @@ impl Brain {
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data));
-                    done = a.clone();
+                    result.push(format!("led_y__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
         };
@@ -663,7 +660,7 @@ impl Brain {
                     info!("- Just did LED_R -> {}", a.data);
                     self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_r__{}", a.data));
-                    done = a.clone();
+                    result.push(format!("led_r__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
         };
@@ -680,7 +677,7 @@ impl Brain {
                     info!("- Just did LED_G -> {}", a.data);
                     self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_g__{}", a.data));
-                    done = a.clone();
+                    result.push(format!("led_g__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
         };
@@ -697,11 +694,12 @@ impl Brain {
                     info!("- Just did LED_B -> {}", a.data);
                     self.leds.set_led_b(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_b__{}", a.data));
-                    done = a.clone();
+                    result.push(format!("led_b__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
         };
-        Ok(format!("{:#x?}", done))
+        if result.len() == 0 {result.push("".to_string())};
+        Ok(result)
 
     }
 
@@ -796,11 +794,41 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                sender.send(format!("{:?}", ct));
+                // GET MESSAGES AND UPDATE METRICS
+
+                // GET ACTIONS
+                match self.get_actions_from_rules(){
+                    Ok(a) => {
+                        if a.len() > 0 {
+                            // Format would be motor_l=-60,time=2.6
+                            // first a round to check which objects we are adding new actions to
+                            for action in a.clone() {
+                                for o in action.output {
+                                    match o.object.as_str() {
+                                        "led_y" => self.buffer_led_y.entries = Vec::new(),
+                                        "led_r" => self.buffer_led_r.entries = Vec::new(),
+                                        "led_g" => self.buffer_led_r.entries = Vec::new(),
+                                        "led_b" => self.buffer_led_r.entries = Vec::new(),
+                                        _ => (),
+                                    }
+
+                                }
+                            }
+                            // then do the actions
+                            for action in a {
+                                for o in action.output {
+                                    let aux = format!("{}={},time={}", o.object, o.value, o.time);
+                                    self.add_action(aux);
+                                }
+                            }
+                        };
+                    },
+                    Err(_e) => trace!("...no matching rules found"),
+                };
+                // DO ACTIONS
+                let acts = self.do_next_actions().unwrap();
+                sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
             };
-            // GET METRICS AND MESSAGES
-            // GET ACTIONS
-            // DO ACTIONS
             // BREAK MECHANISM
             match secs_to_run {
                 Some(s) => {

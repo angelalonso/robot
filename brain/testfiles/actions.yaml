@@ -1,20 +1,36 @@
 - time: 0.1
-  action: "bla"
+  actions:
+    - ""
 - time: 0.2
-  action: "bla"
+  actions: 
+    - "led_y__1__1.0"
+    - "led_r__1__1.0"
+    - "led_g__1__1.0"
+    - "led_b__1__1.0"
 - time: 0.3 
-  action: "bla"
+  actions:
+    - ""
 - time: 0.4 
-  action: "bla"
+  actions:
+    - ""
 - time: 0.5 
-  action: "bla"
+  actions:
+    - ""
 - time: 0.6
-  action: "bla"
+  actions:
+    - ""
 - time: 0.7
-  action: "bla"
+  actions:
+    - ""
 - time: 0.8
-  action: "bla"
+  actions:
+    - ""
 - time: 0.9
-  action: "bla"
+  actions:
+    - ""
 - time: 1.0
-  action: "bla"
+  actions:
+    - ""
+- time: 1.1
+  actions:
+    - ""
