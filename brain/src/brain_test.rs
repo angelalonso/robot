@@ -17,7 +17,7 @@ mod brain_test {
 
     #[test]
     fn check_actions() {
-        let expected_pointer = File::open("testfiles/actions.yaml").unwrap();
+        let expected_pointer = File::open("testfiles/simple_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
         let mut expected = [].to_vec();
         for entry in e{
@@ -26,7 +26,7 @@ mod brain_test {
 
         let mut test_brain = Brain::new("Test Brain".to_string(), 
                                         "dryrun".to_string(), 
-                                        "testfiles/cfg.yaml".to_string()
+                                        "testfiles/simple_cfg.yaml".to_string()
                                         ).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Main Brain: {}", err);
             process::exit(1);
@@ -44,10 +44,8 @@ mod brain_test {
                 Err(_) => break,
             };
         }
-        println!("{:#x?}", expected);
-        println!("{:#x?}", got);
-        //assert_eq!(actions, expected_actions[counter]);
-        //let action_got = test.get_brain_actions("unexistingping\r\n");
-        //assert!(action_got.is_err(), "getting an error for a non existing action did not go well");
+        println!("expected: {:#x?}", expected);
+        println!("got: {:#x?}", got);
+        assert_eq!(got, expected);
     }
 }
