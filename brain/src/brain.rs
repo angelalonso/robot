@@ -129,7 +129,7 @@ impl Brain {
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: b_ly_e,
-            max_size: 10,
+            max_size: 100,
         };
         let m_ly_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -140,7 +140,7 @@ impl Brain {
             entries: [m_ly_e.clone()].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: m_ly_e,
-            max_size: 8,
+            max_size: 80,
         };
         // LED RED
         let b_lr_e = TimedData {
@@ -152,7 +152,7 @@ impl Brain {
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: b_lr_e,
-            max_size: 10,
+            max_size: 100,
         };
         let m_lr_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -163,7 +163,7 @@ impl Brain {
             entries: [m_lr_e.clone()].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: m_lr_e,
-            max_size: 8,
+            max_size: 80,
         };
         // LED GREEN
         let b_lg_e = TimedData {
@@ -175,7 +175,7 @@ impl Brain {
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: b_lg_e,
-            max_size: 10,
+            max_size: 100,
         };
         let m_lg_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -186,7 +186,7 @@ impl Brain {
             entries: [m_lg_e.clone()].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: m_lg_e,
-            max_size: 8,
+            max_size: 80,
         };
         // LED BLUE
         let b_lb_e = TimedData {
@@ -198,7 +198,7 @@ impl Brain {
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: b_lb_e,
-            max_size: 10,
+            max_size: 100,
         };
         let m_lb_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -209,7 +209,7 @@ impl Brain {
             entries: [m_lb_e.clone()].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: m_lb_e,
-            max_size: 8,
+            max_size: 80,
         };
         Ok(Self {
             name: brain_name,
