@@ -2,9 +2,9 @@
 - input:
   - time: "1.0" 
     led_y: "0"
-    led_r: "*"
-    led_g: "*"
-    led_b: "*"
+    led_r: "0"
+    led_g: "0"
+    led_b: "0"
     motor_l: "*"
     motor_r: "*"
     tracker: "*"
