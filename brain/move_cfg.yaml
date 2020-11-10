@@ -92,17 +92,17 @@
     repeat: false
   - object: "led_y"
     value: "0"
-    time: "1.0"
+    time: "2.0"
     repeat: false
   - object: "led_r"
     value: "0"
-    time: "1.0"
+    time: "2.0"
     repeat: false
   - object: "led_g"
     value: "0"
-    time: "1.0"
+    time: "2.0"
     repeat: false
   - object: "led_b"
     value: "0"
-    time: "1.0"
+    time: "2.0"
     repeat: false
