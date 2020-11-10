@@ -1,6 +1,6 @@
 --- 
 - input:
-  - time: "0.2" 
+  - time: "0.4" 
     led_y: "0"
     led_r: "*"
     led_g: "*"
@@ -12,17 +12,17 @@
   output:
   - object: "led_y"
     value: "1"
-    time: "0.1"
+    time: "0.2"
     repeat: false
   - object: "led_y"
     value: "0"
-    time: "0.1"
+    time: "0.2"
     repeat: false
   - object: "led_y"
     value: "1"
-    time: "0.1"
+    time: "0.2"
     repeat: false
   - object: "led_y"
     value: "0"
-    time: "0.1"
+    time: "0.2"
     repeat: false

@@ -2,7 +2,6 @@ use std::error::Error;
 use brain::brain::Brain;
 use std::process;
 use std::env;
-use std::fs::File;
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
 
@@ -90,7 +89,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 process::exit(1);
             });
             //main_brain.do_io();
-            let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+            let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
                 let _actions = main_brain.run(None, 10, s);
             });

@@ -919,9 +919,19 @@ impl Brain {
         if timestamp >= self.metrics_led_y.last_change_timestamp {
             if self.buffer_led_y.entries.len() > 0 {
                 let a = &self.buffer_led_y.entries.clone()[0];
-                let time_passed = timestamp - self.buffer_led_y.last_change_timestamp;
+                let time_passed = ((timestamp - self.buffer_led_y.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+                println!("- {}", time_passed);
+                println!("  - {}", self.buffer_led_y.current_entry.time);
+                println!("   - {}", self.buffer_led_y.entries[0].time);
                 trace!("- Time passed on current value - {:?}", time_passed);
+                if (self.buffer_led_y.current_entry.time == 0.0) && (self.buffer_led_y.current_entry.data == self.buffer_led_y.entries[0].data){
+                    self.buffer_led_y.current_entry.time = self.buffer_led_y.entries[0].time.clone();
+                    println!("CHANGED!");
+                }
+                println!("2- {}", time_passed);
+                println!("2  - {}", self.buffer_led_y.current_entry.time);
                 if time_passed >= self.buffer_led_y.current_entry.time {
+                    println!("IN!");
                     self.buffer_led_y.current_entry = a.clone();
                     self.buffer_led_y.entries.retain(|x| *x != *a);
                     self.buffer_led_y.last_change_timestamp = timestamp.clone();
@@ -933,6 +943,7 @@ impl Brain {
                 }
             }
         };
+        // TODO: modify these too according to led_y
         if timestamp >= self.metrics_led_r.last_change_timestamp {
             if self.buffer_led_r.entries.len() > 0 {
                 let a = &self.buffer_led_r.entries.clone()[0];
