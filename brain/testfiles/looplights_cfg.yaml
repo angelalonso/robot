@@ -1,0 +1,92 @@
+--- 
+- input:
+  - time: "0.4" 
+    led_y: "0"
+    led_r: "0"
+    led_g: "0"
+    led_b: "0"
+    motor_l: "*"
+    motor_r: "*"
+    tracker: "*"
+    distance: "*"
+  output:
+  - object: "led_y"
+    value: "1"
+    time: "0.2"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_g"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_b"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_r"
+    value: "1"
+    time: "0.2"
+    repeat: false
+  - object: "led_g"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_b"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_g"
+    value: "1"
+    time: "0.2"
+    repeat: false
+  - object: "led_b"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_g"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_b"
+    value: "1"
+    time: "0.2"
+    repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "4.2"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "4.2"
+    repeat: false
+  - object: "led_g"
+    value: "0"
+    time: "4.2"
+    repeat: false
+  - object: "led_b"
+    value: "0"
+    time: "4.2"
+    repeat: false

@@ -2,6 +2,27 @@
 
 source .env
 # Stop any previous runs
+online=false
+while [ $online = false ]
+do
+  echo "trying to reach the robot..."
+  ping ${HOST} -c 1
+  if [[ $? -eq 0 ]]
+    then
+      online=true
+  fi
+done
+
+ssh=false
+while [ $online = false ]
+do
+  echo "trying to reach the robot's SSH..."
+  ${SSH_COMM} "echo $PWD"
+  if [[ $? -eq 0 ]]
+    then
+      online=true
+  fi
+done
 ${SSH_COMM} "kill \$(ps aux | grep brain | grep cfg | awk '{print \$2}')"
 # set motors to 0
 ${SSH_COMM} "cd robot/brain; \

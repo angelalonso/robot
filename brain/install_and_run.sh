@@ -12,7 +12,27 @@ git add Cargo.toml
 git commit -m "changing and installing"
 git push origin ${DEV_BRANCH}
 
+online=false
+while [ $online = false ]
+do
+  echo "trying to reach the robot..."
+  ping ${HOST} -c 1
+  if [[ $? -eq 0 ]]
+    then
+      online=true
+  fi
+done
 
+ssh=false
+while [ $online = false ]
+do
+  echo "trying to reach the robot's SSH..."
+  ${SSH_COMM} "echo $PWD"
+  if [[ $? -eq 0 ]]
+    then
+      online=true
+  fi
+done
 ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
   RUST_LOG=info ${CARGO} run live move_cfg.yaml
   "
