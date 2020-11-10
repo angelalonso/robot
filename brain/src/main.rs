@@ -80,7 +80,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
-            //main_brain.do_io();
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
                 let _actions = main_brain.run(None, 10, s);

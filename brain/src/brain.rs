@@ -927,11 +927,10 @@ impl Brain {
                 }
             }
         };
-        // TODO: modify these too according to led_y
         if timestamp >= self.metrics_led_r.last_change_timestamp {
             if self.buffer_led_r.entries.len() > 0 {
                 let a = &self.buffer_led_r.entries.clone()[0];
-                let time_passed = timestamp - self.buffer_led_r.last_change_timestamp;
+                let time_passed = ((timestamp - self.buffer_led_r.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
                 trace!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= self.buffer_led_r.current_entry.time {
                     self.buffer_led_r.current_entry = a.clone();
@@ -948,7 +947,7 @@ impl Brain {
         if timestamp >= self.metrics_led_g.last_change_timestamp {
             if self.buffer_led_g.entries.len() > 0 {
                 let a = &self.buffer_led_g.entries.clone()[0];
-                let time_passed = timestamp - self.buffer_led_g.last_change_timestamp;
+                let time_passed = ((timestamp - self.buffer_led_g.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
                 trace!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= self.buffer_led_g.current_entry.time {
                     self.buffer_led_g.current_entry = a.clone();
@@ -965,7 +964,7 @@ impl Brain {
         if timestamp >= self.metrics_led_b.last_change_timestamp {
             if self.buffer_led_b.entries.len() > 0 {
                 let a = &self.buffer_led_b.entries.clone()[0];
-                let time_passed = timestamp - self.buffer_led_b.last_change_timestamp;
+                let time_passed = ((timestamp - self.buffer_led_b.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
                 trace!("- Time passed on current value - {:?}", time_passed);
                 if time_passed >= self.buffer_led_b.current_entry.time {
                     self.buffer_led_b.current_entry = a.clone();
