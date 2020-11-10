@@ -1,6 +1,6 @@
 --- 
 - input:
-  - time: "0.2" 
+  - time: "1.0" 
     led_y: "0"
     led_r: "*"
     led_g: "*"
@@ -14,41 +14,23 @@
     value: "1"
     time: "0.2"
     repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_g"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_b"
+    value: "0"
+    time: "0.2"
+    repeat: false
   - object: "led_y"
     value: "0"
     time: "0.2"
     repeat: false
-- input:
-  - time: "0.4" 
-    led_y: "*"
-    led_r: "0"
-    led_g: "*"
-    led_b: "*"
-    motor_l: "*"
-    motor_r: "*"
-    tracker: "*"
-    distance: "*"
-  output:
   - object: "led_r"
-    value: "1"
-    time: "0.2"
-    repeat: false
-  - object: "led_r"
-    value: "0"
-    time: "0.2"
-    repeat: false
-- input:
-  - time: "0.6" 
-    led_y: "*"
-    led_r: "*"
-    led_g: "0"
-    led_b: "*"
-    motor_l: "*"
-    motor_r: "*"
-    tracker: "*"
-    distance: "*"
-  output:
-  - object: "led_g"
     value: "1"
     time: "0.2"
     repeat: false
@@ -56,22 +38,43 @@
     value: "0"
     time: "0.2"
     repeat: false
-- input:
-  - time: "0.8" 
-    led_y: "*"
-    led_r: "*"
-    led_g: "*"
-    led_b: "0"
-    motor_l: "*"
-    motor_r: "*"
-    tracker: "*"
-    distance: "*"
-  output:
   - object: "led_b"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_g"
     value: "1"
-    time: "1"
+    time: "0.2"
     repeat: false
   - object: "led_b"
     value: "0"
-    time: "1"
+    time: "0.2"
+    repeat: false
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_r"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_g"
+    value: "0"
+    time: "0.2"
+    repeat: false
+  - object: "led_b"
+    value: "1"
+    time: "0.2"
+    repeat: false
+  - object: "led_b"
+    value: "0"
+    time: "0.2"
     repeat: false
