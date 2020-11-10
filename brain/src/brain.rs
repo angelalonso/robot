@@ -781,6 +781,213 @@ impl Brain {
         return timestamp;
     }
 
+    pub fn show_buffers(&mut self) {
+        debug!("- Actions buffer - LED Y:");
+        debug!("  {:?}", self.buffer_led_y.entries);
+        debug!("- Actions buffer - LED R:");
+        debug!("  {:?}", self.buffer_led_r.entries);
+        debug!("- Actions buffer - LED G:");
+        debug!("  {:?}", self.buffer_led_g.entries);
+        debug!("- Actions buffer - LED B:");
+        debug!("  {:?}", self.buffer_led_b.entries);
+    }
+
+    pub fn show_metrics(&mut self) {
+        debug!("- Metrics - LED Y:");
+        for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
+            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        }
+        debug!("- Metrics - LED R:");
+        for (ix, action) in self.metrics_led_r.entries.clone().iter().enumerate() {
+            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        }
+        debug!("- Metrics - LED G:");
+        for (ix, action) in self.metrics_led_g.entries.clone().iter().enumerate() {
+            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        }
+        debug!("- Metrics - LED B:");
+        for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
+            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        }
+    }
+
+    /// Goes through all rules loaded from config, checks if they match what is currently on our
+    /// metrics, and iif so, it returns them
+    pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+        // Start with led_y
+        let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
+        for rule in self.config.clone() {
+            if self.metrics_led_y.entries.len() > 0 {
+                if rule.input[0].led_y != "*" {
+                    if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
+                        if (timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
+                            // for ix, action in rule.output -> if same index on buffer_led_y has
+                            // same action, then take note, and if all of them are the same, dont
+                            // add the rule
+                            if ! self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.push(rule.clone());
+                            }
+                        };
+                    };
+                } else {
+                    partial_rules.push(rule.clone());
+                    //if (timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap()) || (self.metrics_led_y.entries[0].time == 0.0){
+                    //    partial_rules.push(rule.clone());
+                    //};
+                };
+            };
+        };
+        // Then remove those that dont fit led_r
+        //TODO: does this work always and in sync?
+        for rule in partial_rules.clone() {
+            if self.metrics_led_r.entries.len() > 0 {
+                if rule.input[0].led_r != "*" {
+                    if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
+                        partial_rules.retain(|x| *x != rule);
+                    } else {
+                        if (timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+                            partial_rules.retain(|x| *x != rule);
+                        } else {
+                            if self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.retain(|x| *x != rule);
+                            }
+                        };
+                    };
+                };
+            };
+        };
+        // Then remove those that dont fit led_g
+        //TODO: does this work always and in sync?
+        for rule in partial_rules.clone() {
+            if self.metrics_led_g.entries.len() > 0 {
+                if rule.input[0].led_g != "*" {
+                    if self.metrics_led_g.entries[0].data != rule.input[0].led_g {
+                        partial_rules.retain(|x| *x != rule);
+                    } else {
+                        if (timestamp - self.metrics_led_g.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+                            partial_rules.retain(|x| *x != rule);
+                        } else {
+                            if self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.retain(|x| *x != rule);
+                            }
+                        };
+                    };
+                };
+            };
+        };
+        // Then remove those that dont fit led_b
+        //TODO: does this work always and in sync?
+        for rule in partial_rules.clone() {
+            if self.metrics_led_b.entries.len() > 0 {
+                if rule.input[0].led_b != "*" {
+                    if self.metrics_led_b.entries[0].data != rule.input[0].led_b {
+                        partial_rules.retain(|x| *x != rule);
+                    } else {
+                        if (timestamp - self.metrics_led_b.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+                            partial_rules.retain(|x| *x != rule);
+                        } else {
+                            if self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.retain(|x| *x != rule);
+                            }
+                        };
+                    };
+                };
+
+            };
+        };
+        if partial_rules.len() > 0 {
+            debug!("- Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                debug!(" #{} input:", ix);
+                for ri in rule.input.clone() {
+                    debug!("      |{:?}|", ri);
+                }
+                debug!("     output:");
+                for ro in rule.output.clone() {
+                    debug!("      |{:?}|", ro);
+                }
+            }
+        }
+        Ok(partial_rules)
+    }
+
+    /// Checks the time passed for the current action and, when it goes over the time set, 
+    /// it "moves" to the next one
+    pub fn new_do_next_actions(&mut self, timestamp: f64) -> Result<Vec<String>, String>{
+        // TODO: check if a loop is not needed here...
+        let mut result = [].to_vec();
+        if timestamp >= self.metrics_led_y.last_change_timestamp {
+            if self.buffer_led_y.entries.len() > 0 {
+                let a = &self.buffer_led_y.entries.clone()[0];
+                let time_passed = timestamp - self.buffer_led_y.last_change_timestamp;
+                trace!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_led_y.current_entry.time {
+                    self.buffer_led_y.current_entry = a.clone();
+                    self.buffer_led_y.entries.retain(|x| *x != *a);
+                    self.buffer_led_y.last_change_timestamp = timestamp.clone();
+                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+                    info!("- Just did LED_Y -> {}", a.data);
+                    self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_y__{}", a.data));
+                    result.push(format!("led_y__{}__{:?}", a.clone().data, a.clone().time));
+                }
+            }
+        };
+        if timestamp >= self.metrics_led_r.last_change_timestamp {
+            if self.buffer_led_r.entries.len() > 0 {
+                let a = &self.buffer_led_r.entries.clone()[0];
+                let time_passed = timestamp - self.buffer_led_r.last_change_timestamp;
+                trace!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_led_r.current_entry.time {
+                    self.buffer_led_r.current_entry = a.clone();
+                    self.buffer_led_r.entries.retain(|x| *x != *a);
+                    self.buffer_led_r.last_change_timestamp = timestamp.clone();
+                    debug!("- Buffer: {:#x?}", self.buffer_led_r.entries);
+                    info!("- Just did LED_R -> {}", a.data);
+                    self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_r__{}", a.data));
+                    result.push(format!("led_r__{}__{:?}", a.clone().data, a.clone().time));
+                }
+            }
+        };
+        if timestamp >= self.metrics_led_g.last_change_timestamp {
+            if self.buffer_led_g.entries.len() > 0 {
+                let a = &self.buffer_led_g.entries.clone()[0];
+                let time_passed = timestamp - self.buffer_led_g.last_change_timestamp;
+                trace!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_led_g.current_entry.time {
+                    self.buffer_led_g.current_entry = a.clone();
+                    self.buffer_led_g.entries.retain(|x| *x != *a);
+                    self.buffer_led_g.last_change_timestamp = timestamp.clone();
+                    debug!("- Buffer: {:#x?}", self.buffer_led_g.entries);
+                    info!("- Just did LED_G -> {}", a.data);
+                    self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_g__{}", a.data));
+                    result.push(format!("led_g__{}__{:?}", a.clone().data, a.clone().time));
+                }
+            }
+        };
+        if timestamp >= self.metrics_led_b.last_change_timestamp {
+            if self.buffer_led_b.entries.len() > 0 {
+                let a = &self.buffer_led_b.entries.clone()[0];
+                let time_passed = timestamp - self.buffer_led_b.last_change_timestamp;
+                trace!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_led_b.current_entry.time {
+                    self.buffer_led_b.current_entry = a.clone();
+                    self.buffer_led_b.entries.retain(|x| *x != *a);
+                    self.buffer_led_b.last_change_timestamp = timestamp.clone();
+                    debug!("- Buffer: {:#x?}", self.buffer_led_b.entries);
+                    info!("- Just did LED_B -> {}", a.data);
+                    self.leds.set_led_b(a.data.parse::<u8>().unwrap() == 1);
+                    self.add_metric(format!("led_b__{}", a.data));
+                    result.push(format!("led_b__{}__{:?}", a.clone().data, a.clone().time));
+                }
+            }
+        };
+        if result.len() == 0 {result.push("".to_string())};
+        Ok(result)
+    }
+
     ///
     /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
     /// - precission: how often we do stuff
@@ -795,9 +1002,10 @@ impl Brain {
             if new_ct > ct { 
                 ct = new_ct;
                 // GET MESSAGES AND UPDATE METRICS
-
+                self.show_metrics();
+                self.show_buffers();
                 // GET ACTIONS
-                match self.get_actions_from_rules(){
+                match self.new_get_actions_from_rules(ct){
                     Ok(a) => {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
@@ -826,7 +1034,7 @@ impl Brain {
                     Err(_e) => trace!("...no matching rules found"),
                 };
                 // DO ACTIONS
-                let acts = self.do_next_actions().unwrap();
+                let acts = self.new_do_next_actions(ct).unwrap();
                 sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
             };
             // BREAK MECHANISM

@@ -18,22 +18,11 @@
     value: "0"
     time: "0.1"
     repeat: false
-- input:
-  - time: "0.2" 
-    led_y: "*"
-    led_r: "0"
-    led_g: "*"
-    led_b: "*"
-    motor_l: "*"
-    motor_r: "*"
-    tracker: "*"
-    distance: "*"
-  output:
-  - object: "led_r"
+  - object: "led_y"
     value: "1"
     time: "0.1"
     repeat: false
-  - object: "led_r"
+  - object: "led_y"
     value: "0"
     time: "0.1"
     repeat: false
