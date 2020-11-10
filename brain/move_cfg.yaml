@@ -38,7 +38,7 @@
     time: "0.2"
     repeat: false
 - input:
-  - time: "1" 
+  - time: "0.6" 
     led_y: "*"
     led_r: "*"
     led_g: "0"
@@ -50,14 +50,14 @@
   output:
   - object: "led_g"
     value: "1"
-    time: "1"
+    time: "0.2"
     repeat: false
   - object: "led_g"
     value: "0"
-    time: "1"
+    time: "0.2"
     repeat: false
 - input:
-  - time: "2" 
+  - time: "0.8" 
     led_y: "*"
     led_r: "*"
     led_g: "*"
