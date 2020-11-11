@@ -10,15 +10,13 @@ extern crate log;
 
 fn show_help() {
     println!("\nSYNTAX: ");
-    println!(" brain [mode] <actions_config_file> <auto_moves_config_file> [mode]");
+    println!(" brain [mode] <auto_moves_config_file>");
     println!("");
     println!("   , where:");
     println!(" - mode        - optional, default is classic");
     println!("     is the trigger with which the Brain starts. ");
-    println!("     accepted values: classic, test and reset. \n");
-    println!(" - config_file - mandatory for mode start");
-    println!("     is the path to the config yaml for triggers and actions \n");
-    println!(" - auto_moves_config_file - mandatory for mode start");
+    println!("     accepted values: live and test. \n");
+    println!(" - auto_moves_config_file - mandatory");
     println!("     is the path to the config yaml for rules to have the robot automatically move. ");
 }
 

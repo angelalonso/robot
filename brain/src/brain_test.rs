@@ -16,7 +16,6 @@ mod brain_test {
     }
 
     #[test]
-    #[ignore]
     fn check_actions_simple() {
         let expected_pointer = File::open("testfiles/simple_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();

@@ -46,6 +46,7 @@ pub struct ConfigOutput {
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigEntry {
+    id: String,
     input: Vec<ConfigInput>,
     output: Vec<ConfigOutput>
 }
@@ -53,6 +54,7 @@ pub struct ConfigEntry {
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimedData {
     id: usize,
+    belongsto: String,
     data: String,
     time: f64,
 }
@@ -122,6 +124,7 @@ impl Brain {
         // LED YELLOW
         let b_ly_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -133,6 +136,7 @@ impl Brain {
         };
         let m_ly_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -145,6 +149,7 @@ impl Brain {
         // LED RED
         let b_lr_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -156,6 +161,7 @@ impl Brain {
         };
         let m_lr_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -168,6 +174,7 @@ impl Brain {
         // LED GREEN
         let b_lg_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -179,6 +186,7 @@ impl Brain {
         };
         let m_lg_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -191,6 +199,7 @@ impl Brain {
         // LED BLUE
         let b_lb_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -202,6 +211,7 @@ impl Brain {
         };
         let m_lb_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
             data: "0".to_string(),
             time: 0.0,
         };
@@ -265,7 +275,7 @@ impl Brain {
                         } else if sensormsg.split(": ").collect::<Vec<_>>()[0] == "SENSOR".to_string() {
                             // NOTE: Sensor messages format go like "SENSOR: object_x__value"
                             let msg_sensor = m.replace("SENSOR: ", "");
-                            self.add_metric(msg_sensor);
+                            self.add_metric(msg_sensor, "".to_string());
                         }
 
                     },
@@ -309,7 +319,7 @@ impl Brain {
                             // then do the actions
                             for action in a {
                                 for o in action.output {
-                                    let aux = format!("{}={},time={}", o.object, o.value, o.time);
+                                    let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
                                     self.add_action(aux);
                                 }
                             }
@@ -350,7 +360,7 @@ impl Brain {
     }
 
     /// adds metric to the related metrics buffer
-    pub fn add_metric(&mut self, metric: String) {
+    pub fn add_metric(&mut self, metric: String, source_id: String) {
         trace!("- Adding metric {}", metric);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match metric_decomp[0] {
@@ -358,6 +368,7 @@ impl Brain {
                 if self.metrics_led_y.entries.len() == 0 {
                     let new_m = TimedData {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
                         data: metric_decomp[1].to_string(),
                         time: self.timestamp.clone(), // here time means "since_timestamp"
                     };
@@ -367,6 +378,7 @@ impl Brain {
                     if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
                         let new_m = TimedData {
                             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
                             data: metric_decomp[1].to_string(),
                             time: self.timestamp.clone(),
                         };
@@ -382,6 +394,7 @@ impl Brain {
                 if self.metrics_led_r.entries.len() == 0 {
                     let new_m = TimedData {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
                         data: metric_decomp[1].to_string(),
                         time: self.timestamp.clone(), // here time means "since_timestamp"
                     };
@@ -391,6 +404,7 @@ impl Brain {
                     if self.metrics_led_r.entries[0].data != metric_decomp[1].to_string() {
                         let new_m = TimedData {
                             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
                             data: metric_decomp[1].to_string(),
                             time: self.timestamp.clone(),
                         };
@@ -406,6 +420,7 @@ impl Brain {
                 if self.metrics_led_g.entries.len() == 0 {
                     let new_m = TimedData {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
                         data: metric_decomp[1].to_string(),
                         time: self.timestamp.clone(), // here time means "since_timestamp"
                     };
@@ -415,6 +430,7 @@ impl Brain {
                     if self.metrics_led_g.entries[0].data != metric_decomp[1].to_string() {
                         let new_m = TimedData {
                             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
                             data: metric_decomp[1].to_string(),
                             time: self.timestamp.clone(),
                         };
@@ -430,6 +446,7 @@ impl Brain {
                 if self.metrics_led_b.entries.len() == 0 {
                     let new_m = TimedData {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
                         data: metric_decomp[1].to_string(),
                         time: self.timestamp.clone(), // here time means "since_timestamp"
                     };
@@ -439,6 +456,7 @@ impl Brain {
                     if self.metrics_led_b.entries[0].data != metric_decomp[1].to_string() {
                         let new_m = TimedData {
                             id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
                             data: metric_decomp[1].to_string(),
                             time: self.timestamp.clone(),
                         };
@@ -556,14 +574,19 @@ impl Brain {
 
     /// turns a String containing an action into the related object
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
-        // Format would be motor_l=-60,time=2.6
+        // Format would be motor_l=-60,time=2.6,source
         let format = action.split(",").collect::<Vec<_>>();
         let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
         let data = format[0].split("=").collect::<Vec<_>>();
+        let mut source = "";
+        if format.len() > 2 {
+            source = format[2];
+        }
         match data[0] {
             "led_y" | "led_r" | "led_g" | "led_b" => {
                 let action_item = TimedData {
                     id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    belongsto: source.to_string(),
                     data: data[1].to_string(),
                     time: t,
                 };
@@ -576,6 +599,7 @@ impl Brain {
             _ => {
                 let action_item = TimedData {
                     id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    belongsto: source.to_string(),
                     data: data[1].to_string(),
                     time: t,
                 };
@@ -642,7 +666,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_y__{}", a.data));
+                    self.add_metric(format!("led_y__{}", a.data), a.id.to_string());
                     result.push(format!("led_y__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -659,7 +683,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_r.entries);
                     info!("- Just did LED_R -> {}", a.data);
                     self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_r__{}", a.data));
+                    self.add_metric(format!("led_r__{}", a.data), a.id.to_string());
                     result.push(format!("led_r__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -676,7 +700,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_g.entries);
                     info!("- Just did LED_G -> {}", a.data);
                     self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_g__{}", a.data));
+                    self.add_metric(format!("led_g__{}", a.data), a.id.to_string());
                     result.push(format!("led_g__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -693,7 +717,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_b.entries);
                     info!("- Just did LED_B -> {}", a.data);
                     self.leds.set_led_b(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_b__{}", a.data));
+                    self.add_metric(format!("led_b__{}", a.data), a.id.to_string());
                     result.push(format!("led_b__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -782,14 +806,18 @@ impl Brain {
     }
 
     pub fn show_buffers(&mut self) {
-        debug!("- Actions buffer - LED Y:");
-        debug!("  {:?}", self.buffer_led_y.entries);
-        debug!("- Actions buffer - LED R:");
-        debug!("  {:?}", self.buffer_led_r.entries);
-        debug!("- Actions buffer - LED G:");
-        debug!("  {:?}", self.buffer_led_g.entries);
-        debug!("- Actions buffer - LED B:");
-        debug!("  {:?}", self.buffer_led_b.entries);
+        debug!("{} pending for LED_Y", self.buffer_led_y.entries.len());
+        debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
+        debug!("{} pending for LED_G", self.buffer_led_g.entries.len());
+        debug!("{} pending for LED_B", self.buffer_led_b.entries.len());
+        trace!("- Actions buffer - LED Y:");
+        trace!("  {:?}", self.buffer_led_y.entries);
+        trace!("- Actions buffer - LED R:");
+        trace!("  {:?}", self.buffer_led_r.entries);
+        trace!("- Actions buffer - LED G:");
+        trace!("  {:?}", self.buffer_led_g.entries);
+        trace!("- Actions buffer - LED B:");
+        trace!("  {:?}", self.buffer_led_b.entries);
     }
 
     pub fn show_metrics(&mut self) {
@@ -821,7 +849,7 @@ impl Brain {
                 if rule.input[0].led_y != "*" {
                     if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
                         if timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap(){
-                            if ! self.are_actions_in_buffer(rule.clone()) {
+                            if ! self.new_are_actions_in_buffer(rule.clone()) {
                                 partial_rules.push(rule.clone());
                             }
                         };
@@ -841,10 +869,6 @@ impl Brain {
                     } else {
                         if (timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
                             partial_rules.retain(|x| *x != rule);
-                        } else {
-                            if self.are_actions_in_buffer(rule.clone()) {
-                                partial_rules.retain(|x| *x != rule);
-                            }
                         };
                     };
                 };
@@ -860,10 +884,6 @@ impl Brain {
                     } else {
                         if (timestamp - self.metrics_led_g.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
                             partial_rules.retain(|x| *x != rule);
-                        } else {
-                            if self.are_actions_in_buffer(rule.clone()) {
-                                partial_rules.retain(|x| *x != rule);
-                            }
                         };
                     };
                 };
@@ -879,10 +899,6 @@ impl Brain {
                     } else {
                         if (timestamp - self.metrics_led_b.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
                             partial_rules.retain(|x| *x != rule);
-                        } else {
-                            if self.are_actions_in_buffer(rule.clone()) {
-                                partial_rules.retain(|x| *x != rule);
-                            }
                         };
                     };
                 };
@@ -905,6 +921,32 @@ impl Brain {
         Ok(partial_rules)
     }
 
+    /// Returns whether a set of actions are already on the buffer, 
+    /// to avoid constantly adding the same ones
+    pub fn new_are_actions_in_buffer(&self, rule: ConfigEntry) -> bool {
+        let mut result = false;
+        for existing in self.buffer_led_y.entries.clone() {
+            if existing.belongsto == rule.id {
+                result = true;
+            }
+        }
+        for existing in self.buffer_led_r.entries.clone() {
+            if existing.belongsto == rule.id {
+                result = true;
+            }
+        }
+        for existing in self.buffer_led_g.entries.clone() {
+            if existing.belongsto == rule.id {
+                result = true;
+            }
+        }
+        for existing in self.buffer_led_b.entries.clone() {
+            if existing.belongsto == rule.id {
+                result = true;
+            }
+        }
+        result
+    }
     /// Checks the time passed for the current action and, when it goes over the time set, 
     /// it "moves" to the next one
     pub fn new_do_next_actions(&mut self, timestamp: f64) -> Result<Vec<String>, String>{
@@ -922,7 +964,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_y__{}", a.data));
+                    self.add_metric(format!("led_y__{}", a.data), a.id.to_string());
                     result.push(format!("led_y__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -939,7 +981,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_r.entries);
                     info!("- Just did LED_R -> {}", a.data);
                     self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_r__{}", a.data));
+                    self.add_metric(format!("led_r__{}", a.data), a.id.to_string());
                     result.push(format!("led_r__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -956,7 +998,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_g.entries);
                     info!("- Just did LED_G -> {}", a.data);
                     self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_g__{}", a.data));
+                    self.add_metric(format!("led_g__{}", a.data), a.id.to_string());
                     result.push(format!("led_g__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -973,7 +1015,7 @@ impl Brain {
                     debug!("- Buffer: {:#x?}", self.buffer_led_b.entries);
                     info!("- Just did LED_B -> {}", a.data);
                     self.leds.set_led_b(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_b__{}", a.data));
+                    self.add_metric(format!("led_b__{}", a.data), a.id.to_string());
                     result.push(format!("led_b__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -1019,7 +1061,7 @@ impl Brain {
                             // then do the actions
                             for action in a {
                                 for o in action.output {
-                                    let aux = format!("{}={},time={}", o.object, o.value, o.time);
+                                    let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
                                     self.add_action(aux);
                                 }
                             }
