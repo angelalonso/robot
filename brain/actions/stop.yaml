@@ -1,0 +1,15 @@
+--- 
+- id: "stop"
+  output:
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
+  - object: "led_r"
+    value: "0"
+    time: "0.2"
+  - object: "led_g"
+    value: "0"
+    time: "0.2"
+  - object: "led_b"
+    value: "0"
+    time: "0.2"

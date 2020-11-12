@@ -5,8 +5,7 @@ use log::{debug, error, info, trace, warn};
 use std::fs::File;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::mpsc::{Sender, Receiver};
-use std::thread;
+use std::sync::mpsc::Sender;
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
 
@@ -44,7 +43,6 @@ pub struct ConfigOutput {
     pub object: String,
     pub value: String,
     pub time: String,
-    pub repeat: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -54,6 +52,11 @@ pub struct ConfigEntry {
     output: Vec<ConfigOutput>
 }
 
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct ActionEntry {
+    id: String,
+    output: Vec<ConfigOutput>
+}
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimedData {
     id: usize,
@@ -94,6 +97,8 @@ pub struct Brain {
     metrics_led_g: Buffer,
     buffer_led_b: Buffer,
     metrics_led_b: Buffer,
+    buffer_other: Buffer,
+    metrics_other: Buffer,
 }
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 
@@ -225,6 +230,30 @@ impl Brain {
             current_entry: m_lb_e,
             max_size: 80,
         };
+        let b_o_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
+            data: "".to_string(),
+            time: 0.0,
+        };
+        let b_o = Buffer {
+            entries: [].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: b_o_e,
+            max_size: 10,
+        };
+        let m_o_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
+            data: "".to_string(),
+            time: 0.0,
+        };
+        let m_o = Buffer {
+            entries: [m_o_e.clone()].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: m_o_e,
+            max_size: 80,
+        };
         Ok(Self {
             name: brain_name,
             mode: mode,
@@ -242,6 +271,8 @@ impl Brain {
             metrics_led_g: m_lg,
             buffer_led_b: b_lb,
             metrics_led_b: m_lb,
+            buffer_other: b_o,
+            metrics_other: m_o,
         })
     }
 
@@ -369,34 +400,45 @@ impl Brain {
         if format.len() > 2 {
             source = format[2];
         }
-        match data[0] {
-            "led_y" | "led_r" | "led_g" | "led_b" => {
-                let action_item = TimedData {
-                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                    belongsto: source.to_string(),
-                    data: data[1].to_string(),
-                    time: t,
-                };
-                let result = ResultAction {
-                    resource: data[0].to_string(),
-                    action: action_item,
-                };
-                Ok(result)
-            },
-            _ => {
-                let action_item = TimedData {
-                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                    belongsto: source.to_string(),
-                    data: data[1].to_string(),
-                    time: t,
-                };
-                let result = ResultAction {
-                    resource: data[0].to_string(),
-                    action: action_item,
-                };
-                Ok(result)
-            },
-        }
+        //match data[0] {
+        //    "led_y" | "led_r" | "led_g" | "led_b" => {
+        //        let action_item = TimedData {
+        //            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //            belongsto: source.to_string(),
+        //            data: data[1].to_string(),
+        //            time: t,
+        //        };
+        //        let result = ResultAction {
+        //            resource: data[0].to_string(),
+        //            action: action_item,
+        //        };
+        //        Ok(result)
+        //    },
+        //    _ => {
+        //        let action_item = TimedData {
+        //            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //            belongsto: source.to_string(),
+        //            data: data[1].to_string(),
+        //            time: t,
+        //        };
+        //        let result = ResultAction {
+        //            resource: data[0].to_string(),
+        //            action: action_item,
+        //        };
+        //        Ok(result)
+        //    },
+        //}
+        let action_item = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: source.to_string(),
+            data: data[1].to_string(),
+            time: t,
+        };
+        let result = ResultAction {
+            resource: data[0].to_string(),
+            action: action_item,
+        };
+        Ok(result)
     }
 
     /// Adds action to the related actions buffer
@@ -406,30 +448,50 @@ impl Brain {
         match action_to_add.resource.as_str() {
             "led_y" => {
                 if self.buffer_led_y.entries.len() >= self.buffer_led_y.max_size.into() {
-                    warn!("Buffer for LED_y is full! not adding new actions...");
+                    warn!("Buffer for LED_Y is full! not adding new actions...");
                 } else {
                     self.buffer_led_y.entries.push(action_to_add.action);
                 };
             },
             "led_r" => {
                 if self.buffer_led_r.entries.len() >= self.buffer_led_r.max_size.into() {
-                    warn!("Buffer for LED_r is full! not adding new actions...");
+                    warn!("Buffer for LED_R is full! not adding new actions...");
                 } else {
                     self.buffer_led_r.entries.push(action_to_add.action);
                 };
             },
             "led_g" => {
                 if self.buffer_led_g.entries.len() >= self.buffer_led_g.max_size.into() {
-                    warn!("Buffer for LED_g is full! not adding new actions...");
+                    warn!("Buffer for LED_G is full! not adding new actions...");
                 } else {
                     self.buffer_led_g.entries.push(action_to_add.action);
                 };
             },
             "led_b" => {
                 if self.buffer_led_b.entries.len() >= self.buffer_led_b.max_size.into() {
-                    warn!("Buffer for LED_b is full! not adding new actions...");
+                    warn!("Buffer for LED_B is full! not adding new actions...");
                 } else {
                     self.buffer_led_b.entries.push(action_to_add.action);
+                };
+            },
+            "wait" => {
+                if self.buffer_other.entries.len() >= self.buffer_other.max_size.into() {
+                    warn!("Buffer for OTHER ACTIONS is full! not adding new actions...");
+                } else {
+                    self.buffer_other.entries.push(action_to_add.action);
+                };
+            },
+            "load" => {
+                if self.buffer_other.entries.len() >= self.buffer_other.max_size.into() {
+                    warn!("Buffer for OTHER ACTIONS is full! not adding new actions...");
+                } else {
+                    let a = TimedData {
+                        id: action_to_add.action.id,
+                        belongsto: action_to_add.action.belongsto,
+                        data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+                        time: action_to_add.action.time,
+                    };
+                    self.buffer_other.entries.push(a);
                 };
             },
             _ => ()
@@ -459,6 +521,7 @@ impl Brain {
         debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
         debug!("{} pending for LED_G", self.buffer_led_g.entries.len());
         debug!("{} pending for LED_B", self.buffer_led_b.entries.len());
+        debug!("{} pending for OTHER", self.buffer_led_y.entries.len());
         trace!("- Actions buffer - LED Y:");
         trace!("  {:?}", self.buffer_led_y.entries);
         trace!("- Actions buffer - LED R:");
@@ -467,6 +530,8 @@ impl Brain {
         trace!("  {:?}", self.buffer_led_g.entries);
         trace!("- Actions buffer - LED B:");
         trace!("  {:?}", self.buffer_led_b.entries);
+        trace!("- Actions buffer - OTHER:");
+        trace!("  {:?}", self.buffer_other.entries);
     }
 
     pub fn show_metrics(&mut self) {
@@ -494,18 +559,23 @@ impl Brain {
         // Start with led_y
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
-            if self.metrics_led_y.entries.len() > 0 {
-                if rule.input[0].led_y != "*" {
-                    if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
-                        if timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap(){
-                            if ! self.are_actions_in_buffer(rule.clone()) {
-                                partial_rules.push(rule.clone());
-                            }
+            if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
+                 partial_rules.push(rule.clone());
+            } else if rule.id.split("_").collect::<Vec<_>>()[0] != "done" {
+                if self.metrics_led_y.entries.len() > 0 {
+                    if rule.input[0].led_y != "*" {
+                        if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
+                            if timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap(){
+                                if ! self.are_actions_in_buffer(rule.clone()) {
+                                    partial_rules.push(rule.clone());
+                                }
+                            };
                         };
+                    } else {
+                        partial_rules.push(rule.clone());
                     };
-                } else {
-                    partial_rules.push(rule.clone());
                 };
+
             };
         };
         // Then remove those that dont fit led_r
@@ -523,8 +593,7 @@ impl Brain {
                 };
             };
         };
-        // Then remove those that dont fit led_g
-        //TODO: does this work always and in sync?
+        //TODO: join this FOR
         for rule in partial_rules.clone() {
             if self.metrics_led_g.entries.len() > 0 {
                 if rule.input[0].led_g != "*" {
@@ -538,8 +607,7 @@ impl Brain {
                 };
             };
         };
-        // Then remove those that dont fit led_b
-        //TODO: does this work always and in sync?
+        //TODO: join this FOR
         for rule in partial_rules.clone() {
             if self.metrics_led_b.entries.len() > 0 {
                 if rule.input[0].led_b != "*" {
@@ -600,7 +668,6 @@ impl Brain {
     /// Checks the time passed for the current action and, when it goes over the time set, 
     /// it "moves" to the next one
     pub fn do_next_actions(&mut self, timestamp: f64) -> Result<Vec<String>, String>{
-        // TODO: check if a loop is not needed here...
         let mut result = [].to_vec();
         if timestamp >= self.metrics_led_y.last_change_timestamp {
             if self.buffer_led_y.entries.len() > 0 {
@@ -670,6 +737,26 @@ impl Brain {
                 }
             }
         };
+        if timestamp >= self.metrics_other.last_change_timestamp {
+            if self.buffer_other.entries.len() > 0 {
+                let a = &self.buffer_other.entries.clone()[0];
+                let time_passed = ((timestamp - self.buffer_other.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+                trace!("- Time passed on current value - {:?}", time_passed);
+                if time_passed >= self.buffer_other.current_entry.time {
+                    self.buffer_other.current_entry = a.clone();
+                    self.buffer_other.entries.retain(|x| *x != *a);
+                    self.buffer_other.last_change_timestamp = timestamp.clone();
+                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+                    info!("- Just did OTHER -> {}", a.data);
+                    if a.data.split("_").collect::<Vec<_>>()[0] == "load" {
+                        self.config = Brain::load_action_rules(format!("./actions/{}", a.data.split("_").collect::<Vec<_>>()[1])).unwrap();
+                        self.empty_buffers();
+                    };
+                    self.add_metric(format!("other__{}", a.data), a.id.to_string());
+                    result.push(format!("other__{}__{:?}", a.clone().data, a.clone().time));
+                }
+            }
+        };
         if result.len() == 0 {result.push("".to_string())};
         Ok(result)
     }
@@ -695,14 +782,26 @@ impl Brain {
                     Ok(a) => {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
-                            // first a round to check which objects we are adding new actions to
+                            // first the actions marked as do_once will be marked as done at the
+                            // config
+                            for mut rule in self.config.iter_mut() {
+                                if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
+                                    for action in a.clone() {
+                                        if action.id == rule.id {
+                                            rule.id = action.id.to_string().replace("do-once", "done");
+                                            debug!("Action '{}' will only be done once", action.id);
+                                        }
+                                    }
+                                }
+                            }
+                            // then a round to check which objects we are adding new actions to
                             for action in a.clone() {
                                 for o in action.output {
                                     match o.object.as_str() {
                                         "led_y" => self.buffer_led_y.entries = Vec::new(),
                                         "led_r" => self.buffer_led_r.entries = Vec::new(),
-                                        "led_g" => self.buffer_led_r.entries = Vec::new(),
-                                        "led_b" => self.buffer_led_r.entries = Vec::new(),
+                                        "led_g" => self.buffer_led_g.entries = Vec::new(),
+                                        "led_b" => self.buffer_led_b.entries = Vec::new(),
                                         _ => (),
                                     }
 
@@ -733,15 +832,46 @@ impl Brain {
         }
     }
 
+    pub fn empty_buffers(&mut self) {
+        self.buffer_led_y.entries = Vec::new();
+        self.buffer_led_r.entries = Vec::new();
+        self.buffer_led_g.entries = Vec::new();
+        self.buffer_led_b.entries = Vec::new();
+        self.buffer_other.entries = Vec::new();
+
+    }
+
+    /// The whole point of this function is being able to load actions and configs through the same
+    /// pattern. The actions differ from configs in that they will ALWAYS be loaded (but maybe only
+    /// once).
+    /// We give the id a special value to use later.
     pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
         let file_pointer = File::open(file.clone()).unwrap();
-        let c: Vec<ConfigEntry> = [].to_vec();
+        let mut c: Vec<ConfigEntry> = [].to_vec();
         match serde_yaml::from_reader(file_pointer) {
             Ok(v) => return Ok(v),
             Err(e) => {
                 if e.to_string().contains("missing field `input`") {
-                    //TODO: load to a different structure, without input, make up the input
-                    println!("{}", e);
+                    let file_pointer = File::open(file.clone()).unwrap();
+                    let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
+                    for i in a {
+                        let c_elem = ConfigEntry {
+                            id: format!("do-once_{}", i.id),
+                            input: [ConfigInput {
+                                 time: "*".to_string(),
+                                 led_y: "*".to_string(),
+                                 led_r: "*".to_string(),
+                                 led_g: "*".to_string(),
+                                 led_b: "*".to_string(),
+                                 motor_l: "*".to_string(),
+                                 motor_r: "*".to_string(),
+                                 tracker: "*".to_string(),
+                                 distance: "*".to_string(),
+                            }].to_vec(),
+                            output: i.output,
+                        };
+                        c.push(c_elem);
+                    }
                     return Ok(c)
                 } else {
                     error!("The file {} is incorrect! - {}", file, e);

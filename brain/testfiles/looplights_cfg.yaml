@@ -14,80 +14,60 @@
   - object: "led_y"
     value: "1"
     time: "0.2"
-    repeat: false
   - object: "led_r"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_g"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_b"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_y"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_r"
     value: "1"
     time: "0.2"
-    repeat: false
   - object: "led_g"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_b"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_y"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_r"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_g"
     value: "1"
     time: "0.2"
-    repeat: false
   - object: "led_b"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_y"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_r"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_g"
     value: "0"
     time: "0.2"
-    repeat: false
   - object: "led_b"
     value: "1"
     time: "0.2"
-    repeat: false
   - object: "led_y"
     value: "0"
     time: "0.4"
-    repeat: false
   - object: "led_r"
     value: "0"
     time: "0.4"
-    repeat: false
   - object: "led_g"
     value: "0"
     time: "0.4"
-    repeat: false
   - object: "led_b"
     value: "0"
     time: "0.4"
-    repeat: false
