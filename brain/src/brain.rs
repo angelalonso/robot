@@ -19,6 +19,9 @@ pub enum BrainDeadError {
     #[error("Config contains no related entries")]
     NoConfigFound,
 
+    #[error("Config contains no related entries")]
+    YamlError,
+
     #[error("Something went wrong while working with timestamps")]
     SystemTimeError,
 }
@@ -101,8 +104,9 @@ impl Brain {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        let cfg_file_pointer = File::open(config_file).unwrap();
-        let c: Vec<ConfigEntry> = serde_yaml::from_reader(cfg_file_pointer).unwrap();
+        //let cfg_file_pointer = File::open(config_file).unwrap();
+        //let c: Vec<ConfigEntry> = serde_yaml::from_reader(cfg_file_pointer).unwrap();
+        let c = Brain::load_action_rules(config_file).unwrap();
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
@@ -727,5 +731,24 @@ impl Brain {
                 None => (),
             }
         }
+    }
+
+    pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
+        let file_pointer = File::open(file.clone()).unwrap();
+        let c: Vec<ConfigEntry> = [].to_vec();
+        match serde_yaml::from_reader(file_pointer) {
+            Ok(v) => return Ok(v),
+            Err(e) => {
+                if e.to_string().contains("missing field `input`") {
+                    //TODO: load to a different structure, without input, make up the input
+                    println!("{}", e);
+                    return Ok(c)
+                } else {
+                    error!("The file {} is incorrect! - {}", file, e);
+                    return Err(BrainDeadError::YamlError)                    
+                }
+            },
+
+        };
     }
 }
