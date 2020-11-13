@@ -550,8 +550,7 @@ impl Brain {
 
             };
         };
-        // Then remove those that dont fit led_r
-        //TODO: does this work always and in sync?
+        // Then remove those that dont fit 
         for rule in partial_rules.clone() {
             if self.metrics_led_r.entries.len() > 0 {
                 if rule.input[0].led_r != "*" {
@@ -564,9 +563,6 @@ impl Brain {
                     };
                 };
             };
-        };
-        //TODO: join this FOR
-        for rule in partial_rules.clone() {
             if self.metrics_led_g.entries.len() > 0 {
                 if rule.input[0].led_g != "*" {
                     if self.metrics_led_g.entries[0].data != rule.input[0].led_g {
@@ -578,9 +574,6 @@ impl Brain {
                     };
                 };
             };
-        };
-        //TODO: join this FOR
-        for rule in partial_rules.clone() {
             if self.metrics_led_b.entries.len() > 0 {
                 if rule.input[0].led_b != "*" {
                     if self.metrics_led_b.entries[0].data != rule.input[0].led_b {
