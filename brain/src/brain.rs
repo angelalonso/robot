@@ -400,34 +400,6 @@ impl Brain {
         if format.len() > 2 {
             source = format[2];
         }
-        //match data[0] {
-        //    "led_y" | "led_r" | "led_g" | "led_b" => {
-        //        let action_item = TimedData {
-        //            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //            belongsto: source.to_string(),
-        //            data: data[1].to_string(),
-        //            time: t,
-        //        };
-        //        let result = ResultAction {
-        //            resource: data[0].to_string(),
-        //            action: action_item,
-        //        };
-        //        Ok(result)
-        //    },
-        //    _ => {
-        //        let action_item = TimedData {
-        //            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //            belongsto: source.to_string(),
-        //            data: data[1].to_string(),
-        //            time: t,
-        //        };
-        //        let result = ResultAction {
-        //            resource: data[0].to_string(),
-        //            action: action_item,
-        //        };
-        //        Ok(result)
-        //    },
-        //}
         let action_item = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
             belongsto: source.to_string(),
@@ -521,7 +493,7 @@ impl Brain {
         debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
         debug!("{} pending for LED_G", self.buffer_led_g.entries.len());
         debug!("{} pending for LED_B", self.buffer_led_b.entries.len());
-        debug!("{} pending for OTHER", self.buffer_led_y.entries.len());
+        debug!("{} pending for OTHER", self.buffer_other.entries.len());
         trace!("- Actions buffer - LED Y:");
         trace!("  {:?}", self.buffer_led_y.entries);
         trace!("- Actions buffer - LED R:");
@@ -658,6 +630,11 @@ impl Brain {
             }
         }
         for existing in self.buffer_led_b.entries.clone() {
+            if existing.belongsto == rule.id {
+                result = true;
+            }
+        }
+        for existing in self.buffer_other.entries.clone() {
             if existing.belongsto == rule.id {
                 result = true;
             }

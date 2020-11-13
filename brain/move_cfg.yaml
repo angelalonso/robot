@@ -73,7 +73,7 @@
     time: "0.2"
   - object: "wait"
     value: ""
-    time: "4"
+    time: "5"
   - object: "load"
     value: "stop.yaml"
     time: "0.2"
