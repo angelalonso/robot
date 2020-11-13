@@ -5,9 +5,10 @@ use log::{debug, error, info, trace, warn};
 use std::fs::File;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Sender, Receiver};
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
+use std::thread;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -525,6 +526,47 @@ impl Brain {
         }
     }
 
+    /// The whole point of this function is being able to load actions and configs through the same
+    /// pattern. The actions differ from configs in that they will ALWAYS be loaded (but maybe only
+    /// once).
+    /// We give the id a special value to use later.
+    pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
+        let file_pointer = File::open(file.clone()).unwrap();
+        let mut c: Vec<ConfigEntry> = [].to_vec();
+        match serde_yaml::from_reader(file_pointer) {
+            Ok(v) => return Ok(v),
+            Err(e) => {
+                if e.to_string().contains("missing field `input`") {
+                    let file_pointer = File::open(file.clone()).unwrap();
+                    let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
+                    for i in a {
+                        let c_elem = ConfigEntry {
+                            id: format!("do-once_{}", i.id),
+                            input: [ConfigInput {
+                                 time: "*".to_string(),
+                                 led_y: "*".to_string(),
+                                 led_r: "*".to_string(),
+                                 led_g: "*".to_string(),
+                                 led_b: "*".to_string(),
+                                 motor_l: "*".to_string(),
+                                 motor_r: "*".to_string(),
+                                 tracker: "*".to_string(),
+                                 distance: "*".to_string(),
+                            }].to_vec(),
+                            output: i.output,
+                        };
+                        c.push(c_elem);
+                    }
+                    return Ok(c)
+                } else {
+                    error!("The file {} is incorrect! - {}", file, e);
+                    return Err(BrainDeadError::YamlError)                    
+                }
+            },
+
+        };
+    }
+
     /// Goes through all rules loaded from config, checks if they match what is currently on our
     /// metrics, and iif so, it returns them
     pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
@@ -731,11 +773,20 @@ impl Brain {
         Ok(result)
     }
 
+    pub fn empty_buffers(&mut self) {
+        self.buffer_led_y.entries = Vec::new();
+        self.buffer_led_r.entries = Vec::new();
+        self.buffer_led_g.entries = Vec::new();
+        self.buffer_led_b.entries = Vec::new();
+        self.buffer_other.entries = Vec::new();
+    }
+
     ///
     /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
     /// - precission: how often we do stuff
     ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
     pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+        let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
         loop {
@@ -745,6 +796,22 @@ impl Brain {
             if new_ct > ct { 
                 ct = new_ct;
                 // GET MESSAGES AND UPDATE METRICS
+                let msgs = s.clone();
+                let mut arduino_clone = self.arduino.clone();
+                let brain_clone = self.clone();
+                let _handle = thread::spawn(move || {
+                        if brain_clone.mode != "dryrun" {
+                            arduino_clone.read_channel(msgs).unwrap();
+                    } else {
+                            arduino_clone.read_channel_mock(msgs).unwrap();
+                        };
+                    });
+                let _msg = match r.try_recv() {
+                    Ok(m) => {
+                        self.use_arduino_msg(m);
+                    },
+                    Err(_) => (),
+                };
                 self.show_metrics();
                 self.show_buffers();
                 // GET ACTIONS
@@ -802,53 +869,9 @@ impl Brain {
         }
     }
 
-    pub fn empty_buffers(&mut self) {
-        self.buffer_led_y.entries = Vec::new();
-        self.buffer_led_r.entries = Vec::new();
-        self.buffer_led_g.entries = Vec::new();
-        self.buffer_led_b.entries = Vec::new();
-        self.buffer_other.entries = Vec::new();
+    pub fn use_arduino_msg(&mut self, msg: String) {
+        info!("Received from Arduino: {}", msg);
 
     }
 
-    /// The whole point of this function is being able to load actions and configs through the same
-    /// pattern. The actions differ from configs in that they will ALWAYS be loaded (but maybe only
-    /// once).
-    /// We give the id a special value to use later.
-    pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
-        let file_pointer = File::open(file.clone()).unwrap();
-        let mut c: Vec<ConfigEntry> = [].to_vec();
-        match serde_yaml::from_reader(file_pointer) {
-            Ok(v) => return Ok(v),
-            Err(e) => {
-                if e.to_string().contains("missing field `input`") {
-                    let file_pointer = File::open(file.clone()).unwrap();
-                    let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
-                    for i in a {
-                        let c_elem = ConfigEntry {
-                            id: format!("do-once_{}", i.id),
-                            input: [ConfigInput {
-                                 time: "*".to_string(),
-                                 led_y: "*".to_string(),
-                                 led_r: "*".to_string(),
-                                 led_g: "*".to_string(),
-                                 led_b: "*".to_string(),
-                                 motor_l: "*".to_string(),
-                                 motor_r: "*".to_string(),
-                                 tracker: "*".to_string(),
-                                 distance: "*".to_string(),
-                            }].to_vec(),
-                            output: i.output,
-                        };
-                        c.push(c_elem);
-                    }
-                    return Ok(c)
-                } else {
-                    error!("The file {} is incorrect! - {}", file, e);
-                    return Err(BrainDeadError::YamlError)                    
-                }
-            },
-
-        };
-    }
 }
