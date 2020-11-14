@@ -1,7 +1,7 @@
 --- 
 - id: "button"
   input:
-  - time: "0.1" 
+  - time: "0.05" 
     led_y: "*"
     led_r: "*"
     led_g: "*"
