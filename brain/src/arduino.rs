@@ -9,7 +9,7 @@ use std::process::Command;
 use std::{thread, time};
 
 use std::sync::mpsc::Sender;
-use log::{debug, error};
+use log::{debug, error, info};
 
 #[derive(Error, Debug)]
 pub enum BrainArduinoError {
