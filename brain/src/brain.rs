@@ -124,7 +124,7 @@ impl Brain {
                 eprintln!("Problem Initializing Arduino: {}", err);
                 process::exit(1);
             });
-            a.install("../arduino/000_sensors/000_sensors.ino.hex")
+            a.install("../arduino/000_sensors/000_sensors.ino.hex").unwrap();
         };
         let m = Motors::new(mode.clone()).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
