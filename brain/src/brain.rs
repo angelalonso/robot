@@ -33,6 +33,7 @@ pub struct ConfigInput {
     pub led_r: String,
     pub led_g: String,
     pub led_b: String,
+    pub button: String,
     pub motor_l: String,
     pub motor_r: String,
     pub tracker: String,
@@ -98,6 +99,7 @@ pub struct Brain {
     metrics_led_g: Buffer,
     buffer_led_b: Buffer,
     metrics_led_b: Buffer,
+    metrics_button: Buffer,
     buffer_other: Buffer,
     metrics_other: Buffer,
 }
@@ -231,6 +233,20 @@ impl Brain {
             current_entry: m_lb_e,
             max_size: 80,
         };
+        // BUTTON
+        let m_bt_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
+            data: "0".to_string(),
+            time: 0.0,
+        };
+        let m_bt = Buffer {
+            entries: [m_bt_e.clone()].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: m_bt_e,
+            max_size: 80,
+        };
+        // OTHER
         let b_o_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
             belongsto: "".to_string(),
@@ -272,6 +288,7 @@ impl Brain {
             metrics_led_g: m_lg,
             buffer_led_b: b_lb,
             metrics_led_b: m_lb,
+            metrics_button: m_bt,
             buffer_other: b_o,
             metrics_other: m_o,
         })
@@ -548,6 +565,7 @@ impl Brain {
                                  led_r: "*".to_string(),
                                  led_g: "*".to_string(),
                                  led_b: "*".to_string(),
+                                 button: "*".to_string(),
                                  motor_l: "*".to_string(),
                                  motor_r: "*".to_string(),
                                  tracker: "*".to_string(),
@@ -869,9 +887,14 @@ impl Brain {
         }
     }
 
-    pub fn use_arduino_msg(&mut self, msg: String) {
-        info!("Received from Arduino: {}", msg);
-
+    pub fn use_arduino_msg(&mut self, raw_msg: String) {
+        let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
+        match msg_parts[0] {
+            "SENSOR" => {
+                let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
+                info!("{} {}", sensor[0], sensor[1]);
+            },
+            _ => (),
+        }
     }
-
 }
