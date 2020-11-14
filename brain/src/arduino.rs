@@ -60,7 +60,7 @@ impl Arduino {
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
         info!("...reading from Serial Port {}", self.serialport);
-        let mut port = serial::open(&self.serialport).unwrap();
+        let mut port = serial::open(&self.serialport);
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
