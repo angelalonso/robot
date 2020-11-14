@@ -294,6 +294,23 @@ impl Brain {
         })
     }
 
+    pub fn get_current_time(&mut self) -> f64 {
+        let now = SystemTime::now();
+        let timestamp = match now.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis() as f64,
+            Err(_e) => 0.0,
+        };
+        return timestamp;
+    }
+
+    pub fn get_timestamp_since(&mut self, start_timestamp: f64) -> f64 {
+        let now = SystemTime::now();
+        let timestamp = match now.duration_since(UNIX_EPOCH) {
+            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
+            Err(_e) => 0.0,
+        };
+        return timestamp;
+    }
 
     /// adds metric to the related metrics buffer
     pub fn add_metric(&mut self, metric: String, source_id: String) {
@@ -404,6 +421,32 @@ impl Brain {
                     self.metrics_led_b.entries.pop();
                 };
             },
+            "button" => {
+                if self.metrics_button.entries.len() == 0 {
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
+                        data: metric_decomp[1].to_string(),
+                        time: self.timestamp.clone(), // here time means "since_timestamp"
+                    };
+                    self.metrics_button.entries.push(new_m);
+                    self.metrics_button.last_change_timestamp = self.timestamp;
+                } else {
+                    if self.metrics_button.entries[0].data != metric_decomp[1].to_string() {
+                        let new_m = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
+                            data: metric_decomp[1].to_string(),
+                            time: self.timestamp.clone(),
+                        };
+                        self.metrics_button.entries.insert(0, new_m);
+                        self.metrics_button.last_change_timestamp = self.timestamp;
+                    }
+                }; 
+                if self.metrics_button.entries.len() > self.metrics_button.max_size.into() {
+                    self.metrics_button.entries.pop();
+                };
+            },
             _ => (),
         }
     }
@@ -487,25 +530,6 @@ impl Brain {
             _ => ()
         }
     }
-
-    pub fn get_current_time(&mut self) -> f64 {
-        let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
-            Ok(time) => time.as_millis() as f64,
-            Err(_e) => 0.0,
-        };
-        return timestamp;
-    }
-
-    pub fn get_timestamp_since(&mut self, start_timestamp: f64) -> f64 {
-        let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
-            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
-            Err(_e) => 0.0,
-        };
-        return timestamp;
-    }
-
     pub fn show_buffers(&mut self) {
         debug!("{} pending for LED_Y", self.buffer_led_y.entries.len());
         debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
@@ -540,6 +564,10 @@ impl Brain {
         debug!("- Metrics - LED B:");
         for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
             debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        }
+        info!("- Metrics - BUTTON:");
+        for (ix, action) in self.metrics_button.entries.clone().iter().enumerate() {
+            info!(" #{} |data={}|time={}|", ix, action.data, action.time);
         }
     }
 
@@ -644,7 +672,17 @@ impl Brain {
                         };
                     };
                 };
-
+            };
+            if self.metrics_button.entries.len() > 0 {
+                if rule.input[0].button != "*" {
+                    if self.metrics_button.entries[0].data != rule.input[0].button {
+                        partial_rules.retain(|x| *x != rule);
+                    } else {
+                        if (timestamp - self.metrics_button.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+                            partial_rules.retain(|x| *x != rule);
+                        };
+                    };
+                };
             };
         };
         if partial_rules.len() > 0 {
@@ -892,7 +930,9 @@ impl Brain {
         match msg_parts[0] {
             "SENSOR" => {
                 let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
-                info!("{} {}", sensor[0], sensor[1]);
+                let sensor_id = "arduino".to_string();
+                debug!("SENSOR: {} {}", sensor[0], sensor[1]);
+                self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
             },
             _ => (),
         }
