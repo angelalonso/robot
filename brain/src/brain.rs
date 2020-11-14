@@ -879,12 +879,12 @@ impl Brain {
                 //            arduino_clone.read_channel_mock(msgs).unwrap();
                 //        };
                 //    });
-                //let _msg = match r.try_recv() {
-                //    Ok(m) => {
-                //        self.use_arduino_msg(m);
-                //    },
-                //    Err(_) => (),
-                //};
+                let _msg = match r.try_recv() {
+                    Ok(m) => {
+                        self.use_arduino_msg(m);
+                    },
+                    Err(_) => (),
+                };
                 self.show_metrics();
                 self.show_buffers();
                 // GET ACTIONS
