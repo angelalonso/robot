@@ -845,6 +845,23 @@ impl Brain {
         let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
+
+        let msgs = s.clone();
+        let mut arduino_clone = self.arduino.clone();
+        let brain_clone = self.clone();
+        let _handle = thread::spawn(move || {
+                if brain_clone.mode != "dryrun" {
+                    arduino_clone.read_channel(msgs).unwrap();
+            } else {
+                    arduino_clone.read_channel_mock(msgs).unwrap();
+                };
+            });
+        let _msg = match r.try_recv() {
+            Ok(m) => {
+                self.use_arduino_msg(m);
+            },
+            Err(_) => (),
+        };
         loop {
             let ct_raw = self.get_timestamp_since(start_timestamp);
             // CONTROL RUNNING
@@ -852,22 +869,22 @@ impl Brain {
             if new_ct > ct { 
                 ct = new_ct;
                 // GET MESSAGES AND UPDATE METRICS
-                let msgs = s.clone();
-                let mut arduino_clone = self.arduino.clone();
-                let brain_clone = self.clone();
-                let _handle = thread::spawn(move || {
-                        if brain_clone.mode != "dryrun" {
-                            arduino_clone.read_channel(msgs).unwrap();
-                    } else {
-                            arduino_clone.read_channel_mock(msgs).unwrap();
-                        };
-                    });
-                let _msg = match r.try_recv() {
-                    Ok(m) => {
-                        self.use_arduino_msg(m);
-                    },
-                    Err(_) => (),
-                };
+                //let msgs = s.clone();
+                //let mut arduino_clone = self.arduino.clone();
+                //let brain_clone = self.clone();
+                //let _handle = thread::spawn(move || {
+                //        if brain_clone.mode != "dryrun" {
+                //            arduino_clone.read_channel(msgs).unwrap();
+                //    } else {
+                //            arduino_clone.read_channel_mock(msgs).unwrap();
+                //        };
+                //    });
+                //let _msg = match r.try_recv() {
+                //    Ok(m) => {
+                //        self.use_arduino_msg(m);
+                //    },
+                //    Err(_) => (),
+                //};
                 self.show_metrics();
                 self.show_buffers();
                 // GET ACTIONS
