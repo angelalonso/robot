@@ -29,12 +29,12 @@ void loop() {
   if(SwitchValue == true)
   {
     delay(50);    
-    Serial.println("SENSOR: data_button_1");
+    Serial.println("SENSOR: button=1");
   }
   else
   {
     delay(50);    
-    Serial.println("SENSOR: data_button_0");
+    Serial.println("SENSOR: button=0");
   }
   boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
   if(trackerValue == HIGH) //if it is HiGH
