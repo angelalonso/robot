@@ -565,9 +565,9 @@ impl Brain {
         for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
             debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
         }
-        info!("- Metrics - BUTTON:");
+        debug!("- Metrics - BUTTON:");
         for (ix, action) in self.metrics_button.entries.clone().iter().enumerate() {
-            info!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
         }
     }
 
@@ -931,8 +931,13 @@ impl Brain {
             "SENSOR" => {
                 let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
                 let sensor_id = "arduino".to_string();
-                debug!("SENSOR: {} {}", sensor[0], sensor[1]);
-                self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+                info!("SENSOR: {} {}", sensor[0], sensor[1]);
+                if sensor.len() > 1 {
+                    self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+                } else {
+                    println!("{:?}", sensor);
+                }
+
             },
             _ => (),
         }
