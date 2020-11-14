@@ -852,22 +852,22 @@ impl Brain {
             if new_ct > ct { 
                 ct = new_ct;
                 // GET MESSAGES AND UPDATE METRICS
-                let msgs = s.clone();
-                let mut arduino_clone = self.arduino.clone();
-                let brain_clone = self.clone();
-                let _handle = thread::spawn(move || {
-                        if brain_clone.mode != "dryrun" {
-                            arduino_clone.read_channel(msgs).unwrap();
-                    } else {
-                            arduino_clone.read_channel_mock(msgs).unwrap();
-                        };
-                    });
-                let _msg = match r.try_recv() {
-                    Ok(m) => {
-                        self.use_arduino_msg(m);
-                    },
-                    Err(_) => (),
-                };
+                //let msgs = s.clone();
+                //let mut arduino_clone = self.arduino.clone();
+                //let brain_clone = self.clone();
+                //let _handle = thread::spawn(move || {
+                //        if brain_clone.mode != "dryrun" {
+                //            arduino_clone.read_channel(msgs).unwrap();
+                //    } else {
+                //            arduino_clone.read_channel_mock(msgs).unwrap();
+                //        };
+                //    });
+                //let _msg = match r.try_recv() {
+                //    Ok(m) => {
+                //        self.use_arduino_msg(m);
+                //    },
+                //    Err(_) => (),
+                //};
                 self.show_metrics();
                 self.show_buffers();
                 // GET ACTIONS
