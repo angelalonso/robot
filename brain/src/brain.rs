@@ -948,8 +948,8 @@ impl Brain {
             "SENSOR" => {
                 let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
                 let sensor_id = "arduino".to_string();
-                info!("SENSOR: {} {}", sensor[0], sensor[1]);
                 if sensor.len() > 1 {
+                    info!("SENSOR: {} {}", sensor[0], sensor[1]);
                     self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
                 } else {
                     println!("{:?}", sensor);
