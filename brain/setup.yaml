@@ -1,0 +1,8 @@
+---
+start_actionset_file: move_cfg.yaml
+start_arduinohex_file: ../arduino/000_sensors/000_sensors.ino.hex
+inputs:
+  - button
+outputs:
+  - led_y
+  - motor_l

@@ -2,7 +2,7 @@
 - id: "button"
   repeat: true
   input:
-  - time: "0.1" 
+  - time: "0.5" 
     input_objs: ""
     led_y: "*"
     led_r: "*"

@@ -51,7 +51,7 @@ pub struct ConfigOutput {
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigEntry {
     id: String,
-    repeat: bool, //TODO: use this to define if it needs to be repeated
+    repeat: bool,
     input: Vec<ConfigInput>,
     output: Vec<ConfigOutput>
 }
@@ -76,6 +76,15 @@ pub struct ResultAction {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub struct Set {
+    object: String,
+    entries: Vec<TimedData>,
+    last_change_timestamp: f64,
+    current_entry: TimedData,
+    max_size: u8,
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Buffer {
     entries: Vec<TimedData>,
     last_change_timestamp: f64,
@@ -93,6 +102,8 @@ pub struct Brain {
     arduino: Arduino,
     motors: Motors,
     leds: LEDs,
+    buffersets: Vec<Set>,
+    metricsets: Vec<Set>,
     buffer_led_y: Buffer,
     metrics_led_y: Buffer,
     buffer_led_r: Buffer,
@@ -106,17 +117,18 @@ pub struct Brain {
     metrics_other: Buffer,
 }
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
+static MAX_BUFFERSIZE: u8 = 25;
+static MAX_METRICSIZE: u8 = 25;
 
 impl Brain {
-    pub fn new(brain_name: String, mode: String, config_file: String) -> Result<Self, String> {
+    pub fn new(brain_name: String, mode: String, setup_file: String) -> Result<Self, String> {
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        //let cfg_file_pointer = File::open(config_file).unwrap();
-        //let c: Vec<ConfigEntry> = serde_yaml::from_reader(cfg_file_pointer).unwrap();
-        let c = Brain::load_action_rules(config_file).unwrap();
+        let (first_action_set, first_arduino_program, inputs, outputs) = Brain::load_setup(setup_file.to_string());
+        let c = Brain::load_action_rules(first_action_set).unwrap();
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
@@ -126,8 +138,33 @@ impl Brain {
                 eprintln!("Problem Initializing Arduino: {}", err);
                 process::exit(1);
             });
-            a.install("../arduino/000_sensors/000_sensors.ino.hex").unwrap();
+            a.install(&first_arduino_program).unwrap();
         };
+        let mut bs = [].to_vec();
+        let ms = [].to_vec();
+        // INPUTS
+        for i in inputs {
+            println!("{}", i);
+            let s_e = TimedData {
+                id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                belongsto: "".to_string(),
+                data: "0".to_string(),
+                time: 0.0,
+            };
+            let s = Set {
+                object: i,
+                entries: [].to_vec(),
+                last_change_timestamp: 0.0,
+                current_entry: s_e,
+                max_size: MAX_BUFFERSIZE,
+            };
+            bs.push(s);
+        }
+        // OUTPUTS
+        for o in outputs {
+            println!("{}", o);
+        }
+        // OLD
         let m = Motors::new(mode.clone()).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
@@ -283,6 +320,8 @@ impl Brain {
             arduino: a,
             motors: m,
             leds: l,
+            buffersets: bs,
+            metricsets: ms,
             buffer_led_y: b_ly,
             metrics_led_y: m_ly,
             buffer_led_r: b_lr,
@@ -967,5 +1006,18 @@ impl Brain {
             },
             _ => (),
         }
+    }
+
+    pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
+        #[derive(Deserialize)]
+        struct Setup {
+            start_actionset_file: String,
+            start_arduinohex_file: String,
+            inputs: Vec<String>,
+            outputs: Vec<String>,
+        }
+        let file_pointer = File::open(setup_file).unwrap();
+        let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
+        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
     }
 }

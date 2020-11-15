@@ -1,0 +1,7 @@
+- 
+  start_action_file: "move_cfg.yaml"
+  inputs:
+    - button
+  outputs:
+    - led_y
+    - motor_l
