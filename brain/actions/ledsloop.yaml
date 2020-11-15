@@ -1,5 +1,6 @@
 --- 
 - id: "ledsloop"
+  repeat: false
   output:
   - object: "led_y"
     value: "1"

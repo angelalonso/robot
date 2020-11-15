@@ -1,12 +1,14 @@
 --- 
 - id: "button"
+  repeat: true
   input:
   - time: "0.1" 
+    input_objs: ""
     led_y: "*"
     led_r: "*"
     led_g: "*"
     led_b: "*"
-    button: "1"
+    button: "*"
     motor_l: "*"
     motor_r: "*"
     tracker: "*"

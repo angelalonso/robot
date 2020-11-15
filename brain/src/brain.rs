@@ -29,6 +29,7 @@ pub enum BrainDeadError {
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigInput {
     pub time: String,
+    pub input_objs: String, //TODO: use this instead of one entry for each element
     pub led_y: String,
     pub led_r: String,
     pub led_g: String,
@@ -50,6 +51,7 @@ pub struct ConfigOutput {
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigEntry {
     id: String,
+    repeat: bool, //TODO: use this to define if it needs to be repeated
     input: Vec<ConfigInput>,
     output: Vec<ConfigOutput>
 }
@@ -587,9 +589,12 @@ impl Brain {
                     let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
                     for i in a {
                         let c_elem = ConfigEntry {
-                            id: format!("do-once_{}", i.id),
+                            //id: format!("do-once_{}", i.id),
+                            id: i.id,
+                            repeat: false,
                             input: [ConfigInput {
                                  time: "*".to_string(),
+                                 input_objs: "".to_string(),
                                  led_y: "*".to_string(),
                                  led_r: "*".to_string(),
                                  led_g: "*".to_string(),
@@ -620,7 +625,8 @@ impl Brain {
         // Start with led_y
         let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
         for rule in self.config.clone() {
-            if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
+            //if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
+            if rule.repeat == false {
                  partial_rules.push(rule.clone());
             } else if rule.id.split("_").collect::<Vec<_>>()[0] != "done" {
                 if self.metrics_led_y.entries.len() > 0 {
@@ -896,10 +902,13 @@ impl Brain {
                             // first the actions marked as do_once will be marked as done at the
                             // config
                             for mut rule in self.config.iter_mut() {
-                                if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
+                                if rule.repeat == false {
+                                //if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
                                     for action in a.clone() {
                                         if action.id == rule.id {
-                                            rule.id = action.id.to_string().replace("do-once", "done");
+                                            //rule.id = action.id.to_string().replace("do-once", "done");
+                                            rule.id = "done_".to_owned();
+                                            rule.id.push_str(&action.id.to_string());
                                             debug!("Action '{}' will only be done once", action.id);
                                         }
                                     }

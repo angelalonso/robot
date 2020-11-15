@@ -1,5 +1,6 @@
 --- 
 - id: "stop"
+  repeat: false
   output:
   - object: "led_y"
     value: "0"
