@@ -14,9 +14,9 @@
     tracker: "*"
     distance: "*"
   output:
-  - object: "led_g"
+  - object: "led_y"
     value: "1"
     time: "0.2"
-  - object: "led_g"
+  - object: "led_y"
     value: "0"
     time: "0.2"

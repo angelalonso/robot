@@ -141,10 +141,9 @@ impl Brain {
             a.install(&first_arduino_program).unwrap();
         };
         let mut bs = [].to_vec();
-        let ms = [].to_vec();
-        // INPUTS
+        let mut ms = [].to_vec();
+        // INPUTS -> they only have metrics buffers
         for i in inputs {
-            println!("{}", i);
             let s_e = TimedData {
                 id: COUNTER.fetch_add(1, Ordering::Relaxed),
                 belongsto: "".to_string(),
@@ -156,13 +155,34 @@ impl Brain {
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e,
+                max_size: MAX_METRICSIZE,
+            };
+            ms.push(s);
+        }
+        // OUTPUTS -> they have actions buffers and metrics buffers
+        for o in outputs {
+            let s_e = TimedData {
+                id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                belongsto: "".to_string(),
+                data: "0".to_string(),
+                time: 0.0,
+            };
+            let s_b = Set {
+                object: o.clone(),
+                entries: [].to_vec(),
+                last_change_timestamp: 0.0,
+                current_entry: s_e.clone(),
                 max_size: MAX_BUFFERSIZE,
             };
-            bs.push(s);
-        }
-        // OUTPUTS
-        for o in outputs {
-            println!("{}", o);
+            bs.push(s_b);
+            let s_m = Set {
+                object: o.clone(),
+                entries: [].to_vec(),
+                last_change_timestamp: 0.0,
+                current_entry: s_e.clone(),
+                max_size: MAX_METRICSIZE,
+            };
+            ms.push(s_m);
         }
         // OLD
         let m = Motors::new(mode.clone()).unwrap_or_else(|err| {
@@ -796,6 +816,7 @@ impl Brain {
                     info!("- Just did LED_Y -> {}", a.data);
                     self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_y__{}", a.data), a.id.to_string());
+                    self.new_add_metric(format!("led_y__{}", a.data), a.id.to_string());
                     result.push(format!("led_y__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -813,6 +834,7 @@ impl Brain {
                     info!("- Just did LED_R -> {}", a.data);
                     self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_r__{}", a.data), a.id.to_string());
+                    self.new_add_metric(format!("led_r__{}", a.data), a.id.to_string());
                     result.push(format!("led_r__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -830,6 +852,7 @@ impl Brain {
                     info!("- Just did LED_G -> {}", a.data);
                     self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_g__{}", a.data), a.id.to_string());
+                    self.new_add_metric(format!("led_g__{}", a.data), a.id.to_string());
                     result.push(format!("led_g__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -847,6 +870,7 @@ impl Brain {
                     info!("- Just did LED_B -> {}", a.data);
                     self.leds.set_led_b(a.data.parse::<u8>().unwrap() == 1);
                     self.add_metric(format!("led_b__{}", a.data), a.id.to_string());
+                    self.new_add_metric(format!("led_b__{}", a.data), a.id.to_string());
                     result.push(format!("led_b__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -867,6 +891,7 @@ impl Brain {
                         self.empty_buffers();
                     };
                     self.add_metric(format!("other__{}", a.data), a.id.to_string());
+                    self.new_add_metric(format!("other__{}", a.data), a.id.to_string());
                     result.push(format!("other__{}__{:?}", a.clone().data, a.clone().time));
                 }
             }
@@ -881,6 +906,37 @@ impl Brain {
         self.buffer_led_g.entries = Vec::new();
         self.buffer_led_b.entries = Vec::new();
         self.buffer_other.entries = Vec::new();
+    }
+
+    pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
+        #[derive(Deserialize)]
+        struct Setup {
+            start_actionset_file: String,
+            start_arduinohex_file: String,
+            inputs: Vec<String>,
+            outputs: Vec<String>,
+        }
+        let file_pointer = File::open(setup_file).unwrap();
+        let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
+        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
+    }
+
+    pub fn use_arduino_msg(&mut self, raw_msg: String) {
+        let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
+        match msg_parts[0] {
+            "SENSOR" => {
+                let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
+                let sensor_id = "arduino".to_string();
+                if sensor.len() > 1 {
+                    self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id.clone());
+                    self.new_add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+                } else {
+                    trace!("{:?}", sensor);
+                }
+
+            },
+            _ => (),
+        }
     }
 
     ///
@@ -934,7 +990,8 @@ impl Brain {
                 self.show_metrics();
                 self.show_buffers();
                 // GET ACTIONS
-                match self.get_actions_from_rules(ct){
+                //match self.get_actions_from_rules(ct){
+                match self.new_get_actions_from_rules(ct){
                     Ok(a) => {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
@@ -991,33 +1048,114 @@ impl Brain {
         }
     }
 
-    pub fn use_arduino_msg(&mut self, raw_msg: String) {
-        let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
-        match msg_parts[0] {
-            "SENSOR" => {
-                let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
-                let sensor_id = "arduino".to_string();
-                if sensor.len() > 1 {
-                    self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+    pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+        // Start with led_y
+        let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
+        for rule in self.config.clone() {
+            let checks = rule.input[0].input_objs.split(",").collect::<Vec<_>>();
+            //TODO: add all matching rules to partial_rules
+            //TODO: use new set of metrics
+            //TODO: ADAPT THIS!
+            if self.metrics_led_y.entries.len() > 0 {
+                if rule.input[0].led_y != "*" {
+                    if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
+                        if timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap(){
+                            if ! self.are_actions_in_buffer(rule.clone()) {
+                                partial_rules.push(rule.clone());
+                            }
+                        };
+                    };
                 } else {
-                    trace!("{:?}", sensor);
+                    partial_rules.push(rule.clone());
+                };
+            };
+            for check in &checks[1..] {
+                info!("{:#x?}", check);
+                //TODO: remove all NON matching rules FROM partial_rules
+            }
+        };
+        if partial_rules.len() > 0 {
+            debug!("- Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                debug!(" #{} input:", ix);
+                for ri in rule.input.clone() {
+                    debug!("      |{:?}|", ri);
                 }
-
-            },
-            _ => (),
+                debug!("     output:");
+                for ro in rule.output.clone() {
+                    debug!("      |{:?}|", ro);
+                }
+            }
         }
+        Ok(partial_rules)
     }
 
-    pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
-        #[derive(Deserialize)]
-        struct Setup {
-            start_actionset_file: String,
-            start_arduinohex_file: String,
-            inputs: Vec<String>,
-            outputs: Vec<String>,
-        }
-        let file_pointer = File::open(setup_file).unwrap();
-        let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
-        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
+    pub fn new_add_metric(&mut self, metric: String, source_id: String) {
+        trace!("- Adding metric {}", metric);
+        let metric_decomp = metric.split("__").collect::<Vec<_>>();
+        match self.metricsets.iter().find(|x| *x.object == *metric_decomp[0]) {
+            Some(om) => {
+                println!("{:#x?}", om);
+                if om.entries.len() == 0 {
+
+                }
+            },
+            None => (),
+        };
+
+        //match metric_decomp[0] {
+        //    "led_y" => {
+        //        if self.metrics_led_y.entries.len() == 0 {
+        //            let new_m = TimedData {
+        //                id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //                belongsto: source_id,
+        //                data: metric_decomp[1].to_string(),
+        //                time: self.timestamp.clone(), // here time means "since_timestamp"
+        //            };
+        //            self.metrics_led_y.entries.push(new_m);
+        //            self.metrics_led_y.last_change_timestamp = self.timestamp;
+        //        } else {
+        //            if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
+        //                let new_m = TimedData {
+        //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //                    belongsto: source_id,
+        //                    data: metric_decomp[1].to_string(),
+        //                    time: self.timestamp.clone(),
+        //                };
+        //                self.metrics_led_y.entries.insert(0, new_m);
+        //                self.metrics_led_y.last_change_timestamp = self.timestamp;
+        //            }
+        //        }; 
+        //        if self.metrics_led_y.entries.len() > self.metrics_led_y.max_size.into() {
+        //            self.metrics_led_y.entries.pop();
+        //        };
+        //    },
+        //    "button" => {
+        //        if self.metrics_button.entries.len() == 0 {
+        //            let new_m = TimedData {
+        //                id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //                belongsto: source_id,
+        //                data: metric_decomp[1].to_string(),
+        //                time: self.timestamp.clone(), // here time means "since_timestamp"
+        //            };
+        //            self.metrics_button.entries.push(new_m);
+        //            self.metrics_button.last_change_timestamp = self.timestamp;
+        //        } else {
+        //            if self.metrics_button.entries[0].data != metric_decomp[1].to_string() {
+        //                let new_m = TimedData {
+        //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //                    belongsto: source_id,
+        //                    data: metric_decomp[1].to_string(),
+        //                    time: self.timestamp.clone(),
+        //                };
+        //                self.metrics_button.entries.insert(0, new_m);
+        //                self.metrics_button.last_change_timestamp = self.timestamp;
+        //            }
+        //        }; 
+        //        if self.metrics_button.entries.len() > self.metrics_button.max_size.into() {
+        //            self.metrics_button.entries.pop();
+        //        };
+        //    },
+        //    _ => (),
     }
 }
