@@ -608,6 +608,13 @@ impl Brain {
         trace!("  {:?}", self.buffer_led_b.entries);
         trace!("- Actions buffer - OTHER:");
         trace!("  {:?}", self.buffer_other.entries);
+        for b in &self.buffersets {
+            debug!("{} pending for {}", b.entries.len(), b.object);
+            trace!("- Actions buffer - {}:", b.object);
+            for (ix, action) in b.entries.clone().iter().enumerate() {
+                trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            }
+        }
     }
 
     pub fn show_metrics(&mut self) {
@@ -1013,6 +1020,7 @@ impl Brain {
                             // then a round to check which objects we are adding new actions to
                             for action in a.clone() {
                                 for o in action.output {
+                                    //TODO: modify this to a match of the bufferset
                                     match o.object.as_str() {
                                         "led_y" => self.buffer_led_y.entries = Vec::new(),
                                         "led_r" => self.buffer_led_r.entries = Vec::new(),
@@ -1027,6 +1035,8 @@ impl Brain {
                             for action in a {
                                 for o in action.output {
                                     let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
+                                    // TODO: create a new_add_action that uses a match like other
+                                    // new_ functions
                                     self.add_action(aux);
                                 }
                             }
@@ -1050,28 +1060,26 @@ impl Brain {
 
     pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         // Start with led_y
-        let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
+        let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         for rule in self.config.clone() {
             let checks = rule.input[0].input_objs.split(",").collect::<Vec<_>>();
-            //TODO: add all matching rules to partial_rules
-            //TODO: use new set of metrics
-            //TODO: ADAPT THIS!
-            if self.metrics_led_y.entries.len() > 0 {
-                if rule.input[0].led_y != "*" {
-                    if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
-                        if timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap(){
-                            if ! self.are_actions_in_buffer(rule.clone()) {
-                                partial_rules.push(rule.clone());
-                            }
-                        };
-                    };
-                } else {
-                    partial_rules.push(rule.clone());
+            for check in &checks {
+                let keyval = check.split("=").collect::<Vec<_>>();
+                match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                    Some(om) => {
+                        if om.entries.len() > 0 {
+                            if om.entries[0].data != keyval[1] {
+                                partial_rules.retain(|x| *x != rule);
+                            } else {
+                                if (timestamp - om.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                    partial_rules.retain(|x| *x != rule);
+                                };
+                            };
+
+                        }
+                    },
+                    None => (),
                 };
-            };
-            for check in &checks[1..] {
-                info!("{:#x?}", check);
-                //TODO: remove all NON matching rules FROM partial_rules
             }
         };
         if partial_rules.len() > 0 {
@@ -1093,69 +1101,35 @@ impl Brain {
     pub fn new_add_metric(&mut self, metric: String, source_id: String) {
         trace!("- Adding metric {}", metric);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
-        match self.metricsets.iter().find(|x| *x.object == *metric_decomp[0]) {
+        match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
             Some(om) => {
-                println!("{:#x?}", om);
                 if om.entries.len() == 0 {
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
+                        data: metric_decomp[1].to_string(),
+                        time: self.timestamp.clone(), // here time means "since_timestamp"
+                    };
+                    om.entries.push(new_m);
+                    om.last_change_timestamp = self.timestamp;
+                } else {
+                    if om.entries[0].data != metric_decomp[1].to_string() {
+                        let new_m = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
+                            data: metric_decomp[1].to_string(),
+                            time: self.timestamp.clone(),
+                        };
+                        om.entries.insert(0, new_m);
+                        om.last_change_timestamp = self.timestamp;
+                    }
 
-                }
+                };
+                if om.entries.len() > om.max_size.into() {
+                    om.entries.pop();
+                };
             },
             None => (),
         };
-
-        //match metric_decomp[0] {
-        //    "led_y" => {
-        //        if self.metrics_led_y.entries.len() == 0 {
-        //            let new_m = TimedData {
-        //                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                belongsto: source_id,
-        //                data: metric_decomp[1].to_string(),
-        //                time: self.timestamp.clone(), // here time means "since_timestamp"
-        //            };
-        //            self.metrics_led_y.entries.push(new_m);
-        //            self.metrics_led_y.last_change_timestamp = self.timestamp;
-        //        } else {
-        //            if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
-        //                let new_m = TimedData {
-        //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                    belongsto: source_id,
-        //                    data: metric_decomp[1].to_string(),
-        //                    time: self.timestamp.clone(),
-        //                };
-        //                self.metrics_led_y.entries.insert(0, new_m);
-        //                self.metrics_led_y.last_change_timestamp = self.timestamp;
-        //            }
-        //        }; 
-        //        if self.metrics_led_y.entries.len() > self.metrics_led_y.max_size.into() {
-        //            self.metrics_led_y.entries.pop();
-        //        };
-        //    },
-        //    "button" => {
-        //        if self.metrics_button.entries.len() == 0 {
-        //            let new_m = TimedData {
-        //                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                belongsto: source_id,
-        //                data: metric_decomp[1].to_string(),
-        //                time: self.timestamp.clone(), // here time means "since_timestamp"
-        //            };
-        //            self.metrics_button.entries.push(new_m);
-        //            self.metrics_button.last_change_timestamp = self.timestamp;
-        //        } else {
-        //            if self.metrics_button.entries[0].data != metric_decomp[1].to_string() {
-        //                let new_m = TimedData {
-        //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                    belongsto: source_id,
-        //                    data: metric_decomp[1].to_string(),
-        //                    time: self.timestamp.clone(),
-        //                };
-        //                self.metrics_button.entries.insert(0, new_m);
-        //                self.metrics_button.last_change_timestamp = self.timestamp;
-        //            }
-        //        }; 
-        //        if self.metrics_button.entries.len() > self.metrics_button.max_size.into() {
-        //            self.metrics_button.entries.pop();
-        //        };
-        //    },
-        //    _ => (),
     }
 }
