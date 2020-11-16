@@ -631,6 +631,13 @@ impl Brain {
         for (ix, action) in self.metrics_button.entries.clone().iter().enumerate() {
             debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
         }
+        // TODO: remove the above and use only these
+        for m in self.metricsets.clone().iter() {
+            debug!("- Metrics - {}", m.object);
+            for (ix, action) in m.entries.clone().iter().enumerate() {
+                debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            }
+        }
     }
 
     /// The whole point of this function is being able to load actions and configs through the same
@@ -1093,69 +1100,34 @@ impl Brain {
     pub fn new_add_metric(&mut self, metric: String, source_id: String) {
         trace!("- Adding metric {}", metric);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
-        match self.metricsets.iter().find(|x| *x.object == *metric_decomp[0]) {
+        match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
             Some(om) => {
-                println!("{:#x?}", om);
                 if om.entries.len() == 0 {
-
-                }
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
+                        data: metric_decomp[1].to_string(),
+                        time: self.timestamp.clone(), // here time means "since_timestamp"
+                    };
+                    om.entries.push(new_m);
+                    om.last_change_timestamp = self.timestamp;
+                } else {
+                    if om.entries[0].data != metric_decomp[1].to_string() {
+                        let new_m = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
+                            data: metric_decomp[1].to_string(),
+                            time: self.timestamp.clone(),
+                        };
+                        om.entries.insert(0, new_m);
+                        om.last_change_timestamp = self.timestamp;
+                    }
+                }; 
+                if om.entries.len() > om.max_size.into() {
+                    om.entries.pop();
+                };
             },
             None => (),
         };
-
-        //match metric_decomp[0] {
-        //    "led_y" => {
-        //        if self.metrics_led_y.entries.len() == 0 {
-        //            let new_m = TimedData {
-        //                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                belongsto: source_id,
-        //                data: metric_decomp[1].to_string(),
-        //                time: self.timestamp.clone(), // here time means "since_timestamp"
-        //            };
-        //            self.metrics_led_y.entries.push(new_m);
-        //            self.metrics_led_y.last_change_timestamp = self.timestamp;
-        //        } else {
-        //            if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
-        //                let new_m = TimedData {
-        //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                    belongsto: source_id,
-        //                    data: metric_decomp[1].to_string(),
-        //                    time: self.timestamp.clone(),
-        //                };
-        //                self.metrics_led_y.entries.insert(0, new_m);
-        //                self.metrics_led_y.last_change_timestamp = self.timestamp;
-        //            }
-        //        }; 
-        //        if self.metrics_led_y.entries.len() > self.metrics_led_y.max_size.into() {
-        //            self.metrics_led_y.entries.pop();
-        //        };
-        //    },
-        //    "button" => {
-        //        if self.metrics_button.entries.len() == 0 {
-        //            let new_m = TimedData {
-        //                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                belongsto: source_id,
-        //                data: metric_decomp[1].to_string(),
-        //                time: self.timestamp.clone(), // here time means "since_timestamp"
-        //            };
-        //            self.metrics_button.entries.push(new_m);
-        //            self.metrics_button.last_change_timestamp = self.timestamp;
-        //        } else {
-        //            if self.metrics_button.entries[0].data != metric_decomp[1].to_string() {
-        //                let new_m = TimedData {
-        //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-        //                    belongsto: source_id,
-        //                    data: metric_decomp[1].to_string(),
-        //                    time: self.timestamp.clone(),
-        //                };
-        //                self.metrics_button.entries.insert(0, new_m);
-        //                self.metrics_button.last_change_timestamp = self.timestamp;
-        //            }
-        //        }; 
-        //        if self.metrics_button.entries.len() > self.metrics_button.max_size.into() {
-        //            self.metrics_button.entries.pop();
-        //        };
-        //    },
-        //    _ => (),
     }
 }
