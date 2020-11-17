@@ -929,7 +929,7 @@ impl Brain {
         return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
     }
 
-    pub fn use_arduino_msg(&mut self, raw_msg: String) {
+    pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
         match msg_parts[0] {
             "SENSOR" => {
@@ -937,7 +937,7 @@ impl Brain {
                 let sensor_id = "arduino".to_string();
                 if sensor.len() > 1 {
                     //self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id.clone());
-                    self.new_add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+                    self.new_add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
                 } else {
                     trace!("{:?}", sensor);
                 }
@@ -968,7 +968,7 @@ impl Brain {
             });
         let _msg = match r.try_recv() {
             Ok(m) => {
-                self.use_arduino_msg(m);
+                self.use_arduino_msg(ct, m);
             },
             Err(_) => (),
         };
@@ -991,7 +991,7 @@ impl Brain {
                 //    });
                 let _msg = match r.try_recv() {
                     Ok(m) => {
-                        self.use_arduino_msg(m);
+                        self.use_arduino_msg(ct, m);
                     },
                     Err(_) => (),
                 };
@@ -1006,6 +1006,7 @@ impl Brain {
                             // first the actions marked as do_once will be marked as done at the
                             // config
                             for mut rule in self.config.iter_mut() {
+                                // TODO: call new_are_actions_in_buffer from here
                                 if rule.repeat == false {
                                 //if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
                                     for action in a.clone() {
@@ -1054,7 +1055,7 @@ impl Brain {
                 for m_raw in new_metrics {
                     let m = m_raw.split("|").collect::<Vec<_>>();
                     if m.len() > 1 {
-                        self.new_add_metric(m[0].to_string(), m[1].to_string());
+                        self.new_add_metric(ct, m[0].to_string(), m[1].to_string());
                     }
                 }
                 sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
@@ -1114,7 +1115,7 @@ impl Brain {
         Ok(partial_rules)
     }
 
-    pub fn new_add_metric(&mut self, metric: String, source_id: String) {
+    pub fn new_add_metric(&mut self, timestamp: f64,metric: String, source_id: String) {
         trace!("- Adding metric {}", metric);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
@@ -1124,20 +1125,20 @@ impl Brain {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
                         belongsto: source_id,
                         data: metric_decomp[1].to_string(),
-                        time: self.timestamp.clone(), // here time means "since_timestamp"
+                        time: timestamp.clone(), // here time means "since_timestamp"
                     };
                     om.entries.push(new_m);
-                    om.last_change_timestamp = self.timestamp;
+                    om.last_change_timestamp = timestamp;
                 } else {
                     if om.entries[0].data != metric_decomp[1].to_string() {
                         let new_m = TimedData {
                             id: COUNTER.fetch_add(1, Ordering::Relaxed),
                             belongsto: source_id,
                             data: metric_decomp[1].to_string(),
-                            time: self.timestamp.clone(),
+                            time: timestamp.clone(),
                         };
                         om.entries.insert(0, new_m);
-                        om.last_change_timestamp = self.timestamp;
+                        om.last_change_timestamp = timestamp;
                     }
                 }; 
                 if om.entries.len() > om.max_size.into() {
@@ -1197,7 +1198,6 @@ impl Brain {
                                 info!("- Just did {} -> {}", om.object, a.data);
                                 // TODO: correct LEDS, maybe create something
                                 //self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
-                                //self.new_add_metric(format!("led_y__{}", a.data), a.id.to_string());
                                 metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
                                 result.push(format!("{}__{}__{:?}", ob.object, a.clone().data, a.clone().time));
                             }
@@ -1211,5 +1211,17 @@ impl Brain {
         if result.len() == 0 {result.push("".to_string())};
         if metrics.len() == 0 {metrics.push("".to_string())};
         Ok((metrics, result))
+    }
+    //TODO: not use self??
+    pub fn new_are_actions_in_buffer(&self, rule: ConfigEntry) -> bool {
+        let mut result = false;
+        for buffer in &self.buffersets {
+            for existing in buffer.entries.clone() {
+                if existing.belongsto == rule.id {
+                    result = true;
+                }
+            }
+        }
+        result
     }
 }

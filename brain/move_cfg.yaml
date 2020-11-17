@@ -1,6 +1,6 @@
 --- 
 - id: "ledsloop"
-  repeat: false
+  repeat: true
   input:
   - time: "0.4" 
     input_objs: "led_y=0,led_r=0,led_g=0,led_b=0,button=0"
