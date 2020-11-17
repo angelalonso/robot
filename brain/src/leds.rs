@@ -41,7 +41,6 @@ impl LEDs {
             Some(l) => {
                 match &l.object {
                     Some(o) => {
-                        println!("SWITCHING");
                         if new_state {
                             if ! l.on {
                                 l.on = true;
