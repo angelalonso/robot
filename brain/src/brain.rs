@@ -799,8 +799,14 @@ impl Brain {
         //trace!("- Actions buffer - OTHER:");
         //trace!("  {:?}", self.buffer_other.entries);
         for b in &self.buffersets {
-            info!("{} pending for {}", b.entries.len(), b.object);
-            trace!("- Actions buffer - {}:", b.object);
+            //TODO: comment this out when done troubleshooting
+            if b.object == "led_y" {
+                info!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+                for (ix, action) in b.entries.clone().iter().enumerate() {
+                    info!(" #{} |data={}|time={}|from={}", ix, action.data, action.time, action.belongsto);
+                }
+            }
+            trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
             }
@@ -808,28 +814,14 @@ impl Brain {
     }
 
     pub fn show_metrics(&mut self) {
-        //debug!("- Metrics - LED Y:");
-        //for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
-        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        //}
-        //debug!("- Metrics - LED R:");
-        //for (ix, action) in self.metrics_led_r.entries.clone().iter().enumerate() {
-        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        //}
-        //debug!("- Metrics - LED G:");
-        //for (ix, action) in self.metrics_led_g.entries.clone().iter().enumerate() {
-        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        //}
-        //debug!("- Metrics - LED B:");
-        //for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
-        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        //}
-        //debug!("- Metrics - BUTTON:");
-        //for (ix, action) in self.metrics_button.entries.clone().iter().enumerate() {
-        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        //}
-        // TODO: remove the above and use only these
         for m in self.metricsets.clone().iter() {
+            //TODO: comment this out when done troubleshooting
+            if m.object == "led_y" {
+                info!("- Metrics - {}", m.object);
+                for (ix, action) in m.entries.clone().iter().enumerate() {
+                    info!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                }
+            }
             debug!("- Metrics - {}", m.object);
             for (ix, action) in m.entries.clone().iter().enumerate() {
                 debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -1100,15 +1092,15 @@ impl Brain {
             }
         };
         if partial_rules.len() > 0 {
-            debug!("- Rules matching :");
+            info!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                debug!(" #{} input:", ix);
+                info!(" #{} input:", ix);
                 for ri in rule.input.clone() {
-                    debug!("      |{:?}|", ri);
+                    info!("      |{:?}|", ri);
                 }
-                debug!("     output:");
+                info!("     output:");
                 for ro in rule.output.clone() {
-                    debug!("      |{:?}|", ro);
+                    info!("      |{:?}|", ro);
                 }
             }
         }
