@@ -104,17 +104,17 @@ pub struct Brain {
     leds: LEDs,
     buffersets: Vec<Set>,
     metricsets: Vec<Set>,
-    buffer_led_y: Buffer,
-    metrics_led_y: Buffer,
-    buffer_led_r: Buffer,
-    metrics_led_r: Buffer,
-    buffer_led_g: Buffer,
-    metrics_led_g: Buffer,
-    buffer_led_b: Buffer,
-    metrics_led_b: Buffer,
-    metrics_button: Buffer,
-    buffer_other: Buffer,
-    metrics_other: Buffer,
+   // buffer_led_y: Buffer,
+   // metrics_led_y: Buffer,
+   // buffer_led_r: Buffer,
+   // metrics_led_r: Buffer,
+   // buffer_led_g: Buffer,
+   // metrics_led_g: Buffer,
+   // buffer_led_b: Buffer,
+   // metrics_led_b: Buffer,
+   // metrics_button: Buffer,
+   // buffer_other: Buffer,
+   // metrics_other: Buffer,
 }
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 static MAX_BUFFERSIZE: u8 = 25;
@@ -184,7 +184,6 @@ impl Brain {
             };
             ms.push(s_m);
         }
-        // OLD
         let m = Motors::new(mode.clone()).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
@@ -193,144 +192,145 @@ impl Brain {
             eprintln!("Problem Initializing LEDs: {}", err);
             process::exit(1);
         });
-        // LED YELLOW
-        let b_ly_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let b_ly = Buffer {
-            entries: [].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: b_ly_e,
-            max_size: 100,
-        };
-        let m_ly_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let m_ly = Buffer {
-            entries: [m_ly_e.clone()].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: m_ly_e,
-            max_size: 80,
-        };
-        // LED RED
-        let b_lr_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let b_lr = Buffer {
-            entries: [].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: b_lr_e,
-            max_size: 100,
-        };
-        let m_lr_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let m_lr = Buffer {
-            entries: [m_lr_e.clone()].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: m_lr_e,
-            max_size: 80,
-        };
-        // LED GREEN
-        let b_lg_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let b_lg = Buffer {
-            entries: [].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: b_lg_e,
-            max_size: 100,
-        };
-        let m_lg_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let m_lg = Buffer {
-            entries: [m_lg_e.clone()].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: m_lg_e,
-            max_size: 80,
-        };
-        // LED BLUE
-        let b_lb_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let b_lb = Buffer {
-            entries: [].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: b_lb_e,
-            max_size: 100,
-        };
-        let m_lb_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let m_lb = Buffer {
-            entries: [m_lb_e.clone()].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: m_lb_e,
-            max_size: 80,
-        };
-        // BUTTON
-        let m_bt_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "0".to_string(),
-            time: 0.0,
-        };
-        let m_bt = Buffer {
-            entries: [m_bt_e.clone()].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: m_bt_e,
-            max_size: 80,
-        };
-        // OTHER
-        let b_o_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "".to_string(),
-            time: 0.0,
-        };
-        let b_o = Buffer {
-            entries: [].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: b_o_e,
-            max_size: 10,
-        };
-        let m_o_e = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "".to_string(),
-            data: "".to_string(),
-            time: 0.0,
-        };
-        let m_o = Buffer {
-            entries: [m_o_e.clone()].to_vec(),
-            last_change_timestamp: 0.0,
-            current_entry: m_o_e,
-            max_size: 80,
-        };
+        //// OLD
+        //// LED YELLOW
+        //let b_ly_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let b_ly = Buffer {
+        //    entries: [].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: b_ly_e,
+        //    max_size: 100,
+        //};
+        //let m_ly_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let m_ly = Buffer {
+        //    entries: [m_ly_e.clone()].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: m_ly_e,
+        //    max_size: 80,
+        //};
+        //// LED RED
+        //let b_lr_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let b_lr = Buffer {
+        //    entries: [].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: b_lr_e,
+        //    max_size: 100,
+        //};
+        //let m_lr_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let m_lr = Buffer {
+        //    entries: [m_lr_e.clone()].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: m_lr_e,
+        //    max_size: 80,
+        //};
+        //// LED GREEN
+        //let b_lg_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let b_lg = Buffer {
+        //    entries: [].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: b_lg_e,
+        //    max_size: 100,
+        //};
+        //let m_lg_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let m_lg = Buffer {
+        //    entries: [m_lg_e.clone()].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: m_lg_e,
+        //    max_size: 80,
+        //};
+        //// LED BLUE
+        //let b_lb_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let b_lb = Buffer {
+        //    entries: [].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: b_lb_e,
+        //    max_size: 100,
+        //};
+        //let m_lb_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let m_lb = Buffer {
+        //    entries: [m_lb_e.clone()].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: m_lb_e,
+        //    max_size: 80,
+        //};
+        //// BUTTON
+        //let m_bt_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "0".to_string(),
+        //    time: 0.0,
+        //};
+        //let m_bt = Buffer {
+        //    entries: [m_bt_e.clone()].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: m_bt_e,
+        //    max_size: 80,
+        //};
+        //// OTHER
+        //let b_o_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "".to_string(),
+        //    time: 0.0,
+        //};
+        //let b_o = Buffer {
+        //    entries: [].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: b_o_e,
+        //    max_size: 10,
+        //};
+        //let m_o_e = TimedData {
+        //    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+        //    belongsto: "".to_string(),
+        //    data: "".to_string(),
+        //    time: 0.0,
+        //};
+        //let m_o = Buffer {
+        //    entries: [m_o_e.clone()].to_vec(),
+        //    last_change_timestamp: 0.0,
+        //    current_entry: m_o_e,
+        //    max_size: 80,
+        //};
         Ok(Self {
             name: brain_name,
             mode: mode,
@@ -342,17 +342,17 @@ impl Brain {
             leds: l,
             buffersets: bs,
             metricsets: ms,
-            buffer_led_y: b_ly,
-            metrics_led_y: m_ly,
-            buffer_led_r: b_lr,
-            metrics_led_r: m_lr,
-            buffer_led_g: b_lg,
-            metrics_led_g: m_lg,
-            buffer_led_b: b_lb,
-            metrics_led_b: m_lb,
-            metrics_button: m_bt,
-            buffer_other: b_o,
-            metrics_other: m_o,
+           // buffer_led_y: b_ly,
+           // metrics_led_y: m_ly,
+           // buffer_led_r: b_lr,
+           // metrics_led_r: m_lr,
+           // buffer_led_g: b_lg,
+           // metrics_led_g: m_lg,
+           // buffer_led_b: b_lb,
+           // metrics_led_b: m_lb,
+           // metrics_button: m_bt,
+           // buffer_other: b_o,
+           // metrics_other: m_o,
         })
     }
 
@@ -783,21 +783,21 @@ impl Brain {
     }
 
     pub fn show_buffers(&mut self) {
-        debug!("{} pending for LED_Y", self.buffer_led_y.entries.len());
-        debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
-        debug!("{} pending for LED_G", self.buffer_led_g.entries.len());
-        debug!("{} pending for LED_B", self.buffer_led_b.entries.len());
-        debug!("{} pending for OTHER", self.buffer_other.entries.len());
-        trace!("- Actions buffer - LED Y:");
-        trace!("  {:?}", self.buffer_led_y.entries);
-        trace!("- Actions buffer - LED R:");
-        trace!("  {:?}", self.buffer_led_r.entries);
-        trace!("- Actions buffer - LED G:");
-        trace!("  {:?}", self.buffer_led_g.entries);
-        trace!("- Actions buffer - LED B:");
-        trace!("  {:?}", self.buffer_led_b.entries);
-        trace!("- Actions buffer - OTHER:");
-        trace!("  {:?}", self.buffer_other.entries);
+        //debug!("{} pending for LED_Y", self.buffer_led_y.entries.len());
+        //debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
+        //debug!("{} pending for LED_G", self.buffer_led_g.entries.len());
+        //debug!("{} pending for LED_B", self.buffer_led_b.entries.len());
+        //debug!("{} pending for OTHER", self.buffer_other.entries.len());
+        //trace!("- Actions buffer - LED Y:");
+        //trace!("  {:?}", self.buffer_led_y.entries);
+        //trace!("- Actions buffer - LED R:");
+        //trace!("  {:?}", self.buffer_led_r.entries);
+        //trace!("- Actions buffer - LED G:");
+        //trace!("  {:?}", self.buffer_led_g.entries);
+        //trace!("- Actions buffer - LED B:");
+        //trace!("  {:?}", self.buffer_led_b.entries);
+        //trace!("- Actions buffer - OTHER:");
+        //trace!("  {:?}", self.buffer_other.entries);
         for b in &self.buffersets {
             info!("{} pending for {}", b.entries.len(), b.object);
             trace!("- Actions buffer - {}:", b.object);
@@ -808,26 +808,26 @@ impl Brain {
     }
 
     pub fn show_metrics(&mut self) {
-        debug!("- Metrics - LED Y:");
-        for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
-            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        }
-        debug!("- Metrics - LED R:");
-        for (ix, action) in self.metrics_led_r.entries.clone().iter().enumerate() {
-            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        }
-        debug!("- Metrics - LED G:");
-        for (ix, action) in self.metrics_led_g.entries.clone().iter().enumerate() {
-            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        }
-        debug!("- Metrics - LED B:");
-        for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
-            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        }
-        debug!("- Metrics - BUTTON:");
-        for (ix, action) in self.metrics_button.entries.clone().iter().enumerate() {
-            debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-        }
+        //debug!("- Metrics - LED Y:");
+        //for (ix, action) in self.metrics_led_y.entries.clone().iter().enumerate() {
+        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        //}
+        //debug!("- Metrics - LED R:");
+        //for (ix, action) in self.metrics_led_r.entries.clone().iter().enumerate() {
+        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        //}
+        //debug!("- Metrics - LED G:");
+        //for (ix, action) in self.metrics_led_g.entries.clone().iter().enumerate() {
+        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        //}
+        //debug!("- Metrics - LED B:");
+        //for (ix, action) in self.metrics_led_b.entries.clone().iter().enumerate() {
+        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        //}
+        //debug!("- Metrics - BUTTON:");
+        //for (ix, action) in self.metrics_button.entries.clone().iter().enumerate() {
+        //    debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+        //}
         // TODO: remove the above and use only these
         for m in self.metricsets.clone().iter() {
             debug!("- Metrics - {}", m.object);
@@ -882,45 +882,45 @@ impl Brain {
         };
     }
 
-    /// Returns whether a set of actions are already on the buffer, 
-    /// to avoid constantly adding the same ones
-    pub fn are_actions_in_buffer(&self, rule: ConfigEntry) -> bool {
-        let mut result = false;
-        for existing in self.buffer_led_y.entries.clone() {
-            if existing.belongsto == rule.id {
-                result = true;
-            }
-        }
-        for existing in self.buffer_led_r.entries.clone() {
-            if existing.belongsto == rule.id {
-                result = true;
-            }
-        }
-        for existing in self.buffer_led_g.entries.clone() {
-            if existing.belongsto == rule.id {
-                result = true;
-            }
-        }
-        for existing in self.buffer_led_b.entries.clone() {
-            if existing.belongsto == rule.id {
-                result = true;
-            }
-        }
-        for existing in self.buffer_other.entries.clone() {
-            if existing.belongsto == rule.id {
-                result = true;
-            }
-        }
-        result
-    }
+    ///// Returns whether a set of actions are already on the buffer, 
+    ///// to avoid constantly adding the same ones
+    //pub fn are_actions_in_buffer(&self, rule: ConfigEntry) -> bool {
+    //    let mut result = false;
+    //    for existing in self.buffer_led_y.entries.clone() {
+    //        if existing.belongsto == rule.id {
+    //            result = true;
+    //        }
+    //    }
+    //    for existing in self.buffer_led_r.entries.clone() {
+    //        if existing.belongsto == rule.id {
+    //            result = true;
+    //        }
+    //    }
+    //    for existing in self.buffer_led_g.entries.clone() {
+    //        if existing.belongsto == rule.id {
+    //            result = true;
+    //        }
+    //    }
+    //    for existing in self.buffer_led_b.entries.clone() {
+    //        if existing.belongsto == rule.id {
+    //            result = true;
+    //        }
+    //    }
+    //    for existing in self.buffer_other.entries.clone() {
+    //        if existing.belongsto == rule.id {
+    //            result = true;
+    //        }
+    //    }
+    //    result
+    //}
 
-    pub fn empty_buffers(&mut self) {
-        self.buffer_led_y.entries = Vec::new();
-        self.buffer_led_r.entries = Vec::new();
-        self.buffer_led_g.entries = Vec::new();
-        self.buffer_led_b.entries = Vec::new();
-        self.buffer_other.entries = Vec::new();
-    }
+    //pub fn empty_buffers(&mut self) {
+    //    self.buffer_led_y.entries = Vec::new();
+    //    self.buffer_led_r.entries = Vec::new();
+    //    self.buffer_led_g.entries = Vec::new();
+    //    self.buffer_led_b.entries = Vec::new();
+    //    self.buffer_other.entries = Vec::new();
+    //}
 
     pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
         #[derive(Deserialize)]
@@ -1076,7 +1076,7 @@ impl Brain {
     }
 
     pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
-        // Start with led_y
+        //TODO: do we need to check if are_actions_in_buffer ??
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         for rule in self.config.clone() {
             let checks = rule.input[0].input_objs.split(",").collect::<Vec<_>>();
