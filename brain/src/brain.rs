@@ -798,14 +798,16 @@ impl Brain {
         //trace!("  {:?}", self.buffer_led_b.entries);
         //trace!("- Actions buffer - OTHER:");
         //trace!("  {:?}", self.buffer_other.entries);
+        //
+        //TODO: troubleshoot repeating getting stuck
         for b in &self.buffersets {
-            //TODO: comment this out when done troubleshooting
-            if b.object == "led_y" {
-                info!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-                for (ix, action) in b.entries.clone().iter().enumerate() {
-                    info!(" #{} |data={}|time={}|from={}", ix, action.data, action.time, action.belongsto);
-                }
-            }
+           // //TODO: comment this out when done troubleshooting
+           // if b.object == "led_y" {
+           //     info!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+           //     for (ix, action) in b.entries.clone().iter().enumerate() {
+           //         info!(" #{} |data={}|time={}|from={}", ix, action.data, action.time, action.belongsto);
+           //     }
+           // }
             trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -815,13 +817,13 @@ impl Brain {
 
     pub fn show_metrics(&mut self) {
         for m in self.metricsets.clone().iter() {
-            //TODO: comment this out when done troubleshooting
-            if m.object == "led_y" {
-                info!("- Metrics - {}", m.object);
-                for (ix, action) in m.entries.clone().iter().enumerate() {
-                    info!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                }
-            }
+            ////TODO: comment this out when done troubleshooting
+            //if m.object == "led_y" {
+            //    info!("- Metrics - {}", m.object);
+            //    for (ix, action) in m.entries.clone().iter().enumerate() {
+            //        info!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            //    }
+            //}
             debug!("- Metrics - {}", m.object);
             for (ix, action) in m.entries.clone().iter().enumerate() {
                 debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -1070,37 +1072,42 @@ impl Brain {
     pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         //TODO: do we need to check if are_actions_in_buffer ??
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
-        for rule in self.config.clone() {
-            let checks = rule.input[0].input_objs.split(",").collect::<Vec<_>>();
-            for check in &checks {
-                let keyval = check.split("=").collect::<Vec<_>>();
-                match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
-                    Some(om) => {
-                        if om.entries.len() > 0 {
-                            if om.entries[0].data != keyval[1] {
-                                partial_rules.retain(|x| *x != rule);
-                            } else {
-                                if (timestamp - om.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+        for rule in partial_rules.clone() {
+            if rule.id.starts_with("done_") {
+                partial_rules.retain(|x| *x != rule);
+            } else {
+                let checks = rule.input[0].input_objs.split(",").collect::<Vec<_>>();
+                for check in &checks {
+                    let keyval = check.split("=").collect::<Vec<_>>();
+                    match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                        Some(om) => {
+                            if om.entries.len() > 0 {
+                                if om.entries[0].data != keyval[1] {
                                     partial_rules.retain(|x| *x != rule);
+                                } else {
+                                    if (timestamp - om.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                        partial_rules.retain(|x| *x != rule);
+                                    };
                                 };
-                            };
 
-                        }
-                    },
-                    None => (),
-                };
+                            }
+                        },
+                        None => (),
+                    };
+                }
             }
         };
         if partial_rules.len() > 0 {
-            info!("- Rules matching :");
+            debug!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                info!(" #{} input:", ix);
+                debug!(" #{} {} input:", ix, rule.id);
+                debug!("     input:");
                 for ri in rule.input.clone() {
-                    info!("      |{:?}|", ri);
+                    debug!("      |{:?}|", ri);
                 }
-                info!("     output:");
+                debug!("     output:");
                 for ro in rule.output.clone() {
-                    info!("      |{:?}|", ro);
+                    debug!("      |{:?}|", ro);
                 }
             }
         }

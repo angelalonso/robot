@@ -22,7 +22,7 @@
     time: "0.5"
   - object: "wait"
     value: ""
-    time: "5"
+    time: "3"
   - object: "load"
     value: "start.yaml"
     time: "0.2"
