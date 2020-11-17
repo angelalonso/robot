@@ -4,9 +4,9 @@ start_arduinohex_file: ../arduino/000_sensors/000_sensors.ino.hex
 inputs:
   - button
 outputs:
-  - led_y
-  - led_r
-  - led_g
-  - led_b
+  - led_y__gpio=21
+  - led_r__gpio=20
+  - led_g__gpio=16
+  - led_b__gpio=12
   - motor_l
   - motor_r
