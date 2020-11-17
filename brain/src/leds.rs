@@ -11,6 +11,7 @@ pub struct LEDObj {
 }
 #[derive(Clone)]
 pub struct LEDs {
+    // TODO: turn this into vector and dynamically create LEDS based on setup
     led_y: LEDObj,
     led_r: LEDObj,
     led_g: LEDObj,
@@ -136,6 +137,16 @@ impl LEDs {
                 }
             }            
             None => debug!("- Mocked - Setting -{:?}- to LED Y", new_state)
+        }
+    }
+
+    pub fn set_led(&mut self, led_id: String, new_state: bool) {
+        match led_id.as_str() {
+            "led_y" => self.set_led_y(new_state),
+            "led_r" => self.set_led_r(new_state),
+            "led_g" => self.set_led_g(new_state),
+            "led_b" => self.set_led_b(new_state),
+            _ => (),
         }
     }
 
