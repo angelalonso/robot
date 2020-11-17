@@ -592,6 +592,7 @@ impl Brain {
             _ => ()
         }
     }
+
     pub fn show_buffers(&mut self) {
         debug!("{} pending for LED_Y", self.buffer_led_y.entries.len());
         debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
@@ -1015,8 +1016,9 @@ impl Brain {
                                 if rule.repeat == false {
                                 //if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
                                     for action in a.clone() {
-                                        if action.id == rule.id {
+                                        if (action.id == rule.id) && (!action.id.starts_with("done_")) {
                                             //rule.id = action.id.to_string().replace("do-once", "done");
+                                            
                                             rule.id = "done_".to_owned();
                                             rule.id.push_str(&action.id.to_string());
                                             debug!("Action '{}' will only be done once", action.id);
@@ -1027,15 +1029,19 @@ impl Brain {
                             // then a round to check which objects we are adding new actions to
                             for action in a.clone() {
                                 for o in action.output {
-                                    //TODO: modify this to a match of the bufferset
-                                    match o.object.as_str() {
-                                        "led_y" => self.buffer_led_y.entries = Vec::new(),
-                                        "led_r" => self.buffer_led_r.entries = Vec::new(),
-                                        "led_g" => self.buffer_led_g.entries = Vec::new(),
-                                        "led_b" => self.buffer_led_b.entries = Vec::new(),
-                                        _ => (),
-                                    }
-
+                                    match self.buffersets.iter_mut().find(|x| *x.object == *o.object) {
+                                        Some(ob) => {
+                                            ob.entries = Vec::new();
+                                        },
+                                        None => (),
+                                    };
+                                    //match o.object.as_str() {
+                                    //    "led_y" => self.buffer_led_y.entries = Vec::new(),
+                                    //    "led_r" => self.buffer_led_r.entries = Vec::new(),
+                                    //    "led_g" => self.buffer_led_g.entries = Vec::new(),
+                                    //    "led_b" => self.buffer_led_b.entries = Vec::new(),
+                                    //    _ => (),
+                                    //}
                                 }
                             }
                             // then do the actions
@@ -1044,7 +1050,8 @@ impl Brain {
                                     let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
                                     // TODO: create a new_add_action that uses a match like other
                                     // new_ functions
-                                    self.add_action(aux);
+                                    //self.add_action(aux.clone());
+                                    self.new_add_action(aux);
                                 }
                             }
                         };
@@ -1052,7 +1059,14 @@ impl Brain {
                     Err(_e) => trace!("...no matching rules found"),
                 };
                 // DO ACTIONS
-                let acts = self.do_next_actions(ct).unwrap();
+                //let acts = self.do_next_actions(ct).unwrap();
+                let (new_metrics, acts) = self.new_do_next_actions(ct).unwrap();
+                for m_raw in new_metrics {
+                    let m = m_raw.split("|").collect::<Vec<_>>();
+                    if m.len() > 1 {
+                        self.new_add_metric(m[0].to_string(), m[1].to_string());
+                    }
+                }
                 sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
             };
             // BREAK MECHANISM
@@ -1138,4 +1152,68 @@ impl Brain {
             None => (),
         };
     }
+
+    pub fn new_add_action(&mut self, action: String) {
+        trace!("- Adding action {}", action);
+        let action_to_add = self.clone().get_action_from_string(action).unwrap();
+        match self.buffersets.iter_mut().find(|x| *x.object == *action_to_add.resource) {
+            Some(ob) => {
+                if ob.entries.len() >= ob.max_size.into() {
+                    warn!("Buffer for {} is full! not adding new actions...", ob.object);
+                } else {
+                    match ob.object.as_str() {
+                        "load" => {
+                            let a = TimedData {
+                                id: action_to_add.action.id,
+                                belongsto: action_to_add.action.belongsto,
+                                data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+                                time: action_to_add.action.time,
+                            };
+                            ob.entries.push(a);
+                        },
+                        _ => {
+                            ob.entries.push(action_to_add.action);
+                        },
+
+                    }
+                };
+            },
+            None => (),
+        };
+    }
+
+    pub fn new_do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
+        let mut result = [].to_vec();
+        let mut metrics = [].to_vec();
+        for ob in self.buffersets.iter_mut() {
+            match self.metricsets.iter_mut().find(|x| *x.object == *ob.object) {
+                Some(om) => {
+                    if timestamp >= om.last_change_timestamp {
+                        if ob.entries.len() > 0 {
+                            let a = &ob.entries.clone()[0];             
+                            let time_passed = ((timestamp - ob.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+                            trace!("- Time passed on current value - {:?}", time_passed);
+                            if time_passed >= ob.current_entry.time {
+                                ob.current_entry = a.clone();
+                                ob.entries.retain(|x| *x != *a);
+                                ob.last_change_timestamp = timestamp.clone();
+                                debug!("- Buffer: {:#x?}", ob.entries);
+                                info!("- Just did {} -> {}", om.object, a.data);
+                                //self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
+                                //self.new_add_metric(format!("led_y__{}", a.data), a.id.to_string());
+                                metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
+                                result.push(format!("{}__{}__{:?}", ob.object, a.clone().data, a.clone().time));
+                            }
+                        }
+                    }
+                },
+                None => (),
+            };
+
+        };
+        if result.len() == 0 {result.push("".to_string())};
+        if metrics.len() == 0 {metrics.push("".to_string())};
+        Ok((metrics, result))
+    }
+
 }
