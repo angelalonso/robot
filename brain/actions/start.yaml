@@ -14,7 +14,7 @@
 - id: "button"
   repeat: false
   input:
-  - time: "0.4" 
+  - time: "0.1" 
     input_objs: "button=1"
   output:
   - object: "led_y"
