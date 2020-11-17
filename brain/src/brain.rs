@@ -123,31 +123,26 @@ impl Brain {
         };
         let mut bs = [].to_vec();
         let mut ms = [].to_vec();
+        // Generic empty element for the buffers
+        let s_e = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "".to_string(),
+            data: "0".to_string(),
+            time: 0.0,
+        };
         // INPUTS -> they only have metrics buffers
         for i in inputs {
-            let s_e = TimedData {
-                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                belongsto: "".to_string(),
-                data: "0".to_string(),
-                time: 0.0,
-            };
             let s = Set {
                 object: i,
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
-                current_entry: s_e,
+                current_entry: s_e.clone(),
                 max_size: MAX_METRICSIZE,
             };
             ms.push(s);
         }
         // OUTPUTS -> they have actions buffers and metrics buffers
         for o in outputs {
-            let s_e = TimedData {
-                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                belongsto: "".to_string(),
-                data: "0".to_string(),
-                time: 0.0,
-            };
             let s_b = Set {
                 object: o.clone(),
                 entries: [].to_vec(),
@@ -165,6 +160,23 @@ impl Brain {
             };
             ms.push(s_m);
         }
+        // OTHER -> we need buffers and metrics for other stuff
+        let s_b_o = Set {
+            object: "other".to_string(),
+            entries: [].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: s_e.clone(),
+            max_size: MAX_BUFFERSIZE,
+        };
+        let s_m_o = Set {
+            object: "other".to_string(),
+            entries: [].to_vec(),
+            last_change_timestamp: 0.0,
+            current_entry: s_e.clone(),
+            max_size: MAX_METRICSIZE,
+        };
+        bs.push(s_b_o);
+        ms.push(s_m_o);
         let m = Motors::new(mode.clone()).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
@@ -230,12 +242,12 @@ impl Brain {
 
     pub fn show_buffers(&mut self) {
         for b in &self.buffersets {
-            if b.object == "other" {
-                println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-                for (ix, action) in b.entries.clone().iter().enumerate() {
-                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                }
-            }
+            //if b.object == "other" {
+            //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+            //    for (ix, action) in b.entries.clone().iter().enumerate() {
+            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            //    }
+            //}
             trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -380,7 +392,6 @@ impl Brain {
                                 for o in action.output {
                                     // there are some inputs/outputs we want to group
                                     if OTHER_ACTIONS.iter().any(|&i| i==o.object) {
-                                        println!("{}", o.object);
                                         match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
                                             Some(ob) => {
                                                 ob.entries = Vec::new();
@@ -401,7 +412,7 @@ impl Brain {
                             for action in a {
                                 for o in action.output {
                                     let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
-                                    self.new_add_action(aux);
+                                    self.add_action(aux);
                                 }
                             }
                         };
@@ -431,7 +442,7 @@ impl Brain {
     pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         for rule in partial_rules.clone() {
-            if Brain::new_are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
+            if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
                 partial_rules.retain(|x| *x != rule);
             } else {
                 if rule.id.starts_with("done_") {
@@ -510,7 +521,19 @@ impl Brain {
         };
     }
 
-    pub fn new_add_action(&mut self, action: String) {
+    pub fn are_actions_in_buffer(buffersets: Vec<Set>,rule: ConfigEntry) -> bool {
+        let mut result = false;
+        for buffer in buffersets {
+            for existing in buffer.entries.clone() {
+                if existing.belongsto == rule.id {
+                    result = true;
+                }
+            }
+        }
+        result
+    }
+
+    pub fn add_action(&mut self, action: String) {
         trace!("- Adding action {}", action);
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         if OTHER_ACTIONS.iter().any(|&i| i==action_to_add.resource) {
@@ -519,12 +542,21 @@ impl Brain {
                     if ob.entries.len() >= ob.max_size.into() {
                         warn!("Buffer for {} is full! not adding new actions...", ob.object);
                     } else {
-                        match ob.object.as_str() {
+                        match action_to_add.resource.as_str() {
                             "load" => {
                                 let a = TimedData {
                                     id: action_to_add.action.id,
                                     belongsto: action_to_add.action.belongsto,
                                     data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+                                    time: action_to_add.action.time,
+                                };
+                                ob.entries.push(a);
+                            },
+                            "wait" => {
+                                let a = TimedData {
+                                    id: action_to_add.action.id,
+                                    belongsto: action_to_add.action.belongsto,
+                                    data: format!("{}_{}secs", action_to_add.resource, action_to_add.action.time),
                                     time: action_to_add.action.time,
                                 };
                                 ob.entries.push(a);
@@ -583,10 +615,17 @@ impl Brain {
                                 ob.entries.retain(|x| *x != *a);
                                 ob.last_change_timestamp = timestamp.clone();
                                 debug!("- Buffer: {:#x?}", ob.entries);
+                                // TODO: Avoid hardcoding this (use types of actions?)
+                                if ob.object.starts_with("led") {
+                                    self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
+                                } else if ob.object.starts_with("other") {
+                                    let other_action = a.data.split("_").collect::<Vec<_>>();
+                                    if other_action[0] == "load" {
+                                        self.config = Brain::load_action_rules(format!("actions/{}", other_action[1])).unwrap();
+                                    }
+                                }
                                 //TODO: this info should come from the leds module itself
                                 info!("- Just did {} -> {}", om.object, a.data);
-                                // TODO: correct LEDS, maybe create something
-                                self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
                                 metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
                                 result.push(format!("{}__{}__{:?}", ob.object, a.clone().data, a.clone().time));
                             }
@@ -600,17 +639,5 @@ impl Brain {
         if result.len() == 0 {result.push("".to_string())};
         if metrics.len() == 0 {metrics.push("".to_string())};
         Ok((metrics, result))
-    }
-
-    pub fn new_are_actions_in_buffer(buffersets: Vec<Set>,rule: ConfigEntry) -> bool {
-        let mut result = false;
-        for buffer in buffersets {
-            for existing in buffer.entries.clone() {
-                if existing.belongsto == rule.id {
-                    result = true;
-                }
-            }
-        }
-        result
     }
 }

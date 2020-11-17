@@ -4,15 +4,6 @@
   input:
   - time: "0.5" 
     input_objs: ""
-    led_y: "*"
-    led_r: "*"
-    led_g: "*"
-    led_b: "*"
-    button: "*"
-    motor_l: "*"
-    motor_r: "*"
-    tracker: "*"
-    distance: "*"
   output:
   - object: "led_y"
     value: "1"
