@@ -18,7 +18,6 @@ impl LEDs {
     pub fn new(mode: String, led_vector: Vec<String>) -> Result<Self, &'static str> {
         let mut objs = [].to_vec();
         for o in led_vector {
-            println!("LED   - {}", o);
             let config = o.split("__").collect::<Vec<_>>();
             let keyval = config[1].split("=").collect::<Vec<_>>();
             let mut l_o = None;
@@ -42,6 +41,7 @@ impl LEDs {
             Some(l) => {
                 match &l.object {
                     Some(o) => {
+                        println!("SWITCHING");
                         if new_state {
                             if ! l.on {
                                 l.on = true;
