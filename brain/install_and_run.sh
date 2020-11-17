@@ -5,9 +5,10 @@ source .env
 
 git checkout ${DEV_BRANCH}
 git add ${ARDUINO_FILES}
-git add cfg.yaml
+git add setup.yaml
 git add move_cfg.yaml
 git add src/
+git add actions/
 git add Cargo.toml
 git commit -m "changing and installing"
 git push origin ${DEV_BRANCH}
