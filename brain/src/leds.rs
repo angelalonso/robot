@@ -1,7 +1,7 @@
 use rust_gpiozero::LED;
 use std::sync::Arc;
 use std::sync::Mutex;
-use log::{debug, info};
+use log::debug;
 
 #[derive(Clone, Debug)]
 pub struct LEDObj {
@@ -53,7 +53,7 @@ impl LEDs {
                             }
                         }
                     }            
-                    None => info!("- Mocked - Setting -{:?}- to LED Y", new_state)
+                    None => debug!("- Mocked - Setting -{:?}- to LED Y", new_state)
                 }
             },
             None => (),
