@@ -75,14 +75,6 @@ pub struct Set {
     max_size: u8,
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Buffer {
-    entries: Vec<TimedData>,
-    last_change_timestamp: f64,
-    current_entry: TimedData,
-    max_size: u8,
-}
-
 #[derive(Clone)]
 pub struct Brain {
     name: String,
@@ -123,6 +115,8 @@ impl Brain {
         };
         let mut bs = [].to_vec();
         let mut ms = [].to_vec();
+        let mut leds = [].to_vec();
+        //let mut motors = [].to_vec();
         // Generic empty element for the buffers
         let s_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -143,8 +137,14 @@ impl Brain {
         }
         // OUTPUTS -> they have actions buffers and metrics buffers
         for o in outputs {
+            // This trick allows us to define configs for the output objects
+            let mut name = o.clone();
+            if o.starts_with("led_") {
+                leds.push(o.clone());
+                name = o.split("__").collect::<Vec<_>>()[0].to_string();
+            }
             let s_b = Set {
-                object: o.clone(),
+                object: name.clone(),
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e.clone(),
@@ -152,7 +152,7 @@ impl Brain {
             };
             bs.push(s_b);
             let s_m = Set {
-                object: o.clone(),
+                object: name.clone(),
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e.clone(),
@@ -181,7 +181,7 @@ impl Brain {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
-        let l = LEDs::new(mode.clone()).unwrap_or_else(|err| {
+        let l = LEDs::new(mode.clone(), leds).unwrap_or_else(|err| {
             eprintln!("Problem Initializing LEDs: {}", err);
             process::exit(1);
         });
