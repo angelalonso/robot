@@ -5,4 +5,8 @@ inputs:
   - button
 outputs:
   - led_y
+  - led_r
+  - led_g
+  - led_b
   - motor_l
+  - motor_r

@@ -374,144 +374,390 @@ impl Brain {
         return timestamp;
     }
 
-    /// adds metric to the related metrics buffer
-    pub fn add_metric(&mut self, metric: String, source_id: String) {
-        trace!("- Adding metric {}", metric);
-        let metric_decomp = metric.split("__").collect::<Vec<_>>();
-        match metric_decomp[0] {
-            "led_y" => {
-                if self.metrics_led_y.entries.len() == 0 {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: self.timestamp.clone(), // here time means "since_timestamp"
-                    };
-                    self.metrics_led_y.entries.push(new_m);
-                    self.metrics_led_y.last_change_timestamp = self.timestamp;
-                } else {
-                    if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: self.timestamp.clone(),
-                        };
-                        self.metrics_led_y.entries.insert(0, new_m);
-                        self.metrics_led_y.last_change_timestamp = self.timestamp;
-                    }
-                }; 
-                if self.metrics_led_y.entries.len() > self.metrics_led_y.max_size.into() {
-                    self.metrics_led_y.entries.pop();
-                };
-            },
-            "led_r" => {
-                if self.metrics_led_r.entries.len() == 0 {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: self.timestamp.clone(), // here time means "since_timestamp"
-                    };
-                    self.metrics_led_r.entries.push(new_m);
-                    self.metrics_led_r.last_change_timestamp = self.timestamp;
-                } else {
-                    if self.metrics_led_r.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: self.timestamp.clone(),
-                        };
-                        self.metrics_led_r.entries.insert(0, new_m);
-                        self.metrics_led_r.last_change_timestamp = self.timestamp;
-                    }
-                }; 
-                if self.metrics_led_r.entries.len() > self.metrics_led_r.max_size.into() {
-                    self.metrics_led_r.entries.pop();
-                };
-            },
-            "led_g" => {
-                if self.metrics_led_g.entries.len() == 0 {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: self.timestamp.clone(), // here time means "since_timestamp"
-                    };
-                    self.metrics_led_g.entries.push(new_m);
-                    self.metrics_led_g.last_change_timestamp = self.timestamp;
-                } else {
-                    if self.metrics_led_g.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: self.timestamp.clone(),
-                        };
-                        self.metrics_led_g.entries.insert(0, new_m);
-                        self.metrics_led_g.last_change_timestamp = self.timestamp;
-                    }
-                }; 
-                if self.metrics_led_g.entries.len() > self.metrics_led_g.max_size.into() {
-                    self.metrics_led_g.entries.pop();
-                };
-            },
-            "led_b" => {
-                if self.metrics_led_b.entries.len() == 0 {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: self.timestamp.clone(), // here time means "since_timestamp"
-                    };
-                    self.metrics_led_b.entries.push(new_m);
-                    self.metrics_led_b.last_change_timestamp = self.timestamp;
-                } else {
-                    if self.metrics_led_b.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: self.timestamp.clone(),
-                        };
-                        self.metrics_led_b.entries.insert(0, new_m);
-                        self.metrics_led_b.last_change_timestamp = self.timestamp;
-                    }
-                }; 
-                if self.metrics_led_b.entries.len() > self.metrics_led_b.max_size.into() {
-                    self.metrics_led_b.entries.pop();
-                };
-            },
-            "button" => {
-                if self.metrics_button.entries.len() == 0 {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: self.timestamp.clone(), // here time means "since_timestamp"
-                    };
-                    self.metrics_button.entries.push(new_m);
-                    self.metrics_button.last_change_timestamp = self.timestamp;
-                } else {
-                    if self.metrics_button.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: self.timestamp.clone(),
-                        };
-                        self.metrics_button.entries.insert(0, new_m);
-                        self.metrics_button.last_change_timestamp = self.timestamp;
-                    }
-                }; 
-                if self.metrics_button.entries.len() > self.metrics_button.max_size.into() {
-                    self.metrics_button.entries.pop();
-                };
-            },
-            _ => (),
-        }
-    }
+    ///// adds metric to the related metrics buffer
+    //pub fn add_metric(&mut self, metric: String, source_id: String) {
+    //    trace!("- Adding metric {}", metric);
+    //    let metric_decomp = metric.split("__").collect::<Vec<_>>();
+    //    match metric_decomp[0] {
+    //        "led_y" => {
+    //            if self.metrics_led_y.entries.len() == 0 {
+    //                let new_m = TimedData {
+    //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                    belongsto: source_id,
+    //                    data: metric_decomp[1].to_string(),
+    //                    time: self.timestamp.clone(), // here time means "since_timestamp"
+    //                };
+    //                self.metrics_led_y.entries.push(new_m);
+    //                self.metrics_led_y.last_change_timestamp = self.timestamp;
+    //            } else {
+    //                if self.metrics_led_y.entries[0].data != metric_decomp[1].to_string() {
+    //                    let new_m = TimedData {
+    //                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                        belongsto: source_id,
+    //                        data: metric_decomp[1].to_string(),
+    //                        time: self.timestamp.clone(),
+    //                    };
+    //                    self.metrics_led_y.entries.insert(0, new_m);
+    //                    self.metrics_led_y.last_change_timestamp = self.timestamp;
+    //                }
+    //            }; 
+    //            if self.metrics_led_y.entries.len() > self.metrics_led_y.max_size.into() {
+    //                self.metrics_led_y.entries.pop();
+    //            };
+    //        },
+    //        "led_r" => {
+    //            if self.metrics_led_r.entries.len() == 0 {
+    //                let new_m = TimedData {
+    //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                    belongsto: source_id,
+    //                    data: metric_decomp[1].to_string(),
+    //                    time: self.timestamp.clone(), // here time means "since_timestamp"
+    //                };
+    //                self.metrics_led_r.entries.push(new_m);
+    //                self.metrics_led_r.last_change_timestamp = self.timestamp;
+    //            } else {
+    //                if self.metrics_led_r.entries[0].data != metric_decomp[1].to_string() {
+    //                    let new_m = TimedData {
+    //                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                        belongsto: source_id,
+    //                        data: metric_decomp[1].to_string(),
+    //                        time: self.timestamp.clone(),
+    //                    };
+    //                    self.metrics_led_r.entries.insert(0, new_m);
+    //                    self.metrics_led_r.last_change_timestamp = self.timestamp;
+    //                }
+    //            }; 
+    //            if self.metrics_led_r.entries.len() > self.metrics_led_r.max_size.into() {
+    //                self.metrics_led_r.entries.pop();
+    //            };
+    //        },
+    //        "led_g" => {
+    //            if self.metrics_led_g.entries.len() == 0 {
+    //                let new_m = TimedData {
+    //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                    belongsto: source_id,
+    //                    data: metric_decomp[1].to_string(),
+    //                    time: self.timestamp.clone(), // here time means "since_timestamp"
+    //                };
+    //                self.metrics_led_g.entries.push(new_m);
+    //                self.metrics_led_g.last_change_timestamp = self.timestamp;
+    //            } else {
+    //                if self.metrics_led_g.entries[0].data != metric_decomp[1].to_string() {
+    //                    let new_m = TimedData {
+    //                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                        belongsto: source_id,
+    //                        data: metric_decomp[1].to_string(),
+    //                        time: self.timestamp.clone(),
+    //                    };
+    //                    self.metrics_led_g.entries.insert(0, new_m);
+    //                    self.metrics_led_g.last_change_timestamp = self.timestamp;
+    //                }
+    //            }; 
+    //            if self.metrics_led_g.entries.len() > self.metrics_led_g.max_size.into() {
+    //                self.metrics_led_g.entries.pop();
+    //            };
+    //        },
+    //        "led_b" => {
+    //            if self.metrics_led_b.entries.len() == 0 {
+    //                let new_m = TimedData {
+    //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                    belongsto: source_id,
+    //                    data: metric_decomp[1].to_string(),
+    //                    time: self.timestamp.clone(), // here time means "since_timestamp"
+    //                };
+    //                self.metrics_led_b.entries.push(new_m);
+    //                self.metrics_led_b.last_change_timestamp = self.timestamp;
+    //            } else {
+    //                if self.metrics_led_b.entries[0].data != metric_decomp[1].to_string() {
+    //                    let new_m = TimedData {
+    //                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                        belongsto: source_id,
+    //                        data: metric_decomp[1].to_string(),
+    //                        time: self.timestamp.clone(),
+    //                    };
+    //                    self.metrics_led_b.entries.insert(0, new_m);
+    //                    self.metrics_led_b.last_change_timestamp = self.timestamp;
+    //                }
+    //            }; 
+    //            if self.metrics_led_b.entries.len() > self.metrics_led_b.max_size.into() {
+    //                self.metrics_led_b.entries.pop();
+    //            };
+    //        },
+    //        "button" => {
+    //            if self.metrics_button.entries.len() == 0 {
+    //                let new_m = TimedData {
+    //                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                    belongsto: source_id,
+    //                    data: metric_decomp[1].to_string(),
+    //                    time: self.timestamp.clone(), // here time means "since_timestamp"
+    //                };
+    //                self.metrics_button.entries.push(new_m);
+    //                self.metrics_button.last_change_timestamp = self.timestamp;
+    //            } else {
+    //                if self.metrics_button.entries[0].data != metric_decomp[1].to_string() {
+    //                    let new_m = TimedData {
+    //                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+    //                        belongsto: source_id,
+    //                        data: metric_decomp[1].to_string(),
+    //                        time: self.timestamp.clone(),
+    //                    };
+    //                    self.metrics_button.entries.insert(0, new_m);
+    //                    self.metrics_button.last_change_timestamp = self.timestamp;
+    //                }
+    //            }; 
+    //            if self.metrics_button.entries.len() > self.metrics_button.max_size.into() {
+    //                self.metrics_button.entries.pop();
+    //            };
+    //        },
+    //        _ => (),
+    //    }
+    //}
+
+    ///// Adds action to the related actions buffer
+    //pub fn add_action(&mut self, action: String) {
+    //    trace!("- Adding action {}", action);
+    //    let action_to_add = self.clone().get_action_from_string(action).unwrap();
+    //    match action_to_add.resource.as_str() {
+    //        "led_y" => {
+    //            if self.buffer_led_y.entries.len() >= self.buffer_led_y.max_size.into() {
+    //                warn!("Buffer for LED_Y is full! not adding new actions...");
+    //            } else {
+    //                self.buffer_led_y.entries.push(action_to_add.action);
+    //            };
+    //        },
+    //        "led_r" => {
+    //            if self.buffer_led_r.entries.len() >= self.buffer_led_r.max_size.into() {
+    //                warn!("Buffer for LED_R is full! not adding new actions...");
+    //            } else {
+    //                self.buffer_led_r.entries.push(action_to_add.action);
+    //            };
+    //        },
+    //        "led_g" => {
+    //            if self.buffer_led_g.entries.len() >= self.buffer_led_g.max_size.into() {
+    //                warn!("Buffer for LED_G is full! not adding new actions...");
+    //            } else {
+    //                self.buffer_led_g.entries.push(action_to_add.action);
+    //            };
+    //        },
+    //        "led_b" => {
+    //            if self.buffer_led_b.entries.len() >= self.buffer_led_b.max_size.into() {
+    //                warn!("Buffer for LED_B is full! not adding new actions...");
+    //            } else {
+    //                self.buffer_led_b.entries.push(action_to_add.action);
+    //            };
+    //        },
+    //        "wait" => {
+    //            if self.buffer_other.entries.len() >= self.buffer_other.max_size.into() {
+    //                warn!("Buffer for OTHER ACTIONS is full! not adding new actions...");
+    //            } else {
+    //                self.buffer_other.entries.push(action_to_add.action);
+    //            };
+    //        },
+    //        "load" => {
+    //            if self.buffer_other.entries.len() >= self.buffer_other.max_size.into() {
+    //                warn!("Buffer for OTHER ACTIONS is full! not adding new actions...");
+    //            } else {
+    //                let a = TimedData {
+    //                    id: action_to_add.action.id,
+    //                    belongsto: action_to_add.action.belongsto,
+    //                    data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+    //                    time: action_to_add.action.time,
+    //                };
+    //                self.buffer_other.entries.push(a);
+    //            };
+    //        },
+    //        _ => ()
+    //    }
+    //}
+
+    ///// Goes through all rules loaded from config, checks if they match what is currently on our
+    ///// metrics, and iif so, it returns them
+    //pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+    //    // Start with led_y
+    //    let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
+    //    for rule in self.config.clone() {
+    //        //if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
+    //        if rule.repeat == false {
+    //             partial_rules.push(rule.clone());
+    //        } else if rule.id.split("_").collect::<Vec<_>>()[0] != "done" {
+    //            if self.metrics_led_y.entries.len() > 0 {
+    //                if rule.input[0].led_y != "*" {
+    //                    if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
+    //                        if timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap(){
+    //                            if ! self.are_actions_in_buffer(rule.clone()) {
+    //                                partial_rules.push(rule.clone());
+    //                            }
+    //                        };
+    //                    };
+    //                } else {
+    //                    partial_rules.push(rule.clone());
+    //                };
+    //            };
+    //        };
+    //    };
+    //    // Then remove those that dont fit 
+    //    for rule in partial_rules.clone() {
+    //        if self.metrics_led_r.entries.len() > 0 {
+    //            if rule.input[0].led_r != "*" {
+    //                if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
+    //                    partial_rules.retain(|x| *x != rule);
+    //                } else {
+    //                    if (timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+    //                        partial_rules.retain(|x| *x != rule);
+    //                    };
+    //                };
+    //            };
+    //        };
+    //        if self.metrics_led_g.entries.len() > 0 {
+    //            if rule.input[0].led_g != "*" {
+    //                if self.metrics_led_g.entries[0].data != rule.input[0].led_g {
+    //                    partial_rules.retain(|x| *x != rule);
+    //                } else {
+    //                    if (timestamp - self.metrics_led_g.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+    //                        partial_rules.retain(|x| *x != rule);
+    //                    };
+    //                };
+    //            };
+    //        };
+    //        if self.metrics_led_b.entries.len() > 0 {
+    //            if rule.input[0].led_b != "*" {
+    //                if self.metrics_led_b.entries[0].data != rule.input[0].led_b {
+    //                    partial_rules.retain(|x| *x != rule);
+    //                } else {
+    //                    if (timestamp - self.metrics_led_b.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+    //                        partial_rules.retain(|x| *x != rule);
+    //                    };
+    //                };
+    //            };
+    //        };
+    //        if self.metrics_button.entries.len() > 0 {
+    //            if rule.input[0].button != "*" {
+    //                if self.metrics_button.entries[0].data != rule.input[0].button {
+    //                    partial_rules.retain(|x| *x != rule);
+    //                } else {
+    //                    if (timestamp - self.metrics_button.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
+    //                        partial_rules.retain(|x| *x != rule);
+    //                    };
+    //                };
+    //            };
+    //        };
+    //    };
+    //    if partial_rules.len() > 0 {
+    //        debug!("- Rules matching :");
+    //        for (ix, rule) in partial_rules.clone().iter().enumerate() {
+    //            debug!(" #{} input:", ix);
+    //            for ri in rule.input.clone() {
+    //                debug!("      |{:?}|", ri);
+    //            }
+    //            debug!("     output:");
+    //            for ro in rule.output.clone() {
+    //                debug!("      |{:?}|", ro);
+    //            }
+    //        }
+    //    }
+    //    Ok(partial_rules)
+    //}
+
+    ///// Checks the time passed for the current action and, when it goes over the time set, 
+    ///// it "moves" to the next one
+    //pub fn do_next_actions(&mut self, timestamp: f64) -> Result<Vec<String>, String>{
+    //    let mut result = [].to_vec();
+    //    if timestamp >= self.metrics_led_y.last_change_timestamp {
+    //        if self.buffer_led_y.entries.len() > 0 {
+    //            let a = &self.buffer_led_y.entries.clone()[0];
+    //            let time_passed = ((timestamp - self.buffer_led_y.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+    //            trace!("- Time passed on current value - {:?}", time_passed);
+    //            if time_passed >= self.buffer_led_y.current_entry.time {
+    //                self.buffer_led_y.current_entry = a.clone();
+    //                self.buffer_led_y.entries.retain(|x| *x != *a);
+    //                self.buffer_led_y.last_change_timestamp = timestamp.clone();
+    //                debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+    //                info!("- Just did LED_Y -> {}", a.data);
+    //                self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
+    //                self.add_metric(format!("led_y__{}", a.data), a.id.to_string());
+    //                self.new_add_metric(format!("led_y__{}", a.data), a.id.to_string());
+    //                result.push(format!("led_y__{}__{:?}", a.clone().data, a.clone().time));
+    //            }
+    //        }
+    //    };
+    //    if timestamp >= self.metrics_led_r.last_change_timestamp {
+    //        if self.buffer_led_r.entries.len() > 0 {
+    //            let a = &self.buffer_led_r.entries.clone()[0];
+    //            let time_passed = ((timestamp - self.buffer_led_r.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+    //            trace!("- Time passed on current value - {:?}", time_passed);
+    //            if time_passed >= self.buffer_led_r.current_entry.time {
+    //                self.buffer_led_r.current_entry = a.clone();
+    //                self.buffer_led_r.entries.retain(|x| *x != *a);
+    //                self.buffer_led_r.last_change_timestamp = timestamp.clone();
+    //                debug!("- Buffer: {:#x?}", self.buffer_led_r.entries);
+    //                info!("- Just did LED_R -> {}", a.data);
+    //                self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
+    //                self.add_metric(format!("led_r__{}", a.data), a.id.to_string());
+    //                self.new_add_metric(format!("led_r__{}", a.data), a.id.to_string());
+    //                result.push(format!("led_r__{}__{:?}", a.clone().data, a.clone().time));
+    //            }
+    //        }
+    //    };
+    //    if timestamp >= self.metrics_led_g.last_change_timestamp {
+    //        if self.buffer_led_g.entries.len() > 0 {
+    //            let a = &self.buffer_led_g.entries.clone()[0];
+    //            let time_passed = ((timestamp - self.buffer_led_g.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+    //            trace!("- Time passed on current value - {:?}", time_passed);
+    //            if time_passed >= self.buffer_led_g.current_entry.time {
+    //                self.buffer_led_g.current_entry = a.clone();
+    //                self.buffer_led_g.entries.retain(|x| *x != *a);
+    //                self.buffer_led_g.last_change_timestamp = timestamp.clone();
+    //                debug!("- Buffer: {:#x?}", self.buffer_led_g.entries);
+    //                info!("- Just did LED_G -> {}", a.data);
+    //                self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
+    //                self.add_metric(format!("led_g__{}", a.data), a.id.to_string());
+    //                self.new_add_metric(format!("led_g__{}", a.data), a.id.to_string());
+    //                result.push(format!("led_g__{}__{:?}", a.clone().data, a.clone().time));
+    //            }
+    //        }
+    //    };
+    //    if timestamp >= self.metrics_led_b.last_change_timestamp {
+    //        if self.buffer_led_b.entries.len() > 0 {
+    //            let a = &self.buffer_led_b.entries.clone()[0];
+    //            let time_passed = ((timestamp - self.buffer_led_b.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+    //            trace!("- Time passed on current value - {:?}", time_passed);
+    //            if time_passed >= self.buffer_led_b.current_entry.time {
+    //                self.buffer_led_b.current_entry = a.clone();
+    //                self.buffer_led_b.entries.retain(|x| *x != *a);
+    //                self.buffer_led_b.last_change_timestamp = timestamp.clone();
+    //                debug!("- Buffer: {:#x?}", self.buffer_led_b.entries);
+    //                info!("- Just did LED_B -> {}", a.data);
+    //                self.leds.set_led_b(a.data.parse::<u8>().unwrap() == 1);
+    //                self.add_metric(format!("led_b__{}", a.data), a.id.to_string());
+    //                self.new_add_metric(format!("led_b__{}", a.data), a.id.to_string());
+    //                result.push(format!("led_b__{}__{:?}", a.clone().data, a.clone().time));
+    //            }
+    //        }
+    //    };
+    //    if timestamp >= self.metrics_other.last_change_timestamp {
+    //        if self.buffer_other.entries.len() > 0 {
+    //            let a = &self.buffer_other.entries.clone()[0];
+    //            let time_passed = ((timestamp - self.buffer_other.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+    //            trace!("- Time passed on current value - {:?}", time_passed);
+    //            if time_passed >= self.buffer_other.current_entry.time {
+    //                self.buffer_other.current_entry = a.clone();
+    //                self.buffer_other.entries.retain(|x| *x != *a);
+    //                self.buffer_other.last_change_timestamp = timestamp.clone();
+    //                debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
+    //                info!("- Just did OTHER -> {}", a.data);
+    //                if a.data.split("_").collect::<Vec<_>>()[0] == "load" {
+    //                    self.config = Brain::load_action_rules(format!("./actions/{}", a.data.split("_").collect::<Vec<_>>()[1])).unwrap();
+    //                    self.empty_buffers();
+    //                };
+    //                self.add_metric(format!("other__{}", a.data), a.id.to_string());
+    //                self.new_add_metric(format!("other__{}", a.data), a.id.to_string());
+    //                result.push(format!("other__{}__{:?}", a.clone().data, a.clone().time));
+    //            }
+    //        }
+    //    };
+    //    if result.len() == 0 {result.push("".to_string())};
+    //    Ok(result)
+    //}
 
     /// turns a String containing an action into the related object
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
@@ -536,63 +782,6 @@ impl Brain {
         Ok(result)
     }
 
-    /// Adds action to the related actions buffer
-    pub fn add_action(&mut self, action: String) {
-        trace!("- Adding action {}", action);
-        let action_to_add = self.clone().get_action_from_string(action).unwrap();
-        match action_to_add.resource.as_str() {
-            "led_y" => {
-                if self.buffer_led_y.entries.len() >= self.buffer_led_y.max_size.into() {
-                    warn!("Buffer for LED_Y is full! not adding new actions...");
-                } else {
-                    self.buffer_led_y.entries.push(action_to_add.action);
-                };
-            },
-            "led_r" => {
-                if self.buffer_led_r.entries.len() >= self.buffer_led_r.max_size.into() {
-                    warn!("Buffer for LED_R is full! not adding new actions...");
-                } else {
-                    self.buffer_led_r.entries.push(action_to_add.action);
-                };
-            },
-            "led_g" => {
-                if self.buffer_led_g.entries.len() >= self.buffer_led_g.max_size.into() {
-                    warn!("Buffer for LED_G is full! not adding new actions...");
-                } else {
-                    self.buffer_led_g.entries.push(action_to_add.action);
-                };
-            },
-            "led_b" => {
-                if self.buffer_led_b.entries.len() >= self.buffer_led_b.max_size.into() {
-                    warn!("Buffer for LED_B is full! not adding new actions...");
-                } else {
-                    self.buffer_led_b.entries.push(action_to_add.action);
-                };
-            },
-            "wait" => {
-                if self.buffer_other.entries.len() >= self.buffer_other.max_size.into() {
-                    warn!("Buffer for OTHER ACTIONS is full! not adding new actions...");
-                } else {
-                    self.buffer_other.entries.push(action_to_add.action);
-                };
-            },
-            "load" => {
-                if self.buffer_other.entries.len() >= self.buffer_other.max_size.into() {
-                    warn!("Buffer for OTHER ACTIONS is full! not adding new actions...");
-                } else {
-                    let a = TimedData {
-                        id: action_to_add.action.id,
-                        belongsto: action_to_add.action.belongsto,
-                        data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
-                        time: action_to_add.action.time,
-                    };
-                    self.buffer_other.entries.push(a);
-                };
-            },
-            _ => ()
-        }
-    }
-
     pub fn show_buffers(&mut self) {
         debug!("{} pending for LED_Y", self.buffer_led_y.entries.len());
         debug!("{} pending for LED_R", self.buffer_led_r.entries.len());
@@ -610,7 +799,7 @@ impl Brain {
         trace!("- Actions buffer - OTHER:");
         trace!("  {:?}", self.buffer_other.entries);
         for b in &self.buffersets {
-            debug!("{} pending for {}", b.entries.len(), b.object);
+            info!("{} pending for {}", b.entries.len(), b.object);
             trace!("- Actions buffer - {}:", b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -693,95 +882,6 @@ impl Brain {
         };
     }
 
-    /// Goes through all rules loaded from config, checks if they match what is currently on our
-    /// metrics, and iif so, it returns them
-    pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
-        // Start with led_y
-        let mut partial_rules: Vec<ConfigEntry> = [].to_vec();
-        for rule in self.config.clone() {
-            //if rule.id.split("_").collect::<Vec<_>>()[0] == "do-once" {
-            if rule.repeat == false {
-                 partial_rules.push(rule.clone());
-            } else if rule.id.split("_").collect::<Vec<_>>()[0] != "done" {
-                if self.metrics_led_y.entries.len() > 0 {
-                    if rule.input[0].led_y != "*" {
-                        if self.metrics_led_y.entries[0].data == rule.input[0].led_y {
-                            if timestamp - self.metrics_led_y.entries[0].time >= rule.input[0].time.parse::<f64>().unwrap(){
-                                if ! self.are_actions_in_buffer(rule.clone()) {
-                                    partial_rules.push(rule.clone());
-                                }
-                            };
-                        };
-                    } else {
-                        partial_rules.push(rule.clone());
-                    };
-                };
-
-            };
-        };
-        // Then remove those that dont fit 
-        for rule in partial_rules.clone() {
-            if self.metrics_led_r.entries.len() > 0 {
-                if rule.input[0].led_r != "*" {
-                    if self.metrics_led_r.entries[0].data != rule.input[0].led_r {
-                        partial_rules.retain(|x| *x != rule);
-                    } else {
-                        if (timestamp - self.metrics_led_r.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
-                            partial_rules.retain(|x| *x != rule);
-                        };
-                    };
-                };
-            };
-            if self.metrics_led_g.entries.len() > 0 {
-                if rule.input[0].led_g != "*" {
-                    if self.metrics_led_g.entries[0].data != rule.input[0].led_g {
-                        partial_rules.retain(|x| *x != rule);
-                    } else {
-                        if (timestamp - self.metrics_led_g.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
-                            partial_rules.retain(|x| *x != rule);
-                        };
-                    };
-                };
-            };
-            if self.metrics_led_b.entries.len() > 0 {
-                if rule.input[0].led_b != "*" {
-                    if self.metrics_led_b.entries[0].data != rule.input[0].led_b {
-                        partial_rules.retain(|x| *x != rule);
-                    } else {
-                        if (timestamp - self.metrics_led_b.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
-                            partial_rules.retain(|x| *x != rule);
-                        };
-                    };
-                };
-            };
-            if self.metrics_button.entries.len() > 0 {
-                if rule.input[0].button != "*" {
-                    if self.metrics_button.entries[0].data != rule.input[0].button {
-                        partial_rules.retain(|x| *x != rule);
-                    } else {
-                        if (timestamp - self.metrics_button.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (self.metrics_led_y.entries[0].time != 0.0){
-                            partial_rules.retain(|x| *x != rule);
-                        };
-                    };
-                };
-            };
-        };
-        if partial_rules.len() > 0 {
-            debug!("- Rules matching :");
-            for (ix, rule) in partial_rules.clone().iter().enumerate() {
-                debug!(" #{} input:", ix);
-                for ri in rule.input.clone() {
-                    debug!("      |{:?}|", ri);
-                }
-                debug!("     output:");
-                for ro in rule.output.clone() {
-                    debug!("      |{:?}|", ro);
-                }
-            }
-        }
-        Ok(partial_rules)
-    }
-
     /// Returns whether a set of actions are already on the buffer, 
     /// to avoid constantly adding the same ones
     pub fn are_actions_in_buffer(&self, rule: ConfigEntry) -> bool {
@@ -814,107 +914,6 @@ impl Brain {
         result
     }
 
-    /// Checks the time passed for the current action and, when it goes over the time set, 
-    /// it "moves" to the next one
-    pub fn do_next_actions(&mut self, timestamp: f64) -> Result<Vec<String>, String>{
-        let mut result = [].to_vec();
-        if timestamp >= self.metrics_led_y.last_change_timestamp {
-            if self.buffer_led_y.entries.len() > 0 {
-                let a = &self.buffer_led_y.entries.clone()[0];
-                let time_passed = ((timestamp - self.buffer_led_y.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                trace!("- Time passed on current value - {:?}", time_passed);
-                if time_passed >= self.buffer_led_y.current_entry.time {
-                    self.buffer_led_y.current_entry = a.clone();
-                    self.buffer_led_y.entries.retain(|x| *x != *a);
-                    self.buffer_led_y.last_change_timestamp = timestamp.clone();
-                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
-                    info!("- Just did LED_Y -> {}", a.data);
-                    self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_y__{}", a.data), a.id.to_string());
-                    self.new_add_metric(format!("led_y__{}", a.data), a.id.to_string());
-                    result.push(format!("led_y__{}__{:?}", a.clone().data, a.clone().time));
-                }
-            }
-        };
-        if timestamp >= self.metrics_led_r.last_change_timestamp {
-            if self.buffer_led_r.entries.len() > 0 {
-                let a = &self.buffer_led_r.entries.clone()[0];
-                let time_passed = ((timestamp - self.buffer_led_r.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                trace!("- Time passed on current value - {:?}", time_passed);
-                if time_passed >= self.buffer_led_r.current_entry.time {
-                    self.buffer_led_r.current_entry = a.clone();
-                    self.buffer_led_r.entries.retain(|x| *x != *a);
-                    self.buffer_led_r.last_change_timestamp = timestamp.clone();
-                    debug!("- Buffer: {:#x?}", self.buffer_led_r.entries);
-                    info!("- Just did LED_R -> {}", a.data);
-                    self.leds.set_led_r(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_r__{}", a.data), a.id.to_string());
-                    self.new_add_metric(format!("led_r__{}", a.data), a.id.to_string());
-                    result.push(format!("led_r__{}__{:?}", a.clone().data, a.clone().time));
-                }
-            }
-        };
-        if timestamp >= self.metrics_led_g.last_change_timestamp {
-            if self.buffer_led_g.entries.len() > 0 {
-                let a = &self.buffer_led_g.entries.clone()[0];
-                let time_passed = ((timestamp - self.buffer_led_g.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                trace!("- Time passed on current value - {:?}", time_passed);
-                if time_passed >= self.buffer_led_g.current_entry.time {
-                    self.buffer_led_g.current_entry = a.clone();
-                    self.buffer_led_g.entries.retain(|x| *x != *a);
-                    self.buffer_led_g.last_change_timestamp = timestamp.clone();
-                    debug!("- Buffer: {:#x?}", self.buffer_led_g.entries);
-                    info!("- Just did LED_G -> {}", a.data);
-                    self.leds.set_led_g(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_g__{}", a.data), a.id.to_string());
-                    self.new_add_metric(format!("led_g__{}", a.data), a.id.to_string());
-                    result.push(format!("led_g__{}__{:?}", a.clone().data, a.clone().time));
-                }
-            }
-        };
-        if timestamp >= self.metrics_led_b.last_change_timestamp {
-            if self.buffer_led_b.entries.len() > 0 {
-                let a = &self.buffer_led_b.entries.clone()[0];
-                let time_passed = ((timestamp - self.buffer_led_b.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                trace!("- Time passed on current value - {:?}", time_passed);
-                if time_passed >= self.buffer_led_b.current_entry.time {
-                    self.buffer_led_b.current_entry = a.clone();
-                    self.buffer_led_b.entries.retain(|x| *x != *a);
-                    self.buffer_led_b.last_change_timestamp = timestamp.clone();
-                    debug!("- Buffer: {:#x?}", self.buffer_led_b.entries);
-                    info!("- Just did LED_B -> {}", a.data);
-                    self.leds.set_led_b(a.data.parse::<u8>().unwrap() == 1);
-                    self.add_metric(format!("led_b__{}", a.data), a.id.to_string());
-                    self.new_add_metric(format!("led_b__{}", a.data), a.id.to_string());
-                    result.push(format!("led_b__{}__{:?}", a.clone().data, a.clone().time));
-                }
-            }
-        };
-        if timestamp >= self.metrics_other.last_change_timestamp {
-            if self.buffer_other.entries.len() > 0 {
-                let a = &self.buffer_other.entries.clone()[0];
-                let time_passed = ((timestamp - self.buffer_other.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                trace!("- Time passed on current value - {:?}", time_passed);
-                if time_passed >= self.buffer_other.current_entry.time {
-                    self.buffer_other.current_entry = a.clone();
-                    self.buffer_other.entries.retain(|x| *x != *a);
-                    self.buffer_other.last_change_timestamp = timestamp.clone();
-                    debug!("- Buffer: {:#x?}", self.buffer_led_y.entries);
-                    info!("- Just did OTHER -> {}", a.data);
-                    if a.data.split("_").collect::<Vec<_>>()[0] == "load" {
-                        self.config = Brain::load_action_rules(format!("./actions/{}", a.data.split("_").collect::<Vec<_>>()[1])).unwrap();
-                        self.empty_buffers();
-                    };
-                    self.add_metric(format!("other__{}", a.data), a.id.to_string());
-                    self.new_add_metric(format!("other__{}", a.data), a.id.to_string());
-                    result.push(format!("other__{}__{:?}", a.clone().data, a.clone().time));
-                }
-            }
-        };
-        if result.len() == 0 {result.push("".to_string())};
-        Ok(result)
-    }
-
     pub fn empty_buffers(&mut self) {
         self.buffer_led_y.entries = Vec::new();
         self.buffer_led_r.entries = Vec::new();
@@ -943,7 +942,7 @@ impl Brain {
                 let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
                 let sensor_id = "arduino".to_string();
                 if sensor.len() > 1 {
-                    self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id.clone());
+                    //self.add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id.clone());
                     self.new_add_metric(format!("{}__{}", sensor[0], sensor[1]), sensor_id);
                 } else {
                     trace!("{:?}", sensor);
@@ -1048,9 +1047,6 @@ impl Brain {
                             for action in a {
                                 for o in action.output {
                                     let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
-                                    // TODO: create a new_add_action that uses a match like other
-                                    // new_ functions
-                                    //self.add_action(aux.clone());
                                     self.new_add_action(aux);
                                 }
                             }
@@ -1185,6 +1181,7 @@ impl Brain {
     pub fn new_do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
+        //TODO: manage different types of actions
         for ob in self.buffersets.iter_mut() {
             match self.metricsets.iter_mut().find(|x| *x.object == *ob.object) {
                 Some(om) => {
@@ -1199,6 +1196,7 @@ impl Brain {
                                 ob.last_change_timestamp = timestamp.clone();
                                 debug!("- Buffer: {:#x?}", ob.entries);
                                 info!("- Just did {} -> {}", om.object, a.data);
+                                // TODO: correct LEDS, maybe create something
                                 //self.leds.set_led_y(a.data.parse::<u8>().unwrap() == 1);
                                 //self.new_add_metric(format!("led_y__{}", a.data), a.id.to_string());
                                 metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
@@ -1215,5 +1213,4 @@ impl Brain {
         if metrics.len() == 0 {metrics.push("".to_string())};
         Ok((metrics, result))
     }
-
 }
