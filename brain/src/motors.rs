@@ -73,7 +73,7 @@ impl Motors {
         })
     }
 
-    pub fn set(&mut self, movement: String) {
+    pub fn old_set(&mut self, movement: String) {
         let move_vector = movement.split("_").collect::<Vec<_>>();
         let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
         if move_vector != prev_move_vector {
@@ -148,6 +148,110 @@ impl Motors {
                 }
             }
             // move_r
+            self.movement = movement.clone();
+            info!("Changing Move to {}", self.movement);
+        }
+    }
+
+    pub fn set(&mut self, movement: String) {
+        let move_vector = movement.split("_").collect::<Vec<_>>();
+        let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
+        if move_vector != prev_move_vector {
+            let move_l = move_vector[0];
+            let move_r = move_vector[1];
+            //TODO: we can probably do both motors on a loop instead of repeating
+            // LEFT MOTOR
+            if move_l != prev_move_vector[0] {
+                if move_l.parse::<i16>().unwrap() == 0 {
+                    match self.objects.iter_mut().find(|x| *x.name == "motor_l".to_string()) {
+                        Some(m) => {
+                            match m.clone().object {
+                                Some(o) => {
+                                    match &m.enabler {
+                                        Some(e) => e.lock().unwrap().off(),
+                                        None => debug!("Here the enabler of {:?} would be set to OFF", m.name),
+                                    }
+                                    o.lock().unwrap().stop();
+                                },
+                                None => debug!("Here {:?} would be set to STOP", m.name),
+                            }
+
+                        },
+                        None => println!("There's no motor_l"),
+                    }
+                } else {
+                    match self.objects.iter_mut().find(|x| *x.name == "motor_l".to_string()) {
+                        Some(m) => {
+                            match m.clone().object {
+                                Some(o) => {
+                                    if move_l.parse::<i16>().unwrap() > 0 {
+                                        o.lock().unwrap().forward();
+                                    } else if move_l.parse::<i16>().unwrap() < 0 {
+                                        o.lock().unwrap().backward();
+                                    }
+                                    match &m.enabler {
+                                        Some(e) => {
+                                            e.lock().unwrap().on();
+                                            let l_value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
+                                            e.lock().unwrap().set_value(l_value);
+                                        }
+                                        None => debug!("Here the enabler of {:?} would be set to ON", m.name),
+                                    }
+                                },
+                                None => debug!("Here {:?} would be set to MOVE", m.name),
+                                //
+                            }
+                        },
+                        None => println!("There's no motor_l"),
+                    }
+                }
+            }
+            // RIGHT MOTOR
+            if move_r != prev_move_vector[1] {
+                if move_r.parse::<i16>().unwrap() == 0 {
+                    match self.objects.iter_mut().find(|x| *x.name == "motor_r".to_string()) {
+                        Some(m) => {
+                            match m.clone().object {
+                                Some(o) => {
+                                    match &m.enabler {
+                                        Some(e) => e.lock().unwrap().off(),
+                                        None => debug!("Here the enabler of {:?} would be set to OFF", m.name),
+                                    }
+                                    o.lock().unwrap().stop();
+                                },
+                                None => debug!("Here {:?} would be set to STOP", m.name),
+                            }
+
+                        },
+                        None => println!("There's no motor_r"),
+                    }
+                } else {
+                    match self.objects.iter_mut().find(|x| *x.name == "motor_r".to_string()) {
+                        Some(m) => {
+                            match m.clone().object {
+                                Some(o) => {
+                                    if move_l.parse::<i16>().unwrap() > 0 {
+                                        o.lock().unwrap().forward();
+                                    } else if move_l.parse::<i16>().unwrap() < 0 {
+                                        o.lock().unwrap().backward();
+                                    }
+                                    match &m.enabler {
+                                        Some(e) => {
+                                            e.lock().unwrap().on();
+                                            let l_value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
+                                            e.lock().unwrap().set_value(l_value);
+                                        }
+                                        None => debug!("Here the enabler of {:?} would be set to ON", m.name),
+                                    }
+                                },
+                                None => debug!("Here {:?} would be set to MOVE", m.name),
+                                //
+                            }
+                        },
+                        None => println!("There's no motor_r"),
+                    }
+                }
+            }
             self.movement = movement.clone();
             info!("Changing Move to {}", self.movement);
         }
