@@ -116,7 +116,7 @@ impl Brain {
         let mut bs = [].to_vec();
         let mut ms = [].to_vec();
         let mut leds = [].to_vec();
-        //let mut motors = [].to_vec();
+        let mut motors = [].to_vec();
         // Generic empty element for the buffers
         let s_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -141,6 +141,9 @@ impl Brain {
             let mut name = o.clone();
             if o.starts_with("led_") {
                 leds.push(o.clone());
+                name = o.split("__").collect::<Vec<_>>()[0].to_string();
+            } else if o.starts_with("motor_") {
+                motors.push(o.clone());
                 name = o.split("__").collect::<Vec<_>>()[0].to_string();
             }
             let s_b = Set {
@@ -177,7 +180,7 @@ impl Brain {
         };
         bs.push(s_b_o);
         ms.push(s_m_o);
-        let m = Motors::new(mode.clone()).unwrap_or_else(|err| {
+        let m = Motors::new(mode.clone(), motors).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });

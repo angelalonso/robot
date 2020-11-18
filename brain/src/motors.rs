@@ -17,10 +17,11 @@ pub struct Motors {
     pub movement: String,
     motor_l: MotorObj,
     motor_r: MotorObj,
+    objects: Vec<MotorObj>,
 }
 
 impl Motors {
-    pub fn new(mode: String) -> Result<Self, &'static str> {
+    pub fn new(mode: String, motor_vector: Vec<String>) -> Result<Self, &'static str> {
         let mut m_l_o = None;
         let mut m_l_e = None;
         let mut m_r_o = None;
@@ -43,11 +44,32 @@ impl Motors {
             enabler: m_r_e,
             speed: 0,
         };
+        let mut objs = [].to_vec();
+        for o in motor_vector {
+            let config = o.split("__").collect::<Vec<_>>();
+            let keyval_a = config[1].split("=").collect::<Vec<_>>();
+            let keyval_b = config[2].split("=").collect::<Vec<_>>();
+            let keyval_c = config[2].split("=").collect::<Vec<_>>();
+            let mut m_o = None;
+            let mut m_e = None;
+            if mode != "dryrun" {
+                m_o = Some(Arc::new(Mutex::new(Motor::new(keyval_a[1].parse::<u8>().unwrap(), keyval_b[1].parse::<u8>().unwrap()))));
+                m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(keyval_c[1].parse::<u8>().unwrap()))));
+            }
+            let m = MotorObj {
+                name: config[0].to_string(),
+                object: m_o,
+                enabler: m_e,
+                speed: 0,
+            };
+            objs.push(m);
+        }
         Ok(Self {
             name: "Motors".to_string(),
             movement: "0_0".to_string(),
             motor_l: m_l,
             motor_r: m_r,
+            objects: objs,
         })
     }
 

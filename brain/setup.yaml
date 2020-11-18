@@ -8,5 +8,5 @@ outputs:
   - led_r__gpio=20
   - led_g__gpio=16
   - led_b__gpio=12
-  - motor_l
-  - motor_r
+  - motor_l__gpio=27__gpio=17__gpio=22
+  - motor_r__gpio=24__gpio=23__gpio=25
