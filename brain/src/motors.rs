@@ -49,7 +49,7 @@ impl Motors {
             let config = o.split("__").collect::<Vec<_>>();
             let keyval_a = config[1].split("=").collect::<Vec<_>>();
             let keyval_b = config[2].split("=").collect::<Vec<_>>();
-            let keyval_c = config[2].split("=").collect::<Vec<_>>();
+            let keyval_c = config[3].split("=").collect::<Vec<_>>();
             let mut m_o = None;
             let mut m_e = None;
             if mode != "dryrun" {
