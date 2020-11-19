@@ -202,138 +202,7 @@ impl Brain {
         })
     }
 
-    pub fn get_current_time(&mut self) -> f64 {
-        let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
-            Ok(time) => time.as_millis() as f64,
-            Err(_e) => 0.0,
-        };
-        return timestamp;
-    }
-
-    pub fn get_timestamp_since(&mut self, start_timestamp: f64) -> f64 {
-        let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
-            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
-            Err(_e) => 0.0,
-        };
-        return timestamp;
-    }
-
-    /// turns a String containing an action into the related object
-    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
-        // Format would be motor_l=-60,time=2.6,source
-        let format = action.split(",").collect::<Vec<_>>();
-        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
-        let data = format[0].split("=").collect::<Vec<_>>();
-        let mut source = "";
-        if format.len() > 2 {
-            source = format[2];
-        }
-        let action_item = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: source.to_string(),
-            data: data[1].to_string(),
-            time: t,
-        };
-        let result = ResultAction {
-            resource: data[0].to_string(),
-            action: action_item,
-        };
-        Ok(result)
-    }
-
-    pub fn show_buffers(&mut self) {
-        for b in &self.buffersets {
-            //if b.object == "other" {
-            //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-            //    for (ix, action) in b.entries.clone().iter().enumerate() {
-            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-            //    }
-            //}
-            trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-            for (ix, action) in b.entries.clone().iter().enumerate() {
-                trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
-            }
-        }
-    }
-
-    pub fn show_metrics(&mut self) {
-        for m in self.metricsets.clone().iter() {
-            debug!("- Metrics - {}", m.object);
-            for (ix, action) in m.entries.clone().iter().enumerate() {
-                debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
-            }
-        }
-    }
-
-    /// The whole point of this function is being able to load actions and configs through the same
-    /// pattern. The actions differ from configs in that they will ALWAYS be loaded (but maybe only
-    /// once).
-    /// We give the id a special value to use later.
-    pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
-        let file_pointer = File::open(file.clone()).unwrap();
-        let mut c: Vec<ConfigEntry> = [].to_vec();
-        match serde_yaml::from_reader(file_pointer) {
-            Ok(v) => return Ok(v),
-            Err(e) => {
-                if e.to_string().contains("missing field `input`") {
-                    let file_pointer = File::open(file.clone()).unwrap();
-                    let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
-                    for i in a {
-                        let c_elem = ConfigEntry {
-                            //id: format!("do-once_{}", i.id),
-                            id: i.id,
-                            repeat: false,
-                            input: [ConfigInput {
-                                 time: "*".to_string(),
-                                 input_objs: "".to_string(),
-                            }].to_vec(),
-                            output: i.output,
-                        };
-                        c.push(c_elem);
-                    }
-                    return Ok(c)
-                } else {
-                    error!("The file {} is incorrect! - {}", file, e);
-                    return Err(BrainDeadError::YamlError)                    
-                }
-            },
-
-        };
-    }
-
-    pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
-        #[derive(Deserialize)]
-        struct Setup {
-            start_actionset_file: String,
-            start_arduinohex_file: String,
-            inputs: Vec<String>,
-            outputs: Vec<String>,
-        }
-        let file_pointer = File::open(setup_file).unwrap();
-        let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
-        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
-    }
-
-    pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
-        let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
-        match msg_parts[0] {
-            "SENSOR" => {
-                let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
-                let sensor_id = "arduino".to_string();
-                if sensor.len() > 1 {
-                    self.new_add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
-                } else {
-                    trace!("{:?}", sensor);
-                }
-
-            },
-            _ => (),
-        }
-    }
-
-    ///
+    /// Just run the brain.
     /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
     /// - precission: how often we do stuff
     ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
@@ -371,9 +240,9 @@ impl Brain {
                     Err(_) => (),
                 };
                 self.show_metrics();
-                self.show_buffers();
+                self.show_action_buffers();
                 // GET ACTIONS
-                match self.new_get_actions_from_rules(ct){
+                match self.get_actions_from_rules(ct){
                     Ok(a) => {
                         if a.len() > 0 {
                             // Format would be motor_l=-60,time=2.6
@@ -423,11 +292,11 @@ impl Brain {
                     Err(_e) => trace!("...no matching rules found"),
                 };
                 // DO ACTIONS
-                let (new_metrics, acts) = self.new_do_next_actions(ct).unwrap();
+                let (new_metrics, acts) = self.do_next_actions(ct).unwrap();
                 for m_raw in new_metrics {
                     let m = m_raw.split("|").collect::<Vec<_>>();
                     if m.len() > 1 {
-                        self.new_add_metric(ct, m[0].to_string(), m[1].to_string());
+                        self.add_metric(ct, m[0].to_string(), m[1].to_string());
                     }
                 }
                 sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
@@ -445,7 +314,133 @@ impl Brain {
         }
     }
 
-    pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+    /// Load a robot setup yaml file and configures the system
+    pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
+        #[derive(Deserialize)]
+        struct Setup {
+            start_actionset_file: String,
+            start_arduinohex_file: String,
+            inputs: Vec<String>,
+            outputs: Vec<String>,
+        }
+        let file_pointer = File::open(setup_file).unwrap();
+        let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
+        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
+    }
+
+    /// Return current timestamp as millis
+    pub fn get_current_time(&mut self) -> f64 {
+        let now = SystemTime::now();
+        let timestamp = match now.duration_since(UNIX_EPOCH) {
+            Ok(time) => time.as_millis() as f64,
+            Err(_e) => 0.0,
+        };
+        return timestamp;
+    }
+
+    /// Return difference between current timestamp and a given one, in millis
+    pub fn get_timestamp_since(&mut self, start_timestamp: f64) -> f64 {
+        let now = SystemTime::now();
+        let timestamp = match now.duration_since(UNIX_EPOCH) {
+            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
+            Err(_e) => 0.0,
+        };
+        return timestamp;
+    }
+
+    /// Translates a message coming from the Arduino to actions
+    pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
+        let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
+        match msg_parts[0] {
+            // TODO: add other use cases
+            "SENSOR" => {
+                let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
+                let sensor_id = "arduino".to_string();
+                if sensor.len() > 1 {
+                    self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+                } else {
+                    trace!("{:?}", sensor);
+                }
+            },
+            _ => (),
+        }
+    }
+
+    // ########## ACTIONS ########## //
+
+    /// Log action buffers' content
+    pub fn show_action_buffers(&mut self) {
+        for b in &self.buffersets {
+            //if b.object == "other" {
+            //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+            //    for (ix, action) in b.entries.clone().iter().enumerate() {
+            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            //    }
+            //}
+            trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+            for (ix, action) in b.entries.clone().iter().enumerate() {
+                trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            }
+        }
+    }
+
+    /// Load actions and rules using the same pattern.
+    /// The actions differ from configs in that they will ALWAYS be loaded 
+    pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
+        let file_pointer = File::open(file.clone()).unwrap();
+        let mut c: Vec<ConfigEntry> = [].to_vec();
+        match serde_yaml::from_reader(file_pointer) {
+            Ok(v) => return Ok(v),
+            Err(e) => {
+                if e.to_string().contains("missing field `input`") {
+                    let file_pointer = File::open(file.clone()).unwrap();
+                    let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
+                    for i in a {
+                        let c_elem = ConfigEntry {
+                            id: i.id,
+                            repeat: false,
+                            input: [ConfigInput {
+                                 time: "*".to_string(),
+                                 input_objs: "".to_string(),
+                            }].to_vec(),
+                            output: i.output,
+                        };
+                        c.push(c_elem);
+                    }
+                    return Ok(c)
+                } else {
+                    error!("The file {} is incorrect! - {}", file, e);
+                    return Err(BrainDeadError::YamlError)                    
+                }
+            },
+
+        };
+    }
+    /// Turn a String containing an action into the related object
+    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
+        // Format would be motor_l=-60,time=2.6,source
+        let format = action.split(",").collect::<Vec<_>>();
+        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
+        let data = format[0].split("=").collect::<Vec<_>>();
+        let mut source = "";
+        if format.len() > 2 {
+            source = format[2];
+        }
+        let action_item = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: source.to_string(),
+            data: data[1].to_string(),
+            time: t,
+        };
+        let result = ResultAction {
+            resource: data[0].to_string(),
+            action: action_item,
+        };
+        Ok(result)
+    }
+
+    /// Checks the input of the rules loaded and, if they fit, returns the actions to take
+    pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         for rule in partial_rules.clone() {
             if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
@@ -493,40 +488,7 @@ impl Brain {
         Ok(partial_rules)
     }
 
-    pub fn new_add_metric(&mut self, timestamp: f64,metric: String, source_id: String) {
-        trace!("- Adding metric {}", metric);
-        let metric_decomp = metric.split("__").collect::<Vec<_>>();
-        match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
-            Some(om) => {
-                if om.entries.len() == 0 {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: timestamp.clone(), // here time means "since_timestamp"
-                    };
-                    om.entries.push(new_m);
-                    om.last_change_timestamp = timestamp;
-                } else {
-                    if om.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: timestamp.clone(),
-                        };
-                        om.entries.insert(0, new_m);
-                        om.last_change_timestamp = timestamp;
-                    }
-                }; 
-                if om.entries.len() > om.max_size.into() {
-                    om.entries.pop();
-                };
-            },
-            None => (),
-        };
-    }
-
+    /// Returns true if a given action is already in the related actions buffer
     pub fn are_actions_in_buffer(buffersets: Vec<Set>,rule: ConfigEntry) -> bool {
         let mut result = false;
         for buffer in buffersets {
@@ -539,6 +501,7 @@ impl Brain {
         result
     }
 
+    /// Adds action to the related actions buffer
     pub fn add_action(&mut self, action: String) {
         trace!("- Adding action {}", action);
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
@@ -604,7 +567,9 @@ impl Brain {
         }
     }
 
-    pub fn new_do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    /// Performs the next action on each action buffer if the timestamp is right.
+    /// Return the action(s) taken and it's related metric
+    pub fn do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
         //TODO: manage different types of actions
@@ -635,6 +600,7 @@ impl Brain {
                                 }
                                 //TODO: this info should come from the leds module itself
                                 info!("- Just did {} -> {}", om.object, a.data);
+                                // TODO actually both the following could be one if we unified format
                                 metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
                                 result.push(format!("{}__{}__{:?}", ob.object, a.clone().data, a.clone().time));
                             }
@@ -643,10 +609,57 @@ impl Brain {
                 },
                 None => (),
             };
-
         };
         if result.len() == 0 {result.push("".to_string())};
         if metrics.len() == 0 {metrics.push("".to_string())};
         Ok((metrics, result))
     }
+
+    // ########## METRICS ########## //
+
+    /// Log objects' metrics
+    pub fn show_metrics(&mut self) {
+        for m in self.metricsets.clone().iter() {
+            debug!("- Metrics - {}", m.object);
+            for (ix, action) in m.entries.clone().iter().enumerate() {
+                debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            }
+        }
+    }
+
+    /// Add metric to its related metric set
+    pub fn add_metric(&mut self, timestamp: f64,metric: String, source_id: String) {
+        trace!("- Adding metric {}", metric);
+        let metric_decomp = metric.split("__").collect::<Vec<_>>();
+        match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
+            Some(om) => {
+                if om.entries.len() == 0 {
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
+                        data: metric_decomp[1].to_string(),
+                        time: timestamp.clone(), // here time means "since_timestamp"
+                    };
+                    om.entries.push(new_m);
+                    om.last_change_timestamp = timestamp;
+                } else {
+                    if om.entries[0].data != metric_decomp[1].to_string() {
+                        let new_m = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: source_id,
+                            data: metric_decomp[1].to_string(),
+                            time: timestamp.clone(),
+                        };
+                        om.entries.insert(0, new_m);
+                        om.last_change_timestamp = timestamp;
+                    }
+                }; 
+                if om.entries.len() > om.max_size.into() {
+                    om.entries.pop();
+                };
+            },
+            None => (),
+        };
+    }
+
 }
