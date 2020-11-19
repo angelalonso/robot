@@ -92,9 +92,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(Some(4.0), 10, s);
+                let _actions = main_brain.run(Some(1.0), 10, s);
             });
             handle.join().unwrap();
+            let mut got = [].to_vec();
+            loop {
+                match r.try_recv() {
+                    Ok(m) => got.push(m),
+                    Err(_) => break,
+                };
+            }
         }
         "test" => {
             // Generate our Brain object
