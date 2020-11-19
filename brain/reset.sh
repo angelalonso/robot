@@ -25,9 +25,9 @@ do
 done
 ${SSH_COMM} "kill \$(ps aux | grep brain | grep setup | awk '{print \$2}')"
 # set motors to 0
-# ${SSH_COMM} "cd robot/brain; \
-#   RUST_LOG=info ${CARGO} run reset setup_reset.yaml
-#   "
+${SSH_COMM} "cd robot/brain; \
+  RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain reset setup_reset.yaml
+  "
 # # Stop that last one we just triggered
 # ${SSH_COMM} "kill \$(ps aux | grep brain | grep cfg | awk '{print \$2}')"
 
