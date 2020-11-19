@@ -1,10 +1,13 @@
 #!/bin/bash
 
 source .env
+./build_for_raspberry.sh
 ./reset.sh
 
 git checkout ${DEV_BRANCH}
 git add ${ARDUINO_FILES}
+#git add -f target/arm-unknown-linux-musleabi/debug/brain
+git add -f target/arm-unknown-linux-gnueabihf/debug/brain
 git add setup.yaml
 git add move_cfg.yaml
 git add src/
@@ -34,6 +37,9 @@ do
       online=true
   fi
 done
+#${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
+#  RUST_LOG=info ${CARGO} run live setup.yaml
+#  "
 ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
-  RUST_LOG=info ${CARGO} run live setup.yaml
+  RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain live setup.yaml
   "
