@@ -623,10 +623,7 @@ impl Brain {
                                     self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
                                 } else if ob.object.starts_with("motor") {
                                     let action_vector = a.data.split("_").collect::<Vec<_>>();
-                                    //TODO: function to find only changes and pass them to
-                                    //motors.set
-                                    println!("{:?}", ob.object);
-                                    println!("{:?}", action_vector);
+                                    self.motors.set(ob.object.clone(), action_vector[0].to_string());
                                 } else if ob.object.starts_with("other") {
                                     let other_action = a.data.split("_").collect::<Vec<_>>();
                                     if other_action[0] == "load" {

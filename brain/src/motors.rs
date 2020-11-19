@@ -156,7 +156,7 @@ impl Motors {
     //    }
     //}
 
-    pub fn set(&mut self, movement: String) {
+    pub fn change_movement(&mut self, movement: String) {
         let move_vector = movement.split("_").collect::<Vec<_>>();
         let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
         if move_vector != prev_move_vector {
@@ -258,5 +258,21 @@ impl Motors {
             self.movement = movement.clone();
             info!("Changing Move to {}", self.movement);
         }
+    }
+    pub fn set(&mut self, motor: String, value: String) {
+        let movement = self.movement.clone();
+        let movement_vector = movement.split("_").collect::<Vec<_>>();
+        match motor.as_str() {
+            "motor_l" => {
+                self.change_movement(format!("{}_{}", value, movement_vector[1]));
+            },
+            "motor_r" => {
+                self.change_movement(format!("{}_{}", movement_vector[0], value));
+            },
+            _ => {
+                ()
+            },
+        }
+        
     }
 }
