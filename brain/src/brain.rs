@@ -435,7 +435,10 @@ impl Brain {
             // BREAK MECHANISM
             match secs_to_run {
                 Some(s) => {
-                    if ct >= s {break}
+                    if ct >= s {
+                        info!("Finished execution");
+                        break
+                    }
                 },
                 None => (),
             }
