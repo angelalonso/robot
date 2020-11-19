@@ -53,8 +53,14 @@ impl Motors {
             let mut m_o = None;
             let mut m_e = None;
             if mode != "dryrun" {
-                m_o = Some(Arc::new(Mutex::new(Motor::new(keyval_a[1].parse::<u8>().unwrap(), keyval_b[1].parse::<u8>().unwrap()))));
-                m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(keyval_c[1].parse::<u8>().unwrap()))));
+                let motor_pin1 = keyval_a[1].parse::<u8>().unwrap();
+                let motor_pin2 = keyval_b[1].parse::<u8>().unwrap();
+                let motor_enablerpin = keyval_c[1].parse::<u8>().unwrap();
+                println!("{}", motor_pin1);
+                println!("{}", motor_pin2);
+                println!("{}", motor_enablerpin);
+                m_o = Some(Arc::new(Mutex::new(Motor::new(motor_pin1, motor_pin2))));
+                m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(motor_enablerpin))));
             }
             let m = MotorObj {
                 name: config[0].to_string(),
