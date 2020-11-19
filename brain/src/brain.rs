@@ -621,6 +621,10 @@ impl Brain {
                                 // TODO: Avoid hardcoding this (use types of actions?)
                                 if ob.object.starts_with("led") {
                                     self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
+                                } else if ob.object.starts_with("motor") {
+                                    let action_vector = a.data.split("_").collect::<Vec<_>>();
+                                    println!("{:?}", ob.object);
+                                    println!("{:?}", action_vector);
                                 } else if ob.object.starts_with("other") {
                                     let other_action = a.data.split("_").collect::<Vec<_>>();
                                     if other_action[0] == "load" {
