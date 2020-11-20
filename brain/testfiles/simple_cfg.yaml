@@ -1,15 +1,9 @@
 --- 
 - id: "simple"
+  repeat: false
   input:
   - time: "0.4" 
-    led_y: "0"
-    led_r: "*"
-    led_g: "*"
-    led_b: "*"
-    motor_l: "*"
-    motor_r: "*"
-    tracker: "*"
-    distance: "*"
+    input_objs: "led_y=0"
   output:
   - object: "led_y"
     value: "1"
