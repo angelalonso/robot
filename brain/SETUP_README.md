@@ -16,10 +16,10 @@ Modify to your liking with the following information:
     - LEDS are defined like led_y__gpio=21
     - MOTORS are defined like motor_l__gpio=27__gpio=17__gpio=22, where the third gpio is the enabler one.
 
-## ACTIONS file
-Also known as the Rules file, it defines what inputs trigger what outputs
+## ACTIONS file(s)
+Also known as the Rules file, it defines conditions/input (when needed) that trigger actions/output.
 
-You can find examples on the actions/ folder.
+You can have as many as you need, and even call one from another (see "special objects" below) if you need to. You'll find examples on the actions/ folder.
 
 Modify them or create one from scratch with the following information:
 - Each file can store several actions/rules
@@ -43,7 +43,7 @@ Modify them or create one from scratch with the following information:
     time: "0.3"
 ```
   - All actions for a given object get queued together, so the above example means led_y will be 1 for 0.2 secconds, THEN 0 for another 0.4 seconds, while led_r will be 0 for 0.3 starting from the beginning
-  - There is a couple objects that go in the same queue:
+  - There is a couple "special" objects that go in the same queue:
     - load, which loads a new actions file and looks like:
     ```
   - object: "load"
