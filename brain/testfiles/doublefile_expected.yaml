@@ -9,25 +9,37 @@
     - ""
 - time: 0.4 
   actions:
-    - "led_y__1__0.2"
+    - ""
 - time: 0.5 
   actions:
-    - ""
+    - "led_y__1__0.2"
+    - "led_r__0__0.2"
+    - "led_g__0__0.2"
+    - "led_b__0__0.2"
 - time: 0.6
   actions:
-    - "led_y__0__0.2"
+    - ""
 - time: 0.7
   actions:
-    - ""
+    - "led_y__0__0.2"
+    - "led_r__1__0.2"
+    - "led_g__0__0.2"
+    - "led_b__0__0.2"
 - time: 0.8
   actions:
-    - "led_y__1__0.2"
+    - ""
 - time: 0.9
   actions:
-    - ""
+    - "led_y__0__0.2"
+    - "led_r__0__0.2"
+    - "led_g__1__0.2"
+    - "led_b__0__0.2"
 - time: 1.0
   actions:
-    - "led_y__0__0.2"
+    - ""
 - time: 1.1
   actions:
-    - ""
+    - "led_y__0__0.2"
+    - "led_r__0__0.2"
+    - "led_g__0__0.2"
+    - "led_b__1__0.2"
