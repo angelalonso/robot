@@ -42,4 +42,17 @@ Modify them or create one from scratch with the following information:
     value: "0"
     time: "0.3"
 ```
-  - The actions get piled in order per object, so  the above example means led_y will be 1 for 0.2 secconds, then 0 for another 0.4 seconds, while led_r will be 0 for 0.3 starting from the beginning
+  - All actions for a given object get queued together, so the above example means led_y will be 1 for 0.2 secconds, THEN 0 for another 0.4 seconds, while led_r will be 0 for 0.3 starting from the beginning
+  - There is a couple objects that go in the same queue:
+    - load, which loads a new actions file and looks like:
+    ```
+  - object: "load"
+    value: "start.yaml" <- this file MUST exist in the actions/ folder
+    time: "0.2"
+    ```
+    - wait, which just waits (helps control when the other "special" actions, like load, happen)
+    ```
+  - object: "wait"
+    value: "" <- this value is not needed and ignored
+    time: "5"
+    ```
