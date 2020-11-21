@@ -103,7 +103,7 @@ mod brain_test {
         // loop with timestamp 
         let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
         let handle = thread::spawn(move || {
-            let _actions = test_brain.run(Some(1.8), 10, s);
+            let _actions = test_brain.run(Some(1.1), 10, s);
         });
         handle.join().unwrap();
         let mut got = [].to_vec();

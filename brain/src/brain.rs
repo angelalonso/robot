@@ -416,6 +416,7 @@ impl Brain {
 
         };
     }
+
     /// Turn a String containing an action into the related object
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
         // Format would be motor_l=-60,time=2.6,source
@@ -446,7 +447,9 @@ impl Brain {
             if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
                 partial_rules.retain(|x| *x != rule);
             } else {
-                if rule.id.starts_with("done_") {
+                if timestamp < rule.input[0].time.parse::<f64>().unwrap() {
+                    partial_rules.retain(|x| *x != rule);
+                } else if rule.id.starts_with("done_") {
                     partial_rules.retain(|x| *x != rule);
                 } else {
                     let checks = rule.input[0].input_objs.split(",").collect::<Vec<_>>();
@@ -462,7 +465,8 @@ impl Brain {
                                             partial_rules.retain(|x| *x != rule);
                                         };
                                     };
-
+                                } else if keyval[1] != "0" {
+                                    partial_rules.retain(|x| *x != rule);
                                 }
                             },
                             None => (),
