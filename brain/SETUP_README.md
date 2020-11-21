@@ -3,6 +3,8 @@
 ## SETUP file
 This file describes your erm, setup.   
 
+Then name is unimportant because you'll pass it as a parameter to the brain program.  
+
 You can find an example at setup.yaml on this directory.  
 
 Modify to your liking with the following information:   
@@ -16,10 +18,16 @@ Modify to your liking with the following information:
     - LEDS are defined like led_y__gpio=21
     - MOTORS are defined like motor_l__gpio=27__gpio=17__gpio=22, where the third gpio is the enabler one.
 
+### Challenges
+- We should look into using a similar setup file as R OS.
+- If not, we should at least find a cleaner way to define parameters for the outputs (instead of the current __ separators)
+
 ## ACTIONS file(s)
 Also known as the Rules file, it defines conditions/input (when needed) that trigger actions/output.
 
-You can have as many as you need, and even call one from another (see "special objects" below) if you need to. You'll find examples on the actions/ folder.
+You can have as many as you need, and even call one from another (see "special objects" below) if you need to. 
+
+You should adde them in the actions/ folder, where you'll already find some examples.
 
 Modify them or create one from scratch with the following information:
 - Each file can store several actions/rules
@@ -56,3 +64,5 @@ Modify them or create one from scratch with the following information:
     value: "" <- this value is not needed and ignored
     time: "5"
     ```
+### Challenges
+- Actions with an input are run only once. E.g.: you push a button, action gets triggered, but from there on it doesn't react to it

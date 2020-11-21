@@ -9,7 +9,7 @@ The program manages:
 
 ## Configuration
 
-Check [the setup and actions README](./SETUP_README.md))
+Check [the setup and actions README](./SETUP_README.md)
 
 ## Run the code
 You will start your robot from the laptop once it is up, running and connected to your wifi.  
@@ -27,10 +27,8 @@ cp env.template .env
 - Honestly, at this point you can always use cargo build and call the exec file at your Raspberry directly.
 
 # Challenges
-- Let's go for the first v2 challenge: Callibration system.
+- V2 ended up being a cleanup and improving version. V3 should indeed aim for a callibration system.
 - Event driven but only up to one layer. We will switch to skills that use the above callibration system.
-- We are not actually building any exec, and we should.
 - We need a way for the robot to load Brain on bootup. This should include an automated update if necessary.  
 - We need to document or automate finding out the Robot's IP.
-- We dont have a real way to test on a laptop
 

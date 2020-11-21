@@ -666,4 +666,5 @@ impl Brain {
         };
     }
 
+    //TODO: add tests with input like a button
 }
