@@ -81,7 +81,7 @@
     value: ""
     time: "1.2"
   - object: "load"
-    value: "start.yaml"
+    value: "actions/start.yaml"
     time: "0.2"
 - id: "motor_off"
   repeat: false
@@ -99,5 +99,5 @@
     value: ""
     time: "1.2"
   - object: "load"
-    value: "start.yaml"
+    value: "actions/start.yaml"
     time: "0.2"

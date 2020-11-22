@@ -27,7 +27,7 @@ Also known as the Rules file, it defines conditions/input (when needed) that tri
 
 You can have as many as you need, and even call one from another (see "special objects" below) if you need to. 
 
-You should adde them in the actions/ folder, where you'll already find some examples.
+I suggest you add them in the actions/ folder, where you'll already find some examples, but any other form of keeping those files should be fine.
 
 Modify them or create one from scratch with the following information:
 - Each file can store several actions/rules
@@ -55,7 +55,7 @@ Modify them or create one from scratch with the following information:
     - load, which loads a new actions file and looks like:
     ```
   - object: "load"
-    value: "start.yaml" <- this file MUST exist in the actions/ folder
+    value: "actions/start.yaml" <- this file MUST exist in the declared path
     time: "0.2"
     ```
     - wait, which just waits (helps control when the other "special" actions, like load, happen)

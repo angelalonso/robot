@@ -1,0 +1,13 @@
+--- 
+- id: "simple"
+  repeat: false
+  input:
+  - time: "0.05" 
+    input_objs: "button=1"
+  output:
+  - object: "motor_l"
+    value: "70"
+    time: "0.2"
+  - object: "motor_r"
+    value: "70"
+    time: "0.2"

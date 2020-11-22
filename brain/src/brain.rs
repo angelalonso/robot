@@ -79,6 +79,7 @@ pub struct Set {
 pub struct Brain {
     name: String,
     mode: String,
+    setup_file: String,
     start_time: u128,
     timestamp: f64,
     config: Vec<ConfigEntry>,
@@ -94,13 +95,13 @@ static MAX_METRICSIZE: u8 = 25;
 const OTHER_ACTIONS: &'static [&'static str] = &["load", "wait"];
 
 impl Brain {
-    pub fn new(brain_name: String, mode: String, setup_file: String) -> Result<Self, String> {
+    pub fn new(brain_name: String, mode: String, setupfile: String) -> Result<Self, String> {
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        let (first_action_set, first_arduino_program, inputs, outputs) = Brain::load_setup(setup_file.to_string());
+        let (first_action_set, first_arduino_program, inputs, outputs) = Brain::load_setup(setupfile.to_string());
         let c = Brain::load_action_rules(first_action_set).unwrap();
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
@@ -191,6 +192,7 @@ impl Brain {
         Ok(Self {
             name: brain_name,
             mode: mode,
+            setup_file: setupfile,
             start_time: start_time,
             timestamp: 0.0,
             config: c,
@@ -218,7 +220,7 @@ impl Brain {
                 if brain_clone.mode != "dryrun" {
                     arduino_clone.read_channel(msgs).unwrap();
             } else {
-                    arduino_clone.read_channel_mock(msgs).unwrap();
+                    arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
                 };
             });
         let _msg = match r.try_recv() {
@@ -599,7 +601,7 @@ impl Brain {
                                 } else if ob.object.starts_with("other") {
                                     let other_action = a.data.split("_").collect::<Vec<_>>();
                                     if other_action[0] == "load" {
-                                        self.config = Brain::load_action_rules(format!("actions/{}", other_action[1])).unwrap();
+                                        self.config = Brain::load_action_rules(other_action[1].to_string()).unwrap();
                                     }
                                 }
                                 //TODO: this info should come from the leds module itself

@@ -45,17 +45,49 @@ impl Arduino {
     }
 
 
-    pub fn read_channel_mock(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
+    /// This tries to reproduce input from the arduino when there's none
+    /// Since it's just needed for testing, I'll hardcode the behaviour, which depends on what is
+    /// being tested
+    pub fn read_channel_mock(&mut self, channel: Sender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
         debug!("...reading from Mocked Serial Port");
-//        loop {
-        let got = "SENSOR: button=0".to_string();
-        thread::sleep(time::Duration::from_secs(1));
-        match channel.send(got){
-            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-            Err(_e) => (),
-        };
+        let mut got: String;
+        match setup_file.as_str() {
+            "testfiles/button_setup.cfg" => {
+                got = "SENSOR: button=1".to_string();
+                thread::sleep(time::Duration::from_millis(400));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: button=0".to_string();
+                thread::sleep(time::Duration::from_millis(200));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: button=1".to_string();
+                thread::sleep(time::Duration::from_millis(200));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: button=0".to_string();
+                thread::sleep(time::Duration::from_millis(200));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+            },
+            _ => {
+                got = "SENSOR: button=0".to_string();
+                thread::sleep(time::Duration::from_secs(1));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+            }
+        }
         Ok("".to_string())
-//        }
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
