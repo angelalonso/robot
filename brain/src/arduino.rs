@@ -52,7 +52,7 @@ impl Arduino {
         debug!("...reading from Mocked Serial Port");
         let mut got: String;
         match setup_file.as_str() {
-            "testfiles/button_setup.cfg" => {
+            "testfiles/button_setup.yaml" => {
                 got = "SENSOR: button=1".to_string();
                 thread::sleep(time::Duration::from_millis(400));
                 match channel.send(got){
@@ -79,6 +79,7 @@ impl Arduino {
                 };
             },
             _ => {
+                println!("{:?}", setup_file);
                 got = "SENSOR: button=0".to_string();
                 thread::sleep(time::Duration::from_secs(1));
                 match channel.send(got){

@@ -17,6 +17,7 @@ mod brain_test {
     }
 
     #[test]
+    #[ignore]
     fn check_actions_simple() {
         let expected_pointer = File::open("testfiles/simple_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
@@ -51,6 +52,7 @@ mod brain_test {
     }
 
     #[test]
+    #[ignore]
     fn check_actions_looplights() {
         let expected_pointer = File::open("testfiles/looplights_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
@@ -85,6 +87,7 @@ mod brain_test {
     }
 
     #[test]
+    #[ignore]
     fn check_actions_doublefile() {
         let expected_pointer = File::open("testfiles/doublefile_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
@@ -119,7 +122,6 @@ mod brain_test {
     }
 
     #[test]
-    #[ignore]
     fn check_actions_button() {
         let expected_pointer = File::open("testfiles/button_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();

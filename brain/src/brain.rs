@@ -601,7 +601,8 @@ impl Brain {
                                 } else if ob.object.starts_with("other") {
                                     let other_action = a.data.split("_").collect::<Vec<_>>();
                                     if other_action[0] == "load" {
-                                        self.config = Brain::load_action_rules(other_action[1].to_string()).unwrap();
+                                        let file_to_load = other_action[1..].join("_").to_string();
+                                        self.config = Brain::load_action_rules(file_to_load).unwrap();
                                     }
                                 }
                                 //TODO: this info should come from the leds module itself
