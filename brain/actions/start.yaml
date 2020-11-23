@@ -65,7 +65,7 @@
   - object: "led_b"
     value: "0"
     time: "0.2"
-- id: "start"
+- id: "start1"
   repeat: false
   input:
   - time: "0.05" 
@@ -73,10 +73,10 @@
   output:
   - object: "motor_l"
     value: "70"
-    time: "1.2"
+    time: "0"
   - object: "motor_r"
     value: "70"
-    time: "1.2"
+    time: "0"
   - object: "wait"
     value: ""
     time: "1.2"
