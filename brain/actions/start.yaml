@@ -65,7 +65,7 @@
   - object: "led_b"
     value: "0"
     time: "0.2"
-- id: "motor_on"
+- id: "start"
   repeat: false
   input:
   - time: "0.05" 
@@ -83,7 +83,7 @@
   - object: "load"
     value: "actions/start.yaml"
     time: "0.2"
-- id: "motor_off"
+- id: "start"
   repeat: false
   input:
   - time: "0.05" 
