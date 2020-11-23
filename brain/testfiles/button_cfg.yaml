@@ -1,9 +1,9 @@
 --- 
-- id: "simple"
+- id: "simple_a"
   repeat: false
   input:
   - time: "0.05" 
-    input_objs: "button=1"
+    input_objs: "button=1,motor_l=0,motor_r=0"
   output:
   - object: "motor_l"
     value: "70"
@@ -13,7 +13,25 @@
     time: "0.2"
   - object: "wait"
     value: ""
-    time: "0.4"
+    time: "0.3"
+  - object: "load"
+    value: "testfiles/button_cfg.yaml"
+    time: "0.2"
+- id: "simple_a"
+  repeat: false
+  input:
+  - time: "0.05" 
+    input_objs: "button=1,motor_l=70,motor_r=70"
+  output:
+  - object: "motor_l"
+    value: "0"
+    time: "0.2"
+  - object: "motor_r"
+    value: "0"
+    time: "0.2"
+  - object: "wait"
+    value: ""
+    time: "0.3"
   - object: "load"
     value: "testfiles/button_cfg.yaml"
     time: "0.2"

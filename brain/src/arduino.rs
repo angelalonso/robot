@@ -54,25 +54,25 @@ impl Arduino {
         match setup_file.as_str() {
             "testfiles/button_setup.yaml" => {
                 got = "SENSOR: button=1".to_string();
-                thread::sleep(time::Duration::from_millis(400));
+                thread::sleep(time::Duration::from_millis(50));
                 match channel.send(got){
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),
                 };
                 got = "SENSOR: button=0".to_string();
-                thread::sleep(time::Duration::from_millis(200));
+                thread::sleep(time::Duration::from_millis(250));
                 match channel.send(got){
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),
                 };
                 got = "SENSOR: button=1".to_string();
-                thread::sleep(time::Duration::from_millis(200));
+                thread::sleep(time::Duration::from_millis(50));
                 match channel.send(got){
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),
                 };
                 got = "SENSOR: button=0".to_string();
-                thread::sleep(time::Duration::from_millis(200));
+                thread::sleep(time::Duration::from_millis(250));
                 match channel.send(got){
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),

@@ -64,5 +64,17 @@ Modify them or create one from scratch with the following information:
     value: "" <- this value is not needed and ignored
     time: "5"
     ```
+### Strategies
+
+This section should give you a hint on how to make things work
+
+#### Button changes a, then changes a differently a second time
+Let's say you want a button to make motors go forward, then stop on a second click:
+- Create an action file and add to actionsets
+- Give both the same id
+- Obviously define different outputs, but add a "load" (with a wait) to the actionfile itself at the bottom
+- Then have different input_objs based on what each is doing (one makes motor=0 and has inputobj motor=70 and the other makes motor=70 and has inputobj motor=0)
+- See an example at testfiles/button_cfg.yaml
+
 ### Challenges
 - Actions with an input are run only once. E.g.: you push a button, action gets triggered, but from there on it doesn't react to it

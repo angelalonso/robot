@@ -1,5 +1,4 @@
-// TODO: Test the following failing cases:
-// - outputs with repeat and wait and load_x dont repeat
+// TODO: test proximity actionset
 #[cfg(test)]
 mod brain_test {
     use std::process;
@@ -17,7 +16,6 @@ mod brain_test {
     }
 
     #[test]
-    #[ignore]
     fn check_actions_simple() {
         let expected_pointer = File::open("testfiles/simple_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
@@ -52,7 +50,6 @@ mod brain_test {
     }
 
     #[test]
-    #[ignore]
     fn check_actions_looplights() {
         let expected_pointer = File::open("testfiles/looplights_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
@@ -87,7 +84,6 @@ mod brain_test {
     }
 
     #[test]
-    #[ignore]
     fn check_actions_doublefile() {
         let expected_pointer = File::open("testfiles/doublefile_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
