@@ -357,6 +357,7 @@ impl Brain {
             // TODO: add other use cases
             "SENSOR" => {
                 let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
+                info!("Message from Arduino: {:?}", sensor);
                 let sensor_id = "arduino".to_string();
                 if sensor.len() > 1 {
                     self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);

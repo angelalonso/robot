@@ -40,13 +40,13 @@ void loop() {
   if(trackerValue == HIGH) //if it is HiGH
   { 
     delay(50);    
-    Serial.print("SENSOR: data_tracker_");
+    Serial.print("SENSOR: tracker=");
     Serial.println (trackerValue, DEC);
   }
   else
   {
     delay(50);    
-    Serial.print("SENSOR: data_tracker_");
+    Serial.print("SENSOR: tracker=");
     Serial.println (trackerValue, DEC);
   }
 
@@ -59,7 +59,7 @@ void loop() {
   long duration = pulseIn(ProximityEchoPin, HIGH);
   int distanceVALUE = duration*0.034/2;
   delay(50);
-  Serial.print("SENSOR: data_distance_");
+  Serial.print("SENSOR: distance=");
   Serial.println (distanceVALUE, DEC);
   
   delay(100);
