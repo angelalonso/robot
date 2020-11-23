@@ -2,15 +2,15 @@
 const int ButtonPin = 13;
 bool SwitchValue = false;
 int buttonValue;
-// Tracker Sensor
-const int TrackerPin = 2;
+//// Tracker Sensor disabled for now
+//const int TrackerPin = 2;
 // Proximity Sensor
 const int ProximityTriggerPin = 7;
 const int ProximityEchoPin = 6;
 
 void setup() {
   pinMode (ButtonPin, INPUT) ;
-  pinMode (TrackerPin, INPUT);
+  //pinMode (TrackerPin, INPUT);
   pinMode(ProximityTriggerPin, OUTPUT);
   pinMode(ProximityEchoPin, INPUT);
   Serial.begin (9600);
@@ -36,19 +36,19 @@ void loop() {
     delay(50);    
     Serial.println("SENSOR: button=0");
   }
-  boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
-  if(trackerValue == HIGH) //if it is HiGH
-  { 
-    delay(50);    
-    Serial.print("SENSOR: tracker=");
-    Serial.println (trackerValue, DEC);
-  }
-  else
-  {
-    delay(50);    
-    Serial.print("SENSOR: tracker=");
-    Serial.println (trackerValue, DEC);
-  }
+  //boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
+  //if(trackerValue == HIGH) //if it is HiGH
+  //{ 
+  //  delay(50);    
+  //  Serial.print("SENSOR: tracker=");
+  //  Serial.println (trackerValue, DEC);
+  //}
+  //else
+  //{
+  //  delay(50);    
+  //  Serial.print("SENSOR: tracker=");
+  //  Serial.println (trackerValue, DEC);
+  //}
 
   // Needed "protocol" for the proximity sensor
   digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
