@@ -1,15 +1,14 @@
 use crate::arduino::Arduino;
-use crate::leds::LEDs;
 use crate::motors::Motors;
+use crate::leds::LEDs;
 use log::{debug, error, info, trace, warn};
-use std::collections::HashMap;
 use std::fs::File;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{Sender, Receiver};
-use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
+use std::thread;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -117,8 +116,8 @@ impl Brain {
         };
         let mut bs = [].to_vec();
         let mut ms = [].to_vec();
-        let mut leds_map = HashMap::new();
-        let mut motors_map = HashMap::new();
+        let mut leds = [].to_vec();
+        let mut motors = [].to_vec();
         // Generic empty element for the buffers
         let s_e = TimedData {
             id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -129,7 +128,7 @@ impl Brain {
         // INPUTS -> they only have metrics buffers
         for i in inputs {
             let s = Set {
-                object: i.0,
+                object: i,
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e.clone(),
@@ -140,17 +139,13 @@ impl Brain {
         // OUTPUTS -> they have actions buffers and metrics buffers
         for o in outputs {
             // This trick allows us to define configs for the output objects
-            let mut name = o.0.clone();
-            if o.0.starts_with("led_") {
-                let led_key = o.0.clone();
-                let led_val = o.1.clone();
-                leds_map.insert(led_key, led_val);
-                name = o.0.split("__").collect::<Vec<_>>()[0].to_string();
-            } else if o.0.starts_with("motor_") {
-                let motor_key = o.0.clone();
-                let motor_val = o.1.clone();
-                motors_map.insert(motor_key, motor_val);
-                name = o.0.split("__").collect::<Vec<_>>()[0].to_string();
+            let mut name = o.clone();
+            if o.starts_with("led_") {
+                leds.push(o.clone());
+                name = o.split("__").collect::<Vec<_>>()[0].to_string();
+            } else if o.starts_with("motor_") {
+                motors.push(o.clone());
+                name = o.split("__").collect::<Vec<_>>()[0].to_string();
             }
             let s_b = Set {
                 object: name.clone(),
@@ -186,11 +181,11 @@ impl Brain {
         };
         bs.push(s_b_o);
         ms.push(s_m_o);
-        let m = Motors::new(mode.clone(), motors_map).unwrap_or_else(|err| {
+        let m = Motors::new(mode.clone(), motors).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Motors: {}", err);
             process::exit(1);
         });
-        let l = LEDs::new(mode.clone(), leds_map).unwrap_or_else(|err| {
+        let l = LEDs::new(mode.clone(), leds).unwrap_or_else(|err| {
             eprintln!("Problem Initializing LEDs: {}", err);
             process::exit(1);
         });
@@ -322,18 +317,17 @@ impl Brain {
     }
 
     /// Load a robot setup yaml file and configures the system
-    pub fn load_setup(setup_file: String) -> (String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>) {
+    pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
         #[derive(Deserialize)]
         struct Setup {
             start_actionset_file: String,
             start_arduinohex_file: String,
-            inputs: HashMap<String, HashMap<String, String>>,
-            outputs: HashMap<String, HashMap<String, String>>,
+            inputs: Vec<String>,
+            outputs: Vec<String>,
         }
         let file_pointer = File::open(setup_file).unwrap();
         let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
         return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
-        //return (a.start_actionset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
     }
 
     /// Return current timestamp as millis

@@ -79,7 +79,6 @@ impl Arduino {
                 };
             },
             _ => {
-                println!("{:?}", setup_file);
                 got = "SENSOR: button=0".to_string();
                 thread::sleep(time::Duration::from_secs(1));
                 match channel.send(got){

@@ -2,6 +2,7 @@ use rust_gpiozero::LED;
 use std::sync::Arc;
 use std::sync::Mutex;
 use log::debug;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct LEDObj {
@@ -15,17 +16,16 @@ pub struct LEDs {
 }
 
 impl LEDs {
-    pub fn new(mode: String, led_vector: Vec<String>) -> Result<Self, &'static str> {
+    pub fn new(mode: String, led_map: HashMap<String, HashMap<String, String>>) -> Result<Self, &'static str> {
         let mut objs = [].to_vec();
-        for o in led_vector {
-            let config = o.split("__").collect::<Vec<_>>();
-            let keyval = config[1].split("=").collect::<Vec<_>>();
+        for o in led_map {
             let mut l_o = None;
             if mode != "dryrun" {
-                l_o = Some(Arc::new(Mutex::new(LED::new(keyval[1].parse::<u8>().unwrap()))));
+                let gpio = o.1["gpio"].parse::<u8>().unwrap();
+                l_o = Some(Arc::new(Mutex::new(LED::new(gpio))));
             }
             let l = LEDObj {
-                name: config[0].to_string(),
+                name: o.0.to_string(),
                 object: l_o,
                 on: false,
             };
