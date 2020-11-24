@@ -318,16 +318,19 @@ impl Brain {
 
     /// Load a robot setup yaml file and configures the system
     pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
+        use std::collections::HashMap;
         #[derive(Deserialize)]
         struct Setup {
             start_actionset_file: String,
             start_arduinohex_file: String,
-            inputs: Vec<String>,
-            outputs: Vec<String>,
+            inputs: HashMap<String, String>,
+            outputs: HashMap<String, String>,
         }
         let file_pointer = File::open(setup_file).unwrap();
         let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
-        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
+        println!("{:#x?}", a.inputs);
+        //return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
+        return (a.start_actionset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
     }
 
     /// Return current timestamp as millis
