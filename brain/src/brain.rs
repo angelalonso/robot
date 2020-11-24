@@ -1,4 +1,5 @@
 use crate::arduino::Arduino;
+use std::collections::HashMap;
 use crate::motors::Motors;
 use crate::leds::LEDs;
 use log::{debug, error, info, trace, warn};
@@ -128,7 +129,7 @@ impl Brain {
         // INPUTS -> they only have metrics buffers
         for i in inputs {
             let s = Set {
-                object: i,
+                object: i.0,
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e.clone(),
@@ -139,13 +140,13 @@ impl Brain {
         // OUTPUTS -> they have actions buffers and metrics buffers
         for o in outputs {
             // This trick allows us to define configs for the output objects
-            let mut name = o.clone();
-            if o.starts_with("led_") {
-                leds.push(o.clone());
-                name = o.split("__").collect::<Vec<_>>()[0].to_string();
-            } else if o.starts_with("motor_") {
-                motors.push(o.clone());
-                name = o.split("__").collect::<Vec<_>>()[0].to_string();
+            let mut name = o.0.clone();
+            if o.0.starts_with("led_") {
+                leds.push(o.0.clone());
+                name = o.0.split("__").collect::<Vec<_>>()[0].to_string();
+            } else if o.0.starts_with("motor_") {
+                motors.push(o.0.clone());
+                name = o.0.split("__").collect::<Vec<_>>()[0].to_string();
             }
             let s_b = Set {
                 object: name.clone(),
@@ -317,20 +318,19 @@ impl Brain {
     }
 
     /// Load a robot setup yaml file and configures the system
-    pub fn load_setup(setup_file: String) -> (String, String, Vec<String>, Vec<String>) {
-        use std::collections::HashMap;
+    pub fn load_setup(setup_file: String) -> (String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>) {
         #[derive(Deserialize)]
         struct Setup {
             start_actionset_file: String,
             start_arduinohex_file: String,
-            inputs: HashMap<String, String>,
-            outputs: HashMap<String, String>,
+            inputs: HashMap<String, HashMap<String, String>>,
+            outputs: HashMap<String, HashMap<String, String>>,
         }
         let file_pointer = File::open(setup_file).unwrap();
         let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
-        println!("{:#x?}", a.inputs);
-        //return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
-        return (a.start_actionset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
+        println!("{:#x?}", a.outputs);
+        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
+        //return (a.start_actionset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
     }
 
     /// Return current timestamp as millis

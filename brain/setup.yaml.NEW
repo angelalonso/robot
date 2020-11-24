@@ -2,18 +2,24 @@
 start_actionset_file: actions/start.yaml
 start_arduinohex_file: ../arduino/000_sensors/000_sensors.ino.hex
 inputs:
-  - button: binary
-  - distance: continuous
+  button: 
+    type: binary
+  distance: 
+    type: continuous
 outputs:
-  - led_y: "gpio: 21"
-  - led_r: "gpio: 20"
-  - led_g: "gpio: 16"
-  - led_b: "gpio: 12"
-#  - motor_l:
-#    - gpio1: 27
-#    - gpio2: 17
-#    - gpio_enabler: 22
-#  - motor_r:
-#    - gpio1: 24
-#    - gpio2: 23
-#    - gpio_enabler: 25
+  led_y: 
+    gpio: 21
+  led_r:
+    gpio: 20
+  led_g:
+    gpio: 16
+  led_b:
+    gpio: 12
+  motor_l:
+    gpio1: 27
+    gpio2: 17
+    gpio_enabler: 22
+  motor_r:
+    gpio1: 24
+    gpio2: 23
+    gpio_enabler: 25
