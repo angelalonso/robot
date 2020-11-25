@@ -1,10 +1,7 @@
 --- 
-- id: "start"
-  repeat: false
-  input:
-  - time: "0.5" 
-    input_objs: ""
-  output:
+- id: "ledsloop"
+  actionsloop: false
+  actions:
   - object: "led_y"
     value: "1"
     time: "0.2"
@@ -64,40 +61,4 @@
     time: "0.2"
   - object: "led_b"
     value: "0"
-    time: "0.2"
-- id: "start1"
-  repeat: false
-  input:
-  - time: "0.05" 
-    input_objs: "button=1,motor_l=0,motor_r=0"
-  output:
-  - object: "motor_l"
-    value: "70"
-    time: "0"
-  - object: "motor_r"
-    value: "70"
-    time: "0"
-  - object: "wait"
-    value: ""
-    time: "1.2"
-  - object: "load"
-    value: "actions/start.yaml"
-    time: "0.2"
-- id: "start"
-  repeat: false
-  input:
-  - time: "0.05" 
-    input_objs: "button=1,motor_l=70,motor_r=70"
-  output:
-  - object: "motor_l"
-    value: "0"
-    time: "1.2"
-  - object: "motor_r"
-    value: "0"
-    time: "1.2"
-  - object: "wait"
-    value: ""
-    time: "1.2"
-  - object: "load"
-    value: "actions/start.yaml"
     time: "0.2"

@@ -17,28 +17,28 @@ Modify to your liking with the following information:
   - So far we only can add LEDs and Motors
     - LEDS are defined like led_y__gpio=21
     - MOTORS are defined like motor_l__gpio=27__gpio=17__gpio=22, where the third gpio is the enabler one.
-
+*NOTE: THe above mentioned needs review, check setup.yaml for an example on how it works now
 ### Challenges
 - We should look into using a similar setup file as R OS.
-- If not, we should at least find a cleaner way to define parameters for the outputs (instead of the current __ separators)
 
-## ACTIONS file(s)
-Also known as the Rules file, it defines conditions/input (when needed) that trigger actions/output.
+## RULESETS file(s)
+Also known as the Actions file, it defines conditions (when needed) that trigger actions.
 
 You can have as many as you need, and even call one from another (see "special objects" below) if you need to. 
 
-I suggest you add them in the actions/ folder, where you'll already find some examples, but any other form of keeping those files should be fine.
+I suggest you add them in the rulesets/ folder, where you'll already find some examples, but any other form of keeping those files should be fine.
 
 Modify them or create one from scratch with the following information:
-- Each file can store several actions/rules
+- Each file can store several rulesets
 - id is the name you want to give it. Try to avoid repeating ids.  
-- repeat defines whether the outputs will be repeated or applied just once.
-- input are the conditions that would trigger the actions/outputs.  
-  - if there is no input, the actions will be triggered right away.
+- actionsloop defines whether the actions will be repeated or applied just once.
+- condition is the... conditions that would trigger the actions. 
   - time is the amount of time in seconds that the conditions have to be there before the actions get applied. 
   - input_objs is the list of conditions, separated by a , (comma)
+    - The work like a filter.
     - Example: "button=1,motor_l=0,motor_r=0"
-- output is the list of actions to take, like:
+    - An empty input_objs means the actions will be triggered right away.
+- actions is the list of actions to take, like:
 ```
   - object: "led_y"
     value: "1"
@@ -55,7 +55,7 @@ Modify them or create one from scratch with the following information:
     - load, which loads a new actions file and looks like:
     ```
   - object: "load"
-    value: "actions/start.yaml" <- this file MUST exist in the declared path
+    value: "ruleset/start.yaml" <- this file MUST exist in the declared path
     time: "0.2"
     ```
     - wait, which just waits (helps control when the other "special" actions, like load, happen)

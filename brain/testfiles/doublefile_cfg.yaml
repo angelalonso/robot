@@ -1,10 +1,10 @@
 --- 
 - id: "start"
-  repeat: false
-  input:
+  actionsloop: false
+  condition:
   - time: "0.5" 
     input_objs: ""
-  output:
+  actions:
   - object: "led_y"
     value: "1"
     time: "0.2"
@@ -66,11 +66,11 @@
     value: "0"
     time: "0.2"
 - id: "motor_on"
-  repeat: false
-  input:
+  actionsloop: false
+  condition:
   - time: "0.05" 
     input_objs: "button=1,motor_l=0,motor_r=0"
-  output:
+  actions:
   - object: "motor_l"
     value: "70"
     time: "1.2"
@@ -78,11 +78,11 @@
     value: "70"
     time: "1.2"
 - id: "motor_off"
-  repeat: false
-  input:
+  actionsloop: false
+  condition:
   - time: "0.05" 
     input_objs: "button=1,motor_l=70,motor_r=70"
-  output:
+  actions:
   - object: "motor_l"
     value: "0"
     time: "0.2"

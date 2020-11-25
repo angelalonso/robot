@@ -1,7 +1,7 @@
 --- 
 - id: "stop"
-  repeat: false
-  output:
+  actionsloop: false
+  actions:
   - object: "led_y"
     value: "0"
     time: "0.2"

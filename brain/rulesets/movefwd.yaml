@@ -1,10 +1,10 @@
 --- 
 - id: "movefwd"
-  repeat: false
-  input:
+  condition:
   - time: "0.5" 
     input_objs: ""
-  output:
+  actionsloop: false
+  actions:
   - object: "motor_l"
     value: "70"
     time: "1.0"

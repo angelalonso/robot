@@ -11,7 +11,7 @@ git add -f target/arm-unknown-linux-gnueabihf/debug/brain
 git add setup.yaml
 git add move_cfg.yaml
 git add src/
-git add actions/
+git add rulesets/
 git add Cargo.toml
 git commit -m "changing and installing"
 git push origin ${DEV_BRANCH}

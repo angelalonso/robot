@@ -41,11 +41,20 @@ pub struct ConfigOutput {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct RulesetEntry {
+    id: String,
+    condition: Vec<ConfigInput>,
+    actionsloop: bool,
+    actions: Vec<ConfigOutput>
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ConfigEntry {
     id: String,
-    repeat: bool,
-    input: Vec<ConfigInput>,
-    output: Vec<ConfigOutput>
+    condition: Vec<ConfigInput>,
+    actionsloop: bool,
+    triggercount: u32,
+    actions: Vec<ConfigOutput>
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -256,7 +265,7 @@ impl Brain {
                             // first the actions marked as do_once will be marked as done at the
                             // config
                             for mut rule in self.config.iter_mut() {
-                                if rule.repeat == false {
+                                if rule.actionsloop == false {
                                     for action in a.clone() {
                                         if (action.id == rule.id) && (!action.id.starts_with("done_")) {
                                             rule.id = "done_".to_owned();
@@ -268,7 +277,7 @@ impl Brain {
                             }
                             // then a round to check which objects we are adding new actions to
                             for action in a.clone() {
-                                for o in action.output {
+                                for o in action.actions {
                                     // there are some inputs/outputs we want to group
                                     if OTHER_ACTIONS.iter().any(|&i| i==o.object) {
                                         match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
@@ -289,7 +298,7 @@ impl Brain {
                             }
                             // then do the actions
                             for action in a {
-                                for o in action.output {
+                                for o in action.actions {
                                     let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
                                     self.add_action(aux);
                                 }
@@ -401,18 +410,33 @@ impl Brain {
         match serde_yaml::from_reader(file_pointer) {
             Ok(v) => return Ok(v),
             Err(e) => {
-                if e.to_string().contains("missing field `input`") {
+                if e.to_string().contains("missing field `triggercount`") {
+                    let file_pointer = File::open(file.clone()).unwrap();
+                    let a: Vec<RulesetEntry> = serde_yaml::from_reader(file_pointer).unwrap();
+                    for i in a {
+                        let c_elem = ConfigEntry {
+                            id: i.id,
+                            triggercount: 0,
+                            condition: i.condition,
+                            actionsloop: i.actionsloop,
+                            actions: i.actions,
+                        };
+                        c.push(c_elem);
+                    }
+                    return Ok(c)
+                } else if e.to_string().contains("missing field `input`") {
                     let file_pointer = File::open(file.clone()).unwrap();
                     let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
                     for i in a {
                         let c_elem = ConfigEntry {
                             id: i.id,
-                            repeat: false,
-                            input: [ConfigInput {
+                            triggercount: 0,
+                            condition: [ConfigInput {
                                  time: "*".to_string(),
                                  input_objs: "".to_string(),
                             }].to_vec(),
-                            output: i.output,
+                            actionsloop: false,
+                            actions: i.output,
                         };
                         c.push(c_elem);
                     }
@@ -456,12 +480,12 @@ impl Brain {
             if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
                 partial_rules.retain(|x| *x != rule);
             } else {
-                if timestamp < rule.input[0].time.parse::<f64>().unwrap() {
+                if timestamp < rule.condition[0].time.parse::<f64>().unwrap() {
                     partial_rules.retain(|x| *x != rule);
                 } else if rule.id.starts_with("done_") {
                     partial_rules.retain(|x| *x != rule);
                 } else {
-                    let checks = rule.input[0].input_objs.split(",").collect::<Vec<_>>();
+                    let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
                     for check in &checks {
                         let keyval = check.split("=").collect::<Vec<_>>();
                         match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
@@ -470,7 +494,7 @@ impl Brain {
                                     if om.entries[0].data != keyval[1] {
                                         partial_rules.retain(|x| *x != rule);
                                     } else {
-                                        if (timestamp - om.entries[0].time < rule.input[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                        if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
                                             partial_rules.retain(|x| *x != rule);
                                         };
                                     };
@@ -489,11 +513,11 @@ impl Brain {
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
                 debug!(" #{} {} input:", ix, rule.id);
                 debug!("     input:");
-                for ri in rule.input.clone() {
+                for ri in rule.condition.clone() {
                     debug!("      |{:?}|", ri);
                 }
                 debug!("     output:");
-                for ro in rule.output.clone() {
+                for ro in rule.actions.clone() {
                     debug!("      |{:?}|", ro);
                 }
             }

@@ -46,7 +46,16 @@ mod brain_test {
         }
         println!("expected: {:#x?}", expected);
         println!("got: {:#x?}", got);
-        assert_eq!(got, expected);
+        for (ix, e_raw) in expected.iter().enumerate() {
+            let e = e_raw.split("|").collect::<Vec<_>>();
+            let g = got[ix].split("|").collect::<Vec<_>>();
+            assert_eq!(e[0], g[0]);
+            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
+            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
+            assert_eq!(e_vec.sort(), g_vec.sort());
+        }
     }
 
     #[test]
@@ -80,9 +89,19 @@ mod brain_test {
         }
         println!("expected: {:#x?}", expected);
         println!("got: {:#x?}", got);
-        assert_eq!(got, expected);
+        for (ix, e_raw) in expected.iter().enumerate() {
+            let e = e_raw.split("|").collect::<Vec<_>>();
+            let g = got[ix].split("|").collect::<Vec<_>>();
+            assert_eq!(e[0], g[0]);
+            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
+            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
+            assert_eq!(e_vec.sort(), g_vec.sort());
+        }
     }
 
+    // TODO: order on vector should be irrelevant
     #[test]
     fn check_actions_doublefile() {
         let expected_pointer = File::open("testfiles/doublefile_expected.yaml").unwrap();
@@ -114,7 +133,16 @@ mod brain_test {
         }
         println!("expected: {:#x?}", expected);
         println!("got: {:#x?}", got);
-        assert_eq!(got, expected);
+        for (ix, e_raw) in expected.iter().enumerate() {
+            let e = e_raw.split("|").collect::<Vec<_>>();
+            let g = got[ix].split("|").collect::<Vec<_>>();
+            assert_eq!(e[0], g[0]);
+            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
+            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
+            assert_eq!(e_vec.sort(), g_vec.sort());
+        }
     }
 
     #[test]
@@ -148,6 +176,15 @@ mod brain_test {
         }
         println!("expected: {:#x?}", expected);
         println!("got: {:#x?}", got);
-        assert_eq!(got, expected);
+        for (ix, e_raw) in expected.iter().enumerate() {
+            let e = e_raw.split("|").collect::<Vec<_>>();
+            let g = got[ix].split("|").collect::<Vec<_>>();
+            assert_eq!(e[0], g[0]);
+            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
+            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
+            assert_eq!(e_vec.sort(), g_vec.sort());
+        }
     }
 }
