@@ -1,0 +1,17 @@
+buffers                           metrics           conditionals                                            DO
+""                                ""                "cond1[]"                                                      add actions to buffers
+""                                ""                "cond1[led=0, motor=0]"                                 compare to default value >> add actions to buffers
+""                                ""                "cond1[led=0, motor=0]"                                 compare to both default value >> NOT add actions to buffers
+""                                ""                "cond1[led=0, motor=0]"                                 compare to both default value >> NOT add actions to buffers
+""                                "led=1"           "cond1[led=0, motor=0]"                                 compare to metric, then to default value >> NOT add actions to buffers
+""                                "led=1"           "cond1[led=1, motor=0]"                                 compare to metric, then to default value >> add actions to buffers
+""                                "led=1, motor=0"  "cond1[led=0, motor=0]"                                 compare to both metrics, >> NOT add actions to buffers
+""                                "led=1, motor=1"  "cond1[led=0, motor=0]"                                 compare to both metrics, >> NOT add actions to buffers
+""                                "led=1, motor=0"  "cond1[led=1, motor=0]"                                 compare to both metrics, >> add actions to buffers
+""                                "led=1, motor=1"  "cond1[led=0, motor=0]"                                 compare to both metrics, >> NOT add actions to buffers
+
+buffers                           metrics           conditionals                                            DO
+"cond2[led=0,led=1]"              ""                "cond1[]"                                               add actions to buffers
+"cond1[led=0,led=1]"              ""                "cond1[]"                                               NOT add actions to buffers
+"cond2[led=0,led=1]"              ""                "cond1[]"                                               add actions to buffers
+"cond1[led=0,led=1]"              ""                "cond1[]"                                               NOT add actions to buffers
