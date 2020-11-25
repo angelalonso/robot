@@ -1,17 +1,263 @@
-buffers                           metrics           conditionals                                            DO
-""                                ""                "cond1[]"                                                      add actions to buffers
-""                                ""                "cond1[led=0, motor=0]"                                 compare to default value >> add actions to buffers
-""                                ""                "cond1[led=0, motor=0]"                                 compare to both default value >> NOT add actions to buffers
-""                                ""                "cond1[led=0, motor=0]"                                 compare to both default value >> NOT add actions to buffers
-""                                "led=1"           "cond1[led=0, motor=0]"                                 compare to metric, then to default value >> NOT add actions to buffers
-""                                "led=1"           "cond1[led=1, motor=0]"                                 compare to metric, then to default value >> add actions to buffers
-""                                "led=1, motor=0"  "cond1[led=0, motor=0]"                                 compare to both metrics, >> NOT add actions to buffers
-""                                "led=1, motor=1"  "cond1[led=0, motor=0]"                                 compare to both metrics, >> NOT add actions to buffers
-""                                "led=1, motor=0"  "cond1[led=1, motor=0]"                                 compare to both metrics, >> add actions to buffers
-""                                "led=1, motor=1"  "cond1[led=0, motor=0]"                                 compare to both metrics, >> NOT add actions to buffers
+buffers                           metrics           conditionals                repeat			done            DO
+""                                ""                "cond1[]"                                               add 
+""                                ""                "cond1[led=0]"                                          add (default is 0)
+""                                ""                "cond1[led=0, motor=0]"                                 add (default is 0)
+""                                "led=1"           "cond1[]"                                               add 
+""                                "led=1"           "cond1[led=0]"                                          NOT add 
+""                                "led=1"           "cond1[led=0, motor=0]"                                 NOT add 
+""                                "led=0"           "cond1[]"                                               add 
+""                                "led=0"           "cond1[led=0]"                                          add 
+""                                "led=0"           "cond1[led=0, motor=0]"                                 add (default is 0)
+""                                "led=1,motor=0"   "cond1[]"                                               add 
+""                                "led=1,motor=0"   "cond1[led=0]"                                          NOT add 
+""                                "led=1,motor=0"   "cond1[led=0, motor=0]"                                 NOT add 
+""                                "led=0,motor=0"   "cond1[]"                                               add 
+""                                "led=0,motor=0"   "cond1[led=0]"                                          add 
+""                                "led=0,motor=0"   "cond1[led=0, motor=0]"                                 add 
+""                                "led=1,motor=1"   "cond1[]"                                               add 
+""                                "led=1,motor=1"   "cond1[led=0]"                                          NOT add 
+""                                "led=1,motor=1"   "cond1[led=0, motor=0]"                                 NOT add 
+""                                "led=0,motor=1"   "cond1[]"                                               add 
+""                                "led=0,motor=1"   "cond1[led=0]"                                          add 
+""                                "led=0,motor=1"   "cond1[led=0, motor=0]"                                 NOT add 
+""                                ""                "cond1[]"                   yes                         add 
+""                                ""                "cond1[led=0]"              yes                         add (default is 0)
+""                                ""                "cond1[led=0, motor=0]"     yes                         add (default is 0)
+""                                "led=1"           "cond1[]"                   yes                         add 
+""                                "led=1"           "cond1[led=0]"              yes                         NOT add 
+""                                "led=1"           "cond1[led=0, motor=0]"     yes                         NOT add 
+""                                "led=0"           "cond1[]"                   yes                         add 
+""                                "led=0"           "cond1[led=0]"              yes                         add 
+""                                "led=0"           "cond1[led=0, motor=0]"     yes                         add (default is 0)
+""                                "led=1,motor=0"   "cond1[]"                   yes                         add 
+""                                "led=1,motor=0"   "cond1[led=0]"              yes                         NOT add 
+""                                "led=1,motor=0"   "cond1[led=0, motor=0]"     yes                         NOT add 
+""                                "led=0,motor=0"   "cond1[]"                   yes                         add 
+""                                "led=0,motor=0"   "cond1[led=0]"              yes                         add 
+""                                "led=0,motor=0"   "cond1[led=0, motor=0]"     yes                         add 
+""                                "led=1,motor=1"   "cond1[]"                   yes                         add 
+""                                "led=1,motor=1"   "cond1[led=0]"              yes                         NOT add 
+""                                "led=1,motor=1"   "cond1[led=0, motor=0]"     yes                         NOT add 
+""                                "led=0,motor=1"   "cond1[]"                   yes                         add 
+""                                "led=0,motor=1"   "cond1[led=0]"              yes                         add 
+""                                "led=0,motor=1"   "cond1[led=0, motor=0]"     yes                         NOT add 
 
-buffers                           metrics           conditionals                                            DO
-"cond2[led=0,led=1]"              ""                "cond1[]"                                               add actions to buffers
-"cond1[led=0,led=1]"              ""                "cond1[]"                                               NOT add actions to buffers
-"cond2[led=0,led=1]"              ""                "cond1[]"                                               add actions to buffers
-"cond1[led=0,led=1]"              ""                "cond1[]"                                               NOT add actions to buffers
+buffers                           metrics           conditionals                repeat			done            DO
+""                                ""                "cond1[]"                               yes
+""                                ""                "cond1[led=0]"                          yes
+""                                ""                "cond1[led=0, motor=0]"                 yes
+""                                "led=1"           "cond1[]"                               yes
+""                                "led=1"           "cond1[led=0]"                          yes
+""                                "led=1"           "cond1[led=0, motor=0]"                 yes
+""                                "led=0"           "cond1[]"                               yes
+""                                "led=0"           "cond1[led=0]"                          yes
+""                                "led=0"           "cond1[led=0, motor=0]"                 yes
+""                                "led=1,motor=0"   "cond1[]"                               yes
+""                                "led=1,motor=0"   "cond1[led=0]"                          yes
+""                                "led=1,motor=0"   "cond1[led=0, motor=0]"                 yes
+""                                "led=0,motor=0"   "cond1[]"                               yes
+""                                "led=0,motor=0"   "cond1[led=0]"                          yes
+""                                "led=0,motor=0"   "cond1[led=0, motor=0]"                 yes
+""                                "led=1,motor=1"   "cond1[]"                               yes
+""                                "led=1,motor=1"   "cond1[led=0]"                          yes
+""                                "led=1,motor=1"   "cond1[led=0, motor=0]"                 yes
+""                                "led=0,motor=1"   "cond1[]"                               yes
+""                                "led=0,motor=1"   "cond1[led=0]"                          yes
+""                                "led=0,motor=1"   "cond1[led=0, motor=0]"                 yes
+""                                ""                "cond1[]"                   yes         yes
+""                                ""                "cond1[led=0]"              yes         yes
+""                                ""                "cond1[led=0, motor=0]"     yes         yes
+""                                "led=1"           "cond1[]"                   yes         yes
+""                                "led=1"           "cond1[led=0]"              yes         yes
+""                                "led=1"           "cond1[led=0, motor=0]"     yes         yes
+""                                "led=0"           "cond1[]"                   yes         yes
+""                                "led=0"           "cond1[led=0]"              yes         yes
+""                                "led=0"           "cond1[led=0, motor=0]"     yes         yes
+""                                "led=1,motor=0"   "cond1[]"                   yes         yes
+""                                "led=1,motor=0"   "cond1[led=0]"              yes         yes
+""                                "led=1,motor=0"   "cond1[led=0, motor=0]"     yes         yes
+""                                "led=0,motor=0"   "cond1[]"                   yes         yes
+""                                "led=0,motor=0"   "cond1[led=0]"              yes         yes
+""                                "led=0,motor=0"   "cond1[led=0, motor=0]"     yes         yes
+""                                "led=1,motor=1"   "cond1[]"                   yes         yes
+""                                "led=1,motor=1"   "cond1[led=0]"              yes         yes
+""                                "led=1,motor=1"   "cond1[led=0, motor=0]"     yes         yes
+""                                "led=0,motor=1"   "cond1[]"                   yes         yes
+""                                "led=0,motor=1"   "cond1[led=0]"              yes         yes
+""                                "led=0,motor=1"   "cond1[led=0, motor=0]"     yes         yes
+
+buffers                           metrics           conditionals                repeat			done            DO
+"cond2[led=0,led=1]"              ""                "cond1[]"                                               add
+"cond2[led=0,led=1]"              ""                "cond1[led=0]"                                          add (default is 0)
+"cond2[led=0,led=1]"              ""                "cond1[led=0, motor=0]"                                 add (default is 0)
+"cond2[led=0,led=1]"              "led=1"           "cond1[]"                                               add
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0]"                                          NOT add
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"                                 NOT add
+"cond2[led=0,led=1]"              "led=0"           "cond1[]"                                               add
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0]"                                          add
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"                                 add (default is 0)
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                                               add
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"                                          NOT add
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"                                 NOT add
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                                               add
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"                                          add
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"                                 add
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                                               add
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"                                          NOT add
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"                                 NOT add
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                                               add
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"                                          add
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"                                 NOT add
+"cond2[led=0,led=1]"              ""                "cond1[]"                   yes                         add
+"cond2[led=0,led=1]"              ""                "cond1[led=0]"              yes                         add (default is 0)
+"cond2[led=0,led=1]"              ""                "cond1[led=0, motor=0]"     yes                         add (default is 0)
+"cond2[led=0,led=1]"              "led=1"           "cond1[]"                   yes                         add
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0]"              yes                         NOT add
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"     yes                         NOT add
+"cond2[led=0,led=1]"              "led=0"           "cond1[]"                   yes                         add
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0]"              yes                         add
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"     yes                         add (default is 0)
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                   yes                         add
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"              yes                         NOT add
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"     yes                         NOT add
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                   yes                         add
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"              yes                         add
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"     yes                         add
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                   yes                         add
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"              yes                         NOT add
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"     yes                         NOT add
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                   yes                         add
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"              yes                         add
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"     yes                         NOT add
+
+buffers                           metrics           conditionals                repeat			done            DO
+"cond2[led=0,led=1]"              ""                "cond1[]"                               yes 
+"cond2[led=0,led=1]"              ""                "cond1[led=0]"                          yes 
+"cond2[led=0,led=1]"              ""                "cond1[led=0, motor=0]"                 yes 
+"cond2[led=0,led=1]"              "led=1"           "cond1[]"                               yes 
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0]"                          yes 
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"                 yes 
+"cond2[led=0,led=1]"              "led=0"           "cond1[]"                               yes 
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0]"                          yes 
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"                 yes 
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                               yes 
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"                          yes 
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"                 yes 
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                               yes 
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"                          yes 
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"                 yes 
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                               yes 
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"                          yes 
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"                 yes 
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                               yes 
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"                          yes 
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"                 yes 
+"cond2[led=0,led=1]"              ""                "cond1[]"                   yes         yes 
+"cond2[led=0,led=1]"              ""                "cond1[led=0]"              yes         yes 
+"cond2[led=0,led=1]"              ""                "cond1[led=0, motor=0]"     yes         yes 
+"cond2[led=0,led=1]"              "led=1"           "cond1[]"                   yes         yes 
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0]"              yes         yes 
+"cond2[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"     yes         yes 
+"cond2[led=0,led=1]"              "led=0"           "cond1[]"                   yes         yes 
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0]"              yes         yes 
+"cond2[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"     yes         yes 
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                   yes         yes 
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"              yes         yes 
+"cond2[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"     yes         yes 
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                   yes         yes 
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"              yes         yes 
+"cond2[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"     yes         yes 
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                   yes         yes 
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"              yes         yes 
+"cond2[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"     yes         yes 
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                   yes         yes 
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"              yes         yes 
+"cond2[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"     yes         yes 
+
+buffers                           metrics           conditionals                repeat			done            DO
+"cond1[led=0,led=1]"              ""                "cond1[]"                                               NOT add (ongoing)
+"cond1[led=0,led=1]"              ""                "cond1[led=0]"                                          NOT add (ongoing)
+"cond1[led=0,led=1]"              ""                "cond1[led=0, motor=0]"                                 NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1"           "cond1[]"                                               NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0]"                                          NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"                                 NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0"           "cond1[]"                                               NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0]"                                          NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"                                 NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                                               NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"                                          NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"                                 NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                                               NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"                                          NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"                                 NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                                               NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"                                          NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"                                 NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                                               NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"                                          NOT add (ongoing)
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"                                 NOT add (ongoing)
+"cond1[led=0,led=1]"              ""                "cond1[]"                   yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              ""                "cond1[led=0]"              yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              ""                "cond1[led=0, motor=0]"     yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1"           "cond1[]"                   yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0]"              yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"     yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0"           "cond1[]"                   yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0]"              yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"     yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                   yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"              yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"     yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                   yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"              yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"     yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                   yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"              yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"     yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                   yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"              yes                         NOT add (ongoing)   
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"     yes                         NOT add (ongoing)   
+
+buffers                           metrics           conditionals                repeat			done            DO
+"cond1[led=0,led=1]"              ""                "cond1[]"                              yes 
+"cond1[led=0,led=1]"              ""                "cond1[led=0]"                         yes 
+"cond1[led=0,led=1]"              ""                "cond1[led=0, motor=0]"                yes 
+"cond1[led=0,led=1]"              "led=1"           "cond1[]"                              yes 
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0]"                         yes 
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"                yes 
+"cond1[led=0,led=1]"              "led=0"           "cond1[]"                              yes 
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0]"                         yes 
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"                yes 
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                              yes 
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"                         yes 
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"                yes 
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                              yes 
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"                         yes 
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"                yes 
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                              yes 
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"                         yes 
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"                yes 
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                              yes 
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"                         yes 
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"                yes 
+"cond1[led=0,led=1]"              ""                "cond1[]"                   yes        yes 
+"cond1[led=0,led=1]"              ""                "cond1[led=0]"              yes        yes 
+"cond1[led=0,led=1]"              ""                "cond1[led=0, motor=0]"     yes        yes 
+"cond1[led=0,led=1]"              "led=1"           "cond1[]"                   yes        yes 
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0]"              yes        yes 
+"cond1[led=0,led=1]"              "led=1"           "cond1[led=0, motor=0]"     yes        yes 
+"cond1[led=0,led=1]"              "led=0"           "cond1[]"                   yes        yes 
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0]"              yes        yes 
+"cond1[led=0,led=1]"              "led=0"           "cond1[led=0, motor=0]"     yes        yes 
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[]"                   yes        yes 
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0]"              yes        yes 
+"cond1[led=0,led=1]"              "led=1,motor=0"   "cond1[led=0, motor=0]"     yes        yes 
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[]"                   yes        yes 
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0]"              yes        yes 
+"cond1[led=0,led=1]"              "led=0,motor=0"   "cond1[led=0, motor=0]"     yes        yes 
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[]"                   yes        yes 
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0]"              yes        yes 
+"cond1[led=0,led=1]"              "led=1,motor=1"   "cond1[led=0, motor=0]"     yes        yes 
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[]"                   yes        yes 
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0]"              yes        yes 
+"cond1[led=0,led=1]"              "led=0,motor=1"   "cond1[led=0, motor=0]"     yes        yes 
