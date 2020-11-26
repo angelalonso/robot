@@ -415,7 +415,7 @@ impl Brain {
                         c.push(c_elem);
                     }
                     return Ok(c)
-                } else if e.to_string().contains("missing field `input`") {
+                } else if e.to_string().contains("missing field `condition`") {
                     let file_pointer = File::open(file.clone()).unwrap();
                     let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
                     for i in a {
