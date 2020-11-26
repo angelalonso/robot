@@ -485,13 +485,9 @@ impl Brain {
                 //            y -> add, adjust triggercount for self to +1
                 //            n -> remove
                 if rule.triggercount > 0 {
-                    println!("A     {}", rule.id);
                     if rule.actionsloop != true {
-                        //partial_rules.retain(|x| *x != rule);
-                        println!("AA    {}", rule.id);
                         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                        if checks != [""].to_vec() && checks.len() != 0{
-                            println!("AAA   {}", rule.id);
+                        if checks != [""].to_vec() || checks.len() != 0{
                             for check in &checks {
                                 //TODO: put this on a function, allow for other types of comparisons
                                 let keyval = check.split("=").collect::<Vec<_>>();
@@ -513,14 +509,12 @@ impl Brain {
                                 };
                             }
                         } else {
-                          println!("AAB   {}", rule.id);
                           partial_rules.retain(|x| *x != rule);
                         }
                     }
                 } else {
-                    println!("B     {}", rule.id);
                     let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                    if checks != [""].to_vec() && checks.len() != 0{
+                    if checks != [""].to_vec() || checks.len() != 0{
                         for check in &checks {
                             //TODO: put this on a function, allow for other types of comparisons
                             let keyval = check.split("=").collect::<Vec<_>>();
