@@ -490,8 +490,7 @@ impl Brain {
                         //partial_rules.retain(|x| *x != rule);
                         println!("AA    {}", rule.id);
                         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                        println!("{:?}", checks);
-                        if checks.len() != 0 {
+                        if checks != [""].to_vec() {
                             println!("AAA   {}", rule.id);
                             for check in &checks {
                                 //TODO: put this on a function, allow for other types of comparisons
