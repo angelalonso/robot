@@ -426,7 +426,7 @@ impl Brain {
                                  input_objs: "".to_string(),
                             }].to_vec(),
                             actionsloop: false,
-                            actions: i.output,
+                            actions: i.actions,
                         };
                         c.push(c_elem);
                     }
