@@ -487,7 +487,7 @@ impl Brain {
                 if rule.triggercount > 0 {
                     if rule.actionsloop != true {
                         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                        if checks != [""].to_vec() || checks.len() != 0{
+                        if checks != [""].to_vec() && checks.len() != 0{
                             for check in &checks {
                                 //TODO: put this on a function, allow for other types of comparisons
                                 let keyval = check.split("=").collect::<Vec<_>>();
@@ -514,7 +514,7 @@ impl Brain {
                     }
                 } else {
                     let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                    if checks != [""].to_vec() || checks.len() != 0{
+                    if checks != [""].to_vec() && checks.len() != 0{
                         for check in &checks {
                             //TODO: put this on a function, allow for other types of comparisons
                             let keyval = check.split("=").collect::<Vec<_>>();
