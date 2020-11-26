@@ -379,12 +379,12 @@ impl Brain {
     /// Log action buffers' content
     pub fn show_action_buffers(&mut self) {
         for b in &self.buffersets {
-            //if b.object == "other" {
-            //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-            //    for (ix, action) in b.entries.clone().iter().enumerate() {
-            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-            //    }
-            //}
+            if b.object == "motor_l" {
+                println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+                for (ix, action) in b.entries.clone().iter().enumerate() {
+                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                }
+            }
             trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
