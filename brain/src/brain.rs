@@ -474,7 +474,11 @@ impl Brain {
                 // triggercount > 0?
                 //  y -> loop ==true?
                 //       y -> add, adjust triggercount for self to +1
-                //       n -> remove
+                //       n -> conditions == ""?
+                //            y -> remove
+                //            n -> do all conds match?
+                //                 y -> add, adjust triggercount for self to +1
+                //                 n -> remove
                 //  n -> conditions == ""?
                 //       y -> add, adjust triggercount for self to +1
                 //       n -> do all conds match?
@@ -482,7 +486,30 @@ impl Brain {
                 //            n -> remove
                 if rule.triggercount > 0 {
                     if rule.actionsloop != true {
-                        partial_rules.retain(|x| *x != rule);
+                        //partial_rules.retain(|x| *x != rule);
+                        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                        if checks.len() != 0 {
+                            for check in &checks {
+                                //TODO: put this on a function, allow for other types of comparisons
+                                let keyval = check.split("=").collect::<Vec<_>>();
+                                match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                                    Some(om) => {
+                                        if om.entries.len() > 0 {
+                                            if om.entries[0].data != keyval[1] {
+                                                partial_rules.retain(|x| *x != rule);
+                                            } else {
+                                                if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                                    partial_rules.retain(|x| *x != rule);
+                                                };
+                                            };
+                                        } else if keyval[1] != "0" {
+                                            partial_rules.retain(|x| *x != rule);
+                                        }
+                                    },
+                                    None => (),
+                                };
+                            }
+                        }
                     }
                 } else {
                     let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
