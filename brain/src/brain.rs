@@ -812,6 +812,11 @@ impl Brain {
     // get_actions_from_rules but redone
     pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
+        // conditions is empty and its not in the queue
+        // loop is true, counter > 0 (need to be reset to 0 when another action takes over)
+        //   regardles of conditions
+        // conditions match (also time) and its not in the queue
+        //
         Ok(partial_rules)
     }
 
