@@ -60,7 +60,7 @@ pub struct ConfigEntry {
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct ActionEntry {
     id: String,
-    output: Vec<ConfigOutput>
+    actions: Vec<ConfigOutput>
 }
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimedData {
