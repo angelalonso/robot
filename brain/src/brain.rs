@@ -509,6 +509,8 @@ impl Brain {
                                     None => (),
                                 };
                             }
+                        } else {
+                          partial_rules.retain(|x| *x != rule);
                         }
                     }
                 } else {
