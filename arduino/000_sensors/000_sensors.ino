@@ -1,6 +1,5 @@
 // Button Sensor
 const int ButtonPin = 13;
-bool SwitchValue = false;
 int buttonValue;
 //// Tracker Sensor disabled for now
 //const int TrackerPin = 2;
@@ -19,14 +18,6 @@ void setup() {
 void loop() {
   buttonValue = digitalRead(ButtonPin); // read the value of the button
   if(buttonValue == HIGH)
-  {
-    if(SwitchValue == false){
-      SwitchValue = true;
-    } else {
-      SwitchValue = false;
-    }
-  }
-  if(SwitchValue == true)
   {
     delay(50);    
     Serial.println("SENSOR: button=1");
