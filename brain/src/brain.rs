@@ -706,5 +706,114 @@ impl Brain {
         };
     }
 
-    //TODO: add tests with input like a button
+    /// Just run the brain.
+    /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
+    /// - precission: how often we do stuff
+    ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
+    pub fn new_run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+        let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+        let start_timestamp = self.get_current_time();
+        let mut ct: f64 = 0.0;
+
+        let msgs = s.clone();
+        let mut arduino_clone = self.arduino.clone();
+        let brain_clone = self.clone();
+        let _handle = thread::spawn(move || {
+                if brain_clone.mode != "dryrun" {
+                    arduino_clone.read_channel(msgs).unwrap();
+            } else {
+                    arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
+                };
+            });
+        let _msg = match r.try_recv() {
+            Ok(m) => {
+                self.use_arduino_msg(ct, m);
+            },
+            Err(_) => (),
+        };
+        loop {
+            let ct_raw = self.get_timestamp_since(start_timestamp);
+            // CONTROL RUNNING
+            let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
+            if new_ct > ct { 
+                ct = new_ct;
+                let _msg = match r.try_recv() {
+                    Ok(m) => {
+                        self.use_arduino_msg(ct, m);
+                    },
+                    Err(_) => (),
+                };
+                self.show_metrics();
+                self.show_action_buffers();
+                // GET ACTIONS
+                match self.new_get_actions_from_rules(ct){
+                    Ok(a) => {
+                        if a.len() > 0 {
+                            //// then a round to check which objects we are adding new actions to
+                            for action in a.clone() {
+                                for o in action.actions {
+                                    // there are some inputs/outputs we want to group
+                                    if OTHER_ACTIONS.iter().any(|&i| i==o.object) {
+                                        match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
+                                            Some(ob) => {
+                                                // We assume that if new actions are chosen, we can
+                                                // overwrite whatever is on the buffer
+                                                ob.entries = Vec::new();
+                                            },
+                                            None => (),
+                                        };
+                                    } else {
+                                        match self.buffersets.iter_mut().find(|x| *x.object == *o.object) {
+                                            Some(ob) => {
+                                                // We assume that if new actions are chosen, we can
+                                                // overwrite whatever is on the buffer
+                                                ob.entries = Vec::new();
+                                            },
+                                            None => (),
+                                        };
+                                    }
+                                }
+                            }
+                            // then do the actions
+                            for action in a {
+                                for o in action.actions {
+                                    let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
+                                    self.add_action(aux);
+                                }
+                            }
+                        };
+                    },
+                    Err(_e) => trace!("...no matching rules found"),
+                };
+                // DO ACTIONS
+                let (new_metrics, acts) = self.do_next_actions(ct).unwrap();
+                for m_raw in new_metrics {
+                    let m = m_raw.split("|").collect::<Vec<_>>();
+                    if m.len() > 1 {
+                        self.add_metric(ct, m[0].to_string(), m[1].to_string());
+                    }
+                }
+                // Send back the actions -> needed for tests
+                sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
+            };
+            // BREAK MECHANISM
+            match secs_to_run {
+                Some(s) => {
+                    if ct >= s {
+                        info!("Finished execution");
+                        break
+                    }
+                },
+                None => (),
+            }
+        }
+    }
+    /// Checks the input of the rules loaded and, if they fit, returns the actions to take
+    // get_actions_from_rules but redone
+    pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+        let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
+        Ok(partial_rules)
+    }
+
+
 }
