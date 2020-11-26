@@ -670,7 +670,7 @@ impl Brain {
     pub fn show_metrics(&mut self) {
         for m in self.metricsets.clone().iter() {
             if m.object == "button" {
-                println!("- {} ACTIONS pending for {}", m.entries.len(), m.object);
+                println!("- {} METRICS recorded for {}", m.entries.len(), m.object);
                 for (ix, action) in m.entries.clone().iter().enumerate() {
                     println!(" #{} |data={}|time={}|", ix, action.data, action.time);
                 }
