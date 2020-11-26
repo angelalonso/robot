@@ -226,7 +226,6 @@ impl Brain {
         let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
-
         let msgs = s.clone();
         let mut arduino_clone = self.arduino.clone();
         let brain_clone = self.clone();
@@ -363,7 +362,7 @@ impl Brain {
             // TODO: add other use cases
             "SENSOR" => {
                 let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
-                info!("Message from Arduino: {:?}", sensor);
+                debug!("Message from Arduino: {:?}", sensor);
                 let sensor_id = "arduino".to_string();
                 if sensor.len() > 1 {
                     self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
@@ -608,7 +607,6 @@ impl Brain {
                             _ => {
                                 ob.entries.push(action_to_add.action);
                             },
-
                         }
                     };
                 },
@@ -671,12 +669,12 @@ impl Brain {
     /// Log objects' metrics
     pub fn show_metrics(&mut self) {
         for m in self.metricsets.clone().iter() {
-            //if m.object == "button" {
-            //    println!("- {} ACTIONS pending for {}", m.entries.len(), m.object);
-            //    for (ix, action) in m.entries.clone().iter().enumerate() {
-            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-            //    }
-            //}
+            if m.object == "button" {
+                println!("- {} ACTIONS pending for {}", m.entries.len(), m.object);
+                for (ix, action) in m.entries.clone().iter().enumerate() {
+                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                }
+            }
             debug!("- Metrics - {}", m.object);
             for (ix, action) in m.entries.clone().iter().enumerate() {
                 debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
