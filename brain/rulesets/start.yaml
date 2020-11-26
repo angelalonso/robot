@@ -77,15 +77,9 @@
   - object: "motor_r"
     value: "70"
     time: "1"
-- id: "motor_off"
-  actionsloop: true
-  condition:
-  - time: "0.05" 
-    input_objs: "button=1,motor_l=70,motor_r=70"
-  actions:
-  - object: "motor_l"
-    value: "0"
-    time: "1.2"
-  - object: "motor_r"
-    value: "0"
-    time: "1.2"
+  - object: "wait"
+    value: ""
+    time: "1"
+  - object: "load"
+    value: "ruleset/motor_off.yaml"
+    time: "0.2"
