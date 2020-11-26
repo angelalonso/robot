@@ -811,7 +811,7 @@ impl Brain {
     /// Checks the input of the rules loaded and, if they fit, returns the actions to take
     // get_actions_from_rules but redone
     pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
-        let partial_rules = [].to_vec();
+        //let partial_rules = [].to_vec();
         //let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         // conditions is empty and its not in the queue
         // loop is true, counter > 0 (need to be reset to 0 when another action takes over)
