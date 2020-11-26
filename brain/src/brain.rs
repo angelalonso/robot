@@ -812,11 +812,21 @@ impl Brain {
     // get_actions_from_rules but redone
     pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
-        // NEVER add something that is already on buffer
         for rule in partial_rules.clone() {
+            // NEVER add something that is already on buffer
             if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
                 partial_rules.retain(|x| *x != rule);
             } else {
+                println!("{:#x?}", rule.triggercount);
+                // triggercount > 0?
+                //  y -> loop ==true?
+                //       y -> add, adjust all triggercounts to 0, self to +1
+                //       n -> remove
+                //  n -> conditions == ""?
+                //       y -> add, adjust all triggercounts to 0, self to +1
+                //       n -> do all conds match?
+                //            y -> add, adjust all triggercounts to 0, self to +1
+                //            n -> remove
             }
         }
 
