@@ -485,6 +485,7 @@ impl Brain {
                 //            y -> add, adjust triggercount for self to +1
                 //            n -> remove
                 if rule.triggercount > 0 {
+                    println!("------{}", rule.id);
                     if rule.actionsloop != true {
                         //partial_rules.retain(|x| *x != rule);
                         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
