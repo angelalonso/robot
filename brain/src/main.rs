@@ -111,7 +111,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.new_run(None, 10, s);
+                let _actions = main_brain.run(None, 10, s);
             });
             handle.join().unwrap();
         }

@@ -66,24 +66,18 @@
     value: "0"
     time: "0.2"
 - id: "start1"
-  actionsloop: false
   condition:
   - time: "0.05" 
     input_objs: "button=1,motor_l=0,motor_r=0"
+  actionsloop: true
   actions:
   - object: "motor_l"
     value: "70"
-    time: "0"
+    time: "1"
   - object: "motor_r"
     value: "70"
-    time: "0"
-  - object: "wait"
-    value: ""
-    time: "1.2"
-  - object: "load"
-    value: "rulesets/start.yaml"
-    time: "0.2"
-- id: "start"
+    time: "1"
+- id: "start2"
   actionsloop: false
   condition:
   - time: "0.05" 
@@ -95,9 +89,3 @@
   - object: "motor_r"
     value: "0"
     time: "1.2"
-  - object: "wait"
-    value: ""
-    time: "1.2"
-  - object: "load"
-    value: "rulesets/start.yaml"
-    time: "0.2"

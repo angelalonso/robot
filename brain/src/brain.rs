@@ -261,27 +261,15 @@ impl Brain {
                 match self.get_actions_from_rules(ct){
                     Ok(a) => {
                         if a.len() > 0 {
-                            // Format would be motor_l=-60,time=2.6
-                            // first the actions marked as do_once will be marked as done at the
-                            // config
-                            for mut rule in self.config.iter_mut() {
-                                if rule.actionsloop == false {
-                                    for action in a.clone() {
-                                        if (action.id == rule.id) && (!action.id.starts_with("done_")) {
-                                            rule.id = "done_".to_owned();
-                                            rule.id.push_str(&action.id.to_string());
-                                            debug!("Action '{}' will only be done once", action.id);
-                                        }
-                                    }
-                                }
-                            }
-                            // then a round to check which objects we are adding new actions to
+                            //// then a round to check which objects we are adding new actions to
                             for action in a.clone() {
                                 for o in action.actions {
                                     // there are some inputs/outputs we want to group
                                     if OTHER_ACTIONS.iter().any(|&i| i==o.object) {
                                         match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
                                             Some(ob) => {
+                                                // We assume that if new actions are chosen, we can
+                                                // overwrite whatever is on the buffer
                                                 ob.entries = Vec::new();
                                             },
                                             None => (),
@@ -289,6 +277,8 @@ impl Brain {
                                     } else {
                                         match self.buffersets.iter_mut().find(|x| *x.object == *o.object) {
                                             Some(ob) => {
+                                                // We assume that if new actions are chosen, we can
+                                                // overwrite whatever is on the buffer
                                                 ob.entries = Vec::new();
                                             },
                                             None => (),
@@ -315,6 +305,7 @@ impl Brain {
                         self.add_metric(ct, m[0].to_string(), m[1].to_string());
                     }
                 }
+                // Send back the actions -> needed for tests
                 sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
             };
             // BREAK MECHANISM
@@ -477,38 +468,60 @@ impl Brain {
     pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         for rule in partial_rules.clone() {
+            // NEVER add something that is already on buffer
             if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
                 partial_rules.retain(|x| *x != rule);
             } else {
-                if timestamp < rule.condition[0].time.parse::<f64>().unwrap() {
-                    partial_rules.retain(|x| *x != rule);
-                } else if rule.id.starts_with("done_") {
-                    partial_rules.retain(|x| *x != rule);
+                // triggercount > 0?
+                //  y -> loop ==true?
+                //       y -> add, adjust triggercount for self to +1
+                //       n -> remove
+                //  n -> conditions == ""?
+                //       y -> add, adjust triggercount for self to +1
+                //       n -> do all conds match?
+                //            y -> add, adjust triggercount for self to +1
+                //            n -> remove
+                if rule.triggercount > 0 {
+                    if rule.actionsloop != true {
+                        partial_rules.retain(|x| *x != rule);
+                    }
                 } else {
                     let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                    for check in &checks {
-                        let keyval = check.split("=").collect::<Vec<_>>();
-                        match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
-                            Some(om) => {
-                                if om.entries.len() > 0 {
-                                    if om.entries[0].data != keyval[1] {
-                                        partial_rules.retain(|x| *x != rule);
-                                    } else {
-                                        if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                    if checks.len() != 0 {
+                        for check in &checks {
+                            //TODO: put this on a function, allow for other types of comparisons
+                            let keyval = check.split("=").collect::<Vec<_>>();
+                            match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                                Some(om) => {
+                                    if om.entries.len() > 0 {
+                                        if om.entries[0].data != keyval[1] {
                                             partial_rules.retain(|x| *x != rule);
+                                        } else {
+                                            if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                                partial_rules.retain(|x| *x != rule);
+                                            };
                                         };
-                                    };
-                                } else if keyval[1] != "0" {
-                                    partial_rules.retain(|x| *x != rule);
-                                }
-                            },
-                            None => (),
-                        };
+                                    } else if keyval[1] != "0" {
+                                        partial_rules.retain(|x| *x != rule);
+                                    }
+                                },
+                                None => (),
+                            };
+                        }
                     }
                 }
             }
-        };
+        }
         if partial_rules.len() > 0 {
+            for rule in self.config.iter_mut() {
+                match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
+                    Some(_) => {
+                        rule.triggercount += 1;
+                    },
+                    //None => rule.triggercount = 0,
+                    None => (),
+                };
+            }
             debug!("- Rules matching :");
             for (ix, rule) in partial_rules.clone().iter().enumerate() {
                 debug!(" #{} {} input:", ix, rule.id);
@@ -706,11 +719,63 @@ impl Brain {
         };
     }
 
+    /// Checks the input of the rules loaded and, if they fit, returns the actions to take
+    pub fn old_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+        let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
+        for rule in partial_rules.clone() {
+            if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
+                partial_rules.retain(|x| *x != rule);
+            } else {
+                if timestamp < rule.condition[0].time.parse::<f64>().unwrap() {
+                    partial_rules.retain(|x| *x != rule);
+                } else if rule.id.starts_with("done_") {
+                    partial_rules.retain(|x| *x != rule);
+                } else {
+                    let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                    for check in &checks {
+                        let keyval = check.split("=").collect::<Vec<_>>();
+                        match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                            Some(om) => {
+                                if om.entries.len() > 0 {
+                                    if om.entries[0].data != keyval[1] {
+                                        partial_rules.retain(|x| *x != rule);
+                                    } else {
+                                        if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                            partial_rules.retain(|x| *x != rule);
+                                        };
+                                    };
+                                } else if keyval[1] != "0" {
+                                    partial_rules.retain(|x| *x != rule);
+                                }
+                            },
+                            None => (),
+                        };
+                    }
+                }
+            }
+        };
+        if partial_rules.len() > 0 {
+            debug!("- Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                debug!(" #{} {} input:", ix, rule.id);
+                debug!("     input:");
+                for ri in rule.condition.clone() {
+                    debug!("      |{:?}|", ri);
+                }
+                debug!("     output:");
+                for ro in rule.actions.clone() {
+                    debug!("      |{:?}|", ro);
+                }
+            }
+        }
+        Ok(partial_rules)
+    }
+
     /// Just run the brain.
     /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
     /// - precission: how often we do stuff
     ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
-    pub fn new_run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+    pub fn old_run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
         let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
@@ -746,18 +811,30 @@ impl Brain {
                 self.show_metrics();
                 self.show_action_buffers();
                 // GET ACTIONS
-                match self.new_get_actions_from_rules(ct){
+                match self.get_actions_from_rules(ct){
                     Ok(a) => {
                         if a.len() > 0 {
-                            //// then a round to check which objects we are adding new actions to
+                            // Format would be motor_l=-60,time=2.6
+                            // first the actions marked as do_once will be marked as done at the
+                            // config
+                            for mut rule in self.config.iter_mut() {
+                                if rule.actionsloop == false {
+                                    for action in a.clone() {
+                                        if (action.id == rule.id) && (!action.id.starts_with("done_")) {
+                                            rule.id = "done_".to_owned();
+                                            rule.id.push_str(&action.id.to_string());
+                                            debug!("Action '{}' will only be done once", action.id);
+                                        }
+                                    }
+                                }
+                            }
+                            // then a round to check which objects we are adding new actions to
                             for action in a.clone() {
                                 for o in action.actions {
                                     // there are some inputs/outputs we want to group
                                     if OTHER_ACTIONS.iter().any(|&i| i==o.object) {
                                         match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
                                             Some(ob) => {
-                                                // We assume that if new actions are chosen, we can
-                                                // overwrite whatever is on the buffer
                                                 ob.entries = Vec::new();
                                             },
                                             None => (),
@@ -765,8 +842,6 @@ impl Brain {
                                     } else {
                                         match self.buffersets.iter_mut().find(|x| *x.object == *o.object) {
                                             Some(ob) => {
-                                                // We assume that if new actions are chosen, we can
-                                                // overwrite whatever is on the buffer
                                                 ob.entries = Vec::new();
                                             },
                                             None => (),
@@ -793,7 +868,6 @@ impl Brain {
                         self.add_metric(ct, m[0].to_string(), m[1].to_string());
                     }
                 }
-                // Send back the actions -> needed for tests
                 sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
             };
             // BREAK MECHANISM
@@ -808,35 +882,5 @@ impl Brain {
             }
         }
     }
-    /// Checks the input of the rules loaded and, if they fit, returns the actions to take
-    // get_actions_from_rules but redone
-    pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
-        let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
-        for rule in partial_rules.clone() {
-            // NEVER add something that is already on buffer
-            if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
-                partial_rules.retain(|x| *x != rule);
-            } else {
-                println!("{:#x?}", rule.triggercount);
-                // triggercount > 0?
-                //  y -> loop ==true?
-                //       y -> add, adjust all triggercounts to 0, self to +1
-                //       n -> remove
-                //  n -> conditions == ""?
-                //       y -> add, adjust all triggercounts to 0, self to +1
-                //       n -> do all conds match?
-                //            y -> add, adjust all triggercounts to 0, self to +1
-                //            n -> remove
-            }
-        }
-
-        // conditions is empty and its not in the queue
-        // loop is true, counter > 0 (need to be reset to 0 when another action takes over)
-        //   regardles of conditions
-        // conditions match (also time) and its not in the queue
-        //
-        Ok(partial_rules)
-    }
-
 
 }
