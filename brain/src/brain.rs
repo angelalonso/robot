@@ -745,4 +745,8 @@ impl Brain {
         };
     }
 
+    pub fn does_condition_match() {
+
+    }
+
 }
