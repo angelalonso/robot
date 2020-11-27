@@ -755,10 +755,22 @@ impl Brain {
                             if om.entries.len() > 0 {
                                 match comparison.as_str() {
                                     "=" => {
-                                            
+                                        for m in om.entries.clone() {
+                                            if m.data.parse::<u8>().unwrap() == keyval[1].parse::<u8>().unwrap() {
+                                                matched_metrics.push(m);
+                                            } else {
+                                                break;
+                                            }
+                                        }
                                     },
                                     "<=" => {
-
+                                        for m in om.entries.clone() {
+                                            if m.data.parse::<u8>().unwrap() <= keyval[1].parse::<u8>().unwrap() {
+                                                matched_metrics.push(m);
+                                            } else {
+                                                break;
+                                            }
+                                        }
                                     },
                                     ">=" => {
                                         for m in om.entries.clone() {
@@ -768,16 +780,36 @@ impl Brain {
                                                 break;
                                             }
                                         }
-                                        //println!("matched: {:#x?}", matched_metrics);
-                                        //TODO: sum all timestamps to see if it matches
                                     },
                                     "<" => {
-
+                                        for m in om.entries.clone() {
+                                            if m.data.parse::<u8>().unwrap() < keyval[1].parse::<u8>().unwrap() {
+                                                matched_metrics.push(m);
+                                            } else {
+                                                break;
+                                            }
+                                        }
                                     },
                                     ">" => {
-
+                                        for m in om.entries.clone() {
+                                            if m.data.parse::<u8>().unwrap() > keyval[1].parse::<u8>().unwrap() {
+                                                matched_metrics.push(m);
+                                            } else {
+                                                break;
+                                            }
+                                        }
                                     },
                                     &_ => {},
+                                }
+                                let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
+                                if acc_time.to_string() == "NaN"{
+                                    result = false;
+                                    return result
+                                } else {
+                                    if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
+                                        result = false;
+                                        return result
+                                    }
                                 }
                                 // put together all metrics that fit comparison
                                 // add the timestamps
