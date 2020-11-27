@@ -746,6 +746,9 @@ impl Brain {
                                 return result
                             }
                         },
+                        "continuous" => {
+
+                        },
                         &_ => {
 
                         },
