@@ -751,8 +751,34 @@ impl Brain {
                         },
                         "continuous" => {
                             let comparison = check.replace(keyval[0], "").replace(keyval[1], "");
-                            println!("-----   {:?} {}", om.obj_type, comparison);
+                            let mut matched_metrics: Vec<TimedData> = [].to_vec();
                             if om.entries.len() > 0 {
+                                match comparison.as_str() {
+                                    "=" => {
+                                            
+                                    },
+                                    "<=" => {
+
+                                    },
+                                    ">=" => {
+                                        for m in om.entries.clone() {
+                                            if m.data.parse::<u8>().unwrap() >= keyval[1].parse::<u8>().unwrap() {
+                                                matched_metrics.push(m);
+                                            } else {
+                                                break;
+                                            }
+                                        }
+                                        //println!("matched: {:#x?}", matched_metrics);
+                                        //TODO: sum all timestamps to see if it matches
+                                    },
+                                    "<" => {
+
+                                    },
+                                    ">" => {
+
+                                    },
+                                    &_ => {},
+                                }
                                 // put together all metrics that fit comparison
                                 // add the timestamps
                                 // compare to desired time
