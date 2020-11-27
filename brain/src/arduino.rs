@@ -81,7 +81,13 @@ impl Arduino {
             _ => {
                 thread::sleep(time::Duration::from_secs(1));
                 got = "SENSOR: button=1".to_string();
-                thread::sleep(time::Duration::from_secs(1));
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: button=0".to_string();
+                thread::sleep(time::Duration::from_millis(200));
                 match channel.send(got){
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),

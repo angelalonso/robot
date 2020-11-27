@@ -486,27 +486,13 @@ impl Brain {
                 //            n -> remove
                 if rule.triggercount > 0 {
                     if rule.actionsloop != true {
+                        //if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                        //    partial_rules.retain(|x| *x != rule);
+                        //}
                         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
                         if checks != [""].to_vec() && checks.len() != 0{
-                            for check in &checks {
-                                //TODO: put this on a function, allow for other types of comparisons
-                                let keyval = check.split("=").collect::<Vec<_>>();
-                                match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
-                                    Some(om) => {
-                                        if om.entries.len() > 0 {
-                                            if om.entries[0].data != keyval[1] {
-                                                partial_rules.retain(|x| *x != rule);
-                                            } else {
-                                                if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
-                                                    partial_rules.retain(|x| *x != rule);
-                                                };
-                                            };
-                                        } else if keyval[1] != "0" {
-                                            partial_rules.retain(|x| *x != rule);
-                                        }
-                                    },
-                                    None => (),
-                                };
+                            if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                                partial_rules.retain(|x| *x != rule);
                             }
                         } else {
                           partial_rules.retain(|x| *x != rule);
@@ -515,25 +501,8 @@ impl Brain {
                 } else {
                     let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
                     if checks != [""].to_vec() && checks.len() != 0{
-                        for check in &checks {
-                            //TODO: put this on a function, allow for other types of comparisons
-                            let keyval = check.split("=").collect::<Vec<_>>();
-                            match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
-                                Some(om) => {
-                                    if om.entries.len() > 0 {
-                                        if om.entries[0].data != keyval[1] {
-                                            partial_rules.retain(|x| *x != rule);
-                                        } else {
-                                            if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
-                                                partial_rules.retain(|x| *x != rule);
-                                            };
-                                        };
-                                    } else if keyval[1] != "0" {
-                                        partial_rules.retain(|x| *x != rule);
-                                    }
-                                },
-                                None => (),
-                            };
+                        if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                            partial_rules.retain(|x| *x != rule);
                         }
                     }
                 }
@@ -745,8 +714,33 @@ impl Brain {
         };
     }
 
-    pub fn does_condition_match() {
-
+    pub fn does_condition_match(&mut self, rule: ConfigEntry, timestamp: f64) -> bool {
+        let mut result = true;
+        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+        for check in &checks {
+            //TODO: put this on a function, allow for other types of comparisons
+            let keyval = check.split("=").collect::<Vec<_>>();
+            match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                Some(om) => {
+                    if om.entries.len() > 0 {
+                        if om.entries[0].data != keyval[1] {
+                            result = false;
+                            return result
+                        } else {
+                            if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                result = false;
+                                return result
+                            };
+                        };
+                    } else if keyval[1] != "0" {
+                        result = false;
+                        return result
+                    }
+                },
+                None => (),
+            };
+        }
+        return result
     }
 
 }
