@@ -79,6 +79,7 @@ pub struct ResultAction {
 #[derive(Clone, Debug, PartialEq)]
 pub struct Set {
     object: String,
+    obj_type: String,
     entries: Vec<TimedData>,
     last_change_timestamp: f64,
     current_entry: TimedData,
@@ -139,6 +140,7 @@ impl Brain {
         for i in inputs {
             let s = Set {
                 object: i.0,
+                obj_type: i.1["type"].clone(),
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e.clone(),
@@ -163,6 +165,7 @@ impl Brain {
             }
             let s_b = Set {
                 object: name.clone(),
+                obj_type: "output".to_string(),
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e.clone(),
@@ -171,6 +174,7 @@ impl Brain {
             bs.push(s_b);
             let s_m = Set {
                 object: name.clone(),
+                obj_type: "output".to_string(),
                 entries: [].to_vec(),
                 last_change_timestamp: 0.0,
                 current_entry: s_e.clone(),
@@ -181,6 +185,7 @@ impl Brain {
         // OTHER -> we need buffers and metrics for other stuff
         let s_b_o = Set {
             object: "other".to_string(),
+            obj_type: "other".to_string(),
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: s_e.clone(),
@@ -188,6 +193,7 @@ impl Brain {
         };
         let s_m_o = Set {
             object: "other".to_string(),
+            obj_type: "other".to_string(),
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
             current_entry: s_e.clone(),
@@ -718,24 +724,32 @@ impl Brain {
         let mut result = true;
         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
         for check in &checks {
-            //TODO: put this on a function, allow for other types of comparisons
             let keyval = check.split("=").collect::<Vec<_>>();
             match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
                 Some(om) => {
-                    if om.entries.len() > 0 {
-                        if om.entries[0].data != keyval[1] {
-                            result = false;
-                            return result
-                        } else {
-                            if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                    //TODO do this differently for each type
+                    match om.obj_type.as_str() {
+                        // for binary and output we just try to match fully
+                        "binary" | "output" => {
+                            if om.entries.len() > 0 {
+                                if om.entries[0].data != keyval[1] {
+                                    result = false;
+                                    return result
+                                } else {
+                                    if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                        result = false;
+                                        return result
+                                    };
+                                };
+                            } else if keyval[1] != "0" {
                                 result = false;
                                 return result
-                            };
-                        };
-                    } else if keyval[1] != "0" {
-                        result = false;
-                        return result
-                    }
+                            }
+                        },
+                        &_ => {
+
+                        },
+                    };
                 },
                 None => (),
             };
