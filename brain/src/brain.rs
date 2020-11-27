@@ -1,3 +1,4 @@
+extern crate regex;
 use crate::arduino::Arduino;
 use crate::leds::LEDs;
 use crate::motors::Motors;
@@ -724,7 +725,8 @@ impl Brain {
         let mut result = true;
         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
         for check in &checks {
-            let keyval = check.split("=").collect::<Vec<_>>();
+            let re = regex::Regex::new(r"=|<=|>=|<|>").unwrap();
+            let keyval = re.split(check).collect::<Vec<_>>();
             match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
                 Some(om) => {
                     //TODO do this differently for each type
@@ -741,13 +743,25 @@ impl Brain {
                                         return result
                                     };
                                 };
+                                // TODO: do we need to check timestamp here?
                             } else if keyval[1] != "0" {
                                 result = false;
                                 return result
                             }
                         },
                         "continuous" => {
-
+                            let comparison = check.replace(keyval[0], "").replace(keyval[1], "");
+                            println!("-----   {:?} {}", om.obj_type, comparison);
+                            if om.entries.len() > 0 {
+                                // put together all metrics that fit comparison
+                                // add the timestamps
+                                // compare to desired time
+                                // ...and if it doesnt fit, remove
+                            } else {
+                                // TODO: do we need to check timestamp here?
+                                result = false;
+                                return result
+                            }
                         },
                         &_ => {
 

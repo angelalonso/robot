@@ -86,8 +86,66 @@ impl Arduino {
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),
                 };
+                got = "SENSOR: distance=20".to_string();
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
                 got = "SENSOR: button=0".to_string();
                 thread::sleep(time::Duration::from_millis(200));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=24".to_string();
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=26".to_string();
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=32".to_string();
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=33".to_string();
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=28".to_string();
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=2".to_string();
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=31".to_string();
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=34".to_string();
+                thread::sleep(time::Duration::from_millis(100));
+                match channel.send(got){
+                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                    Err(_e) => (),
+                };
+                got = "SENSOR: distance=12".to_string();
+                thread::sleep(time::Duration::from_millis(100));
                 match channel.send(got){
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),
