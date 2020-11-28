@@ -1,16 +1,28 @@
-# Robot v1.0.2
+# Robot v2.0.0
 
 Resources to build a robot.
 
+DISCLAIMER: I don't guarantee that your build will work, and I cannot guarantee that your robot will not catch fire.  
+Use common sense before powering your build, soldering stuff or doing anything that might be remotely hazardous.
+
 # WHY this guide?
-- I invested some time to make the first version work, and now I want to take a snapshot and move on to version 2.  
+- I know R:::OS and it looks much better than this, but sometimes all you need is reinvent the wheel to make it the exact size you need.
 - I have very specific Hardware, most notably an <old> Raspberry pi B. Most of the docs online refer to the newer boards.  
-- I want to share a reproduceable code and docs for other people to possibly improve on.
+- I want to share for other people to possibly improve on.
 
 # Status
 
-First version works with some caveats. The robot will not kill you unless you build that feature on top of this. Therefore, version 1.
+Second version works and is configurable.  
+Basically any actions involving two wheels, four leds and a distance sensor should be programmable.
+There are some rough edges and hopefully all of them will be covered before version 3 arrives.
 
+## What it can do
+## Version 2
+### Shopping list before you start
+### Putting the Hardware together
+### Installing the Software
+### Configuring
+-- v1 --
 ## What it can do
 Follow a list of rules regarding movements. Those rules can be based off what we get from the sensors. Basically it can do both of the following by choosing a different set of move_cfg.yaml rules:
 - Time-based movements. One second to the front, two seconds turn to the left, ten seconds to the back...
