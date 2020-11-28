@@ -66,9 +66,10 @@ fn argparser(modes: Vec<&str>) -> (String, String) {
 /// check the parameters and start the related mode
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
-    let modes = vec!["live", "test"];
+    let modes = vec!["live", "reset", "record", "test"];
     let (move_config_file, start_mode) = argparser(modes);
     let _args: Vec<String> = env::args().collect();
+    let run_time = Some(0.4);
     info!("...starting Brain with Mode {}", start_mode);
     match start_mode.as_str() {
         // Generate our Brain object
@@ -80,7 +81,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(None, 10, s);
+                let _actions = main_brain.run(run_time, 10, s);
             });
             handle.join().unwrap();
         },
@@ -92,7 +93,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(Some(0.4), 10, s);
+                let _actions = main_brain.run(run_time, 10, s);
             });
             handle.join().unwrap();
             let mut got = [].to_vec();
