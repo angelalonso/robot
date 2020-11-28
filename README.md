@@ -16,6 +16,12 @@ Second version works and is configurable.
 Basically any actions involving two wheels, four leds and a distance sensor should be programmable.
 There are some rough edges and hopefully all of them will be covered before version 3 arrives.
 
+# Changes on v2
+- We now just use one single setup file which defines inputs and outputs, first program to load in arduino and first ruleset to load.
+- there is a mode called reset that should switch off all LEDs and motors. 
+- there is a mode called test that mocks input from arduino and outputs to LEDs, motors...
+- TODO: there is a mode called record that records what arduino gets as input on a logfile that can be used on tests
+
 ## What it can do
 ## Version 2
 ### Shopping list before you start

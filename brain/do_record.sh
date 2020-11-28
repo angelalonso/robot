@@ -38,8 +38,5 @@ do
   fi
 done
 ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
-  RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain live setup.yaml
+  RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain record setup.yaml
   "
-#${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
-#  target/arm-unknown-linux-gnueabihf/debug/brain live setup.yaml
-#  "

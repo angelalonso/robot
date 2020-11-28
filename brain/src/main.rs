@@ -137,15 +137,19 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
                 None => info!("...starting Brain in Mode {}", start_mode),
             }
+            // TODO remove the record variable, just add it to the dryrun thing (or live)
+            // everywhere
             record = true;
             info!("...recording all inputs coming from arduino");
             // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun".to_string(), move_config_file).unwrap_or_else(|err| {
+            // TODO: manage this _record thing properly everywhere
+            let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun_record".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
+                // TODO remove the record variable
                 let _actions = main_brain.run(run_time, precision_th_of_a_sec, s, record);
             });
             handle.join().unwrap();

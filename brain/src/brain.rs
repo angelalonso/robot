@@ -107,7 +107,16 @@ static MAX_METRICSIZE: u8 = 25;
 const OTHER_ACTIONS: &'static [&'static str] = &["load", "wait"];
 
 impl Brain {
-    pub fn new(brain_name: String, mode: String, setupfile: String) -> Result<Self, String> {
+    pub fn new(brain_name: String, mut mode: String, setupfile: String) -> Result<Self, String> {
+        // CATCH the record mode and clean up the original mode variable
+        let special_mode = mode.split("_").collect::<Vec<_>>();
+        if special_mode.len() > 1 {
+            match special_mode[1] {
+                "record" => println!("RECORDING..."),
+                _ => (),
+            }
+        }
+        mode = special_mode[0].to_string();
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis(),
@@ -833,6 +842,13 @@ impl Brain {
             };
         }
         return result
+    }
+
+    pub fn record(timestamp: f64, entry: String) {
+        // TODO:
+        // open file, if it doesnt exist, create it
+        // modify entry to something we can read as yaml
+        // append entry to file
     }
 
 }
