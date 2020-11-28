@@ -1,15 +1,17 @@
 extern crate serial;
+
+use log::{debug, error, info};
 use serial::prelude::*;
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::io;
-use std::str;
-use std::time::Duration;
-use thiserror::Error;
 use std::process::Command;
-use std::{thread, time};
-
+use std::str;
 use std::sync::mpsc::Sender;
-use log::{debug, error, info};
+use std::time::Duration;
+use std::time::{SystemTime, UNIX_EPOCH};
+use std::{thread, time};
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum BrainArduinoError {
@@ -77,6 +79,38 @@ impl Arduino {
                     Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                     Err(_e) => (),
                 };
+            },
+            "setup.yaml" => {
+                //TODO: proper passing this filename around
+                let file_pointer = File::open("records/mock.yaml").unwrap();
+                #[derive(Clone, Debug, Deserialize)]
+                struct ArduinoMessage {
+                    pub time: String,
+                    pub msg: String,
+                }
+                //let mut e: Vec<ArduinoMessage> = [].to_vec();
+                let mut e: Vec<ArduinoMessage> = serde_yaml::from_reader(file_pointer).unwrap();
+                let st = SystemTime::now();
+                let start_time = match st.duration_since(UNIX_EPOCH) {
+                    Ok(time) => time.as_millis(),
+                    Err(_e) => 0,
+                };
+                while e.len() > 0 {
+                    let now = SystemTime::now();
+                    let timestamp = match now.duration_since(UNIX_EPOCH) {
+                        // This WHOLE complication is needed to give my timestamp a x.x precision
+                        // The +1 helps with precision and delays
+                        Ok(time) => ((((time.as_millis() as f64 - start_time as f64) / 100.0) as i64 + 1)as f64) / (10.0) as f64,
+                        Err(_e) => 0.0,
+                    };
+                    if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
+                        match channel.send(e[0].msg.clone()){
+                            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                            Err(_e) => (),
+                        };
+                        e.remove(0);
+                    }
+                }
             },
             _ => {
                 thread::sleep(time::Duration::from_secs(1));
