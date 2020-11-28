@@ -756,7 +756,7 @@ impl Brain {
                                 match comparison.as_str() {
                                     "=" => {
                                         for m in om.entries.clone() {
-                                            if m.data.parse::<u8>().unwrap() == keyval[1].parse::<u8>().unwrap() {
+                                            if m.data.parse::<u16>().unwrap() == keyval[1].parse::<u16>().unwrap() {
                                                 matched_metrics.push(m);
                                             } else {
                                                 break;
@@ -767,7 +767,7 @@ impl Brain {
                                         for m in om.entries.clone() {
                                             println!("- mdata {:?}", m.data);
                                             println!("  - keyval {:?}", keyval[1]);
-                                            if m.data.parse::<u8>().unwrap() <= keyval[1].parse::<u8>().unwrap() {
+                                            if m.data.parse::<u16>().unwrap() <= keyval[1].parse::<u16>().unwrap() {
                                                 matched_metrics.push(m);
                                             } else {
                                                 break;
@@ -776,7 +776,7 @@ impl Brain {
                                     },
                                     ">=" => {
                                         for m in om.entries.clone() {
-                                            if m.data.parse::<u8>().unwrap() >= keyval[1].parse::<u8>().unwrap() {
+                                            if m.data.parse::<u16>().unwrap() >= keyval[1].parse::<u16>().unwrap() {
                                                 matched_metrics.push(m);
                                             } else {
                                                 break;
@@ -785,7 +785,7 @@ impl Brain {
                                     },
                                     "<" => {
                                         for m in om.entries.clone() {
-                                            if m.data.parse::<u8>().unwrap() < keyval[1].parse::<u8>().unwrap() {
+                                            if m.data.parse::<u16>().unwrap() < keyval[1].parse::<u16>().unwrap() {
                                                 matched_metrics.push(m);
                                             } else {
                                                 break;
@@ -794,7 +794,7 @@ impl Brain {
                                     },
                                     ">" => {
                                         for m in om.entries.clone() {
-                                            if m.data.parse::<u8>().unwrap() > keyval[1].parse::<u8>().unwrap() {
+                                            if m.data.parse::<u16>().unwrap() > keyval[1].parse::<u16>().unwrap() {
                                                 matched_metrics.push(m);
                                             } else {
                                                 break;
