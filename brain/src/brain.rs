@@ -766,7 +766,6 @@ impl Brain {
                                     "<=" => {
                                         for m in om.entries.clone() {
                                             println!("- mdata {:?}", m.data);
-                                            println!("  - keyval {:?}", keyval[1]);
                                             if m.data.parse::<u16>().unwrap() <= keyval[1].parse::<u16>().unwrap() {
                                                 matched_metrics.push(m);
                                             } else {
