@@ -1,5 +1,5 @@
 ---
-start_actionset_file: rulesets/start_button.yaml
+start_actionset_file: rulesets/start_obstacle.yaml
 start_arduinohex_file: ../arduino/000_sensors/000_sensors.ino.hex
 inputs:
   button: 
