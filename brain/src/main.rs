@@ -69,8 +69,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let modes = vec!["live", "reset", "record", "test"];
     let (move_config_file, start_mode) = argparser(modes);
     let _args: Vec<String> = env::args().collect();
-    let run_time = Some(0.4);
-    info!("...starting Brain with Mode {}", start_mode);
+    //let run_time = Some(0.4);
+    let run_time = None;
+    match run_time {
+        Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
+        None => info!("...starting Brain in Mode {}", start_mode),
+    }
     match start_mode.as_str() {
         // Generate our Brain object
         "live" => {
