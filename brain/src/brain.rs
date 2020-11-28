@@ -229,7 +229,7 @@ impl Brain {
     /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
     /// - precission: how often we do stuff
     ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
-    pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+    pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>, record: bool) {
         let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
@@ -245,7 +245,7 @@ impl Brain {
             });
         let _msg = match r.try_recv() {
             Ok(m) => {
-                self.use_arduino_msg(ct, m);
+                self.use_arduino_msg(ct, m, record);
             },
             Err(_) => (),
         };
@@ -257,7 +257,7 @@ impl Brain {
                 ct = new_ct;
                 let _msg = match r.try_recv() {
                     Ok(m) => {
-                        self.use_arduino_msg(ct, m);
+                        self.use_arduino_msg(ct, m, record);
                     },
                     Err(_) => (),
                 };
@@ -363,8 +363,11 @@ impl Brain {
     }
 
     /// Translates a message coming from the Arduino to actions
-    pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
+    pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String, record: bool) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
+        if record {
+            warn!("{} {}", timestamp, raw_msg);
+        };
         match msg_parts[0] {
             // TODO: add other use cases
             "SENSOR" => {

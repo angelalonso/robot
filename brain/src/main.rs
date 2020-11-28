@@ -69,15 +69,16 @@ fn main() -> Result<(), Box<dyn Error>> {
     let modes = vec!["live", "reset", "record", "test"];
     let (move_config_file, start_mode) = argparser(modes);
     let _args: Vec<String> = env::args().collect();
-    //let run_time = Some(0.4);
-    let run_time = None;
-    match run_time {
-        Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
-        None => info!("...starting Brain in Mode {}", start_mode),
-    }
+    let mut run_time = None;
+    let precision_th_of_a_sec = 10;
+    let mut record = false;
     match start_mode.as_str() {
         // Generate our Brain object
         "live" => {
+            match run_time {
+                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => info!("...starting Brain in Mode {}", start_mode),
+            }
             // Generate our Brain object
             let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
@@ -85,11 +86,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(run_time, 10, s);
+                let _actions = main_brain.run(run_time, precision_th_of_a_sec, s, record);
             });
             handle.join().unwrap();
         },
         "reset" => {
+            run_time = Some(0.4);
+            match run_time {
+                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => info!("...starting Brain in Mode {}", start_mode),
+            }
             // Generate our Brain object
             let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
@@ -97,7 +103,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(run_time, 10, s);
+                let _actions = main_brain.run(run_time, precision_th_of_a_sec, s, record);
             });
             handle.join().unwrap();
             let mut got = [].to_vec();
@@ -109,6 +115,12 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         },
         "record" => {
+            match run_time {
+                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => info!("...starting Brain in Mode {}", start_mode),
+            }
+            record = true;
+            info!("...recording all inputs coming from arduino");
             // Generate our Brain object
             let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
@@ -116,11 +128,17 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(None, 10, s);
+                let _actions = main_brain.run(run_time, precision_th_of_a_sec, s, record);
             });
             handle.join().unwrap();
         },
         "test" => {
+            match run_time {
+                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => info!("...starting Brain in Mode {}", start_mode),
+            }
+            record = true;
+            info!("...recording all inputs coming from arduino");
             // Generate our Brain object
             let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
@@ -128,7 +146,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(None, 10, s);
+                let _actions = main_brain.run(run_time, precision_th_of_a_sec, s, record);
             });
             handle.join().unwrap();
         }
