@@ -1,0 +1,31 @@
+--- 
+- id: "move_fwd"
+  condition:
+  - time: "0.05" 
+    input_objs: "distance>20"
+  actionsloop: false
+  actions:
+  - object: "motor_l"
+    value: "70"
+    time: "1"
+  - object: "motor_r"
+    value: "70"
+    time: "1"
+- id: "stop_n_turn"
+  condition:
+  - time: "0.05" 
+    input_objs: "distance<=20"
+  actionsloop: false
+  actions:
+  - object: "motor_l"
+    value: "0"
+    time: "0.4"
+  - object: "motor_r"
+    value: "0"
+    time: "0.4"
+  - object: "motor_l"
+    value: "70"
+    time: "1"
+  - object: "motor_r"
+    value: "-70"
+    time: "1"
