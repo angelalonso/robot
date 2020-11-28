@@ -15,7 +15,7 @@ fn show_help() {
     println!("   , where:");
     println!(" - mode        - optional, default is classic");
     println!("     is the trigger with which the Brain starts. ");
-    println!("     accepted values: live and test. \n");
+    println!("     accepted values: live, reset, test and record. \n");
     println!(" - auto_moves_config_file - mandatory");
     println!("     is the path to the config yaml for rules to have the robot automatically move. ");
 }
@@ -92,7 +92,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
             let handle = thread::spawn(move || {
-                let _actions = main_brain.run(Some(1.0), 10, s);
+                let _actions = main_brain.run(Some(0.4), 10, s);
             });
             handle.join().unwrap();
             let mut got = [].to_vec();
