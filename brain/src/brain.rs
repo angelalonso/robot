@@ -5,12 +5,15 @@ use crate::motors::Motors;
 use log::{debug, error, info, trace, warn};
 use std::collections::HashMap;
 use std::fs::File;
+use std::fs::OpenOptions;
+use std::fs;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::{Sender, Receiver};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
+use std::io::prelude::*;
 
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
@@ -94,6 +97,7 @@ pub struct Brain {
     setup_file: String,
     start_time: u128,
     timestamp: f64,
+    record: String,
     config: Vec<ConfigEntry>,
     arduino: Arduino,
     motors: Motors,
@@ -110,12 +114,14 @@ impl Brain {
     pub fn new(brain_name: String, mut mode: String, setupfile: String) -> Result<Self, String> {
         // CATCH the record mode and clean up the original mode variable
         let special_mode = mode.split("_").collect::<Vec<_>>();
+        let mut rec_file = "".to_string();
         if special_mode.len() > 1 {
             match special_mode[1] {
-                "record" => println!("RECORDING..."),
+                "record" => rec_file = Brain::create_record_file(),
                 _ => (),
             }
         }
+        println!("{}", rec_file);
         mode = special_mode[0].to_string();
         let st = SystemTime::now();
         let start_time = match st.duration_since(UNIX_EPOCH) {
@@ -225,6 +231,7 @@ impl Brain {
             setup_file: setupfile,
             start_time: start_time,
             timestamp: 0.0,
+            record: rec_file,
             config: c,
             arduino: a,
             motors: m,
@@ -375,7 +382,7 @@ impl Brain {
     pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String, record: bool) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
         if record {
-            warn!("{} {}", timestamp, raw_msg);
+            self.record(timestamp, msg_parts[1].to_string());
         };
         match msg_parts[0] {
             // TODO: add other use cases
@@ -844,11 +851,24 @@ impl Brain {
         return result
     }
 
-    pub fn record(timestamp: f64, entry: String) {
+    pub fn create_record_file() -> String {
+        let path = "records";
+        fs::create_dir_all(path).unwrap();
+        let filename = path.to_owned() + "/last_run.yaml";
+        File::create(filename.clone()).unwrap();
+        filename.to_string()
+    }
+
+    pub fn record(&mut self, timestamp: f64, entry: String) {
         // TODO:
-        // open file, if it doesnt exist, create it
         // modify entry to something we can read as yaml
-        // append entry to file
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(self.record.clone())
+            .unwrap();
+        let log = format!("{} {}", timestamp, entry);
+        warn!("We are writing {} to {}", log, self.record);
+        writeln!(&mut file, "{}", log).unwrap();
     }
 
 }
