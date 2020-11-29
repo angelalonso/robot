@@ -69,6 +69,7 @@ void loop() {
     msg.concat(distanceVal);
     msg.concat("|");
   };
+  Serial.println(msg);
   //Serial.print("SENSOR: distance=");
   //Serial.println (distanceVal, DEC);
   
