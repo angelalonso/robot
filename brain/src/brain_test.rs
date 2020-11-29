@@ -50,12 +50,16 @@ mod brain_test {
         for (ix, e_raw) in expected.iter().enumerate() {
             let e = e_raw.split("|").collect::<Vec<_>>();
             let g = got[ix].split("|").collect::<Vec<_>>();
+            println!("- expected: {:#x?} \n- got: {:#x?}", e[0], g[0]);
             assert_eq!(e[0], g[0]);
-            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let e_str = e[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
-            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let g_str = g[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
-            assert_eq!(e_vec.sort(), g_vec.sort());
+            e_vec.sort();
+            g_vec.sort();
+            println!("  - expected: {:?} \n  - got: {:?}", e_vec, g_vec);
+            assert_eq!(e_vec, g_vec);
         }
     }
 
@@ -94,12 +98,16 @@ mod brain_test {
         for (ix, e_raw) in expected.iter().enumerate() {
             let e = e_raw.split("|").collect::<Vec<_>>();
             let g = got[ix].split("|").collect::<Vec<_>>();
+            println!("- expected: {:#x?} \n- got: {:#x?}", e[0], g[0]);
             assert_eq!(e[0], g[0]);
-            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let e_str = e[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
-            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let g_str = g[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
-            assert_eq!(e_vec.sort(), g_vec.sort());
+            e_vec.sort();
+            g_vec.sort();
+            println!("  - expected: {:?} \n  - got: {:?}", e_vec, g_vec);
+            assert_eq!(e_vec, g_vec);
         }
     }
 
@@ -139,12 +147,16 @@ mod brain_test {
         for (ix, e_raw) in expected.iter().enumerate() {
             let e = e_raw.split("|").collect::<Vec<_>>();
             let g = got[ix].split("|").collect::<Vec<_>>();
+            println!("- expected: {:#x?} \n- got: {:#x?}", e[0], g[0]);
             assert_eq!(e[0], g[0]);
-            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let e_str = e[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
-            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let g_str = g[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
-            assert_eq!(e_vec.sort(), g_vec.sort());
+            e_vec.sort();
+            g_vec.sort();
+            println!("  - expected: {:?} \n  - got: {:?}", e_vec, g_vec);
+            assert_eq!(e_vec, g_vec);
         }
     }
 
@@ -183,12 +195,16 @@ mod brain_test {
         for (ix, e_raw) in expected.iter().enumerate() {
             let e = e_raw.split("|").collect::<Vec<_>>();
             let g = got[ix].split("|").collect::<Vec<_>>();
+            println!("- expected: {:#x?} \n- got: {:#x?}", e[0], g[0]);
             assert_eq!(e[0], g[0]);
-            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let e_str = e[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
-            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let g_str = g[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
-            assert_eq!(e_vec.sort(), g_vec.sort());
+            e_vec.sort();
+            g_vec.sort();
+            println!("  - expected: {:?} \n  - got: {:?}", e_vec, g_vec);
+            assert_eq!(e_vec, g_vec);
         }
     }
 
@@ -211,7 +227,7 @@ mod brain_test {
         // loop with timestamp 
         let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
         let handle = thread::spawn(move || {
-            let _actions = test_brain.run(Some(1.1), 10, s);
+            let _actions = test_brain.run(Some(7.9), 10, s);
         });
         handle.join().unwrap();
         let mut got = [].to_vec();
@@ -221,17 +237,19 @@ mod brain_test {
                 Err(_) => break,
             };
         }
-        println!("expected: {:#x?}", expected);
-        println!("got: {:#x?}", got);
         for (ix, e_raw) in expected.iter().enumerate() {
             let e = e_raw.split("|").collect::<Vec<_>>();
             let g = got[ix].split("|").collect::<Vec<_>>();
+            println!("- expected: {:#x?} \n- got: {:#x?}", e[0], g[0]);
             assert_eq!(e[0], g[0]);
-            let e_str = e[1].to_string().replace("[", "").replace("]", "");
+            let e_str = e[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut e_vec = e_str.split(", ").collect::<Vec<_>>();
-            let g_str = g[1].to_string().replace("[", "").replace("]", "");
+            let g_str = g[1].to_string().replace(&['[', ']', '\"'][..], "");
             let mut g_vec = g_str.split(", ").collect::<Vec<_>>();
-            assert_eq!(e_vec.sort(), g_vec.sort());
+            e_vec.sort();
+            g_vec.sort();
+            println!("  - expected: {:?} \n  - got: {:?}", e_vec, g_vec);
+            assert_eq!(e_vec, g_vec);
         }
     }
 }

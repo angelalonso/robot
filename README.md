@@ -28,6 +28,10 @@ There are some rough edges and hopefully all of them will be covered before vers
 ### Putting the Hardware together
 ### Installing the Software
 ### Configuring
+In order to configure, you'll need to create rulesets.
+
+If you want to develop your ruleset and test it while at it, have a look at the [testing process](./brain/TESTING_HOWTO.md).
+
 -- v1 --
 ## What it can do
 Follow a list of rules regarding movements. Those rules can be based off what we get from the sensors. Basically it can do both of the following by choosing a different set of move_cfg.yaml rules:

@@ -12,8 +12,7 @@
     - ""
 - time: 0.5 
   actions:
-    - "motor_l__80__1.0"
-    - "motor_r__80__1.0"
+    - ""
 - time: 0.6
   actions:
     - ""
