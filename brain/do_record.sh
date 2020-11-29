@@ -1,4 +1,26 @@
 #!/bin/bash
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+
+[ "$#" -eq 1 ] || die "ERROR: please provide the name of the local file to save the recorded run to, $# provided"
+
+FILE=$1
+if [ -f ${FILE} ]; then
+    echo "You are about to overwrite ${FILE}!"
+    read -r -p "Are you sure? [y/N] " response
+    case "$response" in
+        [nN][oO]|[nN]) 
+            echo "Stopping then."
+            exit 1
+            ;;
+        *)
+            echo "Continuing!"
+            ;;
+    esac
+
+fi
 
 source .env
 ./build_for_raspberry.sh
@@ -40,3 +62,5 @@ done
 ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
   RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain record setup.yaml
   "
+scp ${SSH_CONN}:robot/brain/records/last_run.yaml ${FILE} 
+# TODO: ask for a destination file name on run

@@ -1,0 +1,6 @@
+- time: 0.2
+  msg: "SENSOR: button=0"
+- time: 0.3
+  msg: "SENSOR: distance=61"
+- time: 0.4
+  msg: "SENSOR: button=0"

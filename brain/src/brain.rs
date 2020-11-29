@@ -420,6 +420,7 @@ impl Brain {
     /// Load actions and rules using the same pattern.
     /// The actions differ from configs in that they will ALWAYS be loaded 
     pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
+        // TODO: get error message about the file missing if this fails
         let file_pointer = File::open(file.clone()).unwrap();
         let mut c: Vec<ConfigEntry> = [].to_vec();
         match serde_yaml::from_reader(file_pointer) {
