@@ -119,7 +119,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 None => info!("...starting Brain in Mode {}", start_mode),
             }
             // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), move_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "live_record".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
