@@ -1,6 +1,10 @@
 // Button Sensor
 const int ButtonPin = 13;
-int buttonValue;
+int buttonVal;
+int buttonPrevVal;
+int distanceVal;
+int distancePrevVal;
+String msg;
 //// Tracker Sensor disabled for now
 //const int TrackerPin = 2;
 // Proximity Sensor
@@ -16,17 +20,17 @@ void setup() {
 }
 
 void loop() {
-  buttonValue = digitalRead(ButtonPin); // read the value of the button
-  if(buttonValue == HIGH)
-  {
-    delay(20);    
-    Serial.println("SENSOR: button=1");
-  }
-  else
-  {
-    delay(20);    
-    Serial.println("SENSOR: button=0");
-  }
+  buttonVal = digitalRead(ButtonPin); // read the value of the button
+  //if(buttonValue == HIGH)
+  //{
+  //  delay(20);    
+  //  Serial.println("SENSOR: button=1");
+  //}
+  //else
+  //{
+  //  delay(20);    
+  //  Serial.println("SENSOR: button=0");
+  //}
   //boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
   //if(trackerValue == HIGH) //if it is HiGH
   //{ 
@@ -48,10 +52,25 @@ void loop() {
   delayMicroseconds(10);
   digitalWrite(ProximityTriggerPin, LOW);
   long duration = pulseIn(ProximityEchoPin, HIGH);
-  int distanceVALUE = duration*0.034/2;
+  distanceVal = duration*0.034/2;
   delay(20);
-  Serial.print("SENSOR: distance=");
-  Serial.println (distanceVALUE, DEC);
+  msg = "SENSOR: ";
+  if (buttonVal != buttonPrevVal) {
+    buttonPrevVal = buttonVal;
+    if(buttonVal == HIGH) {
+      msg.concat("button=1|");
+    } else {
+      msg.concat("button=1|");
+    };
+  };
+  if (distanceVal != distancePrevVal) {
+    distancePrevVal = distanceVal;
+    msg.concat("distance=");
+    msg.concat(distanceVal);
+    msg.concat("|");
+  };
+  //Serial.print("SENSOR: distance=");
+  //Serial.println (distanceVal, DEC);
   
   delay(100);
 }
