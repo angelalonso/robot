@@ -54,8 +54,9 @@ impl Arduino {
     pub fn read_channel_mock(&mut self, channel: Sender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
         debug!("...reading from Mocked Serial Port");
         let mut got: String;
-        let mock_file = setup_file.replace("_setup", "_mock");
+        let mock_file = setup_file.replace("setup", "mock");
         if Path::new(&mock_file).exists() {
+            println!("Using {} as mocked input", mock_file);
             let file_pointer = File::open(mock_file).unwrap();
             #[derive(Clone, Debug, Deserialize)]
             struct ArduinoMessage {

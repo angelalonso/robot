@@ -866,7 +866,7 @@ impl Brain {
             .append(true)
             .open(self.rec_file.clone())
             .unwrap();
-        let log = format!("- time: {}\n  msg: {}", timestamp, entry);
+        let log = format!("- time: {}\n  msg: \"{}\"", timestamp, entry);
         warn!("We are writing {} to {}", log, self.rec_file);
         writeln!(&mut file, "{}", log).unwrap();
     }
