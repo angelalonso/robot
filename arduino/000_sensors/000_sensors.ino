@@ -55,7 +55,9 @@ void loop() {
   distanceVal = duration*0.034/2;
   delay(20);
   msg = "SENSOR: ";
+  bool news = false;
   if (buttonVal != buttonPrevVal) {
+    news = true;
     buttonPrevVal = buttonVal;
     if(buttonVal == HIGH) {
       msg.concat("button=1|");
@@ -64,12 +66,16 @@ void loop() {
     };
   };
   if (distanceVal != distancePrevVal) {
+    news = true;
     distancePrevVal = distanceVal;
     msg.concat("distance=");
     msg.concat(distanceVal);
     msg.concat("|");
   };
-  Serial.println(msg);
+  if (news == true) {
+    Serial.println(msg);
+  }
+  
   //Serial.print("SENSOR: distance=");
   //Serial.println (distanceVal, DEC);
   
