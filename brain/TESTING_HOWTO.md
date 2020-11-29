@@ -1,15 +1,15 @@
 # How to do the testing of a new ruleset
 
 The process guides you to creating and using 4 files:
-- The ruleset/config yaml that defines what the robot should do given certain conditions (`*_cfg.yaml`). Remember that this is the file you want to test.
+- The ruleset/config yaml that defines what the robot should do given certain conditions (`*_rules.yaml`). Remember that this is the file you want to test.
 - A mock yaml including signals received from the arduino (`*_mock.yaml`).
 - A setup yaml that defines how the brain starts (`*_setup.yaml`).
 - An expectations yaml that defines what actions your robot should do and when (`*_expected.yaml`).
 
-Normally you'd want all these files (with * being the same word of your choice for all of them) under ./testfiles. Then once you are happy with the result, you can just copy your *_cfg.yaml to the rulesets/ folder.  
+Normally you'd want all these files (with * being the same word of your choice for all of them) under ./testfiles. Then once you are happy with the result, you can just copy your *_rules.yaml to the rulesets/ folder.  
 
 ## Create your ruleset/config file (or copy one)
-Make sure the file is called `testfiles/<same name of your choice>_cfg.yaml`.
+Make sure the file is called `testfiles/<same name of your choice>_rules.yaml`.
 
 ## Get data from your robot to mock inputs
 ```
@@ -21,7 +21,7 @@ Make sure the file is called `testfiles/<same name of your choice>_cfg.yaml`.
 ## Create your setup file (or copy one)
 Make sure the file is called `testfiles/<same name of your choice>_setup.yaml`, and you configure it properly like:
 ```
-start_actionset_file: testfiles/<same name of your choice>_cfg.yaml
+start_actionset_file: testfiles/<same name of your choice>_rules.yaml
 ```
 
 ## Create your expectations file (or copy one)
