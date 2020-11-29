@@ -19,12 +19,12 @@ void loop() {
   buttonValue = digitalRead(ButtonPin); // read the value of the button
   if(buttonValue == HIGH)
   {
-    delay(10);    
+    delay(20);    
     Serial.println("SENSOR: button=1");
   }
   else
   {
-    delay(10);    
+    delay(20);    
     Serial.println("SENSOR: button=0");
   }
   //boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
@@ -49,7 +49,7 @@ void loop() {
   digitalWrite(ProximityTriggerPin, LOW);
   long duration = pulseIn(ProximityEchoPin, HIGH);
   int distanceVALUE = duration*0.034/2;
-  delay(10);
+  delay(20);
   Serial.print("SENSOR: distance=");
   Serial.println (distanceVALUE, DEC);
   
