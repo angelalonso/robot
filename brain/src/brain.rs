@@ -314,6 +314,7 @@ impl Brain {
                                     self.add_action(aux);
                                 }
                             }
+                            println!("{:#x?}", self.buffersets);
                         };
                     },
                     Err(_e) => trace!("...no matching rules found"),
