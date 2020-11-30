@@ -148,9 +148,10 @@ impl Motors {
                 }
             }
             self.movement = movement.clone();
-            info!("Changing Move to {}", self.movement);
+            println!("Changing Move to {}", self.movement);
         }
     }
+
     pub fn set(&mut self, motor: String, value: String) {
         let movement = self.movement.clone();
         let movement_vector = movement.split("_").collect::<Vec<_>>();
