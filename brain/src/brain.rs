@@ -314,7 +314,12 @@ impl Brain {
                                     self.add_action(aux);
                                 }
                             }
-                            println!("{:#x?}", self.buffersets);
+                            match self.buffersets.iter_mut().find(|x| *x.object == "motor_l".to_string()) {
+                                Some(ob) => {
+                                    println!("{:#x?}", ob.entries);
+                                },
+                                None => (),
+                            };
                         };
                     },
                     Err(_e) => trace!("...no matching rules found"),
