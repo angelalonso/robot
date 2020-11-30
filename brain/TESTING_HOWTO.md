@@ -83,3 +83,12 @@ Here goes an example, though, for the code to test a new function called obstacl
 ```
 cargo test -- --nocapture
 ```
+
+If you want something closer to a live run, you can run brain on test mode too:
+- Create (or copy over) a setup_test.yaml file
+- Create (or copy over) a mock_test.yaml file
+- Run:
+```
+clear && RUST_LOG=info cargo run test setup_test.yaml
+```
+, you can even play with the RUST_LOG variable or change the code to just publish some stuff you want to debug. Feel free to do so as long as you can return to the original code somehow ;).
