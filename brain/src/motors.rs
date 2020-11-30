@@ -125,16 +125,16 @@ impl Motors {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
-                                    if move_l.parse::<i16>().unwrap() > 0 {
+                                    if move_r.parse::<i16>().unwrap() > 0 {
                                         o.lock().unwrap().forward();
-                                    } else if move_l.parse::<i16>().unwrap() < 0 {
+                                    } else if move_r.parse::<i16>().unwrap() < 0 {
                                         o.lock().unwrap().backward();
                                     }
                                     match &m.enabler {
                                         Some(e) => {
                                             e.lock().unwrap().on();
-                                            let l_value = (move_l.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
-                                            e.lock().unwrap().set_value(l_value);
+                                            let r_value = (move_r.parse::<i16>().unwrap().abs() as f64 / 100.0) as f64;
+                                            e.lock().unwrap().set_value(r_value);
                                         }
                                         None => debug!("Here the enabler of {:?} would be set to ON", m.name),
                                     }
