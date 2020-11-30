@@ -148,7 +148,7 @@ impl Motors {
                 }
             }
             self.movement = movement.clone();
-            println!("Changing Move to {}", self.movement);
+            info!("Changing Move to {}", self.movement);
         }
     }
 

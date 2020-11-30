@@ -7,10 +7,10 @@
   actions:
   - object: "motor_l"
     value: "80"
-    time: "1"
+    time: "0.1"
   - object: "motor_r"
     value: "80"
-    time: "1"
+    time: "0.1"
 - id: "stop_n_turn"
   condition:
   - time: "0.05" 
@@ -24,7 +24,7 @@
     value: "0"
     time: "1.5"
   - object: "motor_l"
-    value: "80"
+    value: "-80"
     time: "1"
   - object: "motor_r"
     value: "-80"
