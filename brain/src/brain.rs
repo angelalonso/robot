@@ -831,15 +831,21 @@ impl Brain {
                                     },
                                     &_ => {},
                                 }
-                                let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
-                                if acc_time.to_string() == "NaN"{
-                                    result = false;
-                                    return result
-                                } else {
-                                    if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
+                                if matched_metrics.len() > 0 {
+                                    let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
+                                    if acc_time.to_string() == "NaN"{
                                         result = false;
                                         return result
+                                    } else {
+                                        if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
+                                            result = false;
+                                            return result
+                                        }
                                     }
+                                } else {
+                                    // TODO: do we need to check timestamp here?
+                                    result = false;
+                                    return result
                                 }
                                 // put together all metrics that fit comparison
                                 // add the timestamps
