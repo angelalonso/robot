@@ -39,7 +39,8 @@ impl Arduino {
     pub fn new(arduino_name: String, raw_serial_port: Option<String>) -> Result<Self, String> {
         let serial_port = match raw_serial_port {
             Some(port) => port,
-            None => "/dev/ttyUSB0".to_string(),
+            //None => "/dev/ttyUSB0".to_string(),
+            None => "/dev/ttyACM0".to_string(),
         };
         Ok(Self {
             name: arduino_name,
