@@ -395,7 +395,7 @@ impl Brain {
                 let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
                 for s in sensors {
                     let sensor = s.split("=").collect::<Vec<_>>();
-                    debug!("Message from Arduino: {:?}", sensor);
+                    println!("Message from Arduino: {:?}", sensor);
                     let sensor_id = "arduino".to_string();
                     if sensor.len() > 1 {
                         self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);

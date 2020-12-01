@@ -1,5 +1,5 @@
 use rust_gpiozero::{Motor, PWMOutputDevice};
-use log::{debug, info};
+use log::{debug, info, warn};
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::collections::HashMap;
@@ -50,7 +50,7 @@ impl Motors {
     pub fn change_movement(&mut self, movement: String) {
         let move_vector = movement.split("_").collect::<Vec<_>>();
         let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
-        println!("{:#x?} vs. {:#x?}", move_vector, prev_move_vector);
+        //println!("{:#x?} vs. {:#x?}", move_vector, prev_move_vector);
         if move_vector != prev_move_vector {
             let move_l = move_vector[0];
             let move_r = move_vector[1];
@@ -72,7 +72,7 @@ impl Motors {
                             }
 
                         },
-                        None => println!("There's no motor_l"),
+                        None => warn!("There's no motor_l"),
                     }
                 } else {
                     match self.objects.iter_mut().find(|x| *x.name == "motor_l".to_string()) {
@@ -97,7 +97,7 @@ impl Motors {
                                 //
                             }
                         },
-                        None => println!("There's no motor_l"),
+                        None => warn!("There's no motor_l"),
                     }
                 }
             }
@@ -118,7 +118,7 @@ impl Motors {
                             }
 
                         },
-                        None => println!("There's no motor_r"),
+                        None => warn!("There's no motor_r"),
                     }
                 } else {
                     match self.objects.iter_mut().find(|x| *x.name == "motor_r".to_string()) {
@@ -143,7 +143,7 @@ impl Motors {
                                 //
                             }
                         },
-                        None => println!("There's no motor_r"),
+                        None => warn!("There's no motor_r"),
                     }
                 }
             }
