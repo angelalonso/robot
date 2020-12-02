@@ -12,15 +12,18 @@ Use common sense before powering your build, soldering stuff or doing anything t
 
 # Status
 
-Second version works and is configurable.  
-Basically any actions involving two wheels, four leds and a distance sensor should be programmable.
+Second version worked and was configurable. Then my Arduino died on me and I had to go back to the drawing board to investigate why.
+Basically any actions involving two wheels, four leds and a distance sensor should have been programmable.
 There are some rough edges and hopefully all of them will be covered before version 3 arrives.
+All in all, I'll have to use the chance to really understand my HW.
 
 # Changes on v2
+- TODO: there is a guide that goes from the bottom all the way up to deploying your first yaml ruleset to the robot.
+  - TODO: this is basically a work on documenting electronics and solving potential issues there.
 - We now just use one single setup file which defines inputs and outputs, first program to load in arduino and first ruleset to load.
 - there is a mode called reset that should switch off all LEDs and motors. 
 - there is a mode called test that mocks input from arduino and outputs to LEDs, motors...
-- TODO: there is a mode called record that records what arduino gets as input on a logfile that can be used on tests
+- there is a mode called record that records what arduino gets as input on a logfile that can be used on tests
 
 ## What it can do
 ## Version 2

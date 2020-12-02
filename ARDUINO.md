@@ -38,8 +38,13 @@ ISCP Pin NNumber -> Raspberry Pi Pin Number
 - Create program
 - Save it to ./arduino/name_of_program (or whatever folder you want)
 - compile it locally 
-- check output of arduino, copy the /tmp/../...ino.hex file to the ../arduino/name_of_program folder
-- chown the whole folder to your user
+- run 
+```
+./do_savearduinohex.sh <name of your program>
+```
+  - This little program does:
+    - check output of arduino, copy the /tmp/../...ino.hex file to the ../arduino/name_of_program folder
+    - chown the whole folder to your user
 
 ## Notes on writing programs
 Communication from Arduino to Raspberry occurs through messages on the Serial.
@@ -63,4 +68,3 @@ Communication from Arduino to Raspberry occurs through messages on the Serial.
 - As you have seen on the examples above, we need to have a ```delay(50)``` (or more than 50) between two println commands, to allow brain to read both in two separate tries.
 
 # Challenges
-- One has to manually get and copy the ino.hex files after compiling from arduino IDE :(
