@@ -30,11 +30,11 @@ All in all, I'll have to use the chance to really understand my HW.
 
 Version 2 includes a Step by Step Documentation that should guide you through the whole process
 
-- [Shopping list before you start](TBD)
+- [Shopping list before you start](https://github.com/angelalonso/robot/tree/master/docs/000_ShoppingList.md)
 - [Notes on the setup](https://github.com/angelalonso/robot/tree/master/docs/001_Setup.md)
 - [Installing your Raspberry](https://github.com/angelalonso/robot/tree/master/docs/002_Raspberry.md)
-- [Building a basic chassis](TBD)
-- [First example on input output](TBD)
+- [Building a basic chassis](https://github.com/angelalonso/robot/tree/master/docs/003_Chassis.md)
+- [First example on basic connections](TBD)
 
 ### Configuring
 In order to configure, you'll need to create rulesets.
@@ -50,21 +50,6 @@ Follow a list of rules regarding movements. Those rules can be based off what we
 
 ## Version 1
 ### Hardware
-#### What to get
-- Raspberry pi 1 B+. Probably anything newer will even work better.
-  - A Wifi dongle like [this one](https://www.amazon.com/Edimax-EW-7611ULB-Wi-Fi-Bluetooth-Adapter/dp/B01KVZB3A4/ref=sr_1_2?dchild=1&keywords=edimax+wifi+dongle&qid=1599231989&sr=8-2)
-- [Bought this pack for the following:](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
-  - Arduino UNO as sensor controller. Check [ARDUINO.md](ARDUINO.md). [Bought this one](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
-  - L298N as motor controller. Check [L298N.md](L298N.md).
-  - HC-SR04 as distance sensor  
-  - 2 motors  
-- A tracking sensor (got mine from [HERE](https://www.banggood.com/Geekcreit-37-In-1-Sensor-Module-Board-Set-Starter-Kits-SENSOR-KIT-For-Arduino-Plastic-Bag-Package-p-1137051.html?rmmds=myorder&cur_warehouse=UK))
-- Several Jumper cables Male, female...get from both.
-- Some 3mm nuts and bolts to fix chips to the chassis.
-- Chassis made of Cardboard and plastic  
-- [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
-- Weight: 897 grams  
-
 #### How to put it together
 So far I don't have much more than a testing platform built with two small-ish boxes glued together and put on top of the Robot car kit chassis.  
 
