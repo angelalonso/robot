@@ -27,9 +27,15 @@ All in all, I'll have to use the chance to really understand my HW.
 
 ## What it can do
 ## Version 2
-### Shopping list before you start
-### Putting the Hardware together
-### Installing the Software
+
+Version 2 includes a Step by Step Documentation that should guide you through the whole process
+
+- [Shopping list before you start](TBD)
+- [Notes on the setup](https://github.com/angelalonso/robot/tree/master/docs/001_Setup.md)
+- [Installing your Raspberry](https://github.com/angelalonso/robot/tree/master/docs/002_Raspberry.md)
+- [Building a basic chassis](TBD)
+- [First example on input output](TBD)
+
 ### Configuring
 In order to configure, you'll need to create rulesets.
 
