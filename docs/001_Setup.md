@@ -17,5 +17,12 @@ In other words, these are the basic design premises we will try to stick with:
   - loads programs into the Arduino when needed.
   - all of the above is done from a so-called "brain" program that is configurable.
 
+## Connections
+
+We will be providing power from the Raspberry pi to the Arduino via USB, and communications through the ICSP Pins
+
+![Connection Raspberry to Arduino](../img/conn_raspi_ardu.jpg)
+![Diagram Connection Raspberry to Arduino](../img/diagram.v2.1.png)
+
 # Challenges
-- Our current setup seems to be a bit slow on reaction times
+- Our current setup seems to be a bit slow on reaction times and that might be a design flaw
