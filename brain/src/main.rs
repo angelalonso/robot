@@ -136,7 +136,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
             // Generate our Brain object
             // TODO: manage this _record thing properly everywhere
-            let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun_record".to_string(), move_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun".to_string(), move_config_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
