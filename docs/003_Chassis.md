@@ -19,6 +19,10 @@ I cut it in two and removed the top part and some unneeded plastic at the border
 
 For the rest of the chassis I prefer an open layer, in this case made of two cardboards taken from a Shoes box.
 
+![Cardboard extension](../img/chassis_cardboard.jpg)
+
 We will call that thing our chassis from now on.
+
+![Extension mounted](../img/chassis_cardboard_mounted.jpg)
 
 I put all components together on top of the chassis to decide on the best distribution possible. Bear in mind that you will want to add some more elements in the future.
