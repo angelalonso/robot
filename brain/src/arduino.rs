@@ -259,7 +259,7 @@ impl Arduino {
                     debug!("- Received Action message: {}", got);
                     channel.send(got).unwrap();
                 } else if got.contains("SENSOR: ") {
-                    debug!("- Received Sensor message: {}", got);
+                    println!("- Received Sensor message: {}", got);
                     channel.send(got).unwrap();
                 } else {
                     debug!("- Read ->{}<- from Serial Port", got);
