@@ -53,7 +53,7 @@ void loop() {
   digitalWrite(ProximityTriggerPin, LOW);
   long duration = pulseIn(ProximityEchoPin, HIGH);
   distanceVal = duration*0.034/2;
-  delay(20);
+  delay(30);
   msg = "SENSOR: ";
   bool news = false;
 //  if (buttonVal != buttonPrevVal) {
@@ -81,5 +81,5 @@ void loop() {
   //Serial.print("SENSOR: distance=");
   //Serial.println (distanceVal, DEC);
   
-  //delay(100);
+  delay(100);
 }
