@@ -392,6 +392,7 @@ impl Brain {
         match msg_parts[0] {
             // TODO: add other use cases
             "SENSOR" => {
+                println!("Message from Arduino");
                 let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
                 for s in sensors {
                     let sensor = s.split("=").collect::<Vec<_>>();
@@ -421,7 +422,7 @@ impl Brain {
     /// Log action buffers' content
     pub fn show_action_buffers(&mut self) {
         for b in &self.buffersets {
-            //if b.object == "motor_l" {
+            //if b.object == "led_y" {
             //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             //    for (ix, action) in b.entries.clone().iter().enumerate() {
             //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
