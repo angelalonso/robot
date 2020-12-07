@@ -81,5 +81,5 @@ void loop() {
   //Serial.print("SENSOR: distance=");
   //Serial.println (distanceVal, DEC);
   
-  delay(100);
+  //delay(100);
 }
