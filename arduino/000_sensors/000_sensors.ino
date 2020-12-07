@@ -1,7 +1,7 @@
 // Button Sensor
-const int ButtonPin = 13;
-int buttonVal;
-int buttonPrevVal;
+//const int ButtonPin = 13;
+//int buttonVal;
+//int buttonPrevVal;
 int distanceVal;
 int distancePrevVal;
 String msg;
@@ -12,7 +12,7 @@ const int ProximityTriggerPin = 7;
 const int ProximityEchoPin = 6;
 
 void setup() {
-  pinMode (ButtonPin, INPUT) ;
+  //pinMode (ButtonPin, INPUT) ;
   //pinMode (TrackerPin, INPUT);
   pinMode(ProximityTriggerPin, OUTPUT);
   pinMode(ProximityEchoPin, INPUT);
@@ -20,7 +20,7 @@ void setup() {
 }
 
 void loop() {
-  buttonVal = digitalRead(ButtonPin); // read the value of the button
+  //buttonVal = digitalRead(ButtonPin); // read the value of the button
   //if(buttonValue == HIGH)
   //{
   //  delay(20);    
@@ -56,15 +56,15 @@ void loop() {
   delay(20);
   msg = "SENSOR: ";
   bool news = false;
-  if (buttonVal != buttonPrevVal) {
-    news = true;
-    buttonPrevVal = buttonVal;
-    if(buttonVal == HIGH) {
-      msg.concat("button=1|");
-    } else {
-      msg.concat("button=1|");
-    };
-  };
+//  if (buttonVal != buttonPrevVal) {
+//    news = true;
+//    buttonPrevVal = buttonVal;
+//    if(buttonVal == HIGH) {
+//      msg.concat("button=1|");
+//    } else {
+//      msg.concat("button=1|");
+//    };
+//  };
   if (distanceVal != distancePrevVal) {
     news = true;
     distancePrevVal = distanceVal;
@@ -74,6 +74,8 @@ void loop() {
   };
   if (news == true) {
     Serial.println(msg);
+  } else {
+    Serial.println("SENSOR: ");
   }
   
   //Serial.print("SENSOR: distance=");
