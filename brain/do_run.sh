@@ -37,9 +37,7 @@ do
       online=true
   fi
 done
-${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
+echo "########## RUN"
+${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git stash; git stash drop; git pull && \
   RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain live setup.yaml
   "
-#${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
-#  target/arm-unknown-linux-gnueabihf/debug/brain live setup.yaml
-#  "
