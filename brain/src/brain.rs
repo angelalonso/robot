@@ -127,7 +127,7 @@ impl Brain {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        let (first_action_set, first_arduino_program, inputs, outputs) = Brain::load_setup(setupfile.to_string());
+        let (first_action_set, _first_arduino_program, inputs, outputs) = Brain::load_setup(setupfile.to_string());
         let c = Brain::load_action_rules(first_action_set).unwrap();
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
@@ -138,7 +138,8 @@ impl Brain {
                 eprintln!("Problem Initializing Arduino: {}", err);
                 process::exit(1);
             });
-            a.install(&first_arduino_program).unwrap();
+            //NOTE: We want to avoid installing with avrdude from the raspberry for now
+            //a.install(&first_arduino_program).unwrap();
         };
         let mut bs = [].to_vec();
         let mut ms = [].to_vec();

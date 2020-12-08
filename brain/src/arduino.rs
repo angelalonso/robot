@@ -112,140 +112,6 @@ impl Arduino {
                 Err(_e) => (),
             };
         }
-        //match setup_file.as_str() {
-        //    "testfiles/button_setup.yaml" => {
-        //        got = "SENSOR: button=1".to_string();
-        //        thread::sleep(time::Duration::from_millis(50));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: button=0".to_string();
-        //        thread::sleep(time::Duration::from_millis(250));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: button=1".to_string();
-        //        thread::sleep(time::Duration::from_millis(50));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: button=0".to_string();
-        //        thread::sleep(time::Duration::from_millis(250));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //    },
-        //    "setup.yaml" => {
-        //        //TODO: proper passing this filename around
-        //        let file_pointer = File::open("records/mock.yaml").unwrap();
-        //        #[derive(Clone, Debug, Deserialize)]
-        //        struct ArduinoMessage {
-        //            pub time: String,
-        //            pub msg: String,
-        //        }
-        //        //let mut e: Vec<ArduinoMessage> = [].to_vec();
-        //        let mut e: Vec<ArduinoMessage> = serde_yaml::from_reader(file_pointer).unwrap();
-        //        let st = SystemTime::now();
-        //        let start_time = match st.duration_since(UNIX_EPOCH) {
-        //            Ok(time) => time.as_millis(),
-        //            Err(_e) => 0,
-        //        };
-        //        while e.len() > 0 {
-        //            let now = SystemTime::now();
-        //            let timestamp = match now.duration_since(UNIX_EPOCH) {
-        //                // This WHOLE complication is needed to give my timestamp a x.x precision
-        //                // The +1 helps with precision and delays
-        //                Ok(time) => ((((time.as_millis() as f64 - start_time as f64) / 100.0) as i64 + 1)as f64) / (10.0) as f64,
-        //                Err(_e) => 0.0,
-        //            };
-        //            if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
-        //                match channel.send(e[0].msg.clone()){
-        //                    Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //                    Err(_e) => (),
-        //                };
-        //                e.remove(0);
-        //            }
-        //        }
-        //    },
-        //    _ => {
-        //        thread::sleep(time::Duration::from_secs(1));
-        //        got = "SENSOR: button=1".to_string();
-        //        thread::sleep(time::Duration::from_millis(100));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=20".to_string();
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: button=0".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=24".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=26".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=32".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=33".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=28".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=2".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=31".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=34".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //        got = "SENSOR: distance=12".to_string();
-        //        thread::sleep(time::Duration::from_millis(200));
-        //        match channel.send(got){
-        //            Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-        //            Err(_e) => (),
-        //        };
-        //    }
-        //}
         Ok("".to_string())
     }
 
@@ -299,6 +165,7 @@ impl Arduino {
     }
 
     /// This one should avrdude to send a given file to the arduino
+    /// NOTE: We are trying to avoid this at the moment and just communicate through USB
     pub fn install(&mut self, filename: &str) -> Result<(), BrainArduinoError> {
         // First check that avrdude is installed
         debug!("- Installing {} to arduino", filename);
@@ -339,6 +206,7 @@ impl Arduino {
     }
 
     /// Check that a given program is installed
+    /// NOTE: since we dont want to use install, we also dont need this one
     pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainArduinoError> {
         let check = Command::new("which")
                 .arg(prog)
