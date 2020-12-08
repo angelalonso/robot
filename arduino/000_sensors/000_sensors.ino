@@ -53,7 +53,6 @@ void loop() {
     Serial.println(msg);
     blink2();
   } else {
-    Serial.println("SENSOR: -");
     blink1();
 
   }
