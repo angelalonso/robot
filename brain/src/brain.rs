@@ -404,14 +404,6 @@ impl Brain {
                         trace!("{:?}", sensor);
                     }
                 }
-                //let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
-                //debug!("Message from Arduino: {:?}", sensor);
-                //let sensor_id = "arduino".to_string();
-                //if sensor.len() > 1 {
-                //    self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
-                //} else {
-                //    trace!("{:?}", sensor);
-                //}
             },
             _ => (),
         }
@@ -422,12 +414,12 @@ impl Brain {
     /// Log action buffers' content
     pub fn show_action_buffers(&mut self) {
         for b in &self.buffersets {
-            //if b.object == "led_y" {
-            //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-            //    for (ix, action) in b.entries.clone().iter().enumerate() {
-            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-            //    }
-            //}
+            if b.object == "led_y" {
+                println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+                for (ix, action) in b.entries.clone().iter().enumerate() {
+                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                }
+            }
             trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -710,12 +702,12 @@ impl Brain {
     /// Log objects' metrics
     pub fn show_metrics(&mut self) {
         for m in self.metricsets.clone().iter() {
-            //if m.object == "button" {
-            //    println!("- {} METRICS recorded for {}", m.entries.len(), m.object);
-            //    for (ix, action) in m.entries.clone().iter().enumerate() {
-            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-            //    }
-            //}
+            if m.object == "distance" {
+                println!("- {} METRICS recorded for {}", m.entries.len(), m.object);
+                for (ix, action) in m.entries.clone().iter().enumerate() {
+                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                }
+            }
             debug!("- Metrics - {}", m.object);
             for (ix, action) in m.entries.clone().iter().enumerate() {
                 debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
