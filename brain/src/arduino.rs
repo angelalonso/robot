@@ -146,7 +146,7 @@ impl Arduino {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(100))?;
+        port.set_timeout(Duration::from_millis(1000))?;
 
         let reader = BufReader::new(port);
         let mut lines = reader.lines();
