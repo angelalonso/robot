@@ -2,8 +2,8 @@ int distanceVal;
 int distancePrevVal;
 String msg;
 // PINS
-const int ProximityTriggerPin = 7;
-const int ProximityEchoPin = 6;
+const int ProximityTriggerPin = 3;
+const int ProximityEchoPin = 2;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
