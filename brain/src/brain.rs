@@ -301,6 +301,7 @@ impl Brain {
                                             Some(ob) => {
                                                 // We assume that if new actions are chosen, we can
                                                 // overwrite whatever is on the buffer
+                                                println!("Emptying {}", ob.object);
                                                 ob.entries = Vec::new();
                                             },
                                             None => (),
@@ -315,12 +316,6 @@ impl Brain {
                                     self.add_action(aux);
                                 }
                             }
-                            //match self.buffersets.iter_mut().find(|x| *x.object == "motor_l".to_string()) {
-                            //    Some(ob) => {
-                            //        println!("{:#x?}", ob.entries);
-                            //    },
-                            //    None => (),
-                            //};
                         };
                     },
                     Err(_e) => trace!("...no matching rules found"),
@@ -414,12 +409,12 @@ impl Brain {
     /// Log action buffers' content
     pub fn show_action_buffers(&mut self) {
         for b in &self.buffersets {
-            if b.object == "led_y" {
-                println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-                for (ix, action) in b.entries.clone().iter().enumerate() {
-                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                }
-            }
+            //if b.object == "led_y" {
+            //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+            //    for (ix, action) in b.entries.clone().iter().enumerate() {
+            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            //    }
+            //}
             trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -702,12 +697,12 @@ impl Brain {
     /// Log objects' metrics
     pub fn show_metrics(&mut self) {
         for m in self.metricsets.clone().iter() {
-            if m.object == "distance" {
-                info!("- {} METRICS recorded for {}", m.entries.len(), m.object);
-                for (ix, action) in m.entries.clone().iter().enumerate() {
-                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                }
-            }
+            //if m.object == "distance" {
+            //    info!("- {} METRICS recorded for {}", m.entries.len(), m.object);
+            //    for (ix, action) in m.entries.clone().iter().enumerate() {
+            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            //    }
+            //}
             debug!("- Metrics - {}", m.object);
             for (ix, action) in m.entries.clone().iter().enumerate() {
                 debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
