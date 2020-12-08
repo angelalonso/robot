@@ -152,6 +152,7 @@ impl Arduino {
         let mut lines = reader.lines();
         match lines.next().unwrap() {
             Ok(res) => {
+                println!("{}", res);
                 if res.contains("LOG:") {
                     debug!("- Received Log message: {}", &res);
                     Ok("".to_string())
