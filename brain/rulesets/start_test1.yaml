@@ -1,7 +1,7 @@
 --- 
 - id: "test_on"
   condition:
-  - time: "0.5" 
+  - time: "0.05" 
     input_objs: "distance<20"
   actionsloop: false
   actions:
@@ -10,7 +10,7 @@
     time: "0.2"
 - id: "test_off"
   condition:
-  - time: "0.5" 
+  - time: "0.05" 
     input_objs: "distance>=20"
   actionsloop: false
   actions:
