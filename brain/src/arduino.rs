@@ -42,7 +42,7 @@ impl Arduino {
             //None => "/dev/ttyUSB0".to_string(),
             None => "/dev/ttyACM0".to_string(),
         };
-        let mut port = serial::open(&serial_port.clone()).unwrap();
+        let mut port = serial::open(&serial_port).unwrap();
         Arduino::sync_serial(&mut port).unwrap();
         Ok(Self {
             name: arduino_name,
