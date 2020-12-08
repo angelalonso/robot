@@ -7,7 +7,7 @@
   actions:
   - object: "led_y"
     value: "1"
-    time: "0.2"
+    time: "0.1"
 - id: "test_off"
   condition:
   - time: "0.05" 
@@ -16,4 +16,4 @@
   actions:
   - object: "led_y"
     value: "0"
-    time: "0.2"
+    time: "0.1"
