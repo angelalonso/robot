@@ -120,12 +120,13 @@ impl Arduino {
         let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
+            println!("- Received Sensor message: {}", got);
             if got != "" {
                 if got.contains("ACTION: ") {
                     debug!("- Received Action message: {}", got);
                     channel.send(got).unwrap();
                 } else if got.contains("SENSOR: ") {
-                    println!("- Received Sensor message: {}", got);
+                    debug!("- Received Sensor message: {}", got);
                     channel.send(got).unwrap();
                 } else {
                     debug!("- Read ->{}<- from Serial Port", got);
