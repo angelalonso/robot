@@ -12,6 +12,23 @@ void setup() {
   Serial.begin (9600);
 }
 
+void blink1() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(40);                   
+    digitalWrite(LED_BUILTIN, LOW);  
+    delay(60);
+}
+
+void blink2() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(20);                   
+    digitalWrite(LED_BUILTIN, LOW); 
+    delay(50);    
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(20);                   
+    digitalWrite(LED_BUILTIN, LOW); 
+    delay(10);
+}
 void loop() {
 
   // Needed "protocol" for the proximity sensor
@@ -22,7 +39,7 @@ void loop() {
   digitalWrite(ProximityTriggerPin, LOW);
   long duration = pulseIn(ProximityEchoPin, HIGH);
   distanceVal = duration*0.034/2;
-  delay(30);
+  //delay(30);
   msg = "SENSOR: ";
   bool news = false;
   if (distanceVal != distancePrevVal) {
@@ -34,20 +51,11 @@ void loop() {
   };
   if (news == true) {
     Serial.println(msg);
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(40);                   
-    digitalWrite(LED_BUILTIN, LOW);  
-    delay(60);            
+    blink2();
   } else {
     Serial.println("SENSOR: -");
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(20);                   
-    digitalWrite(LED_BUILTIN, LOW); 
-    delay(50);    
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(20);                   
-    digitalWrite(LED_BUILTIN, LOW); 
-    delay(10);
+    blink1();
+
   }
   //delay(100);
 }
