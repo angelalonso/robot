@@ -42,8 +42,8 @@ impl Arduino {
             //None => "/dev/ttyUSB0".to_string(),
             None => "/dev/ttyACM0".to_string(),
         };
-        let mut port = serial::open(&serial_port).unwrap();
-        Arduino::sync_serial(&mut port).unwrap();
+        //let mut port = serial::open(&serial_port).unwrap();
+        //Arduino::sync_serial(&mut port).unwrap();
         Ok(Self {
             name: arduino_name,
             serialport: serial_port,
@@ -149,6 +149,9 @@ impl Arduino {
         })?;
 
         port.set_timeout(Duration::from_millis(100))?;
+
+        let mut buf: Vec<u8> = (0..1).collect();
+        port.write(&buf[..])?;
 
         let reader = BufReader::new(port);
         let mut lines = reader.lines();
