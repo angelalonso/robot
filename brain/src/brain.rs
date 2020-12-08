@@ -539,6 +539,7 @@ impl Brain {
                 }
             }
         }
+        // We want to count the amount of times the trigger was...triggered
         if partial_rules.len() > 0 {
             for rule in self.config.iter_mut() {
                 match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
@@ -560,6 +561,20 @@ impl Brain {
                 for ro in rule.actions.clone() {
                     debug!("      |{:?}|", ro);
                 }
+
+            }
+            // We also want the first action of the partial_rules to get done right away
+            for rule in partial_rules.clone() {
+                println!("----------------------- {:?}", rule.actions[0]);
+                let (new_metrics, acts) = self.do_action(timestamp, rule.actions[0].clone()).unwrap();
+                for m_raw in new_metrics {
+                    let m = m_raw.split("|").collect::<Vec<_>>();
+                    if m.len() > 1 {
+                        self.add_metric(timestamp, m[0].to_string(), m[1].to_string());
+                    }
+                }
+                // Send back the actions -> needed for tests
+                //sender.send(format!("{:?}|{:?}", ct, acts)).unwrap();
             }
         }
         Ok(partial_rules)
@@ -643,11 +658,48 @@ impl Brain {
         }
     }
 
+    pub fn do_action(&mut self, timestamp: f64, ob: ConfigOutput) -> Result<(Vec<String>, Vec<String>), String>{
+        let mut result = [].to_vec();
+        let mut metrics = [].to_vec();
+        //TODO: actions that come from a trigger should be done right away
+        //TODO: manage different types of actions
+        match self.metricsets.iter_mut().find(|x| *x.object == *ob.object) {
+            Some(om) => {
+                if timestamp >= om.last_change_timestamp {
+                    // TODO: Avoid hardcoding this (use types of actions?)
+                    if ob.object.starts_with("led") {
+                        self.leds.set_led(om.object.clone(), ob.value.parse::<u8>().unwrap() == 1);
+                    } else if ob.object.starts_with("motor") {
+                        let action_vector = ob.value.split("_").collect::<Vec<_>>();
+                        self.motors.set(ob.object.clone(), action_vector[0].to_string());
+                    } else if ob.object.starts_with("other") {
+                        let other_action = ob.value.split("_").collect::<Vec<_>>();
+                        if other_action[0] == "load" {
+                            let file_to_load = other_action[1..].join("_").to_string();
+                            self.config = Brain::load_action_rules(file_to_load).unwrap();
+                        }
+                    }
+                    //TODO: this info should come from the leds module itself
+                    info!("- Just did {} -> {}", om.object, ob.value);
+                    // TODO actually both the following could be one if we unified format
+                    let aux_id = COUNTER.fetch_add(1, Ordering::Relaxed);
+                    metrics.push(format!("{}__{}|{}", ob.object, ob.value, aux_id.to_string()));
+                    result.push(format!("{}__{}__{:?}", ob.object, ob.value, ob.time));
+                }
+            },
+            None => (),
+        };
+        if result.len() == 0 {result.push("".to_string())};
+        if metrics.len() == 0 {metrics.push("".to_string())};
+        Ok((metrics, result))
+    }
+
     /// Performs the next action on each action buffer if the timestamp is right.
     /// Return the action(s) taken and it's related metric
     pub fn do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
+        //TODO: actions that come from a trigger should be done right away
         //TODO: manage different types of actions
         for ob in self.buffersets.iter_mut() {
             match self.metricsets.iter_mut().find(|x| *x.object == *ob.object) {

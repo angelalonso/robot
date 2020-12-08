@@ -88,25 +88,27 @@ impl Arduino {
                 }
             }
         } else {
-            got = "SENSOR: button=1".to_string();
+            //got = "SENSOR: button=1".to_string();
+            got = "SENSOR: distance=19".to_string();
             thread::sleep(time::Duration::from_millis(50));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
-            got = "SENSOR: button=0".to_string();
+            //got = "SENSOR: button=0".to_string();
+            got = "SENSOR: distance=20".to_string();
             thread::sleep(time::Duration::from_millis(250));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
-            got = "SENSOR: button=1".to_string();
+            got = "SENSOR: distance=24".to_string();
             thread::sleep(time::Duration::from_millis(50));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
-            got = "SENSOR: button=0".to_string();
+            got = "SENSOR: distance=19".to_string();
             thread::sleep(time::Duration::from_millis(250));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
