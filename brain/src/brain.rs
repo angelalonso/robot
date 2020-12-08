@@ -393,7 +393,6 @@ impl Brain {
         match msg_parts[0] {
             // TODO: add other use cases
             "SENSOR" => {
-                println!("Message from Arduino");
                 let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
                 for s in sensors {
                     let sensor = s.split("=").collect::<Vec<_>>();
