@@ -1,15 +1,18 @@
+
+int incomingByte = 0;
+String msg;
 int distanceVal;
 int distancePrevVal;
-String msg;
 // PINS
 const int ProximityTriggerPin = 3;
 const int ProximityEchoPin = 2;
+
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ProximityTriggerPin, OUTPUT);
   pinMode(ProximityEchoPin, INPUT);
-  Serial.begin (9600);
+  Serial.begin(9600);
 }
 
 void blink1() {
@@ -30,31 +33,39 @@ void blink2() {
     delay(10);
 }
 void loop() {
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
 
-  // Needed "protocol" for the proximity sensor
-  digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
-  delayMicroseconds(2);
-  digitalWrite(ProximityTriggerPin, HIGH); // Sets triggerPin on HIGH state for 10 microsecs
-  delayMicroseconds(10);
-  digitalWrite(ProximityTriggerPin, LOW);
-  long duration = pulseIn(ProximityEchoPin, HIGH);
-  distanceVal = duration*0.034/2;
-  //delay(30);
-  msg = "SENSOR: ";
-  bool news = false;
-  if (distanceVal != distancePrevVal) {
-    news = true;
-    distancePrevVal = distanceVal;
-    msg.concat("distance=");
-    msg.concat(distanceVal);
-    msg.concat("|");
-  };
-  if (news == true) {
-    Serial.println(msg);
-    blink2();
-  } else {
-    blink1();
-
+    // say what you got:
+    Serial.print("I received: ");
+    Serial.println(incomingByte, DEC);
+    // Needed "protocol" for the proximity sensor
+    digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
+    delayMicroseconds(2);
+    digitalWrite(ProximityTriggerPin, HIGH); // Sets triggerPin on HIGH state for 10 microsecs
+    delayMicroseconds(10);
+    digitalWrite(ProximityTriggerPin, LOW);
+    long duration = pulseIn(ProximityEchoPin, HIGH);
+    distanceVal = duration*0.034/2;
+    //delay(30);
+    msg = "SENSOR: ";
+    bool news = false;
+    if (distanceVal != distancePrevVal) {
+      news = true;
+      distancePrevVal = distanceVal;
+      msg.concat("distance=");
+      msg.concat(distanceVal);
+      msg.concat("|");
+    };
+    if (news == true) {
+      Serial.println(msg);
+      blink2();
+    } else {
+      blink1();
+  
+    }
+    //delay(100);
   }
-  //delay(100);
+  
 }
