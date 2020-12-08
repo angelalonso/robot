@@ -60,9 +60,8 @@ void loop() {
     };
     if (news == true) {
       Serial.println(msg);
-      blink2();
-    } else {
-      blink1();
+    //} else {
+    //  blink1();
   
     }
     //delay(100);

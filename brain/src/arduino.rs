@@ -149,6 +149,11 @@ impl Arduino {
 
         port.set_timeout(Duration::from_millis(1000))?;
 
+        // NOTE: This is needed because we want to initiate conversation from the Brain
+        //   The arduino program does not publish anything until Brain sends something (a 0) on the
+        //   Serial port. We do this on every loop.
+        // What we need to solve is the problem that the Arduino program boots and starts sending
+        //   before our brain  program is ready.
         let mut buf: Vec<u8> = (0..1).collect();
         port.write(&buf[..])?;
 
