@@ -301,7 +301,6 @@ impl Brain {
                                             Some(ob) => {
                                                 // We assume that if new actions are chosen, we can
                                                 // overwrite whatever is on the buffer
-                                                println!("Emptying {}", ob.object);
                                                 ob.entries = Vec::new();
                                             },
                                             None => (),
@@ -565,7 +564,6 @@ impl Brain {
             }
             // We also want the first action of the partial_rules to get done right away
             for rule in partial_rules.clone() {
-                println!("----------------------- {:?}", rule.actions[0]);
                 let (new_metrics, acts) = self.do_action(timestamp, rule.actions[0].clone()).unwrap();
                 for m_raw in new_metrics {
                     let m = m_raw.split("|").collect::<Vec<_>>();
