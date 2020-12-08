@@ -43,7 +43,6 @@ impl Arduino {
             None => "/dev/ttyACM0".to_string(),
         };
         //let mut port = serial::open(&serial_port).unwrap();
-        //Arduino::sync_serial(&mut port).unwrap();
         Ok(Self {
             name: arduino_name,
             serialport: serial_port,
@@ -154,7 +153,7 @@ impl Arduino {
         //   Serial port. We do this on every loop.
         // What we need to solve is the problem that the Arduino program boots and starts sending
         //   before our brain  program is ready.
-        let mut buf: Vec<u8> = (0..1).collect();
+        let buf: Vec<u8> = (0..1).collect();
         port.write(&buf[..])?;
 
         let reader = BufReader::new(port);
@@ -176,26 +175,6 @@ impl Arduino {
         }
     }
     
-    fn sync_serial<T: SerialPort>(port: &mut T) -> io::Result<()> {
-        port.reconfigure(&|settings| {
-            settings.set_baud_rate(serial::Baud9600)?;
-            settings.set_char_size(serial::Bits8);
-            settings.set_parity(serial::ParityNone);
-            settings.set_stop_bits(serial::Stop1);
-            settings.set_flow_control(serial::FlowNone);
-            Ok(())
-        })?;
-
-        port.set_timeout(Duration::from_millis(1000))?;
-
-        let mut buf: Vec<u8> = (0..255).collect();
-
-        port.write(&buf[..])?;
-        port.read(&mut buf[..])?;
-
-        Ok(())
-    }
-
     /// This one should avrdude to send a given file to the arduino
     /// NOTE: We are trying to avoid this at the moment and just communicate through USB
     pub fn install(&mut self, filename: &str) -> Result<(), BrainArduinoError> {
