@@ -122,7 +122,6 @@ impl Arduino {
         let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
-            println!("- Received Sensor message: {}", got);
             if got != "" {
                 if got.contains("ACTION: ") {
                     debug!("- Received Action message: {}", got);
@@ -166,7 +165,7 @@ impl Arduino {
                 }
             },
             Err(e) => {
-                    println!("{}", e);
+                    println!("ERROR - {}", e);
                     Ok("".to_string())
                 },
         }

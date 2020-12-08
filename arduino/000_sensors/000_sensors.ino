@@ -38,8 +38,8 @@ void loop() {
     incomingByte = Serial.read();
 
     // say what you got:
-    Serial.print("I received: ");
-    Serial.println(incomingByte, DEC);
+    //Serial.print("I received: ");
+    //Serial.println(incomingByte, DEC);
     // Needed "protocol" for the proximity sensor
     digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
     delayMicroseconds(2);
