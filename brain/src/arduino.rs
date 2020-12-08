@@ -148,7 +148,7 @@ impl Arduino {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(100))?;
+        port.set_timeout(Duration::from_millis(1000))?;
 
         let mut buf: Vec<u8> = (0..1).collect();
         port.write(&buf[..])?;
