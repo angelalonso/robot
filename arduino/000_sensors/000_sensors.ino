@@ -1,49 +1,18 @@
-// Button Sensor
-//const int ButtonPin = 13;
-//int buttonVal;
-//int buttonPrevVal;
 int distanceVal;
 int distancePrevVal;
 String msg;
-//// Tracker Sensor disabled for now
-//const int TrackerPin = 2;
-// Proximity Sensor
+// PINS
 const int ProximityTriggerPin = 7;
 const int ProximityEchoPin = 6;
 
 void setup() {
-  //pinMode (ButtonPin, INPUT) ;
-  //pinMode (TrackerPin, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ProximityTriggerPin, OUTPUT);
   pinMode(ProximityEchoPin, INPUT);
   Serial.begin (9600);
 }
 
 void loop() {
-  //buttonVal = digitalRead(ButtonPin); // read the value of the button
-  //if(buttonValue == HIGH)
-  //{
-  //  delay(20);    
-  //  Serial.println("SENSOR: button=1");
-  //}
-  //else
-  //{
-  //  delay(20);    
-  //  Serial.println("SENSOR: button=0");
-  //}
-  //boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
-  //if(trackerValue == HIGH) //if it is HiGH
-  //{ 
-  //  delay(50);    
-  //  Serial.print("SENSOR: tracker=");
-  //  Serial.println (trackerValue, DEC);
-  //}
-  //else
-  //{
-  //  delay(50);    
-  //  Serial.print("SENSOR: tracker=");
-  //  Serial.println (trackerValue, DEC);
-  //}
 
   // Needed "protocol" for the proximity sensor
   digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
@@ -56,15 +25,6 @@ void loop() {
   delay(30);
   msg = "SENSOR: ";
   bool news = false;
-//  if (buttonVal != buttonPrevVal) {
-//    news = true;
-//    buttonPrevVal = buttonVal;
-//    if(buttonVal == HIGH) {
-//      msg.concat("button=1|");
-//    } else {
-//      msg.concat("button=1|");
-//    };
-//  };
   if (distanceVal != distancePrevVal) {
     news = true;
     distancePrevVal = distanceVal;
@@ -74,12 +34,20 @@ void loop() {
   };
   if (news == true) {
     Serial.println(msg);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(40);                   
+    digitalWrite(LED_BUILTIN, LOW);  
+    delay(60);            
   } else {
     Serial.println("SENSOR: -");
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(20);                   
+    digitalWrite(LED_BUILTIN, LOW); 
+    delay(50);    
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(20);                   
+    digitalWrite(LED_BUILTIN, LOW); 
+    delay(10);
   }
-  
-  //Serial.print("SENSOR: distance=");
-  //Serial.println (distanceVal, DEC);
-  
-  delay(100);
+  //delay(100);
 }
