@@ -75,7 +75,7 @@ void loop() {
   if (news == true) {
     Serial.println(msg);
   } else {
-    Serial.println("SENSOR: ");
+    Serial.println("SENSOR: -");
   }
   
   //Serial.print("SENSOR: distance=");
