@@ -280,7 +280,7 @@ impl Brain {
                 self.show_metrics();
                 self.show_action_buffers();
                 // GET ACTIONS
-                match self.get_actions_from_rules(ct){
+                match self.new_get_actions_from_rules(ct){
                     Ok(a) => {
                         if a.len() > 0 {
                             //// then a round to check which objects we are adding new actions to
@@ -884,6 +884,79 @@ impl Brain {
         let log = format!("- time: {}\n  msg: \"{}\"", timestamp, entry);
         warn!("We are writing {} to {}", log, self.rec_file);
         writeln!(&mut file, "{}", log).unwrap();
+    }
+
+    /// Checks the input of the rules loaded and, if they fit, returns the actions to take
+    pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<ConfigEntry>, BrainDeadError>{
+        let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
+        for rule in partial_rules.clone() {
+            // NEVER add something that is already on buffer
+            if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
+                partial_rules.retain(|x| *x != rule);
+            } else {
+                // triggercount > 0?
+                //  y -> loop ==true?
+                //       y -> add, adjust triggercount for self to +1
+                //       n -> conditions == ""?
+                //            y -> remove
+                //            n -> do all conds match?
+                //                 y -> add, adjust triggercount for self to +1
+                //                 n -> remove
+                //  n -> conditions == ""?
+                //       y -> add, adjust triggercount for self to +1
+                //       n -> do all conds match?
+                //            y -> add, adjust triggercount for self to +1
+                //            n -> remove
+                if rule.triggercount > 0 {
+                    if rule.actionsloop != true {
+                        //if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                        //    partial_rules.retain(|x| *x != rule);
+                        //}
+                        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                        if checks != [""].to_vec() && checks.len() != 0{
+                            if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                                partial_rules.retain(|x| *x != rule);
+                            }
+                        } else {
+                          partial_rules.retain(|x| *x != rule);
+                        }
+                    }
+                } else {
+                    let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                    if checks != [""].to_vec() && checks.len() != 0{
+                        if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                            partial_rules.retain(|x| *x != rule);
+                        }
+                    }
+                }
+            }
+        }
+        // We want to count the amount of times the trigger was...triggered
+        if partial_rules.len() > 0 {
+            for rule in self.config.iter_mut() {
+                match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
+                    Some(_) => {
+                        rule.triggercount += 1;
+                    },
+                    //None => rule.triggercount = 0,
+                    None => (),
+                };
+            }
+            debug!("- Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                debug!(" #{} {} input:", ix, rule.id);
+                debug!("     input:");
+                for ri in rule.condition.clone() {
+                    debug!("      |{:?}|", ri);
+                }
+                debug!("     output:");
+                for ro in rule.actions.clone() {
+                    debug!("      |{:?}|", ro);
+                }
+
+            }
+        }
+        Ok(partial_rules)
     }
 
 }
