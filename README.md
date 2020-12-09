@@ -33,7 +33,8 @@ Version 2 includes a Step by Step Documentation that should guide you through th
 - [Shopping list before you start](https://github.com/angelalonso/robot/tree/master/docs/000_ShoppingList.md)
 - [Notes on the setup](https://github.com/angelalonso/robot/tree/master/docs/001_Setup.md)
 - [Installing your Raspberry](https://github.com/angelalonso/robot/tree/master/docs/002_Raspberry.md)
-- [Building a basic chassis](https://github.com/angelalonso/robot/tree/master/docs/003_Chassis.md)
+- [Installing your Arduino](https://github.com/angelalonso/robot/tree/master/docs/003_Arduino.md)
+- [Building a basic chassis](https://github.com/angelalonso/robot/tree/master/docs/004_Chassis.md)
 - [First example on basic connections](TBD)
 
 ### Configuring
