@@ -70,7 +70,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (move_config_file, start_mode) = argparser(modes);
     let _args: Vec<String> = env::args().collect();
     let mut run_time = None;
-    let precision_th_of_a_sec = 10;
+    let precision_th_of_a_sec = 100;
     match start_mode.as_str() {
         // Generate our Brain object
         "live" => {
