@@ -315,12 +315,6 @@ impl Brain {
                                     self.add_action(aux);
                                 }
                             }
-                            //match self.buffersets.iter_mut().find(|x| *x.object == "motor_l".to_string()) {
-                            //    Some(ob) => {
-                            //        println!("{:#x?}", ob.entries);
-                            //    },
-                            //    None => (),
-                            //};
                         };
                     },
                     Err(_e) => trace!("...no matching rules found"),
@@ -393,11 +387,10 @@ impl Brain {
         match msg_parts[0] {
             // TODO: add other use cases
             "SENSOR" => {
-                println!("Message from Arduino");
                 let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
                 for s in sensors {
                     let sensor = s.split("=").collect::<Vec<_>>();
-                    println!("Message from Arduino: {:?}", sensor);
+                    debug!("Message from Arduino: {:?}", sensor);
                     let sensor_id = "arduino".to_string();
                     if sensor.len() > 1 {
                         self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
@@ -405,14 +398,6 @@ impl Brain {
                         trace!("{:?}", sensor);
                     }
                 }
-                //let sensor = msg_parts[1].split("=").collect::<Vec<_>>();
-                //debug!("Message from Arduino: {:?}", sensor);
-                //let sensor_id = "arduino".to_string();
-                //if sensor.len() > 1 {
-                //    self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
-                //} else {
-                //    trace!("{:?}", sensor);
-                //}
             },
             _ => (),
         }
@@ -553,6 +538,7 @@ impl Brain {
                 }
             }
         }
+        // We want to count the amount of times the trigger was...triggered
         if partial_rules.len() > 0 {
             for rule in self.config.iter_mut() {
                 match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
@@ -574,6 +560,7 @@ impl Brain {
                 for ro in rule.actions.clone() {
                     debug!("      |{:?}|", ro);
                 }
+
             }
         }
         Ok(partial_rules)
@@ -657,11 +644,14 @@ impl Brain {
         }
     }
 
+
     /// Performs the next action on each action buffer if the timestamp is right.
     /// Return the action(s) taken and it's related metric
     pub fn do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
+        //TODO: investigate:
+        //     Why are actions that come from a trigger not being done right away??
         //TODO: manage different types of actions
         for ob in self.buffersets.iter_mut() {
             match self.metricsets.iter_mut().find(|x| *x.object == *ob.object) {
@@ -711,8 +701,8 @@ impl Brain {
     /// Log objects' metrics
     pub fn show_metrics(&mut self) {
         for m in self.metricsets.clone().iter() {
-            //if m.object == "button" {
-            //    println!("- {} METRICS recorded for {}", m.entries.len(), m.object);
+            //if m.object == "distance" {
+            //    info!("- {} METRICS recorded for {}", m.entries.len(), m.object);
             //    for (ix, action) in m.entries.clone().iter().enumerate() {
             //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
             //    }
@@ -894,6 +884,258 @@ impl Brain {
         let log = format!("- time: {}\n  msg: \"{}\"", timestamp, entry);
         warn!("We are writing {} to {}", log, self.rec_file);
         writeln!(&mut file, "{}", log).unwrap();
+    }
+
+    /// Just run the brain.
+    /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
+    /// - precission: how often we do stuff
+    ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
+    pub fn new_run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+        let mut new_metrics: Vec<String> = [].to_vec();
+        let mut new_acts: Vec<String> = [].to_vec();
+        // timestamps
+        let start_timestamp = self.get_current_time();
+        let mut ct: f64 = 0.0;
+        // communication with arduino
+        let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+        let msgs = s.clone();
+        let mut arduino_clone = self.arduino.clone();
+        let brain_clone = self.clone();
+        let _handle = thread::spawn(move || {
+                if brain_clone.mode != "dryrun" {
+                    arduino_clone.read_channel(msgs).unwrap();
+            } else {
+                    arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
+                };
+            });
+        let _msg = match r.try_recv() {
+            Ok(m) => {
+                self.use_arduino_msg(ct, m);
+            },
+            Err(_) => (),
+        };
+        loop {
+            // update current timestamp
+            let ct_raw = self.get_timestamp_since(start_timestamp);
+            let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
+            if new_ct > ct { 
+                ct = new_ct;
+                let _msg = match r.try_recv() {
+                    Ok(m) => {
+                        self.use_arduino_msg(ct, m);
+                    },
+                    Err(_) => (),
+                };
+                self.show_metrics();
+                self.show_action_buffers();
+                // GET ACTIONS
+                println!("------------");
+                match self.new_get_actions_from_rules(ct){
+                    Ok(acts) => {
+                        // TODO replicate the commented out part
+                        for objset in acts {
+                            if OTHER_ACTIONS.iter().any(|&i| i==objset.object) {
+                                match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
+                                    Some(ob) => {
+                                        // We assume that if new actions are chosen, we can
+                                        // overwrite whatever is on the buffer
+                                        ob.entries = Vec::new();
+                                    },
+                                    None => (),
+                                };
+                            } else {
+                                match self.buffersets.iter_mut().find(|x| *x.object == *objset.object) {
+                                    Some(ob) => {
+                                        // We assume that if new actions are chosen, we can
+                                        // overwrite whatever is on the buffer
+                                        ob.entries = Vec::new();
+                                    },
+                                    None => (),
+                                };
+                            };
+                            //TODO: take #0, use it, check if there are more
+                            for (ix, action) in objset.entries.clone().iter().enumerate() {
+                                if ix == 0 {
+                                    //do next action
+                                    let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone()).unwrap();
+                                    for m_raw in these_metrics {
+                                        new_metrics.push(m_raw);
+                                    }
+                                    for c_raw in these_acts {
+                                        new_acts.push(c_raw);
+                                    }
+                                    //remove action from entries
+                                    println!("{} -> {} for {} secs", objset.object, action.data, action.time);
+                                } else {
+                                    println!("adding to bufferset");
+                                }
+                            }
+                        }
+                        //    for action in a {
+                        //        for o in action.actions {
+                        //            let aux = format!("{}={},time={},{}", o.object, o.value, o.time, action.id);
+                        //            self.add_action(aux);
+                        //        }
+                        //    }
+                    },
+                    Err(_e) => trace!("...no matching rules found"),
+                };
+                // DO ACTIONS
+                let (these_metrics, these_acts) = self.do_next_actions(ct).unwrap();
+                for m_raw in these_metrics {
+                    new_metrics.push(m_raw);
+                }
+                for c_raw in these_acts {
+                    new_acts.push(c_raw);
+                }
+                for m_raw in new_metrics.clone() {
+                    let m = m_raw.split("|").collect::<Vec<_>>();
+                    if m.len() > 1 {
+                        self.add_metric(ct, m[0].to_string(), m[1].to_string());
+                    }
+                }
+                // Send back the actions -> needed for tests
+                sender.send(format!("{:?}|{:?}", ct, new_acts)).unwrap();
+            };
+            // BREAK MECHANISM
+            match secs_to_run {
+                Some(s) => {
+                    if ct >= s {
+                        info!("Finished execution");
+                        break
+                    }
+                },
+                None => (),
+            }
+        }
+    }
+
+    /// Checks the input of the rules loaded and, if they fit, returns the actions to take
+    pub fn new_get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<Set>, BrainDeadError>{
+        //TODO try to clean this up
+        let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
+        let mut action_vectors: Vec<Set> = [].to_vec();
+        for bs in self.buffersets.clone() {
+            let new_elem = Set {
+                object: bs.object,
+                obj_type: bs.obj_type,
+                entries: [].to_vec(),
+                last_change_timestamp: bs.last_change_timestamp,
+                current_entry: bs.current_entry,
+                max_size: bs.max_size,
+            };
+            action_vectors.push(new_elem);
+        }
+        for rule in partial_rules.clone() {
+            // NEVER add something that is already on buffer
+            if Brain::are_actions_in_buffer(self.buffersets.clone(), rule.clone()) {
+                partial_rules.retain(|x| *x != rule);
+            } else {
+                // triggercount > 0?
+                //  y -> loop ==true?
+                //       y -> add, adjust triggercount for self to +1
+                //       n -> conditions == ""?
+                //            y -> remove
+                //            n -> do all conds match?
+                //                 y -> add, adjust triggercount for self to +1
+                //                 n -> remove
+                //  n -> conditions == ""?
+                //       y -> add, adjust triggercount for self to +1
+                //       n -> do all conds match?
+                //            y -> add, adjust triggercount for self to +1
+                //            n -> remove
+                if rule.triggercount > 0 {
+                    if rule.actionsloop != true {
+                        //if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                        //    partial_rules.retain(|x| *x != rule);
+                        //}
+                        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                        if checks != [""].to_vec() && checks.len() != 0{
+                            if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                                partial_rules.retain(|x| *x != rule);
+                            }
+                        } else {
+                          partial_rules.retain(|x| *x != rule);
+                        }
+                    }
+                } else {
+                    let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                    if checks != [""].to_vec() && checks.len() != 0{
+                        if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                            partial_rules.retain(|x| *x != rule);
+                        }
+                    }
+                }
+            }
+        }
+        // We want to count the amount of times the trigger was...triggered
+        if partial_rules.len() > 0 {
+            for rule in self.config.iter_mut() {
+                match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
+                    Some(_) => {
+                        rule.triggercount += 1;
+                    },
+                    //None => rule.triggercount = 0,
+                    None => (),
+                };
+            }
+            debug!("- Rules matching :");
+            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+                debug!(" #{} {} input:", ix, rule.id);
+                debug!("     input:");
+                for ri in rule.condition.clone() {
+                    debug!("      |{:?}|", ri);
+                }
+                debug!("     output:");
+                // we store a vector of buffersets
+                for action in rule.actions.clone() {
+                    match action_vectors.iter_mut().find(|x| *x.object == *action.object) {
+                        Some(bf) => {
+                            let entry = TimedData {
+                                id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                                belongsto: rule.id.clone(),
+                                data: action.value,
+                                time: action.time.parse::<f64>().unwrap(),
+                            };
+                            bf.entries.push(entry);
+                        },
+                        None => (),
+                    }
+                }
+            }
+
+        }
+        // Clean up the vector of buffersets from those that are empty
+        for s in action_vectors.clone() {
+            if s.entries.len() == 0 {
+                action_vectors.retain(|x| *x != s);
+            }
+        }
+        Ok(action_vectors)
+    }
+
+    pub fn do_action(&mut self, om: Set, a: TimedData) -> Result<(Vec<String>, Vec<String>), String>{
+        let mut result = [].to_vec();
+        let mut metrics = [].to_vec();
+        if om.object.starts_with("led") {
+            self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
+        } else if om.object.starts_with("motor") {
+            let action_vector = a.data.split("_").collect::<Vec<_>>();
+            self.motors.set(om.object.clone(), action_vector[0].to_string());
+        } else if om.object.starts_with("other") {
+            let other_action = a.data.split("_").collect::<Vec<_>>();
+            if other_action[0] == "load" {
+                let file_to_load = other_action[1..].join("_").to_string();
+                self.config = Brain::load_action_rules(file_to_load).unwrap();
+            }
+        }
+        //TODO: this info should come from the leds module itself
+        info!("- Just did {} -> {}", om.object, a.data);
+        // TODO actually both the following could be one if we unified format
+        metrics.push(format!("{}__{}|{}", om.object, a.data, a.id.to_string()));
+        result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.clone().time));
+
+        return Ok((metrics, result))
     }
 
 }

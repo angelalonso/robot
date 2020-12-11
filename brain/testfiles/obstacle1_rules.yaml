@@ -11,6 +11,12 @@
   - object: "motor_r"
     value: "80"
     time: "0.1"
+  - object: "motor_l"
+    value: "80"
+    time: "0.4"
+  - object: "motor_r"
+    value: "80"
+    time: "0.4"
 - id: "stop_n_turn"
   condition:
   - time: "0.05" 

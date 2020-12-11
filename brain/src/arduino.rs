@@ -42,6 +42,7 @@ impl Arduino {
             //None => "/dev/ttyUSB0".to_string(),
             None => "/dev/ttyACM0".to_string(),
         };
+        //let mut port = serial::open(&serial_port).unwrap();
         Ok(Self {
             name: arduino_name,
             serialport: serial_port,
@@ -87,25 +88,27 @@ impl Arduino {
                 }
             }
         } else {
-            got = "SENSOR: button=1".to_string();
+            //got = "SENSOR: button=1".to_string();
+            got = "SENSOR: distance=19".to_string();
             thread::sleep(time::Duration::from_millis(50));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
-            got = "SENSOR: button=0".to_string();
+            //got = "SENSOR: button=0".to_string();
+            got = "SENSOR: distance=20".to_string();
             thread::sleep(time::Duration::from_millis(250));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
-            got = "SENSOR: button=1".to_string();
+            got = "SENSOR: distance=24".to_string();
             thread::sleep(time::Duration::from_millis(50));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
                 Err(_e) => (),
             };
-            got = "SENSOR: button=0".to_string();
+            got = "SENSOR: distance=19".to_string();
             thread::sleep(time::Duration::from_millis(250));
             match channel.send(got){
                 Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
@@ -125,7 +128,7 @@ impl Arduino {
                     debug!("- Received Action message: {}", got);
                     channel.send(got).unwrap();
                 } else if got.contains("SENSOR: ") {
-                    println!("- Received Sensor message: {}", got);
+                    debug!("- Received Sensor message: {}", got);
                     channel.send(got).unwrap();
                 } else {
                     debug!("- Read ->{}<- from Serial Port", got);
@@ -145,7 +148,15 @@ impl Arduino {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(100))?;
+        port.set_timeout(Duration::from_millis(1000))?;
+
+        // NOTE: This is needed because we want to initiate conversation from the Brain
+        //   The arduino program does not publish anything until Brain sends something (a 0) on the
+        //   Serial port. We do this on every loop.
+        // What we need to solve is the problem that the Arduino program boots and starts sending
+        //   before our brain  program is ready.
+        let buf: Vec<u8> = (0..1).collect();
+        port.write(&buf[..])?;
 
         let reader = BufReader::new(port);
         let mut lines = reader.lines();
@@ -163,7 +174,7 @@ impl Arduino {
                 },
         }
     }
-
+    
     /// This one should avrdude to send a given file to the arduino
     /// NOTE: We are trying to avoid this at the moment and just communicate through USB
     pub fn install(&mut self, filename: &str) -> Result<(), BrainArduinoError> {
