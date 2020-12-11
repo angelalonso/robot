@@ -891,8 +891,6 @@ impl Brain {
     /// - precission: how often we do stuff
     ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
     pub fn new_run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
-        let mut new_metrics: Vec<String> = [].to_vec();
-        let mut new_acts: Vec<String> = [].to_vec();
         // timestamps
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
@@ -915,6 +913,8 @@ impl Brain {
             Err(_) => (),
         };
         loop {
+            let mut new_metrics: Vec<String> = [].to_vec();
+            let mut new_acts: Vec<String> = [].to_vec();
             // update current timestamp
             let ct_raw = self.get_timestamp_since(start_timestamp);
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
@@ -929,7 +929,6 @@ impl Brain {
                 self.show_metrics();
                 self.show_action_buffers();
                 // GET ACTIONS
-                println!("------------");
                 match self.new_get_actions_from_rules(ct){
                     Ok(acts) => {
                         // TODO replicate the commented out part
@@ -964,10 +963,9 @@ impl Brain {
                                     for c_raw in these_acts {
                                         new_acts.push(c_raw);
                                     }
-                                    //remove action from entries
-                                    println!("{} -> {} for {} secs", objset.object, action.data, action.time);
                                 } else {
-                                    println!("adding to bufferset");
+                                    let aux = format!("{}={},time={},{}", objset.object, action.data, action.time, action.id);
+                                    self.add_action(aux);
                                 }
                             }
                         }
