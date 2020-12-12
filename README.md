@@ -35,7 +35,7 @@ Version 2 includes a Step by Step Documentation that should guide you through th
 - [Installing your Raspberry](https://github.com/angelalonso/robot/tree/master/docs/002_Raspberry.md)
 - [Installing your Arduino](https://github.com/angelalonso/robot/tree/master/docs/003_Arduino.md)
 - [Building a basic chassis](https://github.com/angelalonso/robot/tree/master/docs/004_Chassis.md)
-- [First example on basic connections](TBD)
+- [First example on basic connections](https://github.com/angelalonso/robot/tree/master/docs/005_first_example.md)
 
 ### Configuring
 In order to configure, you'll need to create rulesets.
@@ -54,11 +54,11 @@ Follow a list of rules regarding movements. Those rules can be based off what we
 #### How to put it together
 So far I don't have much more than a testing platform built with two small-ish boxes glued together and put on top of the Robot car kit chassis.  
 
-![front_closed](./img/chassis_front_closed.jpg) ![bottom](./img/chassis_bottom.jpg)  
-![open_bottom](./img/chassis_front_open_bottom.jpg)
-![open_top](./img/chassis_front_open_top.jpg)    
+![front_closed](https://github.com/angelalonso/robot/tree/master/img/chassis_front_closed.jpg) ![bottom](https://github.com/angelalonso/robot/tree/master/img/chassis_bottom.jpg)  
+![open_bottom](https://github.com/angelalonso/robot/tree/master/img/chassis_front_open_bottom.jpg)
+![open_top](https://github.com/angelalonso/robot/tree/master/img/chassis_front_open_top.jpg)    
 ### Connections
-![Diagram as of September 2020](./img/diagram.202010.png)
+![Diagram as of September 2020](https://github.com/angelalonso/robot/tree/master/img/diagram.202010.png)
 
 ### Software
 - Prepare the programs you want to run on the arudino. Check [ARDUINO's README](ARDUINO.md) for details on how the arduino programs should work, or have a look at the ones under ./arduino.

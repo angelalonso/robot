@@ -181,9 +181,6 @@ $ sudo raspi-config
 \> Localisation Options > Change Wi-fi Country > Choose yours  
 \> Network Options > Wi-Fi > add the name of the WiFi network and the pass  
 
-# Run the brain
-Follow [Brain's own docs](./brain/README.md)
-
 # MORE INFO
 ## GPIO Map for Raspberry pi 1 B+ 
 (thanks to https://github.com/tvierb/raspberry-ascii)
@@ -236,5 +233,5 @@ Follow [Brain's own docs](./brain/README.md)
 ```
 
 # Challenges
-- The documentation has not been tested.
+- The documentation has not been fully tested.
 - The process could use automation.

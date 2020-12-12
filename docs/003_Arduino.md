@@ -4,7 +4,7 @@
 
 In order to have your brain program communicate with the Arduino you'll need to:
 - Connect Arduino to your laptop with the USB Cable
-- Open Arduino IDE, the program you want to load (currently we use [this one](https://github.com/angelalonso/robot/tree/master/arduino/000_sensors/000_sensors.ino)), and upload it to the Arduino
+- Using Arduino IDE, open the program you want to load (currently we use [this one](https://github.com/angelalonso/robot/tree/master/arduino/000_sensors/000_sensors.ino)), and upload it to the Arduino
 - while you are adding it, you can use 
 ```
 $ ./do_savearduinohex.sh 000_sensors 
