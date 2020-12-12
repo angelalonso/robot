@@ -53,9 +53,9 @@ If you want to dryrun your ruleset without installing to the robot, you can do t
 - create a new mock input file. This file "injects" messages that would be sent by the Arduino in a live setup. 
   - If your setup file was named setup_test.yaml, this file MUST be called mock_test.yaml
   - An example of the content there would look like:
-  ```
+```
 - time: 0.2
-  msg: "=SENSOR: button=0|distance=39"
+  msg: "SENSOR: button=0|distance=39"
 - time: 2.5
   msg: "SENSOR: distance=37|"
 - time: 2.6
@@ -72,7 +72,7 @@ If you want to dryrun your ruleset without installing to the robot, you can do t
   msg: "SENSOR: distance=12|"
 - time: 3.2 
   msg: "SENSOR: distance=8|"
-  ```
+```
 - Last but not least: run on test mode
   - Since your goal is to check that it works well, we'll need at least the INFO verbosity output:
 ```
