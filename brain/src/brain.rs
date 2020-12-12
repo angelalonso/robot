@@ -306,12 +306,12 @@ impl Brain {
     /// Log action buffers' content
     pub fn show_action_buffers(&mut self) {
         for b in &self.buffersets {
-            if b.object == "motor_r" {
-                println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
-                for (ix, action) in b.entries.clone().iter().enumerate() {
-                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                }
-            }
+            //if b.object == "motor_r" {
+            //    println!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
+            //    for (ix, action) in b.entries.clone().iter().enumerate() {
+            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            //    }
+            //}
             trace!("- {} ACTIONS pending for {}", b.entries.len(), b.object);
             for (ix, action) in b.entries.clone().iter().enumerate() {
                 trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -531,12 +531,12 @@ impl Brain {
     /// Log objects' metrics
     pub fn show_metrics(&mut self) {
         for m in self.metricsets.clone().iter() {
-            if m.object == "motor_r" {
-                println!("- {} METRICS recorded for {}", m.entries.len(), m.object);
-                for (ix, action) in m.entries.clone().iter().enumerate() {
-                    println!(" #{} |data={}|time={}|", ix, action.data, action.time);
-                }
-            }
+            //if m.object == "motor_r" {
+            //    println!("- {} METRICS recorded for {}", m.entries.len(), m.object);
+            //    for (ix, action) in m.entries.clone().iter().enumerate() {
+            //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
+            //    }
+            //}
             debug!("- Metrics - {}", m.object);
             for (ix, action) in m.entries.clone().iter().enumerate() {
                 debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
@@ -546,7 +546,8 @@ impl Brain {
 
     /// Add metric to its related metric set
     pub fn add_metric(&mut self, timestamp: f64,metric: String, source_id: String) {
-        println!("- Adding metric {} from {}", metric, source_id);
+        // NOTE: debug entry point
+        //println!("- Adding metric {} from {}", metric, source_id);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
             Some(om) => {
@@ -837,7 +838,7 @@ impl Brain {
     /// Checks the input of the rules loaded and, if they fit, returns the actions to take
     pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<Set>, BrainDeadError>{
         // NOTE: debug entry point
-        println!("---------------------------------------------------- {}", timestamp);
+        //println!("---------------------------------------------------- {}", timestamp);
         //TODO try to clean this up
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         let mut action_vectors: Vec<Set> = [].to_vec();

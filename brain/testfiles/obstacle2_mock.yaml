@@ -3,15 +3,15 @@
 - time: 0.2
   msg: "SENSOR: button=0|distance=39"
 - time: 0.3
-  msg: "SENSOR: distance=37|"
+  msg: "SENSOR: distance=17|"
 - time: 0.5
-  msg: "SENSOR: distance=34|"
+  msg: "SENSOR: distance=14|"
 - time: 0.6
-  msg: "SENSOR: distance=30|"
+  msg: "SENSOR: distance=10|"
 - time: 0.7
-  msg: "SENSOR: button=1|distance=26|"
+  msg: "SENSOR: button=1|distance=16|"
 - time: 0.8
-  msg: "SENSOR: distance=26|"
+  msg: "SENSOR: distance=16|"
 - time: 0.9
   msg: "SENSOR: distance=16|"
 - time: 1

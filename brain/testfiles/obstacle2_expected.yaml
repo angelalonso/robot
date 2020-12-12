@@ -64,7 +64,8 @@
     - ""
 - time: 0.22
   actions:
-    - ""
+    - "motor_l__0__0.9"
+    - "motor_r__0__0.9"
 - time: 0.23
   actions:
     - ""
@@ -247,8 +248,7 @@
     - ""
 - time: 0.83
   actions:
-    - "motor_l__0__1.5"
-    - "motor_r__0__1.5"
+    - ""
 - time: 0.84
   actions:
     - ""
@@ -269,4 +269,5 @@
     - ""
 - time: 0.90
   actions:
-    - ""
+    - "motor_l__-80__1.0"
+    - "motor_r__-80__1.0"
