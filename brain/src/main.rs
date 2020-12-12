@@ -67,7 +67,7 @@ fn argparser(modes: Vec<&str>) -> (String, String) {
 fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let modes = vec!["live", "reset", "record", "test"];
-    let (move_config_file, start_mode) = argparser(modes);
+    let (setup_file, start_mode) = argparser(modes);
     let _args: Vec<String> = env::args().collect();
     let mut run_time = None;
     let precision_th_of_a_sec = 100;
@@ -75,11 +75,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Generate our Brain object
         "live" => {
             match run_time {
-                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
-                None => info!("...starting Brain in Mode {}", start_mode),
+                Some(t) => println!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => println!("...starting Brain in Mode {}", start_mode),
             }
             // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), move_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), setup_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
@@ -92,11 +92,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         "reset" => {
             run_time = Some(0.2);
             match run_time {
-                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
-                None => info!("...starting Brain in Mode {}", start_mode),
+                Some(t) => println!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => println!("...starting Brain in Mode {}", start_mode),
             }
             // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), move_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), setup_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
@@ -115,11 +115,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
         "record" => {
             match run_time {
-                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
-                None => info!("...starting Brain in Mode {}", start_mode),
+                Some(t) => println!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => println!("...starting Brain in Mode {}", start_mode),
             }
             // Generate our Brain object
-            let mut main_brain = Brain::new("Main Brain".to_string(), "live_record".to_string(), move_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "live_record".to_string(), setup_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
@@ -131,12 +131,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         },
         "test" => {
             match run_time {
-                Some(t) => info!("...starting Brain in Mode {} for {} secs", start_mode, t),
-                None => info!("...starting Brain in Mode {}", start_mode),
+                Some(t) => println!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => println!("...starting Brain in Mode {}", start_mode),
             }
             // Generate our Brain object
             // TODO: manage this _record thing properly everywhere
-            let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun".to_string(), move_config_file).unwrap_or_else(|err| {
+            let mut main_brain = Brain::new("Main Brain".to_string(), "dryrun".to_string(), setup_file).unwrap_or_else(|err| {
                 eprintln!("Problem Initializing Main Brain: {}", err);
                 process::exit(1);
             });
