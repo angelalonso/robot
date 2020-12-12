@@ -1,5 +1,5 @@
 - time: 0.2
-  msg: "=SENSOR: button=0|distance=39"
+  msg: "SENSOR: button=0|distance=39"
 - time: 2.5
   msg: "SENSOR: distance=37|"
 - time: 2.6

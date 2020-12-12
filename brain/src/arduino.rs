@@ -58,7 +58,7 @@ impl Arduino {
         let mut got: String;
         let mock_file = setup_file.replace("setup", "mock");
         if Path::new(&mock_file).exists() {
-            println!("Using {} as mocked input", mock_file);
+            info!("Using {} as mocked input", mock_file);
             let file_pointer = File::open(mock_file).unwrap();
             #[derive(Clone, Debug, Deserialize)]
             struct ArduinoMessage {
@@ -71,6 +71,7 @@ impl Arduino {
                 Ok(time) => time.as_millis(),
                 Err(_e) => 0,
             };
+            info!(", which has {} entries", e.len());
             while e.len() > 0 {
                 let now = SystemTime::now();
                 let timestamp = match now.duration_since(UNIX_EPOCH) {
@@ -81,8 +82,8 @@ impl Arduino {
                 };
                 if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
                     match channel.send(e[0].msg.clone()){
-                        Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
-                        Err(_e) => (),
+                        Ok(_) => debug!("- Forwarded to brain: {:?} ", e[0]),
+                        Err(_) => (),
                     };
                     e.remove(0);
                 }
@@ -119,7 +120,7 @@ impl Arduino {
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
-        info!("...reading from Serial Port {}", &self.serialport);
+        println!("...reading from Serial Port {}", &self.serialport);
         let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();

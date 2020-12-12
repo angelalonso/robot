@@ -288,7 +288,11 @@ impl Brain {
                 let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
                 for s in sensors {
                     let sensor = s.split("=").collect::<Vec<_>>();
-                    debug!("Message from Arduino: {:?}", sensor);
+                    if sensor != [""] {
+                        info!("Message from Arduino: {:?}", sensor);
+                    } else {
+                        debug!("Message from Arduino: {:?}", sensor);
+                    }
                     let sensor_id = "arduino".to_string();
                     if sensor.len() > 1 {
                         self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
@@ -510,7 +514,7 @@ impl Brain {
                                     }
                                 }
                                 //TODO: this info should come from the leds module itself
-                                info!("- Just did {} -> {}", om.object, a.data);
+                                println!("- Just did {} -> {}", om.object, a.data);
                                 // TODO actually both the following could be one if we unified format
                                 metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
                                 result.push(format!("{}__{}__{:?}", ob.object, a.clone().data, a.clone().time));
@@ -537,9 +541,9 @@ impl Brain {
             //        println!(" #{} |data={}|time={}|", ix, action.data, action.time);
             //    }
             //}
-            debug!("- Metrics - {}", m.object);
+            trace!("- Metrics - {} : {} entries", m.object, m.entries.len());
             for (ix, action) in m.entries.clone().iter().enumerate() {
-                debug!(" #{} |data={}|time={}|", ix, action.data, action.time);
+                trace!(" #{} |data={}|time={}|", ix, action.data, action.time);
             }
         }
     }
@@ -826,7 +830,7 @@ impl Brain {
             match secs_to_run {
                 Some(s) => {
                     if ct >= s {
-                        info!("Finished execution");
+                        println!("Finished execution");
                         break
                     }
                 },
@@ -974,7 +978,8 @@ impl Brain {
             None => (),
         }
         //TODO: this info should come from the leds module itself
-        info!("- Just did {} -> {}", om.object, a.data);
+        //TODO: all printlns should show a proper timestamp but self.timestamp is 0 here
+        println!("- Just did {} -> {}", om.object, a.data);
         // TODO actually both the following could be one if we unified format
         metrics.push(format!("{}__{}|{}", om.object, a.data, a.belongsto.to_string()));
         result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.clone().time));
