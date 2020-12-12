@@ -10,7 +10,7 @@ Our goal is that the LED shines when we are closer than 20 cms from the sensor
 
 ## Connect all the required stuff
 
-![Connection diagram](../img/diagram.v2.1.png)  
+![Connection diagram](../img/diagram.test1.png)  
 
 ## Define your rules
 - Create a file called, for instance `rulesets/start_test1.yaml`
