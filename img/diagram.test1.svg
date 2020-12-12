@@ -17,7 +17,7 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
-   sodipodi:docname="diagram.v2.1.svg">
+   sodipodi:docname="diagram.test1.svg">
   <defs
      id="defs2">
     <linearGradient
@@ -157,9 +157,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.1085309"
-     inkscape:cx="321.15348"
-     inkscape:cy="169.08561"
+     inkscape:zoom="0.78384972"
+     inkscape:cx="655.86056"
+     inkscape:cy="511.71531"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -185,6 +185,7 @@
      inkscape:groupmode="layer"
      id="layer1"><rect
    id="rect30" />
+
  HEAD
        style=&quot;fill:#fafafa;fill-opacity:1;stroke:#000000;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1&quot;
        id=&quot;rect1390&quot;
@@ -3623,6 +3624,7 @@
    sodipodi:nodetypes="ccccc" />
 <path
    id="path582" />
+
  HEAD
        sodipodi:nodetypes=&quot;ccccc&quot;
        style=&quot;fill:none;stroke:#db1818;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1&quot;
@@ -3659,9 +3661,9 @@
 <path
    inkscape:connector-curvature="0"
    id="path1391"
-   d="M 160.73875,95.666358 V 115.09454 H 97.129719 l -2.225697,2.11667"
+   d="m 160.73875,95.666358 v 19.428182 h 49.63264 l -0.0545,75.67083 -3.75868,1e-5"
    style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-   sodipodi:nodetypes="cccc" />
+   sodipodi:nodetypes="ccccc" />
 <path
    sodipodi:nodetypes="cccccc"
    style="fill:none;stroke:#cf7600;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -3710,6 +3712,7 @@
    id="path1533"
    d="m 42.385813,93.150894 h -9.236617 v 0.667084"
    style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+
 
 &gt;&gt;&gt;&gt;&gt;&gt;&gt; 86c2bc0467115199ec49e51504ca8086e990d0b1
   <text
