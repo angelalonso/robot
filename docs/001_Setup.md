@@ -26,3 +26,5 @@ We will be providing power from the Raspberry pi to the Arduino via USB, and com
 
 # Challenges
 - Our current setup seems to be a bit slow on reaction times and that might be a design flaw
+
+[PREV: Shopping List <--](000_ShoppingList.md) [--> NEXT: Preparing the Raspberry](002_Raspberry.md)

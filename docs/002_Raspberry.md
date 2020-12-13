@@ -235,3 +235,5 @@ $ sudo raspi-config
 # Challenges
 - The documentation has not been fully tested.
 - The process could use automation.
+
+[PREV: Preparing the Raspberry <--](002_Raspberry.md) [--> NEXT: Preparing the Arduino](003_Arduino.md)
