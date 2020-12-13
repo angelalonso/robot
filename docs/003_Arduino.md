@@ -45,3 +45,6 @@ You'll need to setup the ICSP connection between both as follows:
 After that, you'll need avrdude to be installed and configured on the Raspberry. For that follow [Raspberry's own setup docs](./RASPBERRY.md).
 
 # Challenges
+ Nothing so far
+
+[PREV: Preparing the Raspberry <--](002_Raspberry.md) [--> NEXT: Build a Chassis](004_Chassis.md)

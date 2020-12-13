@@ -26,3 +26,5 @@ We will call that thing our chassis from now on.
 ![Extension mounted](../img/chassis_cardboard_mounted.jpg)
 
 I put all components together on top of the chassis to decide on the best distribution possible. Bear in mind that you will want to add some more elements in the future.
+
+[PREV: Preparing the Arduino <--](003_Arduino.md) [--> NEXT: First full example](005_FirstExample.md)
