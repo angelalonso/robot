@@ -766,7 +766,6 @@ impl Brain {
                 // GET ACTIONS
                 match self.get_actions_from_rules(ct){
                     Ok(acts) => {
-                        // TODO replicate the commented out part
                         for objset in acts {
                             if OTHER_ACTIONS.iter().any(|&i| i==objset.object) {
                                 match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
@@ -787,10 +786,8 @@ impl Brain {
                                     None => (),
                                 };
                             };
-                            //TODO: take #0, use it, check if there are more
                             for (ix, action) in objset.entries.clone().iter().enumerate() {
                                 if ix == 0 {
-                                    //do next action
                                     let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone()).unwrap();
                                     for m_raw in these_metrics {
                                         new_metrics.push(m_raw);
