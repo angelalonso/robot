@@ -19,7 +19,7 @@ Our goal is that
 
 ## Define your rules
 - Create the ruleset and call it, for instance `rulesets/start_test2.yaml`
-- Copy the following and modify it to your liking (see [previous example](./005_FirstExample.md) for references of what variable does):
+- Copy the following and modify it to your liking (see [previous example](./005_FirstExample.md) for references on what each variable does):
 ```
 --- 
 - id: "move_fwd"
