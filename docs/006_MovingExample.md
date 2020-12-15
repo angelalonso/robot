@@ -1,4 +1,4 @@
-# Next Example: mvoe the wheels based on obstacles
+# Next Example: move the wheels based on obstacles
 
 ## Plan your actions
 
