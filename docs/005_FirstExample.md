@@ -83,7 +83,23 @@ RUST_LOG=info cargo run test setup_test.yaml
 RUST_LOG=debug cargo run test setup_test.yaml
 ```
 
+## Install and run in your Raspberry
+Now this is your goal: have the new functionality running on your robot.
+
+
+- Turn your robot on (or connect the battery)
+- Run
+```
+./do_run.sh
+```
+
+### Reset after a failed run
+If you want to return all LEDs and motors to a stand still, run:
+```
+./do_reset.sh
+```
+
 
 # Challenges
 
-[PREV: Build a Chassis <--](004_Chassis.md)
+[PREV: Build a Chassis <--](004_Chassis.md) [--> NEXT: Moving Example](006_MovingExample.md)

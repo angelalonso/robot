@@ -22,17 +22,6 @@ Our goal is that
 - Copy the following and modify it to your liking (see [previous example](./005_FirstExample.md) for references of what variable does):
 ```
 --- 
-```
-
-### Optional: dry test your rules
-If you want to dryrun your ruleset without installing to the robot, you can do the following:
-- create a new setup.yaml, call it setup_test.yaml for instance.
-  - set start_actionset_file to rulesets/start_test1.yaml 
-- create a new mock input file. This file "injects" messages that would be sent by the Arduino in a live setup. 
-  - If your setup file was named setup_test.yaml, this file MUST be called mock_test.yaml
-  - An example of the content there would look like:
-```
---- 
 - id: "move_fwd"
   condition:
   - time: "0.05" 
@@ -64,17 +53,20 @@ If you want to dryrun your ruleset without installing to the robot, you can do t
     value: "-80"
     time: "1.0"
 ```
-- Run on test mode
-  - Since your goal is to check that it works well, we'll need at least the INFO verbosity output:
+
+## Install and run in your Raspberry
+- Turn your robot on (or connect the battery)
+- Run
 ```
-RUST_LOG=info cargo run test setup_test.yaml
-```
-, or, if you need an even more verbose level of verbose output you can use DEBUG or TRACE:
-```
-RUST_LOG=debug cargo run test setup_test.yaml
+./do_run.sh
 ```
 
+### Reset after a failed run
+If you want to return all LEDs and motors to a stand still, run:
+```
+./do_reset.sh
+```
 
 # Challenges
 
-[PREV: Build a Chassis <--](004_Chassis.md)
+[PREV: First full example <--](005_FirstExample.md)
