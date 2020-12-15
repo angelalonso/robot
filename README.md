@@ -35,7 +35,7 @@ Version 2 includes a Step by Step Documentation that should guide you through th
 - [Installing your Raspberry](./docs/002_Raspberry.md)
 - [Installing your Arduino](./docs/003_Arduino.md)
 - [Building a basic chassis](./docs/004_Chassis.md)
-- [First example on basic connections](./docs/005_first_example.md)
+- [First example on basic connections](./docs/005_FirstExample.md)
 
 ### Configuring
 In order to configure, you'll need to create rulesets.
