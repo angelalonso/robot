@@ -976,7 +976,7 @@ impl Brain {
         }
         //TODO: this info should come from the leds module itself
         //TODO: all printlns should show a proper timestamp but self.timestamp is 0 here
-        println!("- Just did {} -> {}", om.object, a.data);
+        info!("- Just did {} -> {}", om.object, a.data);
         // TODO actually both the following could be one if we unified format
         metrics.push(format!("{}__{}|{}", om.object, a.data, a.belongsto.to_string()));
         result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.clone().time));

@@ -65,7 +65,10 @@ fn argparser(modes: Vec<&str>) -> (String, String) {
 
 /// check the parameters and start the related mode
 fn main() -> Result<(), Box<dyn Error>> {
-    env_logger::init();
+    //env_logger::init();
+    env_logger::builder()
+    .format_timestamp_millis()
+    .init();
     let modes = vec!["live", "reset", "record", "test"];
     let (setup_file, start_mode) = argparser(modes);
     let _args: Vec<String> = env::args().collect();
