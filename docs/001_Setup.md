@@ -2,7 +2,7 @@
 
 ## Problem we want to solve
 
-Having a basic robot with an arduino kit is nice but the Arduino has a very small amount of memory, which limits what we can do with our robots.
+Having a basic robot with an Arduino kit is nice but the Arduino has a very small amount of memory, which limits what we can do with our robots.
 
 ## Manifest
 
