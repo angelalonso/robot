@@ -1,7 +1,7 @@
 --- 
 - id: "move_fwd"
   condition:
-  - time: "0.01" 
+  - time: "0" 
     input_objs: "distance>20"
   actionsloop: false
   actions:
@@ -19,10 +19,10 @@
   actions:
   - object: "motor_l"
     value: "0"
-    time: "0.9"
+    time: "0.4"
   - object: "motor_r"
     value: "0"
-    time: "0.9"
+    time: "0.4"
   - object: "motor_l"
     value: "-80"
     time: "1"

@@ -485,7 +485,8 @@ impl Brain {
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
         //TODO: investigate:
-        //     Why are actions that come from a trigger not being done right away??
+        //     timestamp to decide on actions from the buffer is wrong, what timestamp are we
+        //     using?
         //TODO: manage different types of actions
         for ob in self.buffersets.iter_mut() {
             match self.metricsets.iter_mut().find(|x| *x.object == *ob.object) {
@@ -494,7 +495,7 @@ impl Brain {
                         if ob.entries.len() > 0 {
                             let a = &ob.entries.clone()[0];             
                             let time_passed = ((timestamp - ob.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                            trace!("- Time passed on current value - {:?}", time_passed);
+                            trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
                             if time_passed >= ob.current_entry.time {
                                 ob.current_entry = a.clone();
                                 ob.entries.retain(|x| *x != *a);
@@ -514,7 +515,7 @@ impl Brain {
                                     }
                                 }
                                 //TODO: this info should come from the leds module itself
-                                println!("- Just did {} -> {}", om.object, a.data);
+                                info!("- Just did {} -> {} (buffer)", om.object, a.data);
                                 // TODO actually both the following could be one if we unified format
                                 metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
                                 result.push(format!("{}__{}__{:?}", ob.object, a.clone().data, a.clone().time));
@@ -788,7 +789,7 @@ impl Brain {
                             };
                             for (ix, action) in objset.entries.clone().iter().enumerate() {
                                 if ix == 0 {
-                                    let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone()).unwrap();
+                                    let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone(), ct).unwrap();
                                     for m_raw in these_metrics {
                                         new_metrics.push(m_raw);
                                     }
@@ -805,6 +806,8 @@ impl Brain {
                     Err(_e) => trace!("...no matching rules found"),
                 };
                 // DO ACTIONS
+                // NOTE: debug entry point
+                //println!("---------------------------------------------------- {}", ct);
                 let (these_metrics, these_acts) = self.do_next_actions(ct).unwrap();
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
@@ -946,9 +949,15 @@ impl Brain {
         Ok(action_vectors)
     }
 
-    pub fn do_action(&mut self, om: Set, a: TimedData) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
+        match self.buffersets.iter_mut().find(|x| *x.object == *om.object) {
+            Some(b) => {
+                b.last_change_timestamp = timestamp.clone();
+            },
+            None => ()
+        }
         if om.object.starts_with("led") {
             self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
         } else if om.object.starts_with("motor") {

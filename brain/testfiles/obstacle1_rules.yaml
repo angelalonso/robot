@@ -1,7 +1,7 @@
 --- 
 - id: "move_fwd"
   condition:
-  - time: "0.01" 
+  - time: "0" 
     input_objs: "distance>20"
   actionsloop: false
   actions:
@@ -13,7 +13,7 @@
     time: "0.1"
 - id: "stop_n_turn"
   condition:
-  - time: "0.01" 
+  - time: "0" 
     input_objs: "distance<=20,motor_l=80,motor_r=80"
   actionsloop: false
   actions:

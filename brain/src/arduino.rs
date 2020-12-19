@@ -77,7 +77,7 @@ impl Arduino {
                 let timestamp = match now.duration_since(UNIX_EPOCH) {
                     // This WHOLE complication is needed to give my timestamp a x.x precision
                     // The +1 helps with precision and delays
-                    Ok(time) => ((((time.as_millis() as f64 - start_time as f64) / 100.0) as i64 + 1)as f64) / (10.0) as f64,
+                    Ok(time) => ((((time.as_millis() as f64 - start_time as f64) / 100.0) as i64)as f64) / (10.0) as f64,
                     Err(_e) => 0.0,
                 };
                 if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {

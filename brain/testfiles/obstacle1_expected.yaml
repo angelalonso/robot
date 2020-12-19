@@ -3,8 +3,7 @@
     - ""
 - time: 0.02
   actions:
-    - "motor_l__80__0.1"
-    - "motor_r__80__0.1"
+    - ""
 - time: 0.03
   actions:
     - ""
@@ -31,7 +30,8 @@
     - ""
 - time: 0.11
   actions:
-    - ""
+    - "motor_l__80__0.1"
+    - "motor_r__80__0.1"
 - time: 0.12
   actions:
     - ""
@@ -247,8 +247,7 @@
     - ""
 - time: 0.83
   actions:
-    - "motor_l__0__1.5"
-    - "motor_r__0__1.5"
+    - ""
 - time: 0.84
   actions:
     - ""
