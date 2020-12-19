@@ -45,10 +45,12 @@ This Guide will allow you to:
 - [x] Put together some Hardware that you can use for your base Robot. [[1]](docs/000_ShoppingList.md) [[2]](docs/001_Setup.md) [[3]](docs/004_Chassis.md)
 - [x] Configure the Software required to turn that HW into a proper Robot. [[1]](docs/002_Raspberry.md) [[2]](docs/003_Arduino.md)
 - [x] Create a set of rules to "make your Robot do things" and deploy them to the Robot. [[1]](docs/005_FirstExample.md) [[2]](docs/006_MovingExample.md)
-- [x] Test those rules with mocked sensors. [[1]](docs/007_TestingExample.md)
+- [x] Test those rules with mocked sensors. [[1]](docs/007_TestingExample.md) [[2]](docs/007_TestingExample.md)
+- [x] Use Robot's real data as mocks on tests. [[1]](docs/008_TestingWithRealMocks.md)
 - [ ] Have the Robot launch on boot
 - [ ] Add and callibrate position sensors
 - [ ] Set the rules "on the go" with Reinforcement Learning instead of a rules YAML.
+- [ ] Make the Robot compatible with [ROS](https://www.ros.org/)
 
 ## API reference
 

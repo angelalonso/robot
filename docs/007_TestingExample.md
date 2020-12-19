@@ -92,3 +92,5 @@ If you want something closer to a live run, you can run brain on test mode too:
 clear && RUST_LOG=info cargo run test setup_test.yaml
 ```
 , you can even play with the RUST_LOG variable or change the code to just publish some stuff you want to debug. Feel free to do so as long as you can return to the original code somehow ;).
+
+[PREV: Moving example <--](006_MovingExample.md) [--> NEXT: Using real data as mocks](008_TestingWithRealMocks.md)
