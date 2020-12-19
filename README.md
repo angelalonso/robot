@@ -2,6 +2,15 @@
 
 A step by step Guide to building and configuring YOUR own robot using MY choice of Rust-based logic.
 
+## TL;DR
+
+This is a guide, not some code you install and run. There is reading involved.
+
+If you cannot live without a step by step, here it goes:
+- Calm down
+- Relax
+- Get to [Features and Examples](README.md#features-and-examples), click and read each one.
+
 ## Motivation
 
 - I was looking for a project to learn Rust that would have me entertained for longer than a month.
