@@ -19,10 +19,10 @@
   actions:
   - object: "motor_l"
     value: "0"
-    time: "0.4"
+    time: "1.4"
   - object: "motor_r"
     value: "0"
-    time: "0.4"
+    time: "1.4"
   - object: "motor_l"
     value: "-80"
     time: "1"
