@@ -360,7 +360,7 @@ impl Brain {
             Ok(fp) => fp,
             Err(_e) => {
                 error!("File {} does not exist", file.clone());
-                return Err(BrainDeadError::FileNotFoundError)                    
+                return Err(BrainDeadError::FileNotFoundError)
             }
         };
         let mut c: Vec<ConfigEntry> = [].to_vec();
@@ -368,8 +368,20 @@ impl Brain {
             Ok(v) => return Ok(v),
             Err(e) => {
                 if e.to_string().contains("missing field `triggercount`") {
-                    let file_pointer = File::open(file.clone()).unwrap();
-                    let a: Vec<RulesetEntry> = serde_yaml::from_reader(file_pointer).unwrap();
+                    let file_pointer = match File::open(file.clone()){
+                        Ok(fp) => fp,
+                        Err(_e) => {
+                            error!("File {} does not exist", file.clone());
+                            return Err(BrainDeadError::FileNotFoundError)
+                        }
+                    };
+                    let a: Vec<RulesetEntry> = match serde_yaml::from_reader(file_pointer) {
+                        Ok(a) => a,
+                        Err(e) => {
+                            error!("The file {}'s YAML is incorrect! - {}", file.clone(), e);
+                            return Err(BrainDeadError::YamlError)
+                        }
+                    };
                     for i in a {
                         let c_elem = ConfigEntry {
                             id: i.id,
@@ -382,8 +394,20 @@ impl Brain {
                     }
                     return Ok(c)
                 } else if e.to_string().contains("missing field `condition`") {
-                    let file_pointer = File::open(file.clone()).unwrap();
-                    let a: Vec<ActionEntry> = serde_yaml::from_reader(file_pointer).unwrap();
+                    let file_pointer = match File::open(file.clone()){
+                        Ok(fp) => fp,
+                        Err(_e) => {
+                            error!("File {} does not exist", file.clone());
+                            return Err(BrainDeadError::FileNotFoundError)
+                        }
+                    };
+                    let a: Vec<RulesetEntry> = match serde_yaml::from_reader(file_pointer) {
+                        Ok(a) => a,
+                        Err(e) => {
+                            error!("The file {}'s YAML is incorrect! - {}", file.clone(), e);
+                            return Err(BrainDeadError::YamlError)
+                        }
+                    };
                     for i in a {
                         let c_elem = ConfigEntry {
                             id: i.id,
@@ -411,6 +435,7 @@ impl Brain {
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
         // Format would be motor_l=-60,time=2.6,source
         let format = action.split(",").collect::<Vec<_>>();
+        //TODO: reproduce this error, then use BrainDeadError instead of unwrap
         let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
         let data = format[0].split("=").collect::<Vec<_>>();
         let mut source = "";
@@ -451,6 +476,7 @@ impl Brain {
     /// Adds action to the related actions buffer
     pub fn add_action(&mut self, action: String) {
         trace!("- Adding action {}", action);
+        //TODO: once get_action_from_string has BrainDeadError, add a Result to this function
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         if OTHER_ACTIONS.iter().any(|&i| i==action_to_add.resource) {
             match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
@@ -538,6 +564,8 @@ impl Brain {
                                 debug!("- Buffer: {:#x?}", ob.entries);
                                 // TODO: Avoid hardcoding this (use types of actions?)
                                 if ob.object.starts_with("led") {
+                                    // TODO: reproduce this error, then use BrainDeadError instead
+                                    // of String in this function
                                     self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
                                 } else if ob.object.starts_with("motor") {
                                     let action_vector = a.data.split("_").collect::<Vec<_>>();
@@ -546,6 +574,8 @@ impl Brain {
                                     let other_action = a.data.split("_").collect::<Vec<_>>();
                                     if other_action[0] == "load" {
                                         let file_to_load = other_action[1..].join("_").to_string();
+                                        //TODO: once the previous error allows for BrainDeadError,
+                                        //use it here too
                                         self.config = Brain::load_action_rules(file_to_load).unwrap();
                                     }
                                 }
@@ -624,6 +654,7 @@ impl Brain {
         let mut result = true;
         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
         for check in &checks {
+            //TODO: reproduce this error, then get a BrainDeadError
             let re = regex::Regex::new(r"=|<=|>=|<|>").unwrap();
             let keyval = re.split(check).collect::<Vec<_>>();
             match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
@@ -739,8 +770,10 @@ impl Brain {
 
     pub fn create_record_file() -> String {
         let path = "records";
+        //TODO: find a way to reproduce this error, then add BrainDeadError to this function
         fs::create_dir_all(path).unwrap();
         let filename = path.to_owned() + "/last_run.yaml";
+        //TODO: use BrainDeadError here when the functions allows for it
         File::create(filename.clone()).unwrap();
         filename.to_string()
     }
@@ -748,12 +781,14 @@ impl Brain {
     pub fn record(&mut self, timestamp: f64, entry: String) {
         // TODO:
         // modify entry to something we can read as yaml
+        //TODO: find a way to reproduce this error, then add BrainDeadError to this function
         let mut file = OpenOptions::new()
             .append(true)
             .open(self.rec_file.clone())
             .unwrap();
         let log = format!("- time: {}\n  msg: \"{}\"", timestamp, entry);
         warn!("We are writing {} to {}", log, self.rec_file);
+        //TODO: when the function allows for it, use BrainDeadError here too
         writeln!(&mut file, "{}", log).unwrap();
     }
 
@@ -772,6 +807,7 @@ impl Brain {
         let brain_clone = self.clone();
         let _handle = thread::spawn(move || {
                 if brain_clone.mode != "dryrun" {
+                    //TODO: find a way to reproduce this error, then add BrainDeadError to this function
                     arduino_clone.read_channel(msgs).unwrap();
             } else {
                     arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
@@ -843,6 +879,7 @@ impl Brain {
                 // DO ACTIONS
                 // NOTE: debug entry point
                 //println!("---------------------------------------------------- {}", ct);
+                //TODO: when the function allows for it, use BrainDeadError here too
                 let (these_metrics, these_acts) = self.do_next_actions(ct).unwrap();
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
@@ -859,6 +896,7 @@ impl Brain {
                     }
                 }
                 // Send back the actions -> needed for tests
+                //TODO: when the function allows for it, use BrainDeadError here too
                 sender.send(format!("{:?}|{:?}", ct, new_acts)).unwrap();
             };
             // BREAK MECHANISM
@@ -1002,6 +1040,7 @@ impl Brain {
             let other_action = a.data.split("_").collect::<Vec<_>>();
             if other_action[0] == "load" {
                 let file_to_load = other_action[1..].join("_").to_string();
+                // TODO: find a way to reproduce this error, then add BrainDeadError to this function
                 self.config = Brain::load_action_rules(file_to_load).unwrap();
             }
         }
