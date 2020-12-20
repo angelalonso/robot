@@ -368,6 +368,7 @@ impl Brain {
             Ok(v) => return Ok(v),
             Err(e) => {
                 if e.to_string().contains("missing field `triggercount`") {
+
                     let file_pointer = match File::open(file.clone()){
                         Ok(fp) => fp,
                         Err(_e) => {
@@ -404,7 +405,7 @@ impl Brain {
                     let a: Vec<RulesetEntry> = match serde_yaml::from_reader(file_pointer) {
                         Ok(a) => a,
                         Err(e) => {
-                            error!("The file {}'s YAML is incorrect! - {}", file.clone(), e);
+                            error!("The file {}'s YAML is incorrect for a RuleSet! - {}", file.clone(), e);
                             return Err(BrainDeadError::YamlError)
                         }
                     };
