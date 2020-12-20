@@ -21,14 +21,17 @@ pub enum BrainDeadError {
     #[error("Source contains no data")]
     EmptyError,
 
-    #[error("Config contains no related entries")]
-    NoConfigFound,
+    #[error("Setup could not be loaded")]
+    LoadSetupError,
 
-    #[error("Config contains no related entries")]
+    #[error("Action Rules could not be loaded")]
+    LoadActionRulesError,
+
+    #[error("YAML file does not contain the expected content")]
     YamlError,
 
-    #[error("Something went wrong while working with timestamps")]
-    SystemTimeError,
+    #[error("File does not exist")]
+    FileNotFoundError,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -111,7 +114,7 @@ static MAX_METRICSIZE: u8 = 25;
 const OTHER_ACTIONS: &'static [&'static str] = &["load", "wait"];
 
 impl Brain {
-    pub fn new(brain_name: String, mut mode: String, setupfile: String) -> Result<Self, String> {
+    pub fn new(brain_name: String, mut mode: String, setupfile: String) -> Result<Self, BrainDeadError> {
         // CATCH the record mode and clean up the original mode variable
         let special_mode = mode.split("_").collect::<Vec<_>>();
         let mut record_file = "".to_string();
@@ -127,8 +130,23 @@ impl Brain {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        let (first_action_set, _first_arduino_program, inputs, outputs) = Brain::load_setup(setupfile.to_string());
-        let c = Brain::load_action_rules(first_action_set).unwrap();
+        let (first_action_set, _first_arduino_program, inputs, outputs) = match Brain::load_setup(setupfile.to_string()) {
+            Ok((fas,fap,i,o)) => (fas,fap,i,o),
+            Err(e) => {
+                error!("There was an error!: {}", e);
+                return Err(BrainDeadError::LoadSetupError)
+            }
+
+        };
+        // TODO: either call everything config or actionset or actionrules
+        let c = match Brain::load_action_rules(first_action_set) {
+            Ok(cfg) => cfg,
+            Err(e) => {
+                error!("There was an error!: {}", e);
+                return Err(BrainDeadError::LoadActionRulesError)
+            }
+
+        };
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
             process::exit(1);
@@ -242,7 +260,7 @@ impl Brain {
     }
 
     /// Load a robot setup yaml file and configures the system
-    pub fn load_setup(setup_file: String) -> (String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>) {
+    pub fn load_setup(setup_file: String) -> Result<(String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>), BrainDeadError> {
         #[derive(Deserialize)]
         struct Setup {
             start_actionset_file: String,
@@ -250,9 +268,21 @@ impl Brain {
             inputs: HashMap<String, HashMap<String, String>>,
             outputs: HashMap<String, HashMap<String, String>>,
         }
-        let file_pointer = File::open(setup_file).unwrap();
-        let a: Setup = serde_yaml::from_reader(file_pointer).unwrap();
-        return (a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs)
+        let file_pointer = match File::open(setup_file.clone()) {
+            Ok(fp) => fp,
+            Err(_) => {
+                error!("File {} does not exist", setup_file.clone());
+                return Err(BrainDeadError::FileNotFoundError)
+            }
+        };
+        let a: Setup = match serde_yaml::from_reader(file_pointer) {
+            Ok(ya) => ya,
+            Err(e) => {
+                error!("The file {}'s YAML is incorrect! - {}", setup_file.clone(), e);
+                return Err(BrainDeadError::YamlError)
+            }
+        };
+        return Ok((a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs))
         //return (a.start_actionset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
     }
 
@@ -326,8 +356,13 @@ impl Brain {
     /// Load actions and rules using the same pattern.
     /// The actions differ from configs in that they will ALWAYS be loaded 
     pub fn load_action_rules(file: String) -> Result<Vec<ConfigEntry>, BrainDeadError> {
-        // TODO: get error message about the file missing if this fails
-        let file_pointer = File::open(file.clone()).unwrap();
+        let file_pointer = match File::open(file.clone()){
+            Ok(fp) => fp,
+            Err(_e) => {
+                error!("File {} does not exist", file.clone());
+                return Err(BrainDeadError::FileNotFoundError)                    
+            }
+        };
         let mut c: Vec<ConfigEntry> = [].to_vec();
         match serde_yaml::from_reader(file_pointer) {
             Ok(v) => return Ok(v),
@@ -364,7 +399,7 @@ impl Brain {
                     }
                     return Ok(c)
                 } else {
-                    error!("The file {} is incorrect! - {}", file, e);
+                    error!("The file {}'s YAML is incorrect! - {}", file, e);
                     return Err(BrainDeadError::YamlError)                    
                 }
             },
