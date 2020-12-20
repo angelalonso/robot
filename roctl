@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+ENVFILE="brain/.env"
+
+help()
+{
+  echo "SYNTAX:"
+  echo "$0 get <parameter>"
+  echo " get"
+  echo "   online - Get if the robot is online"
+}
+
+checkArgs()
+{
+if [[ "$1" != "get" ]]; then
+  echo "ERROR: parameter not recognized: $1"
+  help 
+  exit 1
+else
+  doGet $@
+fi
+}
+
+doGet()
+{
+if [[ "$2" == "" ]]; then
+  echo "ERROR: missing parameter after $1"
+  help 
+  exit 1
+elif [[ "$2" == "online" ]]; then
+  getOnline
+else
+  echo "ERROR: parameter not recognized: $2"
+  help 
+  exit 1
+fi
+}
+
+getOnline()
+{
+source ${ENVFILE} 
+title="ITEM    ONLINE"
+ping ${HOST} -c 1 > /dev/null
+if [[ $? -eq 0 ]]; then
+  echo "$title"
+  echo "Robot   True"
+  exit 0
+else
+  echo "$title"
+  echo "Robot   False"
+  exit 1
+fi
+}
+
+checkArgs $@
