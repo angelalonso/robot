@@ -112,6 +112,7 @@ pub struct Brain {
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 static MAX_BUFFERSIZE: u8 = 25;
 static MAX_METRICSIZE: u8 = 25;
+// this is a list of the actions that go in the same bufferset, called brilliantly "other"
 const OTHER_ACTIONS: &'static [&'static str] = &["load", "wait"];
 
 impl Brain {
@@ -298,7 +299,7 @@ impl Brain {
     }
 
     /// Return difference between current timestamp and a given one, in millis
-    pub fn get_timestamp_since(&mut self, start_timestamp: f64) -> f64 {
+    pub fn get_time_since(&mut self, start_timestamp: f64) -> f64 {
         let now = SystemTime::now();
         let timestamp = match now.duration_since(UNIX_EPOCH) {
             Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
@@ -773,123 +774,6 @@ impl Brain {
         writeln!(&mut file, "{}", log).unwrap();
     }
 
-    /// Just run the brain.
-    /// - secs_to_run has to have decimals, so 4.0 is valid, but 4 is not
-    /// - precission: how often we do stuff
-    ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
-    pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
-        // timestamps
-        let start_timestamp = self.get_current_time();
-        let mut ct: f64 = 0.0;
-        // communication with arduino
-        let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
-        let msgs = s.clone();
-        let mut arduino_clone = self.arduino.clone();
-        let brain_clone = self.clone();
-        let _handle = thread::spawn(move || {
-                if brain_clone.mode != "dryrun" {
-                    //TODO: find a way to reproduce this error, then add BrainDeadError to this function
-                    arduino_clone.read_channel(msgs).unwrap();
-            } else {
-                    arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
-                };
-            });
-        let _msg = match r.try_recv() {
-            Ok(m) => {
-                self.use_arduino_msg(ct, m);
-            },
-            Err(_) => (),
-        };
-        loop {
-            let mut new_metrics: Vec<String> = [].to_vec();
-            let mut new_acts: Vec<String> = [].to_vec();
-            // update current timestamp
-            let ct_raw = self.get_timestamp_since(start_timestamp);
-            let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
-            if new_ct > ct { 
-                ct = new_ct;
-                let _msg = match r.try_recv() {
-                    Ok(m) => {
-                        self.use_arduino_msg(ct, m);
-                    },
-                    Err(_) => (),
-                };
-                self.show_metrics();
-                self.show_action_buffers();
-                // GET ACTIONS
-                match self.get_actions_from_rules(ct){
-                    Ok(acts) => {
-                        for objset in acts {
-                            if OTHER_ACTIONS.iter().any(|&i| i==objset.object) {
-                                match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
-                                    Some(ob) => {
-                                        // We assume that if new actions are chosen, we can
-                                        // overwrite whatever is on the buffer
-                                        ob.entries = Vec::new();
-                                    },
-                                    None => (),
-                                };
-                            } else {
-                                match self.buffersets.iter_mut().find(|x| *x.object == *objset.object) {
-                                    Some(ob) => {
-                                        // We assume that if new actions are chosen, we can
-                                        // overwrite whatever is on the buffer
-                                        ob.entries = Vec::new();
-                                    },
-                                    None => (),
-                                };
-                            };
-                            for (ix, action) in objset.entries.clone().iter().enumerate() {
-                                if ix == 0 {
-                                    let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone(), ct).unwrap();
-                                    for m_raw in these_metrics {
-                                        new_metrics.push(m_raw);
-                                    }
-                                    for c_raw in these_acts {
-                                        new_acts.push(c_raw);
-                                    }
-                                } else {
-                                    let aux = format!("{}={},time={},{}", objset.object, action.data, action.time, action.id);
-                                    self.add_action(aux);
-                                }
-                            }
-                        }
-                    },
-                    Err(_e) => trace!("...no matching rules found"),
-                };
-                // DO ACTIONS
-                let (these_metrics, these_acts) = self.do_next_actions(ct).unwrap();
-                for m_raw in these_metrics {
-                    new_metrics.push(m_raw);
-                }
-                for c_raw in these_acts {
-                    if c_raw != "" {
-                        new_acts.push(c_raw);
-                    }
-                }
-                for m_raw in new_metrics.clone() {
-                    let m = m_raw.split("|").collect::<Vec<_>>();
-                    if m.len() > 1 {
-                        self.add_metric(ct, m[0].to_string(), m[1].to_string());
-                    }
-                }
-                // Send back the actions -> needed for tests
-                //TODO: Find a way to reproduce this error, then use BrainDeadError
-                sender.send(format!("{:?}|{:?}", ct, new_acts)).unwrap();
-            };
-            // BREAK MECHANISM
-            match secs_to_run {
-                Some(s) => {
-                    if ct >= s {
-                        println!("Finished execution");
-                        break
-                    }
-                },
-                None => (),
-            }
-        }
-    }
-
     /// Checks the input of the rules loaded and, if they fit, returns the actions to take
     pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<Set>, BrainDeadError>{
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
@@ -1034,6 +918,120 @@ impl Brain {
         metrics.push(format!("{}__{}|{}", om.object, a.data, a.belongsto.to_string()));
         result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.clone().time));
         return Ok((metrics, result))
+    }
+
+    /// Just run the brain.
+    /// - secs_to_run has to have decimals, 4.0 is valid, 4 is not
+    /// - precission: how often we do stuff
+    ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
+    pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+        // timestamps
+        let start_timestamp = self.get_current_time();
+        let mut ct: f64 = 0.0;
+        // communication with arduino
+        let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+        let msgs = s.clone();
+        let mut arduino_clone = self.arduino.clone();
+        let brain_clone = self.clone();
+        thread::spawn(move || {
+                if brain_clone.mode != "dryrun" {
+                    //TODO: find a way to reproduce this error, then add BrainDeadError to this function
+                    arduino_clone.read_channel(msgs).unwrap();
+            } else {
+                    arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
+                };
+            });
+        match r.try_recv() {
+            Ok(m) => {
+                self.use_arduino_msg(ct, m);
+            },
+            Err(_) => (),
+        };
+        loop {
+            let mut new_metrics: Vec<String> = [].to_vec();
+            let mut new_acts: Vec<String> = [].to_vec();
+            // update current timestamp
+            let ct_raw = self.get_time_since(start_timestamp);
+            let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
+            if new_ct > ct { 
+                ct = new_ct;
+                let _msg = match r.try_recv() {
+                    Ok(m) => {
+                        self.use_arduino_msg(ct, m);
+                    },
+                    Err(_) => (),
+                };
+                self.show_metrics();
+                self.show_action_buffers();
+                // get actions
+                match self.get_actions_from_rules(ct){
+                    Ok(acts) => {
+                        for objset in acts {
+                            if OTHER_ACTIONS.iter().any(|&i| i==objset.object) {
+                                match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
+                                    Some(ob) => {
+                                        // We assume that if new actions are chosen, we can
+                                        // overwrite whatever is on the buffer
+                                        ob.entries = Vec::new();
+                                    },
+                                    None => (),
+                                };
+                            } else {
+                                match self.buffersets.iter_mut().find(|x| *x.object == *objset.object) {
+                                    Some(ob) => {
+                                        ob.entries = Vec::new();
+                                    },
+                                    None => (),
+                                };
+                            };
+                            for (ix, action) in objset.entries.clone().iter().enumerate() {
+                                if ix == 0 {
+                                    let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone(), ct).unwrap();
+                                    for m_raw in these_metrics {
+                                        new_metrics.push(m_raw);
+                                    }
+                                    for c_raw in these_acts {
+                                        new_acts.push(c_raw);
+                                    }
+                                } else {
+                                    let aux = format!("{}={},time={},{}", objset.object, action.data, action.time, action.id);
+                                    self.add_action(aux);
+                                }
+                            }
+                        }
+                    },
+                    Err(_e) => trace!("...no matching rules found"),
+                };
+                // do actions
+                let (these_metrics, these_acts) = self.do_next_actions(ct).unwrap();
+                for m_raw in these_metrics {
+                    new_metrics.push(m_raw);
+                }
+                for c_raw in these_acts {
+                    if c_raw != "" {
+                        new_acts.push(c_raw);
+                    }
+                }
+                for m_raw in new_metrics.clone() {
+                    let m = m_raw.split("|").collect::<Vec<_>>();
+                    if m.len() > 1 {
+                        self.add_metric(ct, m[0].to_string(), m[1].to_string());
+                    }
+                }
+                // Send back the actions -> needed for tests
+                sender.send(format!("{:?}|{:?}", ct, new_acts)).unwrap();
+            };
+            // break mechanism
+            match secs_to_run {
+                Some(s) => {
+                    if ct >= s {
+                        println!("Finished execution");
+                        break
+                    }
+                },
+                None => (),
+            }
+        }
     }
 
 }

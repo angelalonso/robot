@@ -1,63 +1,123 @@
 #!/usr/bin/env bash
 
 ENVFILE="brain/.env"
+source ${ENVFILE} 
+
+EXIT=0
 
 help()
 {
-  echo "SYNTAX:"
-  echo "$0 get <parameter>"
-  echo " get"
-  echo "   online - Get if the robot is online"
+  TITLE="SYNTAX:"
+  RESULT="\
+$0 get <parameter>\n \
+  get \n \
+    online - Get if the robot is online \n \
+  do \n \
+    reset - Reset the robot's outputs(motors, LEDs...) \n \
+"
 }
 
 checkArgs()
 {
-if [[ "$1" != "get" ]]; then
-  echo "ERROR: parameter not recognized: $1"
-  help 
-  exit 1
-else
-  doGet $@
-fi
-}
-
-doGet()
-{
-if [[ "$2" == "" ]]; then
-  echo "ERROR: missing parameter after $1"
-  help 
-  exit 1
-elif [[ "$2" == "online" ]]; then
-  getOnline
-else
-  echo "ERROR: parameter not recognized: $2"
-  help 
-  exit 1
-fi
-}
-
-getOnline()
-{
-source ${ENVFILE} 
-title="ITEM    ONLINE"
-online="False"
-retries=0
-while [[ $retries < 4 ]] && [ "$online" != "True" ]; do
-  retries=$((retries+1))
-  ping ${HOST} -c 1 > /dev/null
-  if [[ $? -eq 0 ]]; then
-    online="True"
+  if [[ "$1" == "get" ]]; then
+    getStuff $@
+  elif [[ "$1" == "do" ]]; then
+    doStuff $@
+  else
+    echo "ERROR: parameter not recognized: $1"
+    help 
+    EXIT=1
   fi
-done
-if [[ "$online" == "True" ]]; then
-  echo "$title"
-  echo "Robot   True"
-  exit 0
-else
-  echo "$title"
-  echo "Robot   False"
-  exit 1
-fi
 }
 
-checkArgs $@
+getStuff()
+{
+  if [[ "$2" == "" ]]; then
+    echo "ERROR: missing parameter after $1"
+    help 
+    EXIT=1
+  elif [[ "$2" == "online" ]]; then
+    getIsOnline
+  else
+    echo "ERROR: parameter not recognized: $2"
+    help 
+    EXIT=1
+  fi
+}
+
+getIsOnline()
+{
+  TITLE="ITEM    IS_ONLINE"
+  online="False"
+  retries=0
+  while [[ $retries < 4 ]] && [ "$online" != "True" ]; do
+    retries=$((retries+1))
+    ping ${HOST} -c 1 > /dev/null
+    if [[ $? -eq 0 ]]; then
+      online="True"
+    fi
+  done
+  if [[ "$online" == "True" ]]; then
+    RESULT="Robot   True"
+    EXIT=0
+  else
+    RESULT="Robot   False"
+    EXIT=1
+  fi
+}
+
+doStuff()
+{
+  if [[ "$2" == "" ]]; then
+    echo "ERROR: missing parameter after $1"
+    help 
+    EXIT=1
+  elif [[ "$2" == "reset" ]]; then
+    doReset
+  else
+    echo "ERROR: parameter not recognized: $2"
+    help 
+    EXIT=1
+  fi
+}
+
+doReset()
+{
+  getIsOnline
+  TITLE="ITEM    RESET"
+  if [[ "${RESULT}" == "Robot   False" ]]; then
+      RESULT="Robot   Error: NOT Online"
+  else
+    ${SSH_COMM} "kill \$(ps aux | grep brain | grep setup | awk '{print \$2}')" > /dev/null 2>&1
+    EXIT=$?
+    if [[ $EXIT -eq 0 ]]; then
+      ${SSH_COMM} "cd robot/brain; \
+        RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain reset setup_reset.yaml
+        " > /dev/null 2>&1
+        EXIT=$?
+      if [[ $EXIT -eq 0 ]]; then
+        ${SSH_COMM} "kill \$(ps aux | grep brain | grep cfg | awk '{print \$2}')" > /dev/null 2>&1
+        EXIT=$?
+        if [[ $EXIT -eq 0 ]]; then
+          RESULT="Robot   True"
+        else
+          RESULT="Robot   Error: "$EXIT
+        fi
+      else
+        RESULT="Robot   Error: "$EXIT
+      fi
+    else
+      RESULT="Robot   Error: "$EXIT
+    fi
+  fi
+}
+
+main()
+{
+  checkArgs $@
+  echo "${TITLE}"
+  echo -e "${RESULT}"
+  exit $EXIT
+}
+
+main $@
