@@ -1,4 +1,7 @@
 #!/bin/bash
+
+SETUP_FILE="setup.yaml"
+
 die () {
     echo >&2 "$@"
     exit 1
@@ -60,7 +63,7 @@ do
   fi
 done
 ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git pull && \
-  RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain record setup.yaml
+  RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain record ${SETUP_FILE}
   "
 scp ${SSH_CONN}:robot/brain/records/last_run.yaml ${FILE} 
 # TODO: ask for a destination file name on run
