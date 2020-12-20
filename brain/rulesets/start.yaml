@@ -18,11 +18,11 @@
   actionsloop: false
   actions:
   - object: "motor_l"
-    value: "0"
-    time: "1.4"
+    value: "-80"
+    time: "0.4"
   - object: "motor_r"
     value: "0"
-    time: "1.4"
+    time: "0.4"
   - object: "motor_l"
     value: "-80"
     time: "0.1"
