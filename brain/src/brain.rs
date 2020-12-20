@@ -108,6 +108,7 @@ pub struct Brain {
     buffersets: Vec<Set>,
     metricsets: Vec<Set>,
 }
+
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 static MAX_BUFFERSIZE: u8 = 25;
 static MAX_METRICSIZE: u8 = 25;
@@ -313,7 +314,7 @@ impl Brain {
             self.record(timestamp, raw_msg.to_string());
         };
         match msg_parts[0] {
-            // TODO: add other use cases
+            // NOTE: we could have other types of messages but we don't need them just yet
             "SENSOR" => {
                 let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
                 for s in sensors {
@@ -434,7 +435,6 @@ impl Brain {
 
     /// Turn a String containing an action into the related object
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
-        // Format would be motor_l=-60,time=2.6,source
         let format = action.split(",").collect::<Vec<_>>();
         //TODO: reproduce this error, then use BrainDeadError instead of unwrap
         let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
@@ -469,8 +469,6 @@ impl Brain {
                 result = true;
             }
         }
-        // NOTE: debug breakpoint
-        //println!("{}", result);
         result
     }
 
@@ -546,10 +544,6 @@ impl Brain {
     pub fn do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
-        //TODO: investigate:
-        //     timestamp to decide on actions from the buffer is wrong, what timestamp are we
-        //     using?
-        //TODO: manage different types of actions
         for ob in self.buffersets.iter_mut() {
             match self.metricsets.iter_mut().find(|x| *x.object == *ob.object) {
                 Some(om) => {
@@ -565,8 +559,6 @@ impl Brain {
                                 debug!("- Buffer: {:#x?}", ob.entries);
                                 // TODO: Avoid hardcoding this (use types of actions?)
                                 if ob.object.starts_with("led") {
-                                    // TODO: reproduce this error, then use BrainDeadError instead
-                                    // of String in this function
                                     self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
                                 } else if ob.object.starts_with("motor") {
                                     let action_vector = a.data.split("_").collect::<Vec<_>>();
@@ -575,13 +567,12 @@ impl Brain {
                                     let other_action = a.data.split("_").collect::<Vec<_>>();
                                     if other_action[0] == "load" {
                                         let file_to_load = other_action[1..].join("_").to_string();
-                                        //TODO: once the previous error allows for BrainDeadError,
-                                        //use it here too
+                                        // TODO: use BrainDeadError instead
+                                        // of String in this function
                                         self.config = Brain::load_action_rules(file_to_load).unwrap();
                                     }
                                 }
-                                //TODO: this info should come from the leds module itself
-                                info!("- Just did {} -> {} (buffer)", om.object, a.data);
+                                info!("- Just did {} -> {} (from buffer)", om.object, a.data);
                                 // TODO actually both the following could be one if we unified format
                                 metrics.push(format!("{}__{}|{}", ob.object, a.data, a.id.to_string()));
                                 result.push(format!("{}__{}__{:?}", ob.object, a.clone().data, a.clone().time));
@@ -655,12 +646,10 @@ impl Brain {
         let mut result = true;
         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
         for check in &checks {
-            //TODO: reproduce this error, then get a BrainDeadError
             let re = regex::Regex::new(r"=|<=|>=|<|>").unwrap();
             let keyval = re.split(check).collect::<Vec<_>>();
             match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
                 Some(om) => {
-                    //TODO do this differently for each type
                     match om.obj_type.as_str() {
                         // for binary and output we just try to match fully
                         "binary" | "output" => {
@@ -674,7 +663,6 @@ impl Brain {
                                         return result
                                     };
                                 };
-                                // TODO: do we need to check timestamp here?
                             } else if keyval[1] != "0" {
                                 result = false;
                                 return result
@@ -744,7 +732,6 @@ impl Brain {
                                         }
                                     }
                                 } else {
-                                    // TODO: do we need to check timestamp here?
                                     result = false;
                                     return result
                                 }
@@ -753,7 +740,6 @@ impl Brain {
                                 // compare to desired time
                                 // ...and if it doesnt fit, remove
                             } else {
-                                // TODO: do we need to check timestamp here?
                                 result = false;
                                 return result
                             }
@@ -771,25 +757,19 @@ impl Brain {
 
     pub fn create_record_file() -> String {
         let path = "records";
-        //TODO: find a way to reproduce this error, then add BrainDeadError to this function
         fs::create_dir_all(path).unwrap();
         let filename = path.to_owned() + "/last_run.yaml";
-        //TODO: use BrainDeadError here when the functions allows for it
         File::create(filename.clone()).unwrap();
         filename.to_string()
     }
 
     pub fn record(&mut self, timestamp: f64, entry: String) {
-        // TODO:
-        // modify entry to something we can read as yaml
-        //TODO: find a way to reproduce this error, then add BrainDeadError to this function
         let mut file = OpenOptions::new()
             .append(true)
             .open(self.rec_file.clone())
             .unwrap();
         let log = format!("- time: {}\n  msg: \"{}\"", timestamp, entry);
         warn!("We are writing {} to {}", log, self.rec_file);
-        //TODO: when the function allows for it, use BrainDeadError here too
         writeln!(&mut file, "{}", log).unwrap();
     }
 
@@ -878,9 +858,6 @@ impl Brain {
                     Err(_e) => trace!("...no matching rules found"),
                 };
                 // DO ACTIONS
-                // NOTE: debug entry point
-                //println!("---------------------------------------------------- {}", ct);
-                //TODO: when the function allows for it, use BrainDeadError here too
                 let (these_metrics, these_acts) = self.do_next_actions(ct).unwrap();
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
@@ -897,7 +874,7 @@ impl Brain {
                     }
                 }
                 // Send back the actions -> needed for tests
-                //TODO: when the function allows for it, use BrainDeadError here too
+                //TODO: Find a way to reproduce this error, then use BrainDeadError
                 sender.send(format!("{:?}|{:?}", ct, new_acts)).unwrap();
             };
             // BREAK MECHANISM
@@ -915,9 +892,6 @@ impl Brain {
 
     /// Checks the input of the rules loaded and, if they fit, returns the actions to take
     pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<Set>, BrainDeadError>{
-        // NOTE: debug entry point
-        //println!("---------------------------------------------------- {}", timestamp);
-        //TODO try to clean this up
         let mut partial_rules: Vec<ConfigEntry> = self.config.clone();
         let mut action_vectors: Vec<Set> = [].to_vec();
         for bs in self.buffersets.clone() {
@@ -1015,11 +989,6 @@ impl Brain {
                 action_vectors.retain(|x| *x != s);
             }
         }
-        // NOTE: debug entry point
-        //println!("--  {}", timestamp);
-        //for a in action_vectors.clone() {
-        //    println!("{} - {:#x?}", a.object, a.entries);
-        //}
         Ok(action_vectors)
     }
 
@@ -1041,7 +1010,7 @@ impl Brain {
             let other_action = a.data.split("_").collect::<Vec<_>>();
             if other_action[0] == "load" {
                 let file_to_load = other_action[1..].join("_").to_string();
-                // TODO: find a way to reproduce this error, then add BrainDeadError to this function
+                // TODO: add BrainDeadError to this function
                 self.config = Brain::load_action_rules(file_to_load).unwrap();
             }
         }
