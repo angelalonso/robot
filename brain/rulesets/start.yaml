@@ -21,7 +21,7 @@
     value: "-80"
     time: "0.4"
   - object: "motor_r"
-    value: "0"
+    value: "-80"
     time: "0.4"
   - object: "motor_l"
     value: "-80"
