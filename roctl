@@ -4,6 +4,7 @@ ENVFILE="brain/.env"
 source ${ENVFILE} 
 
 EXIT=0
+TITLE_SHOWN=False
 
 help()
 {
@@ -74,6 +75,12 @@ doStuff()
     EXIT=1
   elif [[ "$2" == "reset" ]]; then
     doReset
+  elif [[ "$2" == "compile" ]]; then
+    doCompile
+  elif [[ "$2" == "gitpush" ]]; then
+    doGitPush
+  elif [[ "$2" == "run" ]]; then
+    doRun
   else
     echo "ERROR: parameter not recognized: $2"
     help 
@@ -85,7 +92,7 @@ doReset()
 {
   getIsOnline
   TITLE="ITEM    RESET"
-  if [[ "${RESULT}" == "Robot   False" ]]; then
+  if [[ "${RESULT}" != "Robot   True" ]]; then
       RESULT="Robot   Error: NOT Online"
   else
     ${SSH_COMM} "kill \$(ps aux | grep brain | grep setup | awk '{print \$2}')" > /dev/null 2>&1
@@ -112,10 +119,73 @@ doReset()
   fi
 }
 
+doCompile()
+{
+  TITLE="ITEM    COMPILE"
+  CWD=$(pwd)
+  cd brain
+  cross build --target=arm-unknown-linux-gnueabihf > /dev/null 2>&1
+  EXIT=$?
+  cd ${CWD}
+  if [[ $EXIT -eq 0 ]]; then
+    RESULT="Robot   True"
+  else
+    RESULT="Robot   Error: "$EXIT
+  fi
+}
+
+doGitPush()
+{
+  git checkout ${DEV_BRANCH}
+  git add ${ARDUINO_FILES}
+  git add -f target/arm-unknown-linux-gnueabihf/debug/brain
+  git add . 
+  git add src/
+  git add rulesets/
+  git commit -m "updating and uploading"
+  git push origin ${DEV_BRANCH}
+  EXIT=$?
+  if [[ $EXIT -eq 0 ]]; then
+    RESULT="Robot   True"
+  else
+    RESULT="Robot   Error: "$EXIT
+  fi
+}
+
+doRun()
+{
+  doCompile
+  TITLE="ITEM    RUN"
+  echo "${TITLE}"
+  TITLE_SHOWN="True"
+  if [[ "${RESULT}" != "Robot   True" ]]; then
+    RESULT="Robot   Error: Compilation failed"
+  else
+    RESULT="Robot   Compilation OK"
+    echo -e "${RESULT}"
+    doGitPush
+    if [[ "${RESULT}" != "Robot   True" ]]; then
+      RESULT="Robot   Error: Updating Git branch failed"
+    else
+      RESULT="Robot   Updating git branch OK"
+      echo -e "${RESULT}"
+      doReset
+      if [[ "${RESULT}" != "Robot   True" ]]; then
+        RESULT="Robot   Error: Reset failed"
+      else
+        RESULT="Robot   Resetting OK"
+        echo -e "${RESULT}"
+      fi
+    fi
+  fi
+}
+
 main()
 {
   checkArgs $@
-  echo "${TITLE}"
+  if [[ "${TITLE_SHOWN}" == "False" ]]; then
+    echo "${TITLE}"
+  fi
   echo -e "${RESULT}"
   exit $EXIT
 }
