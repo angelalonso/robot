@@ -14,7 +14,11 @@ $0 get <parameter>\n \
   get \n \
     online - Get if the robot is online \n \
   do \n \
+    run - Run Brain in your Robot and show logs \n \
     reset - Reset the robot's outputs(motors, LEDs...) \n \
+    test - Test Rust Code and run BRain locally on test mode \n \
+    compile - Compile code for the Raspberry processor \n \
+    gitpush - Add latest changes and push to branch on .env \n \
 "
 }
 
