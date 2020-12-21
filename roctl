@@ -81,6 +81,8 @@ doStuff()
     doGitPush
   elif [[ "$2" == "run" ]]; then
     doRun
+  elif [[ "$2" == "test" ]]; then
+    doTest
   else
     echo "ERROR: parameter not recognized: $2"
     help 
@@ -184,6 +186,39 @@ doRun()
         fi
       fi
     fi
+  fi
+}
+
+doTest()
+{
+  TITLE="ITEM    TEST_PASSED"
+  echo "${TITLE}"
+  TITLE_SHOWN="True"
+  CWD=$(pwd)
+  cd brain
+  cargo test -- > /dev/null 2>&1
+  EXIT=$?
+  cd ${CWD}
+  if [[ $EXIT -eq 0 ]]; then
+    RESULT="Robot   True"
+    echo "${RESULT}"
+    echo 
+    TITLE="ITEM    OFFLINE_TEST"
+    echo "${TITLE}"
+    RESULT="Robot   Running..."
+    echo "${RESULT}"
+    CWD=$(pwd)
+    cd brain
+    RUST_LOG=info cargo run test setup.yaml
+    EXIT=$?
+    cd ${CWD}
+    if [[ $EXIT -eq 0 ]]; then
+      RESULT="Robot   True"
+    else
+      RESULT="Robot   Error: "$EXIT
+    fi
+  else
+    RESULT="Robot   Error: "$EXIT
   fi
 }
 
