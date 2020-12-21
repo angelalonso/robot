@@ -136,14 +136,10 @@ doCompile()
 
 doGitPush()
 {
-  git checkout ${DEV_BRANCH}
-  git add ${ARDUINO_FILES}
-  git add -f target/arm-unknown-linux-gnueabihf/debug/brain
-  git add . 
-  git add src/
-  git add rulesets/
-  git commit -m "updating and uploading"
-  git push origin ${DEV_BRANCH}
+  git checkout ${DEV_BRANCH} > /dev/null 2>&1
+  git add .  > /dev/null 2>&1
+  git commit -m "updating and uploading" > /dev/null 2>&1
+  git push origin ${DEV_BRANCH} > /dev/null 2>&1
   EXIT=$?
   if [[ $EXIT -eq 0 ]]; then
     RESULT="Robot   True"
