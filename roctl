@@ -157,19 +157,19 @@ doRun()
   if [[ "${RESULT}" != "Robot   True" ]]; then
     RESULT="Robot   Error: Compilation failed"
   else
-    RESULT="Robot   Compilation OK"
+    RESULT="Robot   OK: Compilation"
     echo -e "${RESULT}"
     doGitPush
     if [[ "${RESULT}" != "Robot   True" ]]; then
       RESULT="Robot   Error: Updating Git branch failed"
     else
-      RESULT="Robot   Updating git branch OK"
+      RESULT="Robot   OK: Updating git branch"
       echo -e "${RESULT}"
       doReset
       if [[ "${RESULT}" != "Robot   True" ]]; then
         RESULT="Robot   Error: Reset failed"
       else
-        RESULT="Robot   Resetting OK"
+        RESULT="Robot   OK: Resetting"
         echo -e "${RESULT}"
         RESULT="Robot   Run ..."
         echo -e "${RESULT}"
