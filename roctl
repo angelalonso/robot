@@ -15,6 +15,8 @@ $0 get <parameter>\n \
     online - Get if the robot is online \n \
   do \n \
     run - Run Brain in your Robot and show logs \n \
+    record <filename> - Run Brain in your Robot and save arduino input \n \
+      <filename> - (Mandatory) filename to save the arduino input to \n \
     reset - Reset the robot's outputs(motors, LEDs...) \n \
     test - Test Rust Code and run BRain locally on test mode \n \
     compile - Compile code for the Raspberry processor \n \
@@ -87,6 +89,14 @@ doStuff()
     doRun $@
   elif [[ "$2" == "test" ]]; then
     doTest $@
+  elif [[ "$2" == "record" ]]; then
+    if [[ "$3" == "" ]]; then
+      echo "ERROR: filename missing"
+      help 
+      EXIT=1
+    else
+      doRecord $@
+    fi
   else
     echo "ERROR: parameter not recognized: $2"
     help 
@@ -229,6 +239,61 @@ doTest()
     fi
   else
     RESULT="Robot   Error: "$EXIT
+  fi
+}
+
+doRecord()
+{
+  TITLE="ITEM    TEST_PASSED"
+  FILE=$3
+  if [ -f ${FILE} ]; then
+    echo "You are about to overwrite ${FILE}!"
+    read -r -p "Are you sure? [y/N] " response
+    case "$response" in
+      [nN][oO]|[nN]) 
+        echo "Stopping then."
+        exit 1
+        ;;
+      *)
+        echo "Overwriting then."
+        doCompile $@
+        TITLE="ITEM    RUN_AND_RECORD"
+        echo "${TITLE}"
+        TITLE_SHOWN="True"
+        if [[ "${RESULT}" != "Robot   True" ]]; then
+          RESULT="Robot   Error: Compilation failed"
+        else
+          RESULT="Robot   OK: Compilation"
+          echo -e "${RESULT}"
+          doGitPush
+          if [[ "${RESULT}" != "Robot   True" ]]; then
+            RESULT="Robot   Error: Updating Git branch failed"
+          else
+            RESULT="Robot   OK: Updating git branch"
+            echo -e "${RESULT}"
+            doReset
+            if [[ "${RESULT}" != "Robot   True" ]]; then
+              RESULT="Robot   Error: Reset failed"
+            else
+              RESULT="Robot   OK: Resetting"
+              echo -e "${RESULT}"
+              RESULT="Robot   Run ..."
+              echo -e "${RESULT}"
+              ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git stash; git stash drop; git pull && \
+                RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain record setup.yaml
+                " > /dev/null 2>&1
+              scp ${SSH_CONN}:robot/brain/records/last_run.yaml ${FILE} > /dev/null 2>&1
+              EXIT=$?
+              if [[ $EXIT -eq 0 ]]; then
+                RESULT="Robot   True"
+              else
+                RESULT="Robot   Error: "$EXIT
+              fi
+            fi
+          fi
+        fi
+        ;;
+    esac
   fi
 }
 
