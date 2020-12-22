@@ -267,7 +267,7 @@ doRecord()
             else
               RESULT="Robot   OK: Resetting"
               echo -e "${RESULT}"
-              RESULT="Robot   Run ..."
+              RESULT="Robot   Running... (please wait, it might take up to a minute)"
               echo -e "${RESULT}"
               ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git stash; git stash drop; git pull && \
                 RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain record setup.yaml
