@@ -35,9 +35,13 @@ To be done
 ## Built with
 
 - [Rust](https://www.rust-lang.org/)
+  - [Cross](https://github.com/rust-embedded/cross)
+  - [Rustup](https://rustup.rs/)
 - [Bash](https://tiswww.case.edu/php/chet/bash/bashtop.html)
 - [Raspberry Pi](https://www.raspberrypi.org/)
 - [Arduino](https://www.arduino.cc/)
+
+Consider the above also a list of minimum requirements.
 
 ## Features and Examples
 
