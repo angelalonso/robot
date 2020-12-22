@@ -112,23 +112,13 @@ doReset()
       RESULT="Robot   Error: NOT Online"
   else
     ${SSH_COMM} "kill \$(ps aux | grep brain | grep setup | awk '{print \$2}')" > /dev/null 2>&1
-    EXIT=$?
+    ${SSH_COMM} "cd robot/brain; \
+      RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain reset setup_reset.yaml
+      " > /dev/null 2>&1
+      EXIT=$?
     if [[ $EXIT -eq 0 ]]; then
-      ${SSH_COMM} "cd robot/brain; \
-        RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain reset setup_reset.yaml
-        " > /dev/null 2>&1
-        EXIT=$?
-      if [[ $EXIT -eq 0 ]]; then
-        ${SSH_COMM} "kill \$(ps aux | grep brain | grep cfg | awk '{print \$2}')" > /dev/null 2>&1
-        EXIT=$?
-        if [[ $EXIT -eq 0 ]]; then
-          RESULT="Robot   True"
-        else
-          RESULT="Robot   Error: "$EXIT
-        fi
-      else
-        RESULT="Robot   Error: "$EXIT
-      fi
+      ${SSH_COMM} "kill \$(ps aux | grep brain | grep cfg | awk '{print \$2}')"
+      RESULT="Robot   True"
     else
       RESULT="Robot   Error: "$EXIT
     fi
