@@ -275,7 +275,7 @@ doRecord()
               scp ${SSH_CONN}:robot/brain/records/last_run.yaml ${FILE} > /dev/null 2>&1
               EXIT=$?
               if [[ $EXIT -eq 0 ]]; then
-                RESULT="Robot   True"
+                RESULT="Robot   OK: Saved to ${FILE}"
               else
                 RESULT="Robot   Error: "$EXIT
               fi

@@ -1,170 +1,80 @@
-- time: 0.2
-  msg: SENSOR: button=0
-- time: 0.3
-  msg: SENSOR: distance=61
-- time: 0.4
-  msg: SENSOR: button=0
-- time: 0.5
-  msg: SENSOR: distance=61
-- time: 0.6
-  msg: SENSOR: button=0
-- time: 0.7
-  msg: SENSOR: distance=61
-- time: 0.8
-  msg: SENSOR: button=0
-- time: 0.9
-  msg: SENSOR: distance=61
-- time: 1
-  msg: SENSOR: button=0
-- time: 1.1
-  msg: SENSOR: distance=61
-- time: 1.3
-  msg: SENSOR: button=0
-- time: 1.4
-  msg: SENSOR: distance=61
-- time: 1.5
-  msg: SENSOR: button=0
-- time: 1.6
-  msg: SENSOR: distance=61
-- time: 1.7
-  msg: SENSOR: button=0
-- time: 1.8
-  msg: SENSOR: distance=61
-- time: 1.9
-  msg: SENSOR: button=0
-- time: 2
-  msg: SENSOR: distance=60
-- time: 2.1
-  msg: SENSOR: button=0
-- time: 2.2
-  msg: SENSOR: distance=60
-- time: 2.3
-  msg: SENSOR: button=0
-- time: 2.4
-  msg: SENSOR: distance=68
-- time: 2.5
-  msg: SENSOR: button=0
-- time: 2.6
-  msg: SENSOR: distance=82
-- time: 2.7
-  msg: SENSOR: button=0
-- time: 2.8
-  msg: SENSOR: distance=103
-- time: 2.9
-  msg: SENSOR: button=0
-- time: 3
-  msg: SENSOR: distance=45
+- time: 2.09
+  msg: "SENSOR: distance=52|"
 - time: 3.1
-  msg: SENSOR: button=0
-- time: 3.2
-  msg: SENSOR: distance=48
-- time: 3.3
-  msg: SENSOR: button=0
+  msg: "SENSOR: distance=31|"
+- time: 3.19
+  msg: "SENSOR: distance=30|"
+- time: 3.27
+  msg: "SENSOR: distance=29|"
+- time: 3.33
+  msg: "SENSOR: distance=28|"
 - time: 3.4
-  msg: SENSOR: distance=64
-- time: 3.5
-  msg: SENSOR: button=0
-- time: 3.6
-  msg: SENSOR: distance=23
-- time: 3.7
-  msg: SENSOR: button=0
-- time: 3.8
-  msg: SENSOR: distance=80
-- time: 3.9
-  msg: SENSOR: button=0
-- time: 4
-  msg: SENSOR: distance=75
-- time: 4.1
-  msg: SENSOR: button=0
-- time: 4.2
-  msg: SENSOR: distance=57
-- time: 4.3
-  msg: SENSOR: button=0
-- time: 4.4
-  msg: SENSOR: distance=27
-- time: 4.5
-  msg: SENSOR: button=0
-- time: 4.6
-  msg: SENSOR: distance=25
-- time: 4.7
-  msg: SENSOR: button=0
-- time: 4.8
-  msg: SENSOR: distance=60
-- time: 4.9
-  msg: SENSOR: button=0
-- time: 5
-  msg: SENSOR: distance=53
-- time: 5.1
-  msg: SENSOR: button=0
-- time: 5.2
-  msg: SENSOR: distance=55
-- time: 5.3
-  msg: SENSOR: button=0
-- time: 5.4
-  msg: SENSOR: distance=58
-- time: 5.5
-  msg: SENSOR: button=0
-- time: 5.6
-  msg: SENSOR: distance=53
-- time: 5.7
-  msg: SENSOR: button=0
-- time: 5.8
-  msg: SENSOR: distance=48
-- time: 6
-  msg: SENSOR: button=0
-- time: 6.1
-  msg: SENSOR: distance=41
-- time: 6.2
-  msg: SENSOR: button=0
-- time: 6.3
-  msg: SENSOR: distance=34
-- time: 6.4
-  msg: SENSOR: button=0
+  msg: "SENSOR: distance=26|"
+- time: 3.47
+  msg: "SENSOR: distance=25|"
+- time: 4.35
+  msg: "SENSOR: distance=12|"
+- time: 5.38
+  msg: "SENSOR: distance=75|"
+- time: 6.35
+  msg: "SENSOR: distance=200|"
+- time: 6.42
+  msg: "SENSOR: distance=199|"
 - time: 6.5
-  msg: SENSOR: distance=27
-- time: 6.6
-  msg: SENSOR: button=0
-- time: 6.7
-  msg: SENSOR: distance=22
-- time: 6.8
-  msg: SENSOR: button=0
-- time: 6.9
-  msg: SENSOR: distance=17
-- time: 7
-  msg: SENSOR: button=0
-- time: 7.1
-  msg: SENSOR: distance=13
-- time: 7.2
-  msg: SENSOR: button=0
-- time: 7.3
-  msg: SENSOR: distance=9
-- time: 7.4
-  msg: SENSOR: button=0
-- time: 7.5
-  msg: SENSOR: distance=7
-- time: 7.6
-  msg: SENSOR: button=0
-- time: 7.7
-  msg: SENSOR: distance=7
-- time: 7.8
-  msg: SENSOR: button=0
-- time: 7.9
-  msg: SENSOR: distance=6
-- time: 8.1
-  msg: SENSOR: button=0
-- time: 8.3
-  msg: SENSOR: distance=7
-- time: 8.5
-  msg: SENSOR: button=0
-- time: 8.7
-  msg: SENSOR: distance=7
-- time: 8.8
-  msg: SENSOR: button=0
+  msg: "SENSOR: distance=197|"
+- time: 6.57
+  msg: "SENSOR: distance=196|"
+- time: 6.64
+  msg: "SENSOR: distance=195|"
+- time: 6.72
+  msg: "SENSOR: distance=194|"
+- time: 6.79
+  msg: "SENSOR: distance=192|"
+- time: 6.85
+  msg: "SENSOR: distance=191|"
+- time: 6.92
+  msg: "SENSOR: distance=190|"
+- time: 6.98
+  msg: "SENSOR: distance=189|"
+- time: 7.05
+  msg: "SENSOR: distance=188|"
+- time: 7.11
+  msg: "SENSOR: distance=187|"
+- time: 8.08
+  msg: "SENSOR: distance=157|"
+- time: 8.23
+  msg: "SENSOR: distance=155|"
+- time: 8.37
+  msg: "SENSOR: distance=154|"
+- time: 8.46
+  msg: "SENSOR: distance=153|"
+- time: 8.61
+  msg: "SENSOR: distance=152|"
+- time: 8.71
+  msg: "SENSOR: distance=151|"
+- time: 8.77
+  msg: "SENSOR: distance=150|"
+- time: 8.83
+  msg: "SENSOR: distance=149|"
 - time: 8.9
-  msg: SENSOR: distance=7
-- time: 9.1
-  msg: SENSOR: button=0
-- time: 9.5
-  msg: SENSOR: distance=7
-- time: 10.1
-  msg: SENSOR: button=0
+  msg: "SENSOR: distance=148|"
+- time: 9.01
+  msg: "SENSOR: distance=149|"
+- time: 9.07
+  msg: "SENSOR: distance=196|"
+- time: 9.17
+  msg: "SENSOR: distance=170|"
+- time: 9.27
+  msg: "SENSOR: distance=169|"
+- time: 9.42
+  msg: "SENSOR: distance=192|"
+- time: 9.59
+  msg: "SENSOR: distance=191|"
+- time: 9.72
+  msg: "SENSOR: distance=190|"
+- time: 9.87
+  msg: "SENSOR: distance=189|"
+- time: 9.99
+  msg: "SENSOR: distance=187|"
+- time: 10.09
+  msg: "SENSOR: distance=186|"
