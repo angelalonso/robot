@@ -78,15 +78,15 @@ doStuff()
     help 
     EXIT=1
   elif [[ "$2" == "reset" ]]; then
-    doReset
+    doReset $@
   elif [[ "$2" == "compile" ]]; then
-    doCompile
+    doCompile $@
   elif [[ "$2" == "gitpush" ]]; then
-    doGitPush
+    doGitPush $@
   elif [[ "$2" == "run" ]]; then
-    doRun
+    doRun $@
   elif [[ "$2" == "test" ]]; then
-    doTest
+    doTest $@
   else
     echo "ERROR: parameter not recognized: $2"
     help 
@@ -130,8 +130,13 @@ doCompile()
   TITLE="ITEM    COMPILE"
   CWD=$(pwd)
   cd brain
-  cross build --target=arm-unknown-linux-gnueabihf > /dev/null 2>&1
-  EXIT=$?
+  if [[ "$3" == "-v" ]]; then
+    cross build --target=arm-unknown-linux-gnueabihf
+    EXIT=$?
+  else
+    cross build --target=arm-unknown-linux-gnueabihf > /dev/null 2>&1
+    EXIT=$?
+  fi
   cd ${CWD}
   if [[ $EXIT -eq 0 ]]; then
     RESULT="Robot   True"
@@ -157,7 +162,7 @@ doGitPush()
 
 doRun()
 {
-  doCompile
+  doCompile $@
   TITLE="ITEM    RUN"
   echo "${TITLE}"
   TITLE_SHOWN="True"
