@@ -270,7 +270,6 @@ doTest()
 
 doRecord()
 {
-  TITLE="ITEM    TEST_PASSED"
   FILE=$3
   if [ -f ${FILE} ]; then
     echo "You are about to overwrite ${FILE}!"
@@ -282,10 +281,10 @@ doRecord()
         ;;
       *)
         echo "Overwriting then."
-        doCompile $@
         TITLE="ITEM    RUN_AND_RECORD"
         echo "${TITLE}"
         TITLE_SHOWN="True"
+        doCompile $@
         if [[ "${RESULT}" != "Robot   True" ]]; then
           RESULT="Robot   Error: Compilation failed"
         else
@@ -328,10 +327,10 @@ doRecord()
         ;;
     esac
   else
-    doCompile $@
     TITLE="ITEM    RUN_AND_RECORD"
     echo "${TITLE}"
     TITLE_SHOWN="True"
+    doCompile $@
     if [[ "${RESULT}" != "Robot   True" ]]; then
       RESULT="Robot   Error: Compilation failed"
     else
