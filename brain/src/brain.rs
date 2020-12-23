@@ -942,7 +942,7 @@ impl Brain {
         };
         loop {
             let mut new_metrics: Vec<String> = [].to_vec();
-            let mut new_acts: Vec<String> = [].to_vec();
+            let mut new_actions: Vec<String> = [].to_vec();
             // update current timestamp
             let ct_raw = self.get_time_since(start_timestamp);
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
@@ -956,8 +956,9 @@ impl Brain {
                 self.show_actionbuffers();
                 // get actions
                 match self.get_actions_from_rules(ct){
-                    Ok(acts) => {
-                        for objset in acts {
+                    Ok(actions) => {
+                        self.do_actions_from_rules(actions.clone());
+                        for objset in actions {
                             // empty bufferset
                             if OTHER_ACTIONS.iter().any(|&i| i==objset.object) {
                                 match self.actionbuffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
@@ -975,12 +976,12 @@ impl Brain {
                             // do first action
                             for (ix, action) in objset.entries.clone().iter().enumerate() {
                                 if ix == 0 {
-                                    let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone(), ct).unwrap();
+                                    let (these_metrics, these_actions) = self.do_action(objset.clone(), action.clone(), ct).unwrap();
                                     for m_raw in these_metrics {
                                         new_metrics.push(m_raw);
                                     }
-                                    for c_raw in these_acts {
-                                        new_acts.push(c_raw);
+                                    for c_raw in these_actions {
+                                        new_actions.push(c_raw);
                                     }
                                 } else {
                                     let aux = format!("{}={},time={},{}", objset.object, action.data, action.time, action.id);
@@ -992,13 +993,13 @@ impl Brain {
                     Err(_e) => trace!("...no matching rules found"),
                 };
                 // do actions
-                let (these_metrics, these_acts) = self.do_next_actions(ct).unwrap();
+                let (these_metrics, these_actions) = self.do_next_actions(ct).unwrap();
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
                 }
-                for c_raw in these_acts {
+                for c_raw in these_actions {
                     if c_raw != "" {
-                        new_acts.push(c_raw);
+                        new_actions.push(c_raw);
                     }
                 }
                 for m_raw in new_metrics.clone() {
@@ -1008,7 +1009,7 @@ impl Brain {
                     }
                 }
                 // Send back the actions -> needed for tests
-                sender.send(format!("{:?}|{:?}", ct, new_acts)).unwrap();
+                sender.send(format!("{:?}|{:?}", ct, new_actions)).unwrap();
             };
             // break mechanism
             match secs_to_run {
@@ -1023,4 +1024,8 @@ impl Brain {
         }
     }
 
+    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>) {
+        println!("{:#x?}", actions);
+
+    }
 }
