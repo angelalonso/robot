@@ -1,5 +1,5 @@
 ---
-start_actionset_file: testfiles/button_rules.yaml
+start_ruleset_file: testfiles/button_rules.yaml
 start_arduinohex_file: ../arduino/000_sensors/000_sensors.ino.hex
 inputs:
   button: 

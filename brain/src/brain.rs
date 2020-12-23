@@ -113,7 +113,7 @@ pub struct Brain {
 static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 static MAX_BUFFERSIZE: u8 = 25;
 static MAX_METRICSIZE: u8 = 25;
-// this is a list of the actions that go in the same bufferset, called brilliantly "other"
+// this is a list of the actions that go in the same actionbufferset, called brilliantly "other"
 const OTHER_ACTIONS: &'static [&'static str] = &["load", "wait"];
 
 impl Brain {
@@ -265,7 +265,7 @@ impl Brain {
     pub fn load_setup(setup_file: String) -> Result<(String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>), BrainDeadError> {
         #[derive(Deserialize)]
         struct Setup {
-            start_actionset_file: String,
+            start_ruleset_file: String,
             start_arduinohex_file: String,
             inputs: HashMap<String, HashMap<String, String>>,
             outputs: HashMap<String, HashMap<String, String>>,
@@ -284,8 +284,8 @@ impl Brain {
                 return Err(BrainDeadError::YamlError)
             }
         };
-        return Ok((a.start_actionset_file, a.start_arduinohex_file, a.inputs, a.outputs))
-        //return (a.start_actionset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
+        return Ok((a.start_ruleset_file, a.start_arduinohex_file, a.inputs, a.outputs))
+        //return (a.start_ruleset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
     }
 
     /// Return current timestamp as millis

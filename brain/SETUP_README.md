@@ -8,7 +8,7 @@ Then name is unimportant because you'll pass it as a parameter to the brain prog
 You can find an example at setup.yaml on this directory.  
 
 Modify to your liking with the following information:   
-- start_actionset_file is the first rule/actions file to load to the robot program.
+- start_ruleset_file is the first rule/actions file to load to the robot program.
 - start_arduinohex_file is the first program to load to the arduino.
 - inputs is a list of sensors that give input to the robot.
   - below them, you just list them by the name you are using on your arduino programs.
