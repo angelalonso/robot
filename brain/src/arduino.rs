@@ -71,7 +71,7 @@ impl Arduino {
                 Ok(time) => time.as_millis(),
                 Err(_e) => 0,
             };
-            info!(", which has {} entries", e.len());
+            debug!(", which has {} entries", e.len());
             while e.len() > 0 {
                 let now = SystemTime::now();
                 let timestamp = match now.duration_since(UNIX_EPOCH) {
