@@ -26,3 +26,5 @@
   msg: "SENSOR: distance=8|"
 - time: 1.4 
   msg: "SENSOR: distance=8|"
+- time: 3.4 
+  msg: "SENSOR: distance=80|"

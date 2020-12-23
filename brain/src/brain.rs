@@ -539,7 +539,7 @@ impl Brain {
 
     /// Performs the next action on each action buffer if the timestamp is right.
     /// Return the action(s) taken and it's related metric
-    pub fn do_next_actions(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_actions_from_actionbuffersets(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
         for abs in self.actionbuffersets.iter_mut() {
@@ -957,43 +957,19 @@ impl Brain {
                 // get actions
                 match self.get_actions_from_rules(ct){
                     Ok(actions) => {
-                        self.do_actions_from_rules(actions.clone());
-                        for objset in actions {
-                            // empty bufferset
-                            if OTHER_ACTIONS.iter().any(|&i| i==objset.object) {
-                                match self.actionbuffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
-                                    // We assume that if new actions are chosen, we can
-                                    // overwrite whatever is on the buffer
-                                    Some(abs) => abs.entries = Vec::new(),
-                                    None => (),
-                                };
-                            } else {
-                                match self.actionbuffersets.iter_mut().find(|x| *x.object == *objset.object) {
-                                    Some(abs) => abs.entries = Vec::new(),
-                                    None => (),
-                                };
-                            };
-                            // do first action
-                            for (ix, action) in objset.entries.clone().iter().enumerate() {
-                                if ix == 0 {
-                                    let (these_metrics, these_actions) = self.do_action(objset.clone(), action.clone(), ct).unwrap();
-                                    for m_raw in these_metrics {
-                                        new_metrics.push(m_raw);
-                                    }
-                                    for c_raw in these_actions {
-                                        new_actions.push(c_raw);
-                                    }
-                                } else {
-                                    let aux = format!("{}={},time={},{}", objset.object, action.data, action.time, action.id);
-                                    self.add_action(aux);
-                                }
-                            }
+                        // do first action from rules, add the rest to the actionbuffersets
+                        let (these_metrics, these_actions) = self.do_actions_from_rules(actions.clone(), ct).unwrap();
+                        for m_raw in these_metrics {
+                            new_metrics.push(m_raw);
+                        }
+                        for c_raw in these_actions {
+                            new_actions.push(c_raw);
                         }
                     },
                     Err(_e) => trace!("...no matching rules found"),
                 };
-                // do actions
-                let (these_metrics, these_actions) = self.do_next_actions(ct).unwrap();
+                // do action(s) from the actionbuffersets that match the ct
+                let (these_metrics, these_actions) = self.do_actions_from_actionbuffersets(ct).unwrap();
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
                 }
@@ -1024,8 +1000,38 @@ impl Brain {
         }
     }
 
-    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>) {
-        println!("{:#x?}", actions);
-
+    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>, ct: f64) -> Result<(Vec<String>, Vec<String>), String>{
+        let mut new_metrics: Vec<String> = [].to_vec();
+        let mut new_actions: Vec<String> = [].to_vec();
+        for mut action in actions {
+            // cleanup actionbufferset
+            let mut action_object = action.object.clone();
+            if OTHER_ACTIONS.iter().any(|&i| i == action.object) { action_object = "other".to_string() }
+            match self.actionbuffersets.iter_mut().find(|x| *x.object == action_object.to_string()) {
+                Some(abs) => abs.entries = Vec::new(),
+                None => (),
+            };
+            // trigger first action
+            match action.entries.first() {
+                Some(entry) => {
+                    let (these_metrics, these_actions) = self.do_action(action.clone(), entry.clone(), ct).unwrap();
+                    for m_raw in these_metrics {
+                        new_metrics.push(m_raw);
+                    }
+                    for c_raw in these_actions {
+                        new_actions.push(c_raw);
+                    }
+                    action.entries.remove(0);
+                },
+                None => (),
+            }
+            // add the rest to actionbufferset
+            for entry in action.entries {
+                let action_string = format!("{}={},time={},{}", action.object, entry.data, entry.time, entry.id);
+                self.add_action(action_string);
+            }
+        }
+        return Ok((new_metrics, new_actions))
     }
+
 }
