@@ -74,13 +74,16 @@ If you want to dryrun your ruleset without installing to the robot, you can do t
   msg: "SENSOR: distance=8|"
 ```
 - Last but not least: run on test mode
-  - Since your goal is to check that it works well, we'll need at least the INFO verbosity output:
 ```
-RUST_LOG=info cargo run test setup_test.yaml
+./roctl do test setup_test.yaml
 ```
-, or, if you need an even more verbose level of verbose output you can use DEBUG or TRACE:
+, or, if you need an even more verbose level of verbose output:
 ```
-RUST_LOG=debug cargo run test setup_test.yaml
+./roctl do test setup_test.yaml -v
+```
+or
+```
+./roctl do test setup_test.yaml -vv
 ```
 
 ## Install and run in your Raspberry
@@ -90,13 +93,13 @@ Now this is your goal: have the new functionality running on your robot.
 - Turn your robot on (or connect the battery)
 - Run
 ```
-./do_run.sh
+./roctl do run
 ```
 
 ### Reset after a failed run
 If you want to return all LEDs and motors to a stand still, run:
 ```
-./do_reset.sh
+./roctl do reset
 ```
 
 

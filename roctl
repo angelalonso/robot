@@ -6,22 +6,14 @@ source ${ENVFILE}
 EXIT=0
 TITLE_SHOWN=False
 
-help()
+main()
 {
-  TITLE="SYNTAX:"
-  RESULT="\
-$0 get <parameter>\n \
-  get \n \
-    online - Get if the robot is online \n \
-  do \n \
-    run - Run Brain in your Robot and show logs \n \
-    record <filename> - Run Brain in your Robot and save arduino input \n \
-      <filename> - (Mandatory) filename to save the arduino input to \n \
-    reset - Reset the robot's outputs(motors, LEDs...) \n \
-    test - Test Rust Code and run BRain locally on test mode \n \
-    compile - Compile code for the Raspberry processor \n \
-    gitpush - Add latest changes and push to branch on .env \n \
-"
+  checkArgs $@
+  if [[ "${TITLE_SHOWN}" == "False" ]]; then
+    echo "${TITLE}"
+  fi
+  echo -e "${RESULT}"
+  exit $EXIT
 }
 
 checkArgs()
@@ -35,6 +27,27 @@ checkArgs()
     help 
     EXIT=1
   fi
+}
+
+help()
+{
+  TITLE="SYNTAX:"
+  RESULT="\
+$0 get <parameter>\n \
+  get \n \
+    online - Get if the robot is online \n \
+  do \n \
+    run - Run Brain in your Robot and show logs \n \
+    record <filename> - Run Brain in your Robot and save arduino input \n \
+      <filename> - (Mandatory) filename to save the arduino input to \n \
+    reset - Reset the robot's outputs(motors, LEDs...) \n \
+    test - Test Rust Code and run Brain locally on test mode \n \
+      <filename> - (Mandatory) filename to load our setup from \n \
+      <-v> - (Optional) Shows cargo test output and logs from the Robot on DEBUG mode \n \
+      <-vv> - (Optional) Shows cargo test output with --nocapture and logs from the Robot on TRACE mode \n \
+    compile - Compile code for the Raspberry processor \n \
+    gitpush - Add latest changes and push to branch on .env \n \
+"
 }
 
 getStuff()
@@ -88,7 +101,13 @@ doStuff()
   elif [[ "$2" == "run" ]]; then
     doRun $@
   elif [[ "$2" == "test" ]]; then
-    doTest $@
+    if [[ "$3" == "" ]]; then
+      echo "ERROR: filename missing"
+      help 
+      EXIT=1
+    else
+      doTest $@
+    fi
   elif [[ "$2" == "record" ]]; then
     if [[ "$3" == "" ]]; then
       echo "ERROR: filename missing"
@@ -202,12 +221,21 @@ doRun()
 doTest()
 {
   TITLE="ITEM    TEST_PASSED"
+  FILE=$3
   echo "${TITLE}"
   TITLE_SHOWN="True"
   CWD=$(pwd)
   cd brain
-  cargo test -- > /dev/null 2>&1
-  EXIT=$?
+  if [[ "$4" == "-v" ]]; then
+    cargo test -- 
+    EXIT=$?
+  elif [[ "$4" == "-vv" ]]; then
+    cargo test -- --nocapture
+    EXIT=$?
+  else
+    cargo test -- > /dev/null 2>&1
+    EXIT=$?
+  fi
   cd ${CWD}
   if [[ $EXIT -eq 0 ]]; then
     RESULT="Robot   True"
@@ -219,8 +247,16 @@ doTest()
     echo "${RESULT}"
     CWD=$(pwd)
     cd brain
-    RUST_LOG=info cargo run test setup.yaml
-    EXIT=$?
+    if [[ "$4" == "-v" ]]; then
+      RUST_LOG=debug cargo run test "${FILE}"
+      EXIT=$?
+    elif [[ "$4" == "-vv" ]]; then
+      RUST_LOG=trace cargo run test "${FILE}"
+      EXIT=$?
+    else
+      RUST_LOG=info cargo run test "${FILE}"
+      EXIT=$?
+    fi
     cd ${CWD}
     if [[ $EXIT -eq 0 ]]; then
       RESULT="Robot   True"
@@ -291,17 +327,52 @@ doRecord()
         fi
         ;;
     esac
-  fi
-}
-
-main()
-{
-  checkArgs $@
-  if [[ "${TITLE_SHOWN}" == "False" ]]; then
+  else
+    doCompile $@
+    TITLE="ITEM    RUN_AND_RECORD"
     echo "${TITLE}"
+    TITLE_SHOWN="True"
+    if [[ "${RESULT}" != "Robot   True" ]]; then
+      RESULT="Robot   Error: Compilation failed"
+    else
+      RESULT="Robot   OK: Compilation"
+      echo -e "${RESULT}"
+      doGitPush
+      if [[ "${RESULT}" != "Robot   True" ]]; then
+        RESULT="Robot   Error: Updating Git branch failed"
+      else
+        RESULT="Robot   OK: Updating git branch"
+        echo -e "${RESULT}"
+        doReset
+        if [[ "${RESULT}" != "Robot   True" ]]; then
+          RESULT="Robot   Error: Reset failed"
+        else
+          RESULT="Robot   OK: Resetting"
+          echo -e "${RESULT}"
+          RESULT="Robot   Running... (please wait, it might take up to a minute)"
+          echo -e "${RESULT}"
+          ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git stash; git stash drop; git pull && \
+            RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain record setup.yaml
+            " > /dev/null 2>&1
+          scp ${SSH_CONN}:robot/brain/records/last_run.yaml ${FILE} > /dev/null 2>&1
+          EXIT=$?
+
+          if [[ $EXIT -eq 0 ]]; then
+            RESULT="Robot   OK: Saved to ${FILE}"
+            doReset
+            if [[ "${RESULT}" != "Robot   True" ]]; then
+              RESULT="Robot   Error: Reset failed"
+            else
+              RESULT="Robot   OK: Resetting"
+            fi
+          else
+            RESULT="Robot   Error: "$EXIT
+          fi
+        fi
+      fi
+    fi
+
   fi
-  echo -e "${RESULT}"
-  exit $EXIT
 }
 
 main $@

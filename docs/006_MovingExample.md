@@ -58,13 +58,13 @@ Our goal is that
 - Turn your robot on (or connect the battery)
 - Run
 ```
-./do_run.sh
+./roctl do run
 ```
 
 ### Reset after a failed run
 If you want to return all LEDs and motors to a stand still, run:
 ```
-./do_reset.sh
+./roctl do reset
 ```
 
 # Challenges

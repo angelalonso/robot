@@ -13,7 +13,7 @@ Make sure the file is called `testfiles/<same name of your choice>_rules.yaml`.
 
 ## Get data from your robot to mock inputs
 ```
-./do_record.sh <filename>
+./roctl do record <filename>
 ```
 
 , where you probably want to make your filename `testfiles/<name of your choice>_mock.yaml`. Otherwise you'll have to rename it to that, because the path and name are important!
@@ -80,17 +80,14 @@ Here goes an example, though, for the code to test a new function called obstacl
 ```
 
 ## TEST!
-```
-cargo test -- --nocapture
-```
 
 If you want something closer to a live run, you can run brain on test mode too:
 - Create (or copy over) a setup_test.yaml file
 - Create (or copy over) a mock_test.yaml file
 - Run:
 ```
-clear && RUST_LOG=info cargo run test setup_test.yaml
+./roctl do test testfiles/setup_test.yaml -v
 ```
-, you can even play with the RUST_LOG variable or change the code to just publish some stuff you want to debug. Feel free to do so as long as you can return to the original code somehow ;).
+, you can even use -vv instead, have a look at roctl itself or change the code in brain to just publish some stuff you want to debug. Feel free to do so as long as you can return to the original code somehow ;).
 
 [PREV: Moving example <--](006_MovingExample.md) [--> NEXT: Using real data as mocks](008_TestingWithRealMocks.md)
