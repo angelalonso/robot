@@ -20,6 +20,13 @@ _roctl()
                     ;;
             esac
             ;;
+        3)
+            case ${prev} in
+                test)
+                    COMPREPLY=($(compgen -f ${cur}))
+                    ;;
+            esac
+            ;;
         *)
             COMPREPLY=()
             ;;
