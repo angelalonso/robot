@@ -537,6 +537,45 @@ impl Brain {
         }
     }
 
+    /// Starting from a list of actions received from the actionrules:
+    /// - Empties each actionbufferset for objects involved
+    /// - Performs the first action(s) for each object
+    /// - Adds the other actions for each object to the actionbuffersets
+    /// Return the action(s) taken and it's related metric
+    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>, ct: f64) -> Result<(Vec<String>, Vec<String>), String>{
+        let mut new_metrics: Vec<String> = [].to_vec();
+        let mut new_actions: Vec<String> = [].to_vec();
+        for mut action in actions {
+            // cleanup actionbufferset
+            let mut action_object = action.object.clone();
+            if OTHER_ACTIONS.iter().any(|&i| i == action.object) { action_object = "other".to_string() }
+            match self.actionbuffersets.iter_mut().find(|x| *x.object == action_object.to_string()) {
+                Some(abs) => abs.entries = Vec::new(),
+                None => (),
+            };
+            // trigger first action
+            match action.entries.first() {
+                Some(entry) => {
+                    let (these_metrics, these_actions) = self.do_action(action.clone(), entry.clone(), ct).unwrap();
+                    for m_raw in these_metrics {
+                        new_metrics.push(m_raw);
+                    }
+                    for c_raw in these_actions {
+                        new_actions.push(c_raw);
+                    }
+                    action.entries.remove(0);
+                },
+                None => (),
+            }
+            // add the rest to actionbufferset
+            for entry in action.entries {
+                let action_string = format!("{}={},time={},{}", action.object, entry.data, entry.time, entry.id);
+                self.add_action(action_string);
+            }
+        }
+        return Ok((new_metrics, new_actions))
+    }
+
     /// Performs the next action on each action buffer if the timestamp is right.
     /// Return the action(s) taken and it's related metric
     pub fn do_actions_from_actionbuffersets(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
@@ -978,6 +1017,7 @@ impl Brain {
                         new_actions.push(c_raw);
                     }
                 }
+                // add metrics to metricsets
                 for m_raw in new_metrics.clone() {
                     let m = m_raw.split("|").collect::<Vec<_>>();
                     if m.len() > 1 {
@@ -998,40 +1038,6 @@ impl Brain {
                 None => (),
             }
         }
-    }
-
-    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>, ct: f64) -> Result<(Vec<String>, Vec<String>), String>{
-        let mut new_metrics: Vec<String> = [].to_vec();
-        let mut new_actions: Vec<String> = [].to_vec();
-        for mut action in actions {
-            // cleanup actionbufferset
-            let mut action_object = action.object.clone();
-            if OTHER_ACTIONS.iter().any(|&i| i == action.object) { action_object = "other".to_string() }
-            match self.actionbuffersets.iter_mut().find(|x| *x.object == action_object.to_string()) {
-                Some(abs) => abs.entries = Vec::new(),
-                None => (),
-            };
-            // trigger first action
-            match action.entries.first() {
-                Some(entry) => {
-                    let (these_metrics, these_actions) = self.do_action(action.clone(), entry.clone(), ct).unwrap();
-                    for m_raw in these_metrics {
-                        new_metrics.push(m_raw);
-                    }
-                    for c_raw in these_actions {
-                        new_actions.push(c_raw);
-                    }
-                    action.entries.remove(0);
-                },
-                None => (),
-            }
-            // add the rest to actionbufferset
-            for entry in action.entries {
-                let action_string = format!("{}={},time={},{}", action.object, entry.data, entry.time, entry.id);
-                self.add_action(action_string);
-            }
-        }
-        return Ok((new_metrics, new_actions))
     }
 
 }
