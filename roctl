@@ -222,6 +222,10 @@ doTest()
 {
   TITLE="ITEM    TEST_PASSED"
   FILE=$3
+  PATHPREFIX="brain/" # we are going to cd into brain anyway
+  FILE=${FILE#"$PATHPREFIX"}
+  PATHPREFIX="./brain/" # we are going to cd into brain anyway
+  FILE=${FILE#"$PATHPREFIX"}
   echo "${TITLE}"
   TITLE_SHOWN="True"
   CWD=$(pwd)

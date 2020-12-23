@@ -934,9 +934,9 @@ impl Brain {
         let mut arduino_clone = self.arduino.clone();
         let brain_clone = self.clone();
         thread::spawn(move || {
-                if brain_clone.mode != "dryrun" {
-                    //TODO: find a way to reproduce this error, then add BrainDeadError to this function
-                    arduino_clone.read_channel(msgs).unwrap();
+            if brain_clone.mode != "dryrun" {
+                //TODO: find a way to reproduce this error, then add BrainDeadError to this function
+                arduino_clone.read_channel(msgs).unwrap();
             } else {
                     arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
                 };
@@ -967,6 +967,7 @@ impl Brain {
                 match self.get_actions_from_rules(ct){
                     Ok(acts) => {
                         for objset in acts {
+                            // empty bufferset
                             if OTHER_ACTIONS.iter().any(|&i| i==objset.object) {
                                 match self.buffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
                                     Some(ob) => {
@@ -984,6 +985,7 @@ impl Brain {
                                     None => (),
                                 };
                             };
+                            // do first action
                             for (ix, action) in objset.entries.clone().iter().enumerate() {
                                 if ix == 0 {
                                     let (these_metrics, these_acts) = self.do_action(objset.clone(), action.clone(), ct).unwrap();
