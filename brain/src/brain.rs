@@ -33,42 +33,43 @@ pub enum BrainDeadError {
     #[error("File does not exist")]
     FileNotFoundError,
 }
-//TODO rename these structs to make them clearer
+
 #[derive(Clone, Debug, PartialEq, Deserialize)]
-pub struct ConfigInput {
+pub struct Condition {
     pub time: String,
     pub input_objs: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
-pub struct ConfigOutput {
+pub struct Action {
     pub object: String,
     pub value: String,
     pub time: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
-pub struct RulesetEntry {
+pub struct ActionRule {
     id: String,
-    condition: Vec<ConfigInput>,
-    actionsloop: bool,
-    actions: Vec<ConfigOutput>
-}
-
-#[derive(Clone, Debug, PartialEq, Deserialize)]
-pub struct ActionRuleEntry {
-    id: String,
-    condition: Vec<ConfigInput>,
+    condition: Vec<Condition>,
     actionsloop: bool,
     triggercount: u32,
-    actions: Vec<ConfigOutput>
+    actions: Vec<Action>
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
-pub struct ActionEntry {
+pub struct NoTriggerActionRule {
     id: String,
-    actions: Vec<ConfigOutput>
+    condition: Vec<Condition>,
+    actionsloop: bool,
+    actions: Vec<Action>
 }
+
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct NoConditionActionRule {
+    id: String,
+    actions: Vec<Action>
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimedData {
     id: usize,
@@ -101,7 +102,7 @@ pub struct Brain {
     start_time: u128,
     timestamp: f64,
     rec_file: String,
-    actionrules: Vec<ActionRuleEntry>,
+    actionrules: Vec<ActionRule>,
     arduino: Arduino,
     motors: Motors,
     leds: LEDs,
@@ -356,7 +357,7 @@ impl Brain {
 
     /// Load actions and rules using the same pattern.
     /// The actions differ from configs in that they will ALWAYS be loaded 
-    pub fn load_action_rules(file: String) -> Result<Vec<ActionRuleEntry>, BrainDeadError> {
+    pub fn load_action_rules(file: String) -> Result<Vec<ActionRule>, BrainDeadError> {
         let file_pointer = match File::open(file.clone()){
             Ok(fp) => fp,
             Err(_e) => {
@@ -364,7 +365,7 @@ impl Brain {
                 return Err(BrainDeadError::FileNotFoundError)
             }
         };
-        let mut c: Vec<ActionRuleEntry> = [].to_vec();
+        let mut c: Vec<ActionRule> = [].to_vec();
         match serde_yaml::from_reader(file_pointer) {
             Ok(v) => return Ok(v),
             Err(e) => {
@@ -377,7 +378,7 @@ impl Brain {
                             return Err(BrainDeadError::FileNotFoundError)
                         }
                     };
-                    let a: Vec<RulesetEntry> = match serde_yaml::from_reader(file_pointer) {
+                    let a: Vec<NoTriggerActionRule> = match serde_yaml::from_reader(file_pointer) {
                         Ok(a) => a,
                         Err(e) => {
                             error!("The file {}'s YAML is incorrect! - {}", file.clone(), e);
@@ -385,7 +386,7 @@ impl Brain {
                         }
                     };
                     for i in a {
-                        let c_elem = ActionRuleEntry {
+                        let c_elem = ActionRule {
                             id: i.id,
                             triggercount: 0,
                             condition: i.condition,
@@ -403,7 +404,7 @@ impl Brain {
                             return Err(BrainDeadError::FileNotFoundError)
                         }
                     };
-                    let a: Vec<ActionEntry> = match serde_yaml::from_reader(file_pointer) {
+                    let a: Vec<NoConditionActionRule> = match serde_yaml::from_reader(file_pointer) {
                         Ok(a) => a,
                         Err(e) => {
                             error!("The file {}'s YAML is incorrect for a RuleSet! - {}", file.clone(), e);
@@ -411,10 +412,10 @@ impl Brain {
                         }
                     };
                     for i in a {
-                        let c_elem = ActionRuleEntry {
+                        let c_elem = ActionRule {
                             id: i.id,
                             triggercount: 0,
-                            condition: [ConfigInput {
+                            condition: [Condition {
                                  time: "*".to_string(),
                                  input_objs: "".to_string(),
                             }].to_vec(),
@@ -429,7 +430,6 @@ impl Brain {
                     return Err(BrainDeadError::YamlError)                    
                 }
             },
-
         };
     }
 
@@ -457,7 +457,7 @@ impl Brain {
     }
 
     /// Returns true if a given action is already in the related actions buffer
-    pub fn are_actions_in_buffer(actionbuffersets: Vec<Set>,rule: ActionRuleEntry) -> bool {
+    pub fn are_actions_in_buffer(actionbuffersets: Vec<Set>,rule: ActionRule) -> bool {
         let mut result = false;
         for abs in actionbuffersets {
             for existing in abs.entries.clone() {
@@ -505,7 +505,6 @@ impl Brain {
                             _ => {
                                 abs.entries.push(action_to_add.action);
                             },
-
                         }
                     };
                 },
@@ -537,7 +536,6 @@ impl Brain {
             };
         }
     }
-
 
     /// Performs the next action on each action buffer if the timestamp is right.
     /// Return the action(s) taken and it's related metric
@@ -642,7 +640,7 @@ impl Brain {
         };
     }
 
-    pub fn does_condition_match(&mut self, rule: ActionRuleEntry, timestamp: f64) -> bool {
+    pub fn does_condition_match(&mut self, rule: ActionRule, timestamp: f64) -> bool {
         let mut result = true;
         let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
         for check in &checks {
@@ -745,7 +743,6 @@ impl Brain {
                             }
                         },
                         &_ => {
-
                         },
                     };
                 },
@@ -775,7 +772,7 @@ impl Brain {
 
     /// Checks the input of the rules loaded and, if they fit, returns the actions to take
     pub fn get_actions_from_rules(&mut self, timestamp: f64) -> Result<Vec<Set>, BrainDeadError>{
-        let mut partial_rules: Vec<ActionRuleEntry> = self.actionrules.clone();
+        let mut partial_rules: Vec<ActionRule> = self.actionrules.clone();
         let mut action_vectors: Vec<Set> = [].to_vec();
         for abs in self.actionbuffersets.clone() {
             let new_elem = Set {
@@ -897,7 +894,6 @@ impl Brain {
                 self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
             }
         }
-
         // TODO: should this be done on the do_next_action too?
         match self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
             Some(abs) => {
