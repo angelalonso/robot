@@ -924,7 +924,7 @@ impl Brain {
     /// - secs_to_run has to have decimals, 4.0 is valid, 4 is not
     /// - precission: how often we do stuff
     ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
-    pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+    pub fn old_run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
         // timestamps
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
@@ -1034,6 +1034,31 @@ impl Brain {
                 None => (),
             }
         }
+    }
+
+    /// Just run the brain.
+    /// - secs_to_run has to have decimals, 4.0 is valid, 4 is not
+    /// - precission: how often we do stuff
+    ///   - 1 is secs, 10 is decs of a sec, 100 is hundreds of a sec...
+    pub fn run(&mut self, secs_to_run: Option<f64>, precission: u16, sender: Sender<String>) {
+        // Initialize stuff
+          // timestamps
+          // communication with arduino
+        // main loop
+          // Initialize metrics and actionbuffers
+          // update current timestamp
+            // use arduino message
+            // show metrics
+            // show actionbuffers
+            // get actions
+            // empty actionbuffer(s)
+            // do first action, add the rest to actionbuffer(s)
+              // Send back the actions -> needed for tests
+              // update metrics
+            // see if next action in actionbuffer(s) should be done
+              // update metrics if needed
+              // Send back the actions -> needed for tests
+            // break mechanism
     }
 
 }
