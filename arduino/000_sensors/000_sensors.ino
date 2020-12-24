@@ -1,42 +1,70 @@
-// Tracker Sensor
-const int TrackerPin = 2;
-// Proximity Sensor
-const int ProximityTriggerPin = 7;
-const int ProximityEchoPin = 6;
+
+int incomingByte = 0;
+String msg;
+int distanceVal;
+int distancePrevVal;
+// PINS
+const int ProximityTriggerPin = 3;
+const int ProximityEchoPin = 2;
+
 
 void setup() {
-  pinMode (TrackerPin, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ProximityTriggerPin, OUTPUT);
   pinMode(ProximityEchoPin, INPUT);
-  Serial.begin (9600);
+  Serial.begin(9600);
 }
 
-void loop() {
-  boolean trackerValue = digitalRead(TrackerPin); // read the value of tracking module
-  if(trackerValue == HIGH) //if it is HiGH
-  { 
-    delay(50);    
-    Serial.print("SENSOR: data_tracker_");
-    Serial.println (trackerValue, DEC);
-  }
-  else
-  {
-    delay(50);    
-    Serial.print("SENSOR: data_tracker_");
-    Serial.println (trackerValue, DEC);
-  }
+void blink1() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(40);                   
+    digitalWrite(LED_BUILTIN, LOW);  
+    delay(60);
+}
 
-  // Needed "protocol" for the proximity sensor
-  digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
-  delayMicroseconds(2);
-  digitalWrite(ProximityTriggerPin, HIGH); // Sets triggerPin on HIGH state for 10 microsecs
-  delayMicroseconds(10);
-  digitalWrite(ProximityTriggerPin, LOW);
-  long duration = pulseIn(ProximityEchoPin, HIGH);
-  int distanceVALUE = duration*0.034/2;
-  delay(50);
-  Serial.print("SENSOR: data_distance_");
-  Serial.println (distanceVALUE, DEC);
+void blink2() {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(20);                   
+    digitalWrite(LED_BUILTIN, LOW); 
+    delay(50);    
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(20);                   
+    digitalWrite(LED_BUILTIN, LOW); 
+    delay(10);
+}
+void loop() {
+  if (Serial.available() > 0) {
+    // read the incoming byte:
+    incomingByte = Serial.read();
+
+    // say what you got:
+    //Serial.print("I received: ");
+    //Serial.println(incomingByte, DEC);
+    // Needed "protocol" for the proximity sensor
+    digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
+    delayMicroseconds(2);
+    digitalWrite(ProximityTriggerPin, HIGH); // Sets triggerPin on HIGH state for 10 microsecs
+    delayMicroseconds(10);
+    digitalWrite(ProximityTriggerPin, LOW);
+    long duration = pulseIn(ProximityEchoPin, HIGH);
+    distanceVal = duration*0.034/2;
+    //delay(30);
+    msg = "SENSOR: ";
+    bool news = false;
+    if (distanceVal != distancePrevVal) {
+      news = true;
+      distancePrevVal = distanceVal;
+      msg.concat("distance=");
+      msg.concat(distanceVal);
+      msg.concat("|");
+    };
+    if (news == true) {
+      Serial.println(msg);
+    //} else {
+    //  blink1();
   
-  delay(100);
+    }
+    //delay(100);
+  }
+  
 }

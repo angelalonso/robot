@@ -1,61 +1,72 @@
-# Robot v1.0.2
+# Robot
 
-Resources to build a robot.
+A step by step Guide to building and configuring YOUR own robot using MY choice of Rust-based logic.
 
-# WHY this guide?
-- I invested some time to make the first version work, and now I want to take a snapshot and move on to version 2.  
-- I have very specific Hardware, most notably an <old> Raspberry pi B. Most of the docs online refer to the newer boards.  
-- I want to share a reproduceable code and docs for other people to possibly improve on.
+## TL;DR
 
-# Status
+This is a guide, not some code you install and run. There is reading involved.
 
-First version works with some caveats. The robot will not kill you unless you build that feature on top of this. Therefore, version 1.
+If you cannot live without a step by step, here it goes:
+- Calm down
+- Relax
+- Get to [Features and Examples](README.md#features-and-examples), click and read each one.
 
-## What it can do
-Follow a list of rules regarding movements. Those rules can be based off what we get from the sensors. Basically it can do both of the following by choosing a different set of move_cfg.yaml rules:
-- Time-based movements. One second to the front, two seconds turn to the left, ten seconds to the back...
-- Objects avoiding robot. Move forward until an object is closer than 10 cms, then turn until there's nothing closer than 10 cms, then move forwards again.
-- A mix of both. Move forward until an object is closer than 10 cms, rotate clockwise for a second, if still there's somthing closer than 10 cms, rotate counter-clockwise until there's nothing close than 10 cms, then move forwards again.
+## Motivation
 
-## Version 1
-### Hardware
-#### What to get
-- Raspberry pi 1 B+. Probably anything newer will even work better.
-  - A Wifi dongle like [this one](https://www.amazon.com/Edimax-EW-7611ULB-Wi-Fi-Bluetooth-Adapter/dp/B01KVZB3A4/ref=sr_1_2?dchild=1&keywords=edimax+wifi+dongle&qid=1599231989&sr=8-2)
-- [Bought this pack for the following:](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
-  - Arduino UNO as sensor controller. Check [ARDUINO.md](ARDUINO.md). [Bought this one](https://www.banggood.com/Geekcreit-DIY-L298N-2WD-Ultrasonic-Smart-Tracking-Moteur-Robot-Car-Kit-for-Arduino-products-that-work-with-official-Arduino-boards-p-1155139.html?rmmds=myorder&cur_warehouse=UK)
-  - L298N as motor controller. Check [L298N.md](L298N.md).
-  - HC-SR04 as distance sensor  
-  - 2 motors  
-- A tracking sensor (got mine from [HERE](https://www.banggood.com/Geekcreit-37-In-1-Sensor-Module-Board-Set-Starter-Kits-SENSOR-KIT-For-Arduino-Plastic-Bag-Package-p-1137051.html?rmmds=myorder&cur_warehouse=UK))
-- Several Jumper cables Male, female...get from both.
-- Some 3mm nuts and bolts to fix chips to the chassis.
-- Chassis made of Cardboard and plastic  
-- [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
-- Weight: 897 grams  
+- I was looking for a project to learn Rust that would have me entertained for longer than a month.
+- As a kid I used to dream of having a Robot at home, like a pet but more advanced.
 
-#### How to put it together
-So far I don't have much more than a testing platform built with two small-ish boxes glued together and put on top of the Robot car kit chassis.  
+<p align="center">
+  <img src="https://i.makeagif.com/media/4-27-2020/n_EA_n.gif" alt="Perfect Match!"/>
+</p>
 
-![front_closed](./img/chassis_front_closed.jpg) ![bottom](./img/chassis_bottom.jpg)  
-![open_bottom](./img/chassis_front_open_bottom.jpg)
-![open_top](./img/chassis_front_open_top.jpg)    
-### Connections
-![Diagram as of September 2020](./img/diagram.202010.png)
+## Status
 
-### Software
-- Prepare the programs you want to run on the arudino. Check [ARDUINO's README](ARDUINO.md) for details on how the arduino programs should work, or have a look at the ones under ./arduino.
-- Install everything required on the Raspberry pi. Check [our Raspberry Install process](RASPBERRY.md) for a HOW-TO.
-- By the end of that process, and after you have everything connected, just plugin the battery in and everything should just work. Hopefully
+Working but not stable enough to leave your robot around kids or pets.
 
-### Challenges for v2
-- We need to add a compass among other sensors to keep our robot moving straight
-- We want to add some LEDs for output, and a microphone for input
-- It doesn't do much on its own. We should focus on skills.  
-- Installation is not straghtforward
-- Chassis is not reproducible
-- Weight should be lowered, anything under 1 Kg is fine I guess  
-- I have smaller powerbanks but they dont work well with the L298N motor controller  
-- Further software challenges, check bottom of [BRAIN'S own README](https://github.com/angelalonso/robot/blob/master/brain/README.md)
+## Code Style
 
- 
+Terrible
+
+## Screenshots
+
+To be done
+
+## Built with
+
+- [Rust](https://www.rust-lang.org/)
+  - [Cross](https://github.com/rust-embedded/cross)
+  - [Rustup](https://rustup.rs/)
+- [Bash](https://tiswww.case.edu/php/chet/bash/bashtop.html)
+  - [Bash autocompletion](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html)
+- [Raspberry Pi](https://www.raspberrypi.org/)
+- [Arduino](https://www.arduino.cc/)
+
+Consider the above also a list of minimum requirements.
+
+## Features and Examples
+
+This Guide will allow you to:
+- [x] Put together some Hardware that you can use for your base Robot. [[1]](docs/000_ShoppingList.md) [[2]](docs/001_Setup.md) [[3]](docs/004_Chassis.md)
+- [x] Configure the Software required to turn that HW into a proper Robot. [[1]](docs/002_Raspberry.md) [[2]](docs/003_Arduino.md)
+- [x] Create a set of rules to "make your Robot do things" and deploy them to the Robot. [[1]](docs/005_FirstExample.md) [[2]](docs/006_MovingExample.md)
+- [x] Test those rules with mocked sensors. [[1]](docs/007_TestingExample.md) [[2]](docs/007_TestingExample.md)
+- [x] Use Robot's real data as mocks on tests. [[1]](docs/008_TestingWithRealMocks.md)
+- [ ] Have the Robot launch on boot
+- [ ] Add and callibrate position sensors
+- [ ] Set the rules "on the go" with Reinforcement Learning instead of a rules YAML.
+- [ ] Make the Robot compatible with [ROS](https://www.ros.org/)
+
+## API reference
+
+Not everything in life has to be an API, right? at least not yet.
+
+## Contribute and Credits
+
+Just PM me on Github, I haven't figured this out yet.
+
+## License
+
+GNU General Public License v3.0
+
+

@@ -1,0 +1,19 @@
+--- 
+- id: "test_on"
+  condition:
+  - time: "0" 
+    input_objs: "distance<20"
+  actionsloop: false
+  actions:
+  - object: "led_y"
+    value: "1"
+    time: "0.1"
+- id: "test_off"
+  condition:
+  - time: "0" 
+    input_objs: "distance>=20"
+  actionsloop: false
+  actions:
+  - object: "led_y"
+    value: "0"
+    time: "0.1"

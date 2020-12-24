@@ -1,11 +1,10 @@
-pub mod cerebellum;
 pub mod config;
-pub mod config_test;
 pub mod brain;
 pub mod brain_test;
 pub mod arduino;
 pub mod arduino_test;
-pub mod mover;
+pub mod motors;
+pub mod leds;
 
 extern crate chrono;
 use chrono::offset::Utc;

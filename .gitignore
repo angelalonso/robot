@@ -4,5 +4,6 @@ tests/**/build
 **/*.swp
 **/*.swo
 brain/Cargo.lock
+brain/records
 test_svc
 development

@@ -1,14 +1,18 @@
 extern crate serial;
+
+use log::{debug, error, info};
 use serial::prelude::*;
+use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::io;
-use std::str;
-use std::time::Duration;
-use thiserror::Error;
+use std::path::Path;
 use std::process::Command;
-
+use std::str;
 use std::sync::mpsc::Sender;
-use log::{debug, error};
+use std::time::Duration;
+use std::time::{SystemTime, UNIX_EPOCH};
+use std::{thread, time};
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum BrainArduinoError {
@@ -26,37 +30,109 @@ pub enum BrainArduinoError {
 }
 
 #[derive(Clone)]
-pub struct Arduino<'a> {
-    pub name: &'a str,
-    pub serialport: &'a str,
+pub struct Arduino {
+    pub name: String,
+    pub serialport: String,
 }
 
-impl Arduino<'_> {
-    pub fn new(arduino_name: &'static str, raw_serial_port: Option<&'static str>) -> Result<Self, &'static str> {
+impl Arduino {
+    pub fn new(arduino_name: String, raw_serial_port: Option<String>) -> Result<Self, String> {
         let serial_port = match raw_serial_port {
             Some(port) => port,
-            None => "/dev/ttyUSB0",
+            //None => "/dev/ttyUSB0".to_string(),
+            None => "/dev/ttyACM0".to_string(),
         };
+        //let mut port = serial::open(&serial_port).unwrap();
         Ok(Self {
             name: arduino_name,
             serialport: serial_port,
         })
     }
 
+
+    /// This tries to reproduce input from the arduino when there's none
+    /// Since it's just needed for testing, I'll hardcode the behaviour, which depends on what is
+    /// being tested
+    pub fn read_channel_mock(&mut self, channel: Sender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
+        debug!("...reading from Mocked Serial Port");
+        let mut got: String;
+        let mock_file = setup_file.replace("setup", "mock");
+        if Path::new(&mock_file).exists() {
+            info!("Using {} as mocked input", mock_file);
+            let file_pointer = File::open(mock_file).unwrap();
+            #[derive(Clone, Debug, Deserialize)]
+            struct ArduinoMessage {
+                pub time: String,
+                pub msg: String,
+            }
+            let mut e: Vec<ArduinoMessage> = serde_yaml::from_reader(file_pointer).unwrap();
+            let st = SystemTime::now();
+            let start_time = match st.duration_since(UNIX_EPOCH) {
+                Ok(time) => time.as_millis(),
+                Err(_e) => 0,
+            };
+            debug!(", which has {} entries", e.len());
+            while e.len() > 0 {
+                let now = SystemTime::now();
+                let timestamp = match now.duration_since(UNIX_EPOCH) {
+                    // This WHOLE complication is needed to give my timestamp a x.x precision
+                    // The +1 helps with precision and delays
+                    Ok(time) => ((((time.as_millis() as f64 - start_time as f64) / 100.0) as i64)as f64) / (10.0) as f64,
+                    Err(_e) => 0.0,
+                };
+                if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
+                    match channel.send(e[0].msg.clone()){
+                        Ok(_) => debug!("- Forwarded to brain: {:?} ", e[0]),
+                        Err(_) => (),
+                    };
+                    e.remove(0);
+                }
+            }
+        } else {
+            //got = "SENSOR: button=1".to_string();
+            got = "SENSOR: distance=19".to_string();
+            thread::sleep(time::Duration::from_millis(50));
+            match channel.send(got){
+                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                Err(_e) => (),
+            };
+            //got = "SENSOR: button=0".to_string();
+            got = "SENSOR: distance=20".to_string();
+            thread::sleep(time::Duration::from_millis(250));
+            match channel.send(got){
+                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                Err(_e) => (),
+            };
+            got = "SENSOR: distance=24".to_string();
+            thread::sleep(time::Duration::from_millis(50));
+            match channel.send(got){
+                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                Err(_e) => (),
+            };
+            got = "SENSOR: distance=19".to_string();
+            thread::sleep(time::Duration::from_millis(250));
+            match channel.send(got){
+                Ok(c) => debug!("- Forwarded to brain: {:?} ", c),
+                Err(_e) => (),
+            };
+        }
+        Ok("".to_string())
+    }
+
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
-        debug!("Reading from Serial Port {}", self.serialport);
-        let mut port = serial::open(self.serialport).unwrap();
+        println!("...reading from Serial Port {}", &self.serialport);
+        let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
             if got != "" {
                 if got.contains("ACTION: ") {
-                    debug!("Got an Action message: {}", got);
+                    debug!("- Received Action message: {}", got);
                     channel.send(got).unwrap();
                 } else if got.contains("SENSOR: ") {
-                    debug!("Got a Sensor message: {}", got);
+                    debug!("- Received Sensor message: {}", got);
                     channel.send(got).unwrap();
                 } else {
-                    debug!("Read ->{}<- from Serial Port", got);
+                    debug!("- Read ->{}<- from Serial Port", got);
                     break Ok(got)
                 }
             }
@@ -73,14 +149,22 @@ impl Arduino<'_> {
             Ok(())
         })?;
 
-        port.set_timeout(Duration::from_millis(100))?;
+        port.set_timeout(Duration::from_millis(1000))?;
+
+        // NOTE: This is needed because we want to initiate conversation from the Brain
+        //   The arduino program does not publish anything until Brain sends something (a 0) on the
+        //   Serial port. We do this on every loop.
+        // What we need to solve is the problem that the Arduino program boots and starts sending
+        //   before our brain  program is ready.
+        let buf: Vec<u8> = (0..1).collect();
+        port.write(&buf[..])?;
 
         let reader = BufReader::new(port);
         let mut lines = reader.lines();
         match lines.next().unwrap() {
             Ok(res) => {
                 if res.contains("LOG:") {
-                    debug!("Got a Log message: {}", &res);
+                    debug!("- Received Log message: {}", &res);
                     Ok("".to_string())
                 } else {
                     Ok(res)
@@ -91,11 +175,12 @@ impl Arduino<'_> {
                 },
         }
     }
-
+    
     /// This one should avrdude to send a given file to the arduino
+    /// NOTE: We are trying to avoid this at the moment and just communicate through USB
     pub fn install(&mut self, filename: &str) -> Result<(), BrainArduinoError> {
         // First check that avrdude is installed
-        debug!("Installing {} to arduino", filename);
+        debug!("- Installing {} to arduino", filename);
         let mut _check_prog = match self.check_requirement("avrdude") {
             Ok(_v) => {
     // To test avrdude manually: sudo avrdude -c linuxgpio -p atmega328p -v 
@@ -133,6 +218,7 @@ impl Arduino<'_> {
     }
 
     /// Check that a given program is installed
+    /// NOTE: since we dont want to use install, we also dont need this one
     pub fn check_requirement(&mut self, prog: &str) -> Result<(), BrainArduinoError> {
         let check = Command::new("which")
                 .arg(prog)
