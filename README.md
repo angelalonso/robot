@@ -38,6 +38,7 @@ To be done
   - [Cross](https://github.com/rust-embedded/cross)
   - [Rustup](https://rustup.rs/)
 - [Bash](https://tiswww.case.edu/php/chet/bash/bashtop.html)
+  - [Bash autocompletion](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html)
 - [Raspberry Pi](https://www.raspberrypi.org/)
 - [Arduino](https://www.arduino.cc/)
 
