@@ -120,7 +120,7 @@ impl Arduino {
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
-        println!("...reading from Serial Port {}", &self.serialport);
+        println!("...reading Arduino messages from Serial Port {}", &self.serialport);
         let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
@@ -129,7 +129,8 @@ impl Arduino {
                     debug!("- Received Action message: {}", got);
                     channel.send(got).unwrap();
                 } else if got.contains("SENSOR: ") {
-                    debug!("- Received Sensor message: {}", got);
+                    //debug!("- Received Sensor message: {}", got);
+                    info!("- Received Sensor message: {}", got);
                     channel.send(got).unwrap();
                 } else {
                     debug!("- Read ->{}<- from Serial Port", got);
