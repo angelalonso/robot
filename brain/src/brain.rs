@@ -994,6 +994,8 @@ impl Brain {
                 self.show_metrics();
                 self.show_actionbuffers();
                 // get actions
+                // TODO: this is taking a while. Troubleshoot to see which one exactly and to try
+                // and speed this up
                 match self.get_actions_from_rules(ct){
                     Ok(actions) => {
                         // do first action from rules, add the rest to the actionbuffersets

@@ -120,7 +120,7 @@ impl Arduino {
     }
 
     pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
-        println!("...reading from Serial Port {}", &self.serialport);
+        println!("...reading Arduino messages from Serial Port {}", &self.serialport);
         let mut port = serial::open(&self.serialport).unwrap();
         loop {
             let got = self.interact(&mut port).unwrap();
