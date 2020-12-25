@@ -985,6 +985,7 @@ impl Brain {
             // update current timestamp
             let ct_raw = self.get_time_since(start_timestamp);
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
+            println!("{} {}", ct, new_ct);
             if new_ct > ct { 
                 ct = new_ct;
                 let _msg = match r.try_recv() {
