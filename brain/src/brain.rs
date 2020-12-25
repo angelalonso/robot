@@ -1007,10 +1007,8 @@ impl Brain {
                     },
                     Err(_e) => trace!("...no matching rules found"),
                 };
-                info!("---- after do_actions_from_rules");
                 // do action(s) from the actionbuffersets that match the ct
                 let (these_metrics, these_actions) = self.do_actions_from_actionbuffersets(ct).unwrap();
-                info!("---- after actionbuffersets");
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
                 }
