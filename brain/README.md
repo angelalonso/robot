@@ -19,14 +19,15 @@ I am assuming you know your robot's IP (if not, google).
 cp env.template .env
 ```
 - Edit and fill up .env to your needs.  
-- Run the remote script
+- Run the roctl script (main directory)
 ```
-./install_and_run.sh
+roctl do run
 ```
-  - You might want to check and modify that script for things like changing the log level.
+- You might want to check and modify that script for things like changing the log level.
 - Honestly, at this point you can always use cargo build and call the exec file at your Raspberry directly.
 
 # Challenges
+- Time from input to action is ~0.2 secs on the Raspberry B+. We need to lower that.
 - V2 ended up being a cleanup and improving version. V3 should indeed aim for a callibration system.
 - Event driven but only up to one layer. We will switch to skills that use the above callibration system.
 - We need a way for the robot to load Brain on bootup. This should include an automated update if necessary.  
