@@ -991,10 +991,8 @@ impl Brain {
                     Ok(m) => self.use_arduino_msg(ct, m),
                     Err(_) => (),
                 };
-                info!("---- after use_arduino");
                 self.show_metrics();
                 self.show_actionbuffers();
-                info!("---- after show");
                 // get actions
                 match self.get_actions_from_rules(ct){
                     Ok(actions) => {
