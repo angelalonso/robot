@@ -985,15 +985,16 @@ impl Brain {
             // update current timestamp
             let ct_raw = self.get_time_since(start_timestamp);
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
-            println!("{} {}", ct, new_ct);
             if new_ct > ct { 
                 ct = new_ct;
                 let _msg = match r.try_recv() {
                     Ok(m) => self.use_arduino_msg(ct, m),
                     Err(_) => (),
                 };
+                info!("---- after use_arduino");
                 self.show_metrics();
                 self.show_actionbuffers();
+                info!("---- after show");
                 // get actions
                 match self.get_actions_from_rules(ct){
                     Ok(actions) => {
@@ -1008,8 +1009,10 @@ impl Brain {
                     },
                     Err(_e) => trace!("...no matching rules found"),
                 };
+                info!("---- after do_actions_from_rules");
                 // do action(s) from the actionbuffersets that match the ct
                 let (these_metrics, these_actions) = self.do_actions_from_actionbuffersets(ct).unwrap();
+                info!("---- after actionbuffersets");
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
                 }
