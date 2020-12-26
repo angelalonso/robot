@@ -97,13 +97,13 @@ pub struct Set {
 #[derive(Clone)]
 pub struct Brain {
     name: String,
-    mode: String,
-    setup_file: String,
+    pub mode: String,
+    pub setup_file: String,
     start_time: u128,
     timestamp: f64,
     rec_file: String,
     actionrules: Vec<ActionRule>,
-    arduino: Arduino,
+    pub arduino: Arduino,
     motors: Motors,
     leds: LEDs,
     actionbuffersets: Vec<Set>,
