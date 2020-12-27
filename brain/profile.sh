@@ -11,7 +11,7 @@ RUSTFLAGS="-g" cargo bench  --no-run
 ls -lhtr ./target/release
 
 # Let's say this was the executable
-BENCH="./target/release/brain"
+BENCH="./target/release/brain test setup.yaml"
 
 # Now identify a single test that you want profiled. Test identifiers are
 # printed in the console output, so I'll use the one that I posted earlier
