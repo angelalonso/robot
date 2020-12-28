@@ -104,7 +104,7 @@ impl Motors {
             // RIGHT MOTOR
             if move_r != prev_move_vector[1] {
                 if move_r.parse::<i16>().unwrap() == 0 {
-                    match self.objects.iter_mut().find(|x| *x.name == "motor_r".to_string()) {
+                    match self.objects.iter_mut().find(|x| x.name == "motor_r") {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
@@ -121,7 +121,7 @@ impl Motors {
                         None => warn!("There's no motor_r"),
                     }
                 } else {
-                    match self.objects.iter_mut().find(|x| *x.name == "motor_r".to_string()) {
+                    match self.objects.iter_mut().find(|x| x.name == "motor_r") {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
@@ -154,7 +154,7 @@ impl Motors {
 
     pub fn set(&mut self, motor: String, value: String) {
         let movement = self.movement.clone();
-        let movement_vector = movement.split("_").collect::<Vec<_>>();
+        let movement_vector = movement.split('_').collect::<Vec<_>>();
         match motor.as_str() {
             "motor_l" => {
                 self.change_movement(format!("{}_{}", value, movement_vector[1]));

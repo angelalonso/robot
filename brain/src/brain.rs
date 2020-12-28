@@ -101,7 +101,7 @@ pub struct Brain {
     pub setup_file: String,
     start_time: u128,
     timestamp: f64,
-    rec_file: String,
+    record_file: String,
     actionrules: Vec<ActionRule>,
     pub arduino: Arduino,
     motors: Motors,
@@ -114,10 +114,10 @@ static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 static MAX_BUFFERSIZE: u8 = 25;
 static MAX_METRICSIZE: u8 = 25;
 // this is a list of the actions that go in the same actionbufferset, called brilliantly "other"
-const OTHER_ACTIONS: &'static [&'static str] = &["load", "wait"];
+const OTHER_ACTIONS: &[&str; 2] = &["load", "wait"];
 
 impl Brain {
-    pub fn new(brain_name: String, mut mode: String, setupfile: String) -> Result<Self, BrainDeadError> {
+    pub fn new(brain_name: String, mut mode: String, setup_file: String) -> Result<Self, BrainDeadError> {
         // CATCH the record mode and clean up the original mode variable
         let special_mode = mode.split("_").collect::<Vec<_>>();
         let mut record_file = "".to_string();
@@ -133,7 +133,7 @@ impl Brain {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        let (first_action_set, _first_arduino_program, inputs, outputs) = match Brain::load_setup(setupfile.to_string()) {
+        let (first_action_set, _first_arduino_program, inputs, outputs) = match Brain::load_setup(setup_file.to_string()) {
             Ok((fas,fap,i,o)) => (fas,fap,i,o),
             Err(e) => {
                 error!("There was an error!: {}", e);
@@ -247,11 +247,11 @@ impl Brain {
         });
         Ok(Self {
             name: brain_name,
-            mode: mode,
-            setup_file: setupfile,
-            start_time: start_time,
+            mode,
+            setup_file,
+            start_time,
             timestamp: 0.0,
-            rec_file: record_file,
+            record_file,
             actionrules: ar,
             arduino: a,
             motors: m,
@@ -284,34 +284,31 @@ impl Brain {
                 return Err(BrainDeadError::YamlError)
             }
         };
-        return Ok((a.start_ruleset_file, a.start_arduinohex_file, a.inputs, a.outputs))
-        //return (a.start_ruleset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
+        Ok((a.start_ruleset_file, a.start_arduinohex_file, a.inputs, a.outputs))
     }
 
     /// Return current timestamp as millis
     pub fn get_current_time(&mut self) -> f64 {
         let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
+        match now.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis() as f64,
             Err(_e) => 0.0,
-        };
-        return timestamp;
+        }
     }
 
     /// Return difference between current timestamp and a given one, in millis
     pub fn get_time_since(&mut self, start_timestamp: f64) -> f64 {
         let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
+        match now.duration_since(UNIX_EPOCH) {
             Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
             Err(_e) => 0.0,
-        };
-        return timestamp;
+        }
     }
 
     /// Translates a message coming from the Arduino to actions
     pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
-        if self.rec_file != "".to_string() {
+        if self.record_file != "".to_string() {
             self.record(timestamp, raw_msg.to_string());
         };
         match msg_parts[0] {
@@ -367,7 +364,7 @@ impl Brain {
         };
         let mut c: Vec<ActionRule> = [].to_vec();
         match serde_yaml::from_reader(file_pointer) {
-            Ok(v) => return Ok(v),
+            Ok(v) => Ok(v),
             Err(e) => {
                 if e.to_string().contains("missing field `triggercount`") {
 
@@ -395,7 +392,7 @@ impl Brain {
                         };
                         c.push(c_elem);
                     }
-                    return Ok(c)
+                    Ok(c)
                 } else if e.to_string().contains("missing field `condition`") {
                     let file_pointer = match File::open(file.clone()){
                         Ok(fp) => fp,
@@ -424,13 +421,13 @@ impl Brain {
                         };
                         c.push(c_elem);
                     }
-                    return Ok(c)
+                    Ok(c)
                 } else {
                     error!("The file {}'s YAML is incorrect! - {}", file, e);
-                    return Err(BrainDeadError::YamlError)                    
+                    Err(BrainDeadError::YamlError)                    
                 }
             },
-        };
+        }
     }
 
     /// Turn a String containing an action into the related object
@@ -573,7 +570,7 @@ impl Brain {
                 self.add_action(action_string);
             }
         }
-        return Ok((new_metrics, new_actions))
+        Ok((new_metrics, new_actions))
     }
 
     /// Performs the next action on each action buffer if the timestamp is right.
@@ -584,36 +581,36 @@ impl Brain {
         for abs in self.actionbuffersets.iter_mut() {
             match self.metricsets.iter_mut().find(|x| *x.object == *abs.object) {
                 Some(om) => {
-                    if timestamp >= om.last_change_timestamp {
-                        if abs.entries.len() > 0 {
-                            let a = &abs.entries.clone()[0];             
-                            let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                            trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
-                            if time_passed >= abs.current_entry.time {
-                                abs.current_entry = a.clone();
-                                abs.entries.retain(|x| *x != *a);
-                                abs.last_change_timestamp = timestamp.clone();
-                                debug!("- Buffer: {:#x?}", abs.entries);
-                                // TODO: Avoid hardcoding this (use types of actions?)
-                                if abs.object.starts_with("led") {
-                                    self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
-                                } else if abs.object.starts_with("motor") {
-                                    let action_vector = a.data.split("_").collect::<Vec<_>>();
-                                    self.motors.set(abs.object.clone(), action_vector[0].to_string());
-                                } else if abs.object.starts_with("other") {
-                                    let other_action = a.data.split("_").collect::<Vec<_>>();
-                                    if other_action[0] == "load" {
-                                        let file_to_load = other_action[1..].join("_").to_string();
-                                        // TODO: use BrainDeadError instead
-                                        // of String in this function
-                                        self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
-                                    }
+                    //if timestamp >= om.last_change_timestamp {
+                    //    if abs.entries.len() > 0 {
+                    if (timestamp >= om.last_change_timestamp) && (abs.entries.len() > 0) {
+                        let a = &abs.entries.clone()[0];             
+                        let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+                        trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
+                        if time_passed >= abs.current_entry.time {
+                            abs.current_entry = a.clone();
+                            abs.entries.retain(|x| *x != *a);
+                            abs.last_change_timestamp = timestamp.clone();
+                            debug!("- Buffer: {:#x?}", abs.entries);
+                            // TODO: Avoid hardcoding this (use types of actions?)
+                            if abs.object.starts_with("led") {
+                                self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
+                            } else if abs.object.starts_with("motor") {
+                                let action_vector = a.data.split("_").collect::<Vec<_>>();
+                                self.motors.set(abs.object.clone(), action_vector[0].to_string());
+                            } else if abs.object.starts_with("other") {
+                                let other_action = a.data.split("_").collect::<Vec<_>>();
+                                if other_action[0] == "load" {
+                                    let file_to_load = other_action[1..].join("_").to_string();
+                                    // TODO: use BrainDeadError instead
+                                    // of String in this function
+                                    self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
                                 }
-                                info!("- Just did {} -> {} (from buffer)", om.object, a.data);
-                                // TODO actually both the following could be one if we unified format
-                                metrics.push(format!("{}__{}|{}", abs.object, a.data, a.id.to_string()));
-                                result.push(format!("{}__{}__{:?}", abs.object, a.clone().data, a.clone().time));
                             }
+                            info!("- Just did {} -> {} (from buffer)", om.object, a.data);
+                            // TODO actually both the following could be one if we unified format
+                            metrics.push(format!("{}__{}|{}", abs.object, a.data, a.id.to_string()));
+                            result.push(format!("{}__{}__{:?}", abs.object, a.clone().data, a.clone().time));
                         }
                     }
                 },
@@ -659,17 +656,15 @@ impl Brain {
                     };
                     om.entries.push(new_m);
                     om.last_change_timestamp = timestamp;
-                } else {
-                    if om.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: timestamp.clone(),
-                        };
-                        om.entries.insert(0, new_m);
-                        om.last_change_timestamp = timestamp;
-                    }
+                } else if om.entries[0].data != metric_decomp[1].to_string() {
+                    let new_m = TimedData {
+                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                        belongsto: source_id,
+                        data: metric_decomp[1].to_string(),
+                        time: timestamp.clone(),
+                    };
+                    om.entries.insert(0, new_m);
+                    om.last_change_timestamp = timestamp;
                 }; 
                 if om.entries.len() > om.max_size.into() {
                     om.entries.pop();
@@ -694,11 +689,9 @@ impl Brain {
                                 if om.entries[0].data != keyval[1] {
                                     result = false;
                                     return result
-                                } else {
-                                    if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
-                                        result = false;
-                                        return result
-                                    };
+                                } else if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                    result = false;
+                                    return result
                                 };
                             } else if keyval[1] != "0" {
                                 result = false;
@@ -762,11 +755,9 @@ impl Brain {
                                     if acc_time.to_string() == "NaN"{
                                         result = false;
                                         return result
-                                    } else {
-                                        if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
-                                            result = false;
-                                            return result
-                                        }
+                                    } else if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
+                                        result = false;
+                                        return result
                                     }
                                 } else {
                                     result = false;
@@ -788,7 +779,7 @@ impl Brain {
                 None => (),
             };
         }
-        return result
+        result
     }
 
     pub fn create_record_file() -> String {
@@ -802,10 +793,10 @@ impl Brain {
     pub fn record(&mut self, timestamp: f64, entry: String) {
         let mut file = OpenOptions::new()
             .append(true)
-            .open(self.rec_file.clone())
+            .open(self.record_file.clone())
             .unwrap();
         let log = format!("- time: {}\n  msg: \"{}\"", timestamp, entry);
-        warn!("We are writing {} to {}", log, self.rec_file);
+        warn!("We are writing {} to {}", log, self.record_file);
         writeln!(&mut file, "{}", log).unwrap();
     }
 
@@ -858,10 +849,8 @@ impl Brain {
                     }
                 } else {
                     let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                    if checks != [""].to_vec() && checks.len() != 0{
-                        if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
-                            partial_rules.retain(|x| *x != rule);
-                        }
+                    if (checks != [""].to_vec()) && (checks.len() != 0) && (! self.does_condition_match(rule.clone(), timestamp.clone())) {
+                        partial_rules.retain(|x| *x != rule);
                     }
                 }
             }

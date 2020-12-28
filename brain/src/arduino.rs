@@ -157,7 +157,7 @@ impl Arduino {
         // What we need to solve is the problem that the Arduino program boots and starts sending
         //   before our brain  program is ready.
         let buf: Vec<u8> = (0..1).collect();
-        port.write(&buf[..])?;
+        port.write_all(&buf[..])?;
 
         let reader = BufReader::new(port);
         let mut lines = reader.lines();

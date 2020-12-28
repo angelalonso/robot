@@ -56,7 +56,7 @@ fn criterion_benchmark(c: &mut Criterion) {
             // get actions
             // TODO: this is taking a while. Troubleshoot to see which one exactly and to try
             // and speed this up
-            c.sample_size(50);
+            c.sample_size(500);
             c.bench_function("run_bench", |b| b.iter(|| 
                 match br.get_actions_from_rules(ct){
                     Ok(actions) => {

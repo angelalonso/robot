@@ -255,7 +255,6 @@ mod brain_test {
     }
 
     #[test]
-    #[ignore]
     fn check_actions_obstacle2() {
         let expected_pointer = File::open("testfiles/obstacle2_expected.yaml").unwrap();
         let e: Vec<ActionEntry> = serde_yaml::from_reader(expected_pointer).unwrap();
