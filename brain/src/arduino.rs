@@ -72,7 +72,7 @@ impl Arduino {
                 Err(_e) => 0,
             };
             debug!(", which has {} entries", e.len());
-            while e.len() > 0 {
+            while !e.is_empty() {
                 let now = SystemTime::now();
                 let timestamp = match now.duration_since(UNIX_EPOCH) {
                     // This WHOLE complication is needed to give my timestamp a x.x precision
@@ -80,11 +80,10 @@ impl Arduino {
                     Ok(time) => ((((time.as_millis() as f64 - start_time as f64) / 100.0) as i64)as f64) / (10.0) as f64,
                     Err(_e) => 0.0,
                 };
-                if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
-                    match channel.send(e[0].msg.clone()){
-                        Ok(_) => debug!("- Forwarded to brain: {:?} ", e[0]),
-                        Err(_) => (),
-                    };
+                let error_margin = f64::EPSILON;
+                if (e[0].time.parse::<f64>().unwrap() - timestamp as f64).abs() < error_margin {
+                //if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
+                    if channel.send(e[0].msg.clone()).is_ok() { debug!("- Forwarded to brain: {:?} ", e[0]) }
                     e.remove(0);
                 }
             }

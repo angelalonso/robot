@@ -119,13 +119,10 @@ const OTHER_ACTIONS: &[&str; 2] = &["load", "wait"];
 impl Brain {
     pub fn new(brain_name: String, mut mode: String, setup_file: String) -> Result<Self, BrainDeadError> {
         // CATCH the record mode and clean up the original mode variable
-        let special_mode = mode.split("_").collect::<Vec<_>>();
+        let special_mode = mode.split('_').collect::<Vec<_>>();
         let mut record_file = "".to_string();
         if special_mode.len() > 1 {
-            match special_mode[1] {
-                "record" => record_file = Brain::create_record_file(),
-                _ => (),
-            }
+            if let "record" = special_mode[1] { record_file = Brain::create_record_file() }
         }
         mode = special_mode[0].to_string();
         let st = SystemTime::now();
@@ -232,7 +229,7 @@ impl Brain {
             obj_type: "other".to_string(),
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
-            current_entry: s_e.clone(),
+            current_entry: s_e,
             max_size: MAX_METRICSIZE,
         };
         abs.push(s_b_o);
@@ -273,7 +270,7 @@ impl Brain {
         let file_pointer = match File::open(setup_file.clone()) {
             Ok(fp) => fp,
             Err(_) => {
-                error!("File {} does not exist", setup_file.clone());
+                error!("File {} does not exist", setup_file);
                 return Err(BrainDeadError::FileNotFoundError)
             }
         };
@@ -308,7 +305,7 @@ impl Brain {
     /// Translates a message coming from the Arduino to actions
     pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
-        if self.record_file != "".to_string() {
+        if self.record_file != "" {
             self.record(timestamp, raw_msg.to_string());
         };
         match msg_parts[0] {
@@ -432,10 +429,10 @@ impl Brain {
 
     /// Turn a String containing an action into the related object
     pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
-        let format = action.split(",").collect::<Vec<_>>();
+        let format = action.split(',').collect::<Vec<_>>();
         //TODO: reproduce this error, then use BrainDeadError instead of unwrap
-        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
-        let data = format[0].split("=").collect::<Vec<_>>();
+        let t = format[1].split('=').collect::<Vec<_>>()[1].parse::<f64>().unwrap();
+        let data = format[0].split('=').collect::<Vec<_>>();
         let mut source = "";
         if format.len() > 2 {
             source = format[2];
@@ -596,10 +593,10 @@ impl Brain {
                             if abs.object.starts_with("led") {
                                 self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
                             } else if abs.object.starts_with("motor") {
-                                let action_vector = a.data.split("_").collect::<Vec<_>>();
+                                let action_vector = a.data.split('_').collect::<Vec<_>>();
                                 self.motors.set(abs.object.clone(), action_vector[0].to_string());
                             } else if abs.object.starts_with("other") {
-                                let other_action = a.data.split("_").collect::<Vec<_>>();
+                                let other_action = a.data.split('_').collect::<Vec<_>>();
                                 if other_action[0] == "load" {
                                     let file_to_load = other_action[1..].join("_").to_string();
                                     // TODO: use BrainDeadError instead
@@ -676,7 +673,7 @@ impl Brain {
 
     pub fn does_condition_match(&mut self, rule: ActionRule, timestamp: f64) -> bool {
         let mut result = true;
-        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+        let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
         for check in &checks {
             let re = regex::Regex::new(r"=|<=|>=|<|>").unwrap();
             let keyval = re.split(check).collect::<Vec<_>>();
@@ -838,7 +835,7 @@ impl Brain {
                         //if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
                         //    partial_rules.retain(|x| *x != rule);
                         //}
-                        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                        let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
                         if checks != [""].to_vec() && checks.len() != 0{
                             if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
                                 partial_rules.retain(|x| *x != rule);
@@ -848,7 +845,7 @@ impl Brain {
                         }
                     }
                 } else {
-                    let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+                    let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
                     if (checks != [""].to_vec()) && (checks.len() != 0) && (! self.does_condition_match(rule.clone(), timestamp.clone())) {
                         partial_rules.retain(|x| *x != rule);
                     }
@@ -912,10 +909,10 @@ impl Brain {
         if om.object.starts_with("led") {
             self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
         } else if om.object.starts_with("motor") {
-            let action_vector = a.data.split("_").collect::<Vec<_>>();
+            let action_vector = a.data.split('_').collect::<Vec<_>>();
             self.motors.set(om.object.clone(), action_vector[0].to_string());
         } else if om.object.starts_with("other") {
-            let other_action = a.data.split("_").collect::<Vec<_>>();
+            let other_action = a.data.split('_').collect::<Vec<_>>();
             if other_action[0] == "load" {
                 let file_to_load = other_action[1..].join("_").to_string();
                 // TODO: add BrainDeadError to this function
@@ -940,7 +937,7 @@ impl Brain {
         // TODO actually both the following could be one if we unified format
         metrics.push(format!("{}__{}|{}", om.object, a.data, a.belongsto.to_string()));
         result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.clone().time));
-        return Ok((metrics, result))
+        Ok((metrics, result))
     }
 
     /// Just run the brain.
@@ -953,7 +950,7 @@ impl Brain {
         let mut ct: f64 = 0.0;
         // communication with arduino
         let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
-        let msgs = s.clone();
+        let msgs = s;
         let mut arduino_clone = self.arduino.clone();
         let brain_clone = self.clone();
         thread::spawn(move || {
@@ -1010,7 +1007,7 @@ impl Brain {
                 }
                 // add metrics to metricsets
                 for m_raw in new_metrics.clone() {
-                    let m = m_raw.split("|").collect::<Vec<_>>();
+                    let m = m_raw.split('|').collect::<Vec<_>>();
                     if m.len() > 1 {
                         self.add_metric(ct, m[0].to_string(), m[1].to_string());
                     }

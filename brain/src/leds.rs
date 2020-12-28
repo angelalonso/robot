@@ -37,26 +37,21 @@ impl LEDs {
     }
 
     pub fn set_led(&mut self, led_id: String, new_state: bool) {
-        match self.objects.iter_mut().find(|x| *x.name == *led_id) {
-            Some(l) => {
-                match &l.object {
-                    Some(o) => {
-                        if new_state {
-                            if ! l.on {
-                                l.on = true;
-                                o.lock().unwrap().on();
-                            }
-                        } else {
-                            if l.on {
-                                l.on = false;
-                                o.lock().unwrap().off();
-                            }
+        if let Some(l) = self.objects.iter_mut().find(|x| *x.name == *led_id) {
+            match &l.object {
+                Some(o) => {
+                    if new_state {
+                        if ! l.on {
+                            l.on = true;
+                            o.lock().unwrap().on();
                         }
-                    }            
-                    None => debug!("- Mocked - Setting -{:?}- to LED Y", new_state)
-                }
-            },
-            None => (),
+                    } else if l.on {
+                        l.on = false;
+                        o.lock().unwrap().off();
+                    }
+                },            
+                None => debug!("- Mocked - Setting -{:?}- to LED Y", new_state),
+            }
         }
     }
 }
