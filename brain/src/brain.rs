@@ -543,10 +543,7 @@ impl Brain {
             // cleanup actionbufferset
             let mut action_object = action.object.clone();
             if OTHER_ACTIONS.iter().any(|&i| i == action.object) { action_object = "other".to_string() }
-            match self.actionbuffersets.iter_mut().find(|x| x.object == action_object) {
-                Some(abs) => abs.entries = Vec::new(),
-                None => (),
-            };
+            if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| x.object == action_object) { abs.entries = Vec::new() }
             // trigger first action
             match action.entries.first() {
                 Some(entry) => {
@@ -961,10 +958,7 @@ impl Brain {
                 arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
             };
         });
-        match r.try_recv() {
-            Ok(m) => self.use_arduino_msg(ct, m),
-            Err(_) => (),
-        };
+        if let Ok(m) = r.try_recv() { self.use_arduino_msg(ct, m) }
         loop {
             let mut new_metrics: Vec<String> = [].to_vec();
             let mut new_actions: Vec<String> = [].to_vec();
@@ -973,10 +967,7 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                let _msg = match r.try_recv() {
-                    Ok(m) => self.use_arduino_msg(ct, m),
-                    Err(_) => (),
-                };
+                if let Ok(m) = r.try_recv() { self.use_arduino_msg(ct, m) }
                 self.show_metrics();
                 self.show_actionbuffers();
                 // get actions
