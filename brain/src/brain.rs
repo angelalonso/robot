@@ -277,7 +277,7 @@ impl Brain {
         let a: Setup = match serde_yaml::from_reader(file_pointer) {
             Ok(ya) => ya,
             Err(e) => {
-                error!("The file {}'s YAML is incorrect! - {}", setup_file.clone(), e);
+                error!("The file {}'s YAML is incorrect! - {}", setup_file, e);
                 return Err(BrainDeadError::YamlError)
             }
         };
@@ -297,7 +297,7 @@ impl Brain {
     pub fn get_time_since(&mut self, start_timestamp: f64) -> f64 {
         let now = SystemTime::now();
         match now.duration_since(UNIX_EPOCH) {
-            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
+            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000_f64,
             Err(_e) => 0.0,
         }
     }
@@ -311,9 +311,9 @@ impl Brain {
         match msg_parts[0] {
             // NOTE: we could have other types of messages but we don't need them just yet
             "SENSOR" => {
-                let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
+                let sensors = msg_parts[1].split('|').collect::<Vec<_>>();
                 for s in sensors {
-                    let sensor = s.split("=").collect::<Vec<_>>();
+                    let sensor = s.split('=').collect::<Vec<_>>();
                     if sensor != [""] {
                         info!("Message from Arduino: {:?}", sensor);
                     } else {
@@ -355,7 +355,7 @@ impl Brain {
         let file_pointer = match File::open(file.clone()){
             Ok(fp) => fp,
             Err(_e) => {
-                error!("File {} does not exist", file.clone());
+                error!("File {} does not exist", file);
                 return Err(BrainDeadError::FileNotFoundError)
             }
         };
@@ -368,14 +368,14 @@ impl Brain {
                     let file_pointer = match File::open(file.clone()){
                         Ok(fp) => fp,
                         Err(_e) => {
-                            error!("File {} does not exist", file.clone());
+                            error!("File {} does not exist", file);
                             return Err(BrainDeadError::FileNotFoundError)
                         }
                     };
                     let a: Vec<NoTriggerActionRule> = match serde_yaml::from_reader(file_pointer) {
                         Ok(a) => a,
                         Err(e) => {
-                            error!("The file {}'s YAML is incorrect! - {}", file.clone(), e);
+                            error!("The file {}'s YAML is incorrect! - {}", file, e);
                             return Err(BrainDeadError::YamlError)
                         }
                     };
@@ -394,14 +394,14 @@ impl Brain {
                     let file_pointer = match File::open(file.clone()){
                         Ok(fp) => fp,
                         Err(_e) => {
-                            error!("File {} does not exist", file.clone());
+                            error!("File {} does not exist", file);
                             return Err(BrainDeadError::FileNotFoundError)
                         }
                     };
                     let a: Vec<NoConditionActionRule> = match serde_yaml::from_reader(file_pointer) {
                         Ok(a) => a,
                         Err(e) => {
-                            error!("The file {}'s YAML is incorrect for a RuleSet! - {}", file.clone(), e);
+                            error!("The file {}'s YAML is incorrect for a RuleSet! - {}", file, e);
                             return Err(BrainDeadError::YamlError)
                         }
                     };
@@ -472,7 +472,7 @@ impl Brain {
         //TODO: once get_action_from_string has BrainDeadError, add a Result to this function
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         if OTHER_ACTIONS.iter().any(|&i| i==action_to_add.resource) {
-            match self.actionbuffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
+            match self.actionbuffersets.iter_mut().find(|x| x.object == "other") {
                 Some(abs) => {
                     if abs.entries.len() >= abs.max_size.into() {
                         warn!("Buffer for {} is full! not adding new actions...", abs.object);
@@ -543,7 +543,7 @@ impl Brain {
             // cleanup actionbufferset
             let mut action_object = action.object.clone();
             if OTHER_ACTIONS.iter().any(|&i| i == action.object) { action_object = "other".to_string() }
-            match self.actionbuffersets.iter_mut().find(|x| *x.object == action_object.to_string()) {
+            match self.actionbuffersets.iter_mut().find(|x| x.object == action_object) {
                 Some(abs) => abs.entries = Vec::new(),
                 None => (),
             };
@@ -580,14 +580,14 @@ impl Brain {
                 Some(om) => {
                     //if timestamp >= om.last_change_timestamp {
                     //    if abs.entries.len() > 0 {
-                    if (timestamp >= om.last_change_timestamp) && (abs.entries.len() > 0) {
+                    if (timestamp >= om.last_change_timestamp) && (!abs.entries.is_empty()) {
                         let a = &abs.entries.clone()[0];             
-                        let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
+                        let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000_f64).ceil() / 1000_f64;
                         trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
                         if time_passed >= abs.current_entry.time {
                             abs.current_entry = a.clone();
                             abs.entries.retain(|x| *x != *a);
-                            abs.last_change_timestamp = timestamp.clone();
+                            abs.last_change_timestamp = timestamp;
                             debug!("- Buffer: {:#x?}", abs.entries);
                             // TODO: Avoid hardcoding this (use types of actions?)
                             if abs.object.starts_with("led") {
@@ -614,8 +614,8 @@ impl Brain {
                 None => (),
             };
         };
-        if result.len() == 0 {result.push("".to_string())};
-        if metrics.len() == 0 {metrics.push("".to_string())};
+        if result.is_empty() {result.push("".to_string())};
+        if metrics.is_empty() {metrics.push("".to_string())};
         Ok((metrics, result))
     }
 
@@ -644,21 +644,21 @@ impl Brain {
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
         match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
             Some(om) => {
-                if om.entries.len() == 0 {
+                if om.entries.is_empty() {
                     let new_m = TimedData {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
                         belongsto: source_id,
                         data: metric_decomp[1].to_string(),
-                        time: timestamp.clone(), // here time means "since_timestamp"
+                        time: timestamp, 
                     };
                     om.entries.push(new_m);
                     om.last_change_timestamp = timestamp;
-                } else if om.entries[0].data != metric_decomp[1].to_string() {
+                } else if om.entries[0].data != metric_decomp[1] {
                     let new_m = TimedData {
                         id: COUNTER.fetch_add(1, Ordering::Relaxed),
                         belongsto: source_id,
                         data: metric_decomp[1].to_string(),
-                        time: timestamp.clone(),
+                        time: timestamp,
                     };
                     om.entries.insert(0, new_m);
                     om.last_change_timestamp = timestamp;
@@ -682,7 +682,7 @@ impl Brain {
                     match om.obj_type.as_str() {
                         // for binary and output we just try to match fully
                         "binary" | "output" => {
-                            if om.entries.len() > 0 {
+                            if !om.entries.is_empty() {
                                 if om.entries[0].data != keyval[1] {
                                     result = false;
                                     return result
@@ -698,7 +698,7 @@ impl Brain {
                         "continuous" => {
                             let comparison = check.replace(keyval[0], "").replace(keyval[1], "");
                             let mut matched_metrics: Vec<TimedData> = [].to_vec();
-                            if om.entries.len() > 0 {
+                            if !om.entries.is_empty() {
                                 match comparison.as_str() {
                                     "=" => {
                                         for m in om.entries.clone() {
@@ -747,7 +747,7 @@ impl Brain {
                                     },
                                     &_ => {},
                                 }
-                                if matched_metrics.len() > 0 {
+                                if !matched_metrics.is_empty() {
                                     let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
                                     if acc_time.to_string() == "NaN"{
                                         result = false;
@@ -784,7 +784,7 @@ impl Brain {
         fs::create_dir_all(path).unwrap();
         let filename = path.to_owned() + "/last_run.yaml";
         File::create(filename.clone()).unwrap();
-        filename.to_string()
+        filename
     }
 
     pub fn record(&mut self, timestamp: f64, entry: String) {
@@ -831,13 +831,13 @@ impl Brain {
                 //            y -> add, adjust triggercount for self to +1
                 //            n -> remove
                 if rule.triggercount > 0 {
-                    if rule.actionsloop != true {
+                    if !rule.actionsloop {
                         //if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
                         //    partial_rules.retain(|x| *x != rule);
                         //}
                         let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
-                        if checks != [""].to_vec() && checks.len() != 0{
-                            if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                        if checks != [""].to_vec() && !checks.is_empty() {
+                            if ! self.does_condition_match(rule.clone(), timestamp) {
                                 partial_rules.retain(|x| *x != rule);
                             }
                         } else {
@@ -846,14 +846,14 @@ impl Brain {
                     }
                 } else {
                     let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
-                    if (checks != [""].to_vec()) && (checks.len() != 0) && (! self.does_condition_match(rule.clone(), timestamp.clone())) {
+                    if (checks != [""].to_vec()) && (!checks.is_empty()) && (! self.does_condition_match(rule.clone(), timestamp)) {
                         partial_rules.retain(|x| *x != rule);
                     }
                 }
             }
         }
         // We want to count the amount of times the trigger was...triggered
-        if partial_rules.len() > 0 {
+        if !partial_rules.is_empty() {
             for rule in self.actionrules.iter_mut() {
                 match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
                     Some(_) => {
@@ -864,7 +864,7 @@ impl Brain {
                 };
             }
             debug!("- Rules matching :");
-            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+            for (ix, rule) in partial_rules.iter().enumerate() {
                 debug!(" #{} {} input:", ix, rule.id);
                 debug!("     input:");
                 for ri in rule.condition.clone() {
@@ -890,7 +890,7 @@ impl Brain {
         }
         // Clean up the vector from actionbuffersets that are empty
         for s in action_vectors.clone() {
-            if s.entries.len() == 0 {
+            if s.entries.is_empty() {
                 action_vectors.retain(|x| *x != s);
             }
         }
@@ -902,7 +902,7 @@ impl Brain {
         let mut metrics = [].to_vec();
         match self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
             Some(abs) => {
-                abs.last_change_timestamp = timestamp.clone();
+                abs.last_change_timestamp = timestamp;
             },
             None => ()
         }
@@ -914,7 +914,7 @@ impl Brain {
         } else if om.object.starts_with("other") {
             let other_action = a.data.split('_').collect::<Vec<_>>();
             if other_action[0] == "load" {
-                let file_to_load = other_action[1..].join("_").to_string();
+                let file_to_load = other_action[1..].join("_");
                 // TODO: add BrainDeadError to this function
                 self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
             }
@@ -924,7 +924,7 @@ impl Brain {
             Some(abs) => {
                 abs.current_entry = TimedData {
                     id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                    belongsto: om.entries[0].clone().belongsto.clone(),
+                    belongsto: om.entries[0].clone().belongsto,
                     data: om.entries[0].clone().data,
                     time: om.entries[0].clone().time,
                 };
@@ -936,7 +936,7 @@ impl Brain {
         info!("- Just did {} -> {}", om.object, a.data);
         // TODO actually both the following could be one if we unified format
         metrics.push(format!("{}__{}|{}", om.object, a.data, a.belongsto.to_string()));
-        result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.clone().time));
+        result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.time));
         Ok((metrics, result))
     }
 
