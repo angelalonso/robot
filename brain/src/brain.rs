@@ -308,26 +308,23 @@ impl Brain {
         if self.record_file != "" {
             self.record(timestamp, raw_msg.to_string());
         };
-        match msg_parts[0] {
-            // NOTE: we could have other types of messages but we don't need them just yet
-            "SENSOR" => {
-                let sensors = msg_parts[1].split('|').collect::<Vec<_>>();
-                for s in sensors {
-                    let sensor = s.split('=').collect::<Vec<_>>();
-                    if sensor != [""] {
-                        info!("Message from Arduino: {:?}", sensor);
-                    } else {
-                        debug!("Message from Arduino: {:?}", sensor);
-                    }
-                    let sensor_id = "arduino".to_string();
-                    if sensor.len() > 1 {
-                        self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
-                    } else {
-                        trace!("{:?}", sensor);
-                    }
+        // NOTE: we could have other types of messages but we don't need them just yet
+        if let "SENSOR" = msg_parts[0] {
+            let sensors = msg_parts[1].split('|').collect::<Vec<_>>();
+            for s in sensors {
+                let sensor = s.split('=').collect::<Vec<_>>();
+                if sensor != [""] {
+                    info!("Message from Arduino: {:?}", sensor);
+                } else {
+                    debug!("Message from Arduino: {:?}", sensor);
                 }
-            },
-            _ => (),
+                let sensor_id = "arduino".to_string();
+                if sensor.len() > 1 {
+                    self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+                } else {
+                    trace!("{:?}", sensor);
+                }
+            }
         }
     }
 
@@ -472,61 +469,53 @@ impl Brain {
         //TODO: once get_action_from_string has BrainDeadError, add a Result to this function
         let action_to_add = self.clone().get_action_from_string(action).unwrap();
         if OTHER_ACTIONS.iter().any(|&i| i==action_to_add.resource) {
-            match self.actionbuffersets.iter_mut().find(|x| x.object == "other") {
-                Some(abs) => {
-                    if abs.entries.len() >= abs.max_size.into() {
-                        warn!("Buffer for {} is full! not adding new actions...", abs.object);
-                    } else {
-                        match action_to_add.resource.as_str() {
-                            "load" => {
-                                let a = TimedData {
-                                    id: action_to_add.action.id,
-                                    belongsto: action_to_add.action.belongsto,
-                                    data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
-                                    time: action_to_add.action.time,
-                                };
-                                abs.entries.push(a);
-                            },
-                            "wait" => {
-                                let a = TimedData {
-                                    id: action_to_add.action.id,
-                                    belongsto: action_to_add.action.belongsto,
-                                    data: format!("{}_{}secs", action_to_add.resource, action_to_add.action.time),
-                                    time: action_to_add.action.time,
-                                };
-                                abs.entries.push(a);
-                            },
-                            _ => {
-                                abs.entries.push(action_to_add.action);
-                            },
-                        }
-                    };
-                },
-                None => (),
+            if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| x.object == "other") {
+                if abs.entries.len() >= abs.max_size.into() {
+                    warn!("Buffer for {} is full! not adding new actions...", abs.object);
+                } else {
+                    match action_to_add.resource.as_str() {
+                        "load" => {
+                            let a = TimedData {
+                                id: action_to_add.action.id,
+                                belongsto: action_to_add.action.belongsto,
+                                data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+                                time: action_to_add.action.time,
+                            };
+                            abs.entries.push(a);
+                        },
+                        "wait" => {
+                            let a = TimedData {
+                                id: action_to_add.action.id,
+                                belongsto: action_to_add.action.belongsto,
+                                data: format!("{}_{}secs", action_to_add.resource, action_to_add.action.time),
+                                time: action_to_add.action.time,
+                            };
+                            abs.entries.push(a);
+                        },
+                        _ => {
+                            abs.entries.push(action_to_add.action);
+                        },
+                    }
+                };
             };
-        } else {
-            match self.actionbuffersets.iter_mut().find(|x| *x.object == *action_to_add.resource) {
-                Some(abs) => {
-                    if abs.entries.len() >= abs.max_size.into() {
-                        warn!("Buffer for {} is full! not adding new actions...", abs.object);
-                    } else {
-                        match abs.object.as_str() {
-                            "load" => {
-                                let a = TimedData {
-                                    id: action_to_add.action.id,
-                                    belongsto: action_to_add.action.belongsto,
-                                    data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
-                                    time: action_to_add.action.time,
-                                };
-                                abs.entries.push(a);
-                            },
-                            _ => {
-                                abs.entries.push(action_to_add.action);
-                            },
-                        }
-                    };
-                },
-                None => (),
+        } else if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action_to_add.resource) {
+            if abs.entries.len() >= abs.max_size.into() {
+                warn!("Buffer for {} is full! not adding new actions...", abs.object);
+            } else {
+                match abs.object.as_str() {
+                    "load" => {
+                        let a = TimedData {
+                            id: action_to_add.action.id,
+                            belongsto: action_to_add.action.belongsto,
+                            data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+                            time: action_to_add.action.time,
+                        };
+                        abs.entries.push(a);
+                    },
+                    _ => {
+                        abs.entries.push(action_to_add.action);
+                    },
+                }
             };
         }
     }
@@ -545,18 +534,15 @@ impl Brain {
             if OTHER_ACTIONS.iter().any(|&i| i == action.object) { action_object = "other".to_string() }
             if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| x.object == action_object) { abs.entries = Vec::new() }
             // trigger first action
-            match action.entries.first() {
-                Some(entry) => {
-                    let (these_metrics, these_actions) = self.do_action(action.clone(), entry.clone(), ct).unwrap();
-                    for m_raw in these_metrics {
-                        new_metrics.push(m_raw);
-                    }
-                    for c_raw in these_actions {
-                        new_actions.push(c_raw);
-                    }
-                    action.entries.remove(0);
-                },
-                None => (),
+            if let Some(entry) = action.entries.first() {
+                let (these_metrics, these_actions) = self.do_action(action.clone(), entry.clone(), ct).unwrap();
+                for m_raw in these_metrics {
+                    new_metrics.push(m_raw);
+                }
+                for c_raw in these_actions {
+                    new_actions.push(c_raw);
+                }
+                action.entries.remove(0);
             }
             // add the rest to actionbufferset
             for entry in action.entries {
@@ -573,43 +559,40 @@ impl Brain {
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
         for abs in self.actionbuffersets.iter_mut() {
-            match self.metricsets.iter_mut().find(|x| *x.object == *abs.object) {
-                Some(om) => {
-                    //if timestamp >= om.last_change_timestamp {
-                    //    if abs.entries.len() > 0 {
-                    if (timestamp >= om.last_change_timestamp) && (!abs.entries.is_empty()) {
-                        let a = &abs.entries.clone()[0];             
-                        let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000_f64).ceil() / 1000_f64;
-                        trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
-                        if time_passed >= abs.current_entry.time {
-                            abs.current_entry = a.clone();
-                            abs.entries.retain(|x| *x != *a);
-                            abs.last_change_timestamp = timestamp;
-                            debug!("- Buffer: {:#x?}", abs.entries);
-                            // TODO: Avoid hardcoding this (use types of actions?)
-                            if abs.object.starts_with("led") {
-                                self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
-                            } else if abs.object.starts_with("motor") {
-                                let action_vector = a.data.split('_').collect::<Vec<_>>();
-                                self.motors.set(abs.object.clone(), action_vector[0].to_string());
-                            } else if abs.object.starts_with("other") {
-                                let other_action = a.data.split('_').collect::<Vec<_>>();
-                                if other_action[0] == "load" {
-                                    let file_to_load = other_action[1..].join("_").to_string();
-                                    // TODO: use BrainDeadError instead
-                                    // of String in this function
-                                    self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
-                                }
+            if let Some(om) = self.metricsets.iter_mut().find(|x| *x.object == *abs.object) {
+                //if timestamp >= om.last_change_timestamp {
+                //    if abs.entries.len() > 0 {
+                if (timestamp >= om.last_change_timestamp) && (!abs.entries.is_empty()) {
+                    let a = &abs.entries.clone()[0];             
+                    let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000_f64).ceil() / 1000_f64;
+                    trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
+                    if time_passed >= abs.current_entry.time {
+                        abs.current_entry = a.clone();
+                        abs.entries.retain(|x| *x != *a);
+                        abs.last_change_timestamp = timestamp;
+                        debug!("- Buffer: {:#x?}", abs.entries);
+                        // TODO: Avoid hardcoding this (use types of actions?)
+                        if abs.object.starts_with("led") {
+                            self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
+                        } else if abs.object.starts_with("motor") {
+                            let action_vector = a.data.split('_').collect::<Vec<_>>();
+                            self.motors.set(abs.object.clone(), action_vector[0].to_string());
+                        } else if abs.object.starts_with("other") {
+                            let other_action = a.data.split('_').collect::<Vec<_>>();
+                            if other_action[0] == "load" {
+                                let file_to_load = other_action[1..].join("_").to_string();
+                                // TODO: use BrainDeadError instead
+                                // of String in this function
+                                self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
                             }
-                            info!("- Just did {} -> {} (from buffer)", om.object, a.data);
-                            // TODO actually both the following could be one if we unified format
-                            metrics.push(format!("{}__{}|{}", abs.object, a.data, a.id.to_string()));
-                            result.push(format!("{}__{}__{:?}", abs.object, a.clone().data, a.clone().time));
                         }
+                        info!("- Just did {} -> {} (from buffer)", om.object, a.data);
+                        // TODO actually both the following could be one if we unified format
+                        metrics.push(format!("{}__{}|{}", abs.object, a.data, a.id.to_string()));
+                        result.push(format!("{}__{}__{:?}", abs.object, a.clone().data, a.clone().time));
                     }
-                },
-                None => (),
-            };
+                }
+            }
         };
         if result.is_empty() {result.push("".to_string())};
         if metrics.is_empty() {metrics.push("".to_string())};
@@ -639,33 +622,30 @@ impl Brain {
         // NOTE: debug entry point
         //println!("- Adding metric {} from {}", metric, source_id);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
-        match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
-            Some(om) => {
-                if om.entries.is_empty() {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: timestamp, 
-                    };
-                    om.entries.push(new_m);
-                    om.last_change_timestamp = timestamp;
-                } else if om.entries[0].data != metric_decomp[1] {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: timestamp,
-                    };
-                    om.entries.insert(0, new_m);
-                    om.last_change_timestamp = timestamp;
-                }; 
-                if om.entries.len() > om.max_size.into() {
-                    om.entries.pop();
+        if let Some(om) = self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
+            if om.entries.is_empty() {
+                let new_m = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    belongsto: source_id,
+                    data: metric_decomp[1].to_string(),
+                    time: timestamp, 
                 };
-            },
-            None => (),
-        };
+                om.entries.push(new_m);
+                om.last_change_timestamp = timestamp;
+            } else if om.entries[0].data != metric_decomp[1] {
+                let new_m = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    belongsto: source_id,
+                    data: metric_decomp[1].to_string(),
+                    time: timestamp,
+                };
+                om.entries.insert(0, new_m);
+                om.last_change_timestamp = timestamp;
+            }; 
+            if om.entries.len() > om.max_size.into() {
+                om.entries.pop();
+            };
+        }
     }
 
     pub fn does_condition_match(&mut self, rule: ActionRule, timestamp: f64) -> bool {
@@ -674,104 +654,101 @@ impl Brain {
         for check in &checks {
             let re = regex::Regex::new(r"=|<=|>=|<|>").unwrap();
             let keyval = re.split(check).collect::<Vec<_>>();
-            match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
-                Some(om) => {
-                    match om.obj_type.as_str() {
-                        // for binary and output we just try to match fully
-                        "binary" | "output" => {
-                            if !om.entries.is_empty() {
-                                if om.entries[0].data != keyval[1] {
-                                    result = false;
-                                    return result
-                                } else if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
-                                    result = false;
-                                    return result
-                                };
-                            } else if keyval[1] != "0" {
+            if let Some(om) = self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                match om.obj_type.as_str() {
+                    // for binary and output we just try to match fully
+                    "binary" | "output" => {
+                        if !om.entries.is_empty() {
+                            if om.entries[0].data != keyval[1] {
                                 result = false;
                                 return result
-                            }
-                        },
-                        "continuous" => {
-                            let comparison = check.replace(keyval[0], "").replace(keyval[1], "");
-                            let mut matched_metrics: Vec<TimedData> = [].to_vec();
-                            if !om.entries.is_empty() {
-                                match comparison.as_str() {
-                                    "=" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() == keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
+                            } else if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                                result = false;
+                                return result
+                            };
+                        } else if keyval[1] != "0" {
+                            result = false;
+                            return result
+                        }
+                    },
+                    "continuous" => {
+                        let comparison = check.replace(keyval[0], "").replace(keyval[1], "");
+                        let mut matched_metrics: Vec<TimedData> = [].to_vec();
+                        if !om.entries.is_empty() {
+                            match comparison.as_str() {
+                                "=" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() == keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
                                         }
-                                    },
-                                    "<=" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() <= keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    ">=" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() >= keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    "<" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() < keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    ">" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() > keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    &_ => {},
-                                }
-                                if !matched_metrics.is_empty() {
-                                    let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
-                                    if acc_time.to_string() == "NaN"{
-                                        result = false;
-                                        return result
-                                    } else if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
-                                        result = false;
-                                        return result
                                     }
-                                } else {
+                                },
+                                "<=" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() <= keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                ">=" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() >= keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                "<" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() < keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                ">" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() > keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                &_ => {},
+                            }
+                            if !matched_metrics.is_empty() {
+                                let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
+                                if acc_time.to_string() == "NaN"{
+                                    result = false;
+                                    return result
+                                } else if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
                                     result = false;
                                     return result
                                 }
-                                // put together all metrics that fit comparison
-                                // add the timestamps
-                                // compare to desired time
-                                // ...and if it doesnt fit, remove
                             } else {
                                 result = false;
                                 return result
                             }
-                        },
-                        &_ => {
-                        },
-                    };
-                },
-                None => (),
-            };
+                            // put together all metrics that fit comparison
+                            // add the timestamps
+                            // compare to desired time
+                            // ...and if it doesnt fit, remove
+                        } else {
+                            result = false;
+                            return result
+                        }
+                    },
+                    &_ => {
+                    },
+                };
+            }
         }
         result
     }
@@ -852,12 +829,8 @@ impl Brain {
         // We want to count the amount of times the trigger was...triggered
         if !partial_rules.is_empty() {
             for rule in self.actionrules.iter_mut() {
-                match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
-                    Some(_) => {
-                        rule.triggercount += 1;
-                    },
-                    //None => rule.triggercount = 0,
-                    None => (),
+                if partial_rules.clone().iter_mut().any(|x| x.id == *rule.id) {
+                    rule.triggercount += 1;
                 };
             }
             debug!("- Rules matching :");
@@ -870,17 +843,14 @@ impl Brain {
                 debug!("     output:");
                 // we store a vector of actionbuffersets
                 for action in rule.actions.clone() {
-                    match action_vectors.iter_mut().find(|x| *x.object == *action.object) {
-                        Some(bf) => {
-                            let entry = TimedData {
-                                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                                belongsto: rule.id.clone(),
-                                data: action.value,
-                                time: action.time.parse::<f64>().unwrap(),
-                            };
-                            bf.entries.push(entry);
-                        },
-                        None => (),
+                    if let Some(bf) = action_vectors.iter_mut().find(|x| *x.object == *action.object) {
+                        let entry = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: rule.id.clone(),
+                            data: action.value,
+                            time: action.time.parse::<f64>().unwrap(),
+                        };
+                        bf.entries.push(entry);
                     }
                 }
             }
@@ -897,11 +867,8 @@ impl Brain {
     pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
-        match self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
-            Some(abs) => {
-                abs.last_change_timestamp = timestamp;
-            },
-            None => ()
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
+            abs.last_change_timestamp = timestamp;
         }
         if om.object.starts_with("led") {
             self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
@@ -917,16 +884,13 @@ impl Brain {
             }
         }
         // TODO: should this be done on the do_next_action too?
-        match self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
-            Some(abs) => {
-                abs.current_entry = TimedData {
-                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                    belongsto: om.entries[0].clone().belongsto,
-                    data: om.entries[0].clone().data,
-                    time: om.entries[0].clone().time,
-                };
-            },
-            None => (),
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
+            abs.current_entry = TimedData {
+                id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                belongsto: om.entries[0].clone().belongsto,
+                data: om.entries[0].clone().data,
+                time: om.entries[0].clone().time,
+            };
         }
         //TODO: this info should come from the leds module itself
         //TODO: all printlns should show a proper timestamp but self.timestamp is 0 here
@@ -1007,14 +971,11 @@ impl Brain {
                 sender.send(format!("{:?}|{:?}", ct, new_actions)).unwrap();
             };
             // break mechanism
-            match secs_to_run {
-                Some(s) => {
-                    if ct >= s {
-                        println!("Finished execution");
-                        break
-                    }
-                },
-                None => (),
+            if let Some(s) = secs_to_run {
+                if ct >= s {
+                    println!("Finished execution");
+                    break
+                }                
             }
         }
     }

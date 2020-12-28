@@ -1,5 +1,6 @@
 use rust_gpiozero::{Motor, PWMOutputDevice};
 use log::{debug, info, warn};
+use std::cmp::Ordering;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::collections::HashMap;
@@ -79,10 +80,10 @@ impl Motors {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
-                                    if move_l.parse::<i16>().unwrap() > 0 {
-                                        o.lock().unwrap().forward();
-                                    } else if move_l.parse::<i16>().unwrap() < 0 {
-                                        o.lock().unwrap().backward();
+                                    match move_l.parse::<i16>().unwrap().cmp(&0) {
+                                        Ordering::Greater => o.lock().unwrap().forward(),
+                                        Ordering::Less => o.lock().unwrap().backward(),
+                                        Ordering::Equal => (),
                                     }
                                     match &m.enabler {
                                         Some(e) => {
@@ -125,10 +126,10 @@ impl Motors {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
-                                    if move_r.parse::<i16>().unwrap() > 0 {
-                                        o.lock().unwrap().forward();
-                                    } else if move_r.parse::<i16>().unwrap() < 0 {
-                                        o.lock().unwrap().backward();
+                                    match move_r.parse::<i16>().unwrap().cmp(&0) {
+                                        Ordering::Greater => o.lock().unwrap().forward(),
+                                        Ordering::Less => o.lock().unwrap().backward(),
+                                        Ordering::Equal => (),
                                     }
                                     match &m.enabler {
                                         Some(e) => {
