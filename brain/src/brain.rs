@@ -259,6 +259,33 @@ impl Brain {
     }
 
     /// Load a robot setup yaml file and configures the system
+    pub fn new_load_setup(setup_file: String) -> Result<(String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>), BrainDeadError> {
+        #[derive(Deserialize)]
+        struct Setup {
+            start_ruleset_file: String,
+            start_arduinohex_file: String,
+            inputs: HashMap<String, HashMap<String, String>>,
+            outputs: HashMap<String, HashMap<String, String>>,
+        }
+        let file_pointer = match File::open(setup_file.clone()) {
+            Ok(fp) => fp,
+            Err(_) => {
+                error!("File {} does not exist", setup_file);
+                return Err(BrainDeadError::FileNotFoundError)
+            }
+        };
+        let a: Setup = match serde_yaml::from_reader(file_pointer) {
+            Ok(ya) => ya,
+            Err(e) => {
+                error!("The file {}'s YAML is incorrect! - {}", setup_file, e);
+                return Err(BrainDeadError::YamlError)
+            }
+        };
+        Ok((a.start_ruleset_file, a.start_arduinohex_file, a.inputs, a.outputs))
+    }
+
+    /// Load a robot setup yaml file and configures the system
+    //TODO: is this too complex?
     pub fn load_setup(setup_file: String) -> Result<(String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>), BrainDeadError> {
         #[derive(Deserialize)]
         struct Setup {
@@ -659,10 +686,8 @@ impl Brain {
                     // for binary and output we just try to match fully
                     "binary" | "output" => {
                         if !om.entries.is_empty() {
-                            if om.entries[0].data != keyval[1] {
-                                result = false;
-                                return result
-                            } else if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
+                            if om.entries[0].data != keyval[1] || 
+                                (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0) {
                                 result = false;
                                 return result
                             };
@@ -724,11 +749,11 @@ impl Brain {
                                 &_ => {},
                             }
                             if !matched_metrics.is_empty() {
+                                #[allow(clippy::zero_divided_by_zero)]
+                                #[allow(clippy::eq_op)]
                                 let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
-                                if acc_time.to_string() == "NaN"{
-                                    result = false;
-                                    return result
-                                } else if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
+                                if acc_time.to_string() == "NaN" || 
+                                    (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0) {
                                     result = false;
                                     return result
                                 }

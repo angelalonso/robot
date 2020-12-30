@@ -11,7 +11,7 @@ extern crate log;
 fn show_help() {
     println!("\nSYNTAX: ");
     println!(" brain [mode] <auto_moves_config_file>");
-    println!("");
+    println!();
     println!("   , where:");
     println!(" - mode        - optional, default is classic");
     println!("     is the trigger with which the Brain starts. ");
@@ -44,7 +44,7 @@ fn argparser(modes: Vec<&str>) -> (String, String) {
                 show_help();
                 process::exit(1);
             } else if mode == modes[2] {
-                ();
+               // nothing 
             } else {
                 // fail if mode is not recognized
                 error!("ERROR: mode not recognised");
@@ -60,7 +60,7 @@ fn argparser(modes: Vec<&str>) -> (String, String) {
             b_cfg = args.drain(0..1).collect();
         },
     }
-    (b_cfg.to_string(), mode.to_string())
+    (b_cfg, mode)
 }
 
 /// check the parameters and start the related mode
@@ -109,12 +109,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             handle.join().unwrap();
             let mut got = [].to_vec();
-            loop {
-                match r.try_recv() {
-                    Ok(m) => got.push(m),
-                    Err(_) => break,
-                };
+            while let Ok(m) = r.try_recv() {
+                got.push(m);
+
             }
+            //loop {
+            //    match r.try_recv() {
+            //        Ok(m) => got.push(m),
+            //        Err(_) => break,
+            //    };
+            //}
         },
         "record" => {
             match run_time {
