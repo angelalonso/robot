@@ -36,6 +36,7 @@ pub enum BrainDeadError {
 
 #[derive(Deserialize)]
 pub struct ConfigHashmap {
+    #[allow(dead_code)]
     entries: HashMap<String, HashMap<String, String>>,
 }
 
@@ -175,7 +176,8 @@ impl Brain {
             time: 0.0,
         };
         // INPUTS -> they only have metrics buffers
-        for i in inputs.entries {
+        //for i in inputs.entries {
+        for i in inputs { // previous line when new_load_setup works
             let s = Set {
                 object: i.0,
                 obj_type: i.1["type"].clone(),
@@ -187,7 +189,8 @@ impl Brain {
             ms.push(s);
         }
         // OUTPUTS -> they have actions buffers and metrics buffers
-        for o in outputs.entries {
+        //for o in outputs.entries {
+        for o in outputs { // previous line when new_load_setup works
             // This trick allows us to define configs for the output objects
             let mut name = o.0.clone();
             if o.0.starts_with("led_") {
@@ -264,7 +267,34 @@ impl Brain {
     }
 
     /// Load a robot setup yaml file and configures the system
-    pub fn load_setup(setup_file: String) -> Result<(String, String, ConfigHashmap, ConfigHashmap), BrainDeadError> {
+    pub fn load_setup(setup_file: String) -> Result<(String, String, HashMap<String, HashMap<String, String>>, HashMap<String, HashMap<String, String>>), BrainDeadError> {
+        #[derive(Deserialize)]
+        struct Setup {
+            start_ruleset_file: String,
+            start_arduinohex_file: String,
+            inputs: HashMap<String, HashMap<String, String>>,
+            outputs: HashMap<String, HashMap<String, String>>,
+        }
+        let file_pointer = match File::open(setup_file.clone()) {
+            Ok(fp) => fp,
+            Err(_) => {
+                error!("File {} does not exist", setup_file.clone());
+                return Err(BrainDeadError::FileNotFoundError)
+            }
+        };
+        let a: Setup = match serde_yaml::from_reader(file_pointer) {
+            Ok(ya) => ya,
+            Err(e) => {
+                error!("The file {}'s YAML is incorrect! - {}", setup_file.clone(), e);
+                return Err(BrainDeadError::YamlError)
+            }
+        };
+        return Ok((a.start_ruleset_file, a.start_arduinohex_file, a.inputs, a.outputs))
+        //return (a.start_ruleset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
+    }
+
+    /// Load a robot setup yaml file and configures the system
+    pub fn new_load_setup(setup_file: String) -> Result<(String, String, ConfigHashmap, ConfigHashmap), BrainDeadError> {
         #[derive(Deserialize)]
         struct Setup {
             start_ruleset_file: String,
