@@ -749,6 +749,8 @@ impl Brain {
                                 &_ => {},
                             }
                             if !matched_metrics.is_empty() {
+                                // This is a trick meant to get NaN as the initial value, that's why we want to ignore
+                                // https://www.reddit.com/r/rust/comments/3fg0xr/how_do_i_find_the_max_value_in_a_vecf64/
                                 #[allow(clippy::zero_divided_by_zero)]
                                 #[allow(clippy::eq_op)]
                                 let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
