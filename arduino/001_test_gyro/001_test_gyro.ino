@@ -30,9 +30,8 @@ int current_millis,start_millis;
 float AXbase,GXbase,MXbase = 0;
 float AYbase,GYbase,MYbase = 0;
 float AZbase,GZbase,MZbase = 0;
+float AXprev,AYprev,AZprev;
 float AX,GX,MX;
-float AXprev;
-int AXdelta;
 float AY,GY,MY;
 float AZ,GZ,MZ;
 float vX,vY,vZ = 0;
@@ -46,6 +45,7 @@ float MYsum = 0;
 float AZsum = 0;
 float GZsum = 0;
 float MZsum = 0;
+float Xtest,AXdelta;
 
 void get_base_data(){
   float AXaux[samples],GXaux[samples],MXaux[samples]; 
@@ -71,7 +71,6 @@ void get_base_data(){
     AZsum = AZsum + AZaux[i];
     GZsum = GZsum + GZaux[i];
     MZsum = MZsum + MZaux[i];
-
   }
   AXbase = AXsum / samples;
   GXbase = GXsum / samples;
@@ -119,6 +118,7 @@ void get_data(){
     MZsum = MZsum + MZaux[i];
   }
   AXprev = AX;
+  AYprev = AY;
   AX = (AXsum / samples) - AXbase;
   GX = (GXsum / samples) - GXbase;
   MX = (MXsum / samples) - MXbase;
@@ -132,24 +132,34 @@ void get_data(){
 
 void get_pos() {
   AX = AX - (MX / 6);
-  vX = vX + (AX * beat / 1000);
+  vX = vX + (AXdelta * beat / 1000);
   dX = dX + (vX * beat / 1000);
+  //AY = AY - (MY / 6);
+  //vY = vY + (AY * beat / 1000);
+  //dY = dY + (vY * beat / 1000);
+  Serial.print(dX);
+  Serial.print("\t");
 }
 
 void get_delta() {
-  float test,AXdelta;
-  if (AX > 0) {
-    test = (AX - AXprev) / AXprev;
-  } else {
-    test = -(AX - AXprev) / AXprev;
-  }
-  if (test > 1 or test < -1) {
-    AXdelta = test;
+
+  Xtest = abs(AX - AXprev);
+  if (Xtest > 0.5) {
+    AXdelta = AX - AXprev;
   } else {
     AXdelta = 0.0;
   }
   Serial.print(AXdelta);
   Serial.print("\t");
+  //float Ytest,AYdelta;
+  //Ytest = abs(AY - AYprev);
+  //if (Ytest > 0.5) {
+  //  AYdelta = AY - AYprev;
+  //} else {
+  //  AYdelta = 0.0;
+  //}
+  //Serial.print(AYdelta);
+  //Serial.print("\t");
 }
 
 void setup() {
@@ -182,7 +192,7 @@ void loop() {
   //Serial.print(dX);
   Serial.print(AX);
   Serial.print("\t");
-  //get_delta();
+
   //Serial.print(GX);
   //Serial.print("\t");
   //Serial.print(MX);
@@ -199,6 +209,7 @@ void loop() {
   //Serial.print("\t");
   //Serial.print(MZ);
   //Serial.print("\t");
+  get_delta();
   Serial.println("");
   start_millis = current_millis;
 }

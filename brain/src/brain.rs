@@ -32,6 +32,15 @@ pub enum BrainDeadError {
 
     #[error("File does not exist")]
     FileNotFoundError,
+
+    #[error("Couldn't translate String into action")]
+    GetActionFromStringError,
+
+    #[error("Couldn't add action")]
+    AddActionError,
+
+    #[error("Couldn't do action")]
+    DoActionError,
 }
 
 #[derive(Deserialize)]
@@ -150,7 +159,6 @@ impl Brain {
                 error!("There was an error!: {}", e);
                 return Err(BrainDeadError::LoadActionRulesError)
             }
-
         };
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
@@ -460,7 +468,7 @@ impl Brain {
     }
 
     /// Turn a String containing an action into the related object
-    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
+    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, BrainDeadError> {
         let format = action.split(',').collect::<Vec<_>>();
         //TODO: reproduce this error, then use BrainDeadError instead of unwrap
         let t = format[1].split('=').collect::<Vec<_>>()[1].parse::<f64>().unwrap();
@@ -499,10 +507,15 @@ impl Brain {
     }
 
     /// Adds action to the related actions buffer
-    pub fn add_action(&mut self, action: String) {
+    pub fn add_action(&mut self, action: String) -> Result<String, BrainDeadError> {
         trace!("- Adding action {}", action);
-        //TODO: once get_action_from_string has BrainDeadError, add a Result to this function
-        let action_to_add = self.clone().get_action_from_string(action).unwrap();
+        let action_to_add = match self.clone().get_action_from_string(action) {
+            Ok(resultaction) => resultaction,
+            Err(e) => {
+                error!("There was an error!: {}", e);
+                return Err(BrainDeadError::GetActionFromStringError)
+            }
+        };
         if OTHER_ACTIONS.iter().any(|&i| i==action_to_add.resource) {
             if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| x.object == "other") {
                 if abs.entries.len() >= abs.max_size.into() {
@@ -553,6 +566,7 @@ impl Brain {
                 }
             };
         }
+        Ok("".to_string())
     }
 
     /// Starting from a list of actions received from the actionrules:
@@ -560,7 +574,7 @@ impl Brain {
     /// - Performs the first action(s) for each object
     /// - Adds the other actions for each object to the actionbuffersets
     /// Return the action(s) taken and it's related metric
-    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>, ct: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>, ct: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
         let mut new_metrics: Vec<String> = [].to_vec();
         let mut new_actions: Vec<String> = [].to_vec();
         for mut action in actions {
@@ -570,7 +584,13 @@ impl Brain {
             if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| x.object == action_object) { abs.entries = Vec::new() }
             // trigger first action
             if let Some(entry) = action.entries.first() {
-                let (these_metrics, these_actions) = self.do_action(action.clone(), entry.clone(), ct).unwrap();
+                let (these_metrics, these_actions) = match self.do_action(action.clone(), entry.clone(), ct) {
+                    Ok((met, act)) => (met, act),
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::DoActionError)
+                    }
+                };
                 for m_raw in these_metrics {
                     new_metrics.push(m_raw);
                 }
@@ -582,7 +602,13 @@ impl Brain {
             // add the rest to actionbufferset
             for entry in action.entries {
                 let action_string = format!("{}={},time={},{}", action.object, entry.data, entry.time, entry.id);
-                self.add_action(action_string);
+                match self.add_action(action_string) {
+                    Ok(_) => (),
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::AddActionError)
+                    }
+                };
             }
         }
         Ok((new_metrics, new_actions))
@@ -590,7 +616,7 @@ impl Brain {
 
     /// Performs the next action on each action buffer if the timestamp is right.
     /// Return the action(s) taken and it's related metric
-    pub fn do_actions_from_actionbuffersets(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_actions_from_actionbuffersets(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
         for abs in self.actionbuffersets.iter_mut() {
@@ -616,9 +642,13 @@ impl Brain {
                             let other_action = a.data.split('_').collect::<Vec<_>>();
                             if other_action[0] == "load" {
                                 let file_to_load = other_action[1..].join("_").to_string();
-                                // TODO: use BrainDeadError instead
-                                // of String in this function
-                                self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
+                                self.actionrules = match Brain::load_action_rules(file_to_load) {
+                                    Ok(action_rules) => action_rules,
+                                    Err(e) => {
+                                        error!("There was an error!: {}", e);
+                                        return Err(BrainDeadError::LoadActionRulesError)
+                                    }
+                                };
                             }
                         }
                         info!("- Just did {} -> {} (from buffer)", om.object, a.data);
@@ -899,7 +929,7 @@ impl Brain {
         Ok(action_vectors)
     }
 
-    pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
         if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
@@ -914,11 +944,15 @@ impl Brain {
             let other_action = a.data.split('_').collect::<Vec<_>>();
             if other_action[0] == "load" {
                 let file_to_load = other_action[1..].join("_");
-                // TODO: add BrainDeadError to this function
-                self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
+                self.actionrules = match Brain::load_action_rules(file_to_load) {
+                    Ok(action_rules) => action_rules,
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::LoadActionRulesError)
+                    }
+                };
             }
         }
-        // TODO: should this be done on the do_next_action too?
         if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
             abs.current_entry = TimedData {
                 id: COUNTER.fetch_add(1, Ordering::Relaxed),
@@ -928,7 +962,6 @@ impl Brain {
             };
         }
         //TODO: this info should come from the leds module itself
-        //TODO: all printlns should show a proper timestamp but self.timestamp is 0 here
         info!("- Just did {} -> {}", om.object, a.data);
         // TODO actually both the following could be one if we unified format
         metrics.push(format!("{}__{}|{}", om.object, a.data, a.belongsto.to_string()));
