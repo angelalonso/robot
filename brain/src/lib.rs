@@ -1,6 +1,7 @@
 pub mod config;
 pub mod brain;
 pub mod brain_test;
+pub mod api;
 pub mod arduino;
 pub mod arduino_test;
 pub mod motors;

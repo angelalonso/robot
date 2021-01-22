@@ -17,6 +17,8 @@ serde_yaml = "0.7"
 serial = "0.4.0"
 thiserror = "1.0.20"
 cpuprofiler = "0.0.4"
+actix-web = "3.3"
+actix-rt = "1.1"
 
 [dev-dependencies]
 criterion = "0.1.2"
