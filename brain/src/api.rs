@@ -1,12 +1,14 @@
-mod api {
+pub mod api {
+    use log::{info};
     use actix_web::{web, App, HttpServer, Responder};
 
     #[actix_rt::main]
-    async fn run() -> std::io::Result<()> {
+    pub async fn run() -> std::io::Result<()> {
         let address = "127.0.0.1:8080";
 
         std::env::set_var("RUST_LOG", "actix_web=debug");
 
+        info!("Starting API Server at {}", address);
         // Start http server
         HttpServer::new(move || {
             App::new()

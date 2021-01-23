@@ -1,4 +1,5 @@
 extern crate regex;
+use crate::api::api;
 use crate::arduino::Arduino;
 use crate::leds::LEDs;
 use crate::motors::Motors;
@@ -989,6 +990,10 @@ impl Brain {
             } else {
                 arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
             };
+        });
+        thread::spawn(move || {
+            //arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
+            api::run();
         });
         if let Ok(m) = r.try_recv() { self.use_arduino_msg(ct, m) }
         loop {
