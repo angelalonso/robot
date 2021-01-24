@@ -9,6 +9,7 @@ use std::path::Path;
 use std::process::Command;
 use std::str;
 use std::sync::mpsc::Sender;
+use std::sync::mpsc::SyncSender;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 use std::{thread, time};
@@ -53,7 +54,8 @@ impl Arduino {
     /// This tries to reproduce input from the arduino when there's none
     /// Since it's just needed for testing, I'll hardcode the behaviour, which depends on what is
     /// being tested
-    pub fn read_channel_mock(&mut self, channel: Sender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
+    //pub fn read_channel_mock(&mut self, channel: Sender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
+    pub fn read_channel_mock(&mut self, channel: SyncSender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
         debug!("...reading from Mocked Serial Port");
         let mut got: String;
         let mock_file = setup_file.replace("setup", "mock");
@@ -118,7 +120,8 @@ impl Arduino {
         Ok("".to_string())
     }
 
-    pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
+    //pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
+    pub fn read_channel(&mut self, channel: SyncSender<String>) -> Result<String, BrainArduinoError> {
         println!("...reading Arduino messages from Serial Port {}", &self.serialport);
         let mut port = serial::open(&self.serialport).unwrap();
         loop {

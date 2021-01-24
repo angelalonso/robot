@@ -1,5 +1,5 @@
 extern crate regex;
-use crate::api::api;
+use crate::api::Api;
 use crate::arduino::Arduino;
 use crate::leds::LEDs;
 use crate::motors::Motors;
@@ -11,7 +11,7 @@ use std::fs;
 use std::io::prelude::*;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{SyncSender, Sender, Receiver};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
@@ -120,6 +120,7 @@ pub struct Brain {
     record_file: String,
     actionrules: Vec<ActionRule>,
     pub arduino: Arduino,
+    pub api: Api,
     motors: Motors,
     leds: LEDs,
     actionbuffersets: Vec<Set>,
@@ -163,6 +164,10 @@ impl Brain {
         };
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
+            process::exit(1);
+        });
+        let ap = Api::new().unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Aoi: {}", err);
             process::exit(1);
         });
         if mode.clone() != "dryrun" {
@@ -268,6 +273,7 @@ impl Brain {
             record_file,
             actionrules: ar,
             arduino: a,
+            api: ap,
             motors: m,
             leds: l,
             actionbuffersets: abs,
@@ -979,9 +985,14 @@ impl Brain {
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
         // communication with arduino
-        let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
-        let msgs = s;
+        let (s, r): (SyncSender<String>, Receiver<String>) = std::sync::mpsc::sync_channel(2);
+        let msgs = s.clone();
+        let msgs_api = s.clone();
         let mut arduino_clone = self.arduino.clone();
+        let mut api_clone_runner = self.api.clone();
+        thread::spawn(move || {
+            api_clone_runner.run(msgs_api);
+        });
         let brain_clone = self.clone();
         thread::spawn(move || {
             if brain_clone.mode != "dryrun" {
@@ -990,10 +1001,6 @@ impl Brain {
             } else {
                 arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
             };
-        });
-        thread::spawn(move || {
-            //arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
-            api::run();
         });
         if let Ok(m) = r.try_recv() { self.use_arduino_msg(ct, m) }
         loop {

@@ -1,41 +1,61 @@
-pub mod api {
-    use log::{info};
-    use actix_web::{web, App, HttpServer, Responder};
+use rocket::State;
+use log::{debug, info};
+use std::sync::mpsc::{SyncSender, Receiver};
+use thiserror::Error;
 
-    #[actix_rt::main]
-    pub async fn run() -> std::io::Result<()> {
-        let address = "127.0.0.1:8080";
 
-        std::env::set_var("RUST_LOG", "actix_web=debug");
+#[derive(Error, Debug)]
+pub enum BrainArduinoError {
+    /// It used to represent an empty source. For example, an empty text file being given
+    /// as input to `count_words()`.
+    /// Now it's just the most basic I dont care Error
+    #[error("Source contains no data")]
+    EmptyError,
 
-        info!("Starting API Server at {}", address);
-        // Start http server
-        HttpServer::new(move || {
-            App::new()
-                .route("/moves", web::get().to(self::get_moves))
-                .route("/moves", web::post().to(self::add_moves))
-                .route("/moves/{id}", web::delete().to(self::delete_moves))
-        })
-        .bind(address.to_string())?
-        .run()
-        .await
-    }
+    #[error("{0} is NOT installed (or something went wrong while checking that it is)")]
+    ProgNotInstalledError(String),
 
-    // curl 127.0.0.1:8080/moves
-    #[allow(dead_code)]
-    pub async fn get_moves() -> impl Responder {
-        format!("hello from get moves")
-    }
+    #[error("AvrDude could not install the program to your Arduino!")]
+    AvrdudeError,
 
-    // curl -X POST 127.0.0.1:8080/users
-    #[allow(dead_code)]
-    pub async fn add_moves() -> impl Responder {
-        format!("hello from add moves")
-    }
-
-    #[allow(dead_code)]
-    pub async fn delete_moves() -> impl Responder {
-        format!("hello from delete moves")
-    }
+    #[error("Source contains no data")]
+    IOError,
 }
 
+
+#[get("/")]
+fn all(channel: State<SyncSender<String>>) -> String {
+    channel.send("SENSOR: TEST=TEST".to_string()).unwrap();
+    "OK".to_string()
+}
+
+//fn main() {
+//    let channel = "TEST".to_string();
+//    rocket::ignite()
+//        .manage(channel)
+//        .mount("/",
+//               routes![all],
+//               ).launch();
+//}
+
+#[derive(Clone)]
+pub struct Api {
+    pub channel: String,
+}
+
+impl Api {
+    pub fn new() -> Result<Self, String> {
+        Ok(Self {
+            channel: "s".to_string(),
+        })
+    }
+
+    pub fn run(&mut self, channel: SyncSender<String>) {
+        rocket::ignite()
+            .manage(channel)
+            .mount("/",
+                   routes![all],
+                   ).launch();
+    }
+
+}
