@@ -1003,6 +1003,50 @@ impl Brain {
         Ok((metrics, result))
     }
 
+    /// From a simple String (e.g.: motor_r=50), take an action
+    pub fn do_action_from_string(&mut self, action_raw: String, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
+        let mut result = [].to_vec();
+        let mut metrics = [].to_vec();
+        let action = action_raw.split("=").collect::<Vec<_>>();
+        // TODO: are these values correct?
+        let a = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "api".to_string(),
+            data: action[1].to_string(),
+            time: 0.1,
+        };
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
+            abs.last_change_timestamp = timestamp;
+        }
+        if action[0].starts_with("led") {
+            self.leds.set_led(action[0].to_string(), a.data.parse::<u8>().unwrap() == 1);
+        } else if action[0].starts_with("motor") {
+            let action_vector = a.data.split('_').collect::<Vec<_>>();
+            self.motors.set(action[0].to_string(), action_vector[0].to_string());
+        } else if action[0].starts_with("other") {
+            let other_action = a.data.split('_').collect::<Vec<_>>();
+            if other_action[0] == "load" {
+                let file_to_load = other_action[1..].join("_");
+                self.actionrules = match Brain::load_action_rules(file_to_load) {
+                    Ok(action_rules) => action_rules,
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::LoadActionRulesError)
+                    }
+                };
+            }
+        }
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
+            abs.current_entry = a.clone();
+        }
+        //TODO: this info should come from the leds module itself
+        info!("- Just did {} -> {}", action[0], a.data);
+        // TODO actually both the following could be one if we unified format
+        metrics.push(format!("{}__{}|{}", action[0], a.data, a.belongsto.to_string()));
+        result.push(format!("{}__{}__{:?}", action[0], a.clone().data, a.time));
+        Ok((metrics, result))
+    }
+
     /// Just run the brain.
     /// - secs_to_run has to have decimals, 4.0 is valid, 4 is not
     /// - precission: how often we do stuff
@@ -1087,48 +1131,5 @@ impl Brain {
         }
     }
 
-    //pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
-    pub fn do_action_from_string(&mut self, action_raw: String, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
-        let mut result = [].to_vec();
-        let mut metrics = [].to_vec();
-        let action = action_raw.split("=").collect::<Vec<_>>();
-        // TODO: are these values correct?
-        let a = TimedData {
-            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-            belongsto: "api".to_string(),
-            data: action[1].to_string(),
-            time: 0.1,
-        };
-        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
-            abs.last_change_timestamp = timestamp;
-        }
-        if action[0].starts_with("led") {
-            self.leds.set_led(action[0].to_string(), a.data.parse::<u8>().unwrap() == 1);
-        } else if action[0].starts_with("motor") {
-            let action_vector = a.data.split('_').collect::<Vec<_>>();
-            self.motors.set(action[0].to_string(), action_vector[0].to_string());
-        } else if action[0].starts_with("other") {
-            let other_action = a.data.split('_').collect::<Vec<_>>();
-            if other_action[0] == "load" {
-                let file_to_load = other_action[1..].join("_");
-                self.actionrules = match Brain::load_action_rules(file_to_load) {
-                    Ok(action_rules) => action_rules,
-                    Err(e) => {
-                        error!("There was an error!: {}", e);
-                        return Err(BrainDeadError::LoadActionRulesError)
-                    }
-                };
-            }
-        }
-        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
-            abs.current_entry = a.clone();
-        }
-        //TODO: this info should come from the leds module itself
-        info!("- Just did {} -> {}", action[0], a.data);
-        // TODO actually both the following could be one if we unified format
-        metrics.push(format!("{}__{}|{}", action[0], a.data, a.belongsto.to_string()));
-        result.push(format!("{}__{}__{:?}", action[0], a.clone().data, a.time));
-        Ok((metrics, result))
-    }
 
 }
