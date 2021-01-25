@@ -1,4 +1,5 @@
 use rocket::State;
+use rocket::http::RawStr;
 use log::{debug, info};
 use std::sync::mpsc::{SyncSender, Receiver};
 use thiserror::Error;
@@ -23,20 +24,19 @@ pub enum BrainArduinoError {
 }
 
 
-#[get("/")]
-fn all(channel: State<SyncSender<String>>) -> String {
-    channel.send("DO: TEST=TEST|TEST2=TEST2".to_string()).unwrap();
+//#[get("/")]
+//fn all(channel: State<SyncSender<String>>) -> String {
+//    channel.send("DO: TEST=TEST|TEST2=TEST2".to_string()).unwrap();
+//    "OK".to_string()
+//}
+
+// curl -X POST 127.0.0.1:8000/do/test=1,test=2
+#[post("/<do_stuff>")]
+fn post_do(do_stuff: &RawStr, channel: State<SyncSender<String>>) -> String {
+    let do_stuff_corrected = do_stuff.replace(",", "|");
+    channel.send(format!("DO: {}", do_stuff_corrected.as_str())).unwrap();
     "OK".to_string()
 }
-
-//fn main() {
-//    let channel = "TEST".to_string();
-//    rocket::ignite()
-//        .manage(channel)
-//        .mount("/",
-//               routes![all],
-//               ).launch();
-//}
 
 #[derive(Clone)]
 pub struct Api {
@@ -53,9 +53,8 @@ impl Api {
     pub fn run(&mut self, channel: SyncSender<String>) {
         rocket::ignite()
             .manage(channel)
-            .mount("/",
-                   routes![all],
-                   ).launch();
+            //.mount("/", routes![all])
+            .mount("/do/", routes![post_do],)
+            .launch();
     }
-
 }

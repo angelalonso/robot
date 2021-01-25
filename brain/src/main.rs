@@ -137,7 +137,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             handle.join().unwrap();
         },
         "test" => {
-            run_time = Some(20.0);
+            //run_time = Some(20.0);
             match run_time {
                 Some(t) => println!("...starting Brain in Mode {} for {} secs", start_mode, t),
                 None => println!("...starting Brain in Mode {}", start_mode),
