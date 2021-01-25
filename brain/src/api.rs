@@ -25,7 +25,7 @@ pub enum BrainArduinoError {
 
 #[get("/")]
 fn all(channel: State<SyncSender<String>>) -> String {
-    channel.send("SENSOR: TEST=TEST".to_string()).unwrap();
+    channel.send("DO: TEST=TEST|TEST2=TEST2".to_string()).unwrap();
     "OK".to_string()
 }
 

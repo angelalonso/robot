@@ -366,13 +366,24 @@ impl Brain {
                 if sensor != [""] {
                     info!("Message from Arduino: {:?}", sensor);
                 } else {
-                    debug!("Message from Arduino: {:?}", sensor);
+                    debug!("NO Message from Arduino");
                 }
                 let sensor_id = "arduino".to_string();
                 if sensor.len() > 1 {
                     self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
                 } else {
                     trace!("{:?}", sensor);
+                }
+            }
+        }
+        else if let "DO" = msg_parts[0] {
+            let orders = msg_parts[1].split('|').collect::<Vec<_>>();
+            for o in orders {
+                let order = o.split('=').collect::<Vec<_>>();
+                if order != [""] {
+                    info!("Message from API: {:?}", order);
+                } else {
+                    debug!("NO Message from API");
                 }
             }
         }
