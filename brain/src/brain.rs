@@ -353,7 +353,7 @@ impl Brain {
     }
 
     /// Translates a message coming from the Arduino to actions
-    pub fn use_received_msg(&mut self, timestamp: f64, raw_msg: String) {
+    pub fn use_received_msg(&mut self, timestamp: f64, raw_msg: String, sender: Sender<String>) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
         if self.record_file != "" {
             self.record(timestamp, raw_msg.to_string());
@@ -382,6 +382,22 @@ impl Brain {
                 let order = o.split('=').collect::<Vec<_>>();
                 if order != [""] {
                     info!("Message from API: {:?}", order);
+                    let (these_metrics, these_actions) = match self.do_action_from_string(o.to_string(), timestamp) {
+                        Ok((met, act)) => (met, act),
+                        Err(_) => {
+                            ([].to_vec(), [].to_vec())
+                        }
+                    };
+                    for m_raw in these_metrics {
+                        let m = m_raw.split('|').collect::<Vec<_>>();
+                        if m.len() > 1 {
+                            self.add_metric(timestamp, m[0].to_string(), m[1].to_string());
+                        }
+                    }
+                    for c_raw in these_actions {
+                        // Send back the actions -> needed for tests
+                        sender.send(format!("{:?}|{:?}", timestamp, c_raw)).unwrap();
+                    }
                 } else {
                     debug!("NO Message from API");
                 }
@@ -1013,7 +1029,7 @@ impl Brain {
                 arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
             };
         });
-        if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m) }
+        if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m, sender.clone()) }
         loop {
             let mut new_metrics: Vec<String> = [].to_vec();
             let mut new_actions: Vec<String> = [].to_vec();
@@ -1022,7 +1038,7 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m) }
+                if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m, sender.clone()) }
                 self.show_metrics();
                 self.show_actionbuffers();
                 // get actions
@@ -1069,6 +1085,50 @@ impl Brain {
                 }                
             }
         }
+    }
+
+    //pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
+    pub fn do_action_from_string(&mut self, action_raw: String, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
+        let mut result = [].to_vec();
+        let mut metrics = [].to_vec();
+        let action = action_raw.split("=").collect::<Vec<_>>();
+        // TODO: are these values correct?
+        let a = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "api".to_string(),
+            data: action[1].to_string(),
+            time: 0.1,
+        };
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
+            abs.last_change_timestamp = timestamp;
+        }
+        if action[0].starts_with("led") {
+            self.leds.set_led(action[0].to_string(), a.data.parse::<u8>().unwrap() == 1);
+        } else if action[0].starts_with("motor") {
+            let action_vector = a.data.split('_').collect::<Vec<_>>();
+            self.motors.set(action[0].to_string(), action_vector[0].to_string());
+        } else if action[0].starts_with("other") {
+            let other_action = a.data.split('_').collect::<Vec<_>>();
+            if other_action[0] == "load" {
+                let file_to_load = other_action[1..].join("_");
+                self.actionrules = match Brain::load_action_rules(file_to_load) {
+                    Ok(action_rules) => action_rules,
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::LoadActionRulesError)
+                    }
+                };
+            }
+        }
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
+            abs.current_entry = a.clone();
+        }
+        //TODO: this info should come from the leds module itself
+        info!("- Just did {} -> {}", action[0], a.data);
+        // TODO actually both the following could be one if we unified format
+        metrics.push(format!("{}__{}|{}", action[0], a.data, a.belongsto.to_string()));
+        result.push(format!("{}__{}__{:?}", action[0], a.clone().data, a.time));
+        Ok((metrics, result))
     }
 
 }
