@@ -8,7 +8,6 @@ use std::io;
 use std::path::Path;
 use std::process::Command;
 use std::str;
-use std::sync::mpsc::Sender;
 use std::sync::mpsc::SyncSender;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};

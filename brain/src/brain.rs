@@ -353,7 +353,7 @@ impl Brain {
     }
 
     /// Translates a message coming from the Arduino to actions
-    pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
+    pub fn use_received_msg(&mut self, timestamp: f64, raw_msg: String) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
         if self.record_file != "" {
             self.record(timestamp, raw_msg.to_string());
@@ -1013,7 +1013,7 @@ impl Brain {
                 arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
             };
         });
-        if let Ok(m) = r.try_recv() { self.use_arduino_msg(ct, m) }
+        if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m) }
         loop {
             let mut new_metrics: Vec<String> = [].to_vec();
             let mut new_actions: Vec<String> = [].to_vec();
@@ -1022,7 +1022,7 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                if let Ok(m) = r.try_recv() { self.use_arduino_msg(ct, m) }
+                if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m) }
                 self.show_metrics();
                 self.show_actionbuffers();
                 // get actions

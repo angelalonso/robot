@@ -1,7 +1,7 @@
 use rocket::State;
 use rocket::http::RawStr;
-use log::{debug, info};
-use std::sync::mpsc::{SyncSender, Receiver};
+//use log::{debug, info};
+use std::sync::mpsc::SyncSender;
 use thiserror::Error;
 
 
