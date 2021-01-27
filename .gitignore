@@ -10,3 +10,4 @@ development
 **/.criterion
 **/perf.data*
 **/callgrind*
+**/app/release/*
