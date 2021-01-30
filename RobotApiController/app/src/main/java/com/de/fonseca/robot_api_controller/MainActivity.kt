@@ -6,7 +6,9 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.github.kittinunf.fuel.Fuel
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,6 +36,16 @@ class MainActivity : AppCompatActivity() {
         val buttonUp = findViewById<Button>(R.id.button_up)
         buttonUp.setOnClickListener{
             getContext()?.let { it1 -> Globals().doCall(it1) }
+            Fuel.get("https://ifconfig.co")
+                    .response { request, response, result ->
+                        println(request)
+                        println(response)
+                        val (bytes, error) = result
+                        if (bytes != null) {
+                            println("[response bytes] ${String(bytes)}")
+                            Toast.makeText(this,"${String(bytes)}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
         }
 
 
