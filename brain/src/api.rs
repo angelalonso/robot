@@ -1,5 +1,6 @@
 use rocket::State;
 use rocket::http::RawStr;
+use rocket::config::{Config, Environment};
 //use log::{debug, info};
 use std::sync::mpsc::SyncSender;
 use thiserror::Error;
@@ -51,6 +52,16 @@ impl Api {
     }
 
     pub fn run(&mut self, channel: SyncSender<String>) {
+        //let config = match Config::build(Environment::Staging)
+        //    .address("192.168.43.110")
+        //    .port(80)
+        //    .finalize() {
+        //        Ok(cfg) => {
+        //            let app = rocket::custom(cfg);
+        //        },
+        //        Err(_) => ()
+        //    };
+
         rocket::ignite()
             .manage(channel)
             //.mount("/", routes![all])

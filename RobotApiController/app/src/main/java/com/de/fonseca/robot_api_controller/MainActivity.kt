@@ -3,6 +3,7 @@ package com.de.fonseca.robot_api_controller
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -34,26 +35,84 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
         val buttonUp = findViewById<Button>(R.id.button_up)
-        buttonUp.setOnClickListener{
-            getContext()?.let { it1 -> Globals().doCall(it1) }
-            Fuel.get("https://ifconfig.co")
-                    .response { request, response, result ->
-                        println(request)
-                        println(response)
-                        val (bytes, error) = result
-                        if (bytes != null) {
-                            println("[response bytes] ${String(bytes)}")
-                            Toast.makeText(this,"${String(bytes)}", Toast.LENGTH_SHORT).show()
-                        }
+        //buttonUp.setOnClickListener{
+        //    val apiReturn = Globals().move("fwd");
+        //    Toast.makeText(this,apiReturn, Toast.LENGTH_SHORT).show()
+        //}
+        buttonUp.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        val apiReturn = Globals().move("fwd");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
                     }
-        }
+                    MotionEvent.ACTION_UP -> {
+                        val apiReturn = Globals().move("stop");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
 
+                    }
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
+        val buttonDown = findViewById<Button>(R.id.button_down)
+        buttonDown.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        val apiReturn = Globals().move("bwd");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        val apiReturn = Globals().move("stop");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
+        val buttonRight = findViewById<Button>(R.id.button_right)
+        buttonRight.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        val apiReturn = Globals().move("right");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        val apiReturn = Globals().move("stop");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
+        val buttonLeft = findViewById<Button>(R.id.button_left)
+        buttonLeft.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        val apiReturn = Globals().move("left");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        val apiReturn = Globals().move("stop");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
 
     }
 
-    fun sendTest(view: View) {
-
-    }
     fun getDebug(): String {
         val result = Globals().getURL();
         return result;

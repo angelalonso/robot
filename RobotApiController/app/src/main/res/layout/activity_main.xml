@@ -14,21 +14,26 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_weight="1"
+            >
+
+            <TextView
+                android:id="@+id/debugTv"
+                android:layout_height="50dp"
+                android:layout_width="50dp"
+                android:text="empty"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:layout_weight="1"/>
 
             <Button
                 android:id="@+id/button_cfg"
                 android:layout_width="80dp"
                 android:layout_height="50dp"
+                android:gravity="end"
                 android:onClick="goToSettingsActivity"
-                android:text="CFG" />
-
-            <TextView
-                android:id="@+id/debugTv"
-                android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:text="empty"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                android:text="CFG"
+                />
 
 
         </LinearLayout>
@@ -36,10 +41,77 @@
     </TableRow>
 
     <TableRow
-        android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
         >
+    </TableRow>
+    <TableRow
+        >
+
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/buttonUL"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:text=""
+                android:visibility="invisible"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button_up"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:text="UP"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/buttonUR"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:text=""
+                android:visibility="invisible"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+    </TableRow>
+    <TableRow
+        android:layout_width="fill_parent"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_weight="1">
+
+            <Button
+                android:id="@+id/button_left"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:text="LEFT"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button_stop"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:text="STOP"
+                android:visibility="invisible"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/button_right"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:text="RIGHT"
+                android:layout_weight="1" />
+        </LinearLayout>
+
     </TableRow>
     <TableRow
         android:layout_width="fill_parent"
@@ -52,84 +124,27 @@
             android:layout_weight="1">
 
             <Button
-                android:id="@+id/buttonUL"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:text=""
-                android:visibility="invisible" />
-
-            <Button
-                android:id="@+id/button_up"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:text="UP" />
-
-            <Button
-                android:id="@+id/buttonUR"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:text=""
-                android:visibility="invisible" />
-        </LinearLayout>
-
-    </TableRow>
-    <TableRow
-        android:layout_width="fill_parent"
-        >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button_left"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:text="LEFT" />
-
-            <Button
-                android:id="@+id/button_stop"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:text="STOP" />
-
-            <Button
-                android:id="@+id/button_right"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:text="RIGHT" />
-        </LinearLayout>
-
-    </TableRow>
-    <TableRow
-        android:layout_width="fill_parent"
-        >
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button
                 android:id="@+id/buttonDL"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:text=""
-                android:visibility="invisible" />
+                android:visibility="invisible"
+                android:layout_weight="1" />
 
             <Button
                 android:id="@+id/button_down"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:text="DOWN" />
+                android:text="DOWN"
+                android:layout_weight="1" />
 
             <Button
                 android:id="@+id/buttonDR"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:text=""
-                android:visibility="invisible" />
+                android:visibility="invisible"
+                android:layout_weight="1" />
         </LinearLayout>
 
     </TableRow>
