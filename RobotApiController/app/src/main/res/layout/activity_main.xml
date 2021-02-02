@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:rowCount="5"
-    android:columnCount="1">
+    android:columnCount="1"
+    android:id="@+id/mainTL">
 
     <TableRow
         android:layout_width="fill_parent"

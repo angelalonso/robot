@@ -5,11 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.widget.Button
+import android.widget.TableLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.github.kittinunf.fuel.Fuel
 
 
 class MainActivity : AppCompatActivity() {
@@ -23,9 +24,23 @@ class MainActivity : AppCompatActivity() {
     companion object {
         var url_list: Array<String> = emptyArray();
     }
+    
+    private val handleTouch = OnTouchListener { v, event ->
+        val x = event.x.toInt()
+        val y = event.y.toInt()
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> Toast.makeText(this,"DOWN - " + x.toString() + " - " + y.toString(), Toast.LENGTH_SHORT).show();
+            MotionEvent.ACTION_MOVE -> Toast.makeText(this,"MOVE - " + x.toString() + " - " + y.toString(), Toast.LENGTH_SHORT).show();
+            MotionEvent.ACTION_UP -> Toast.makeText(this,"UP - " + x.toString() + " - " + y.toString(), Toast.LENGTH_SHORT).show();
+        }
+        true
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val mainTL = findViewById<TableLayout>(R.id.mainTL);
+        mainTL.setOnTouchListener(handleTouch);
 
         val debug = findViewById<TextView>(R.id.debugTv);
         debug.setText(getDebug());
