@@ -1,0 +1,10 @@
+[package]
+name = "api-tower"
+version = "0.1.0"
+authors = ["Angel Alonso Fonseca <alonsofonseca.angel@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tower-web = "0.3.7"
