@@ -102,9 +102,9 @@ class Globals : Application() {
         } else if (move == "bwd") {
             resp = apiPostCall("/do/motor_l=-100,motor_r=-100")
         } else if (move == "right") {
-            resp = apiPostCall("/do/motor_l=-100,motor_r=100")
-        } else if (move == "left") {
             resp = apiPostCall("/do/motor_l=100,motor_r=-100")
+        } else if (move == "left") {
+            resp = apiPostCall("/do/motor_l=-100,motor_r=100")
         } else if (move == "stop") {
             resp = apiPostCall("/do/motor_l=0,motor_r=0")
         } else {
