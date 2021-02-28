@@ -78,24 +78,11 @@ void loop() {
     news = false;
 
     // DISTANCE SENSOR
-    // Needed "protocol" for the proximity sensor
-    //digitalWrite(ProximityTriggerPin, LOW); // Reset triggerPin
-    //delayMicroseconds(2);
-    //digitalWrite(ProximityTriggerPin, HIGH); // Sets triggerPin on HIGH state for 10 microsecs
-    //delayMicroseconds(10);
-    //digitalWrite(ProximityTriggerPin, LOW);
-    long duration = pulseIn(ProximityEchoPin, HIGH, 100000); // This takes half a second or more if the pin is not connected. Modify timeout?
-    //distanceVal = duration*0.034/2;
-    //if (distanceVal != distancePrevVal) {
-    //  news = true;
-    //  distancePrevVal = distanceVal;
-    //  msg.concat("distance=");
-    //  msg.concat(distanceVal);
-    //  msg.concat("|");
-    //};
+    msg = getDistance(msg);
 
     // BUTTON SENSOR
     msg = getButton(msg);
+
 
     // SEND MESSAGE OR NOT
     if (news == true) {
