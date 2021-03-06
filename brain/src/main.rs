@@ -136,6 +136,23 @@ fn main() -> Result<(), Box<dyn Error>> {
             });
             handle.join().unwrap();
         },
+        "check" => {
+            run_time = Some(20.0);
+            match run_time {
+                Some(t) => println!("...starting Brain in Mode {} for {} secs", start_mode, t),
+                None => println!("...starting Brain in Mode {}", start_mode),
+            }
+            // Generate our Brain object
+            let mut main_brain = Brain::new("Main Brain".to_string(), "live".to_string(), setup_file).unwrap_or_else(|err| {
+                eprintln!("Problem Initializing Main Brain: {}", err);
+                process::exit(1);
+            });
+            let (s, _r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
+            let handle = thread::spawn(move || {
+                let _actions = main_brain.run(run_time, precision_th_of_a_sec, s);
+            });
+            handle.join().unwrap();
+        },
         "test" => {
             //run_time = Some(20.0);
             match run_time {

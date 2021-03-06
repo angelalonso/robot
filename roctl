@@ -37,6 +37,7 @@ $0 get <parameter>\n \
   get \n \
     online - Get if the robot is online \n \
   do \n \
+    check - Run a small HW check in your Robot and show logs \n \
     run - Run Brain in your Robot and show logs \n \
     record <filename> - Run Brain in your Robot and save arduino input \n \
       <filename> - (Mandatory) filename to save the arduino input to \n \
@@ -92,6 +93,8 @@ doStuff()
     echo "ERROR: missing parameter after $1"
     help 
     EXIT=1
+  elif [[ "$2" == "check" ]]; then
+    doCheck $@
   elif [[ "$2" == "reset" ]]; then
     doReset $@
   elif [[ "$2" == "compile" ]]; then
@@ -171,6 +174,21 @@ doGitPush()
   git add .  > /dev/null 2>&1
   git commit -m "updating and uploading" > /dev/null 2>&1
   git push origin ${DEV_BRANCH} > /dev/null 2>&1
+  EXIT=$?
+  if [[ $EXIT -eq 0 ]]; then
+    RESULT="Robot   True"
+  else
+    RESULT="Robot   Error: "$EXIT
+  fi
+}
+
+doCheck()
+{
+  RESULT="Robot   Check ..."
+  echo -e "${RESULT}"
+  ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git stash; git stash drop; git pull && \
+    RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain live setup.yaml
+    "
   EXIT=$?
   if [[ $EXIT -eq 0 ]]; then
     RESULT="Robot   True"
