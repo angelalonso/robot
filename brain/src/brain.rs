@@ -1059,12 +1059,12 @@ impl Brain {
         let (s, r): (SyncSender<String>, Receiver<String>) = std::sync::mpsc::sync_channel(2);
         let msgs = s.clone();
         let mut arduino_clone = self.arduino.clone();
-        //let msgs_api = s.clone();
+        let msgs_api = s.clone();
         // TODO: Recover this when arduino part works
-        //let mut api_clone_runner = self.api.clone();
-        //thread::spawn(move || {
-        //    api_clone_runner.run(msgs_api);
-        //});
+        let mut api_clone_runner = self.api.clone();
+        thread::spawn(move || {
+            api_clone_runner.run(msgs_api);
+        });
         let brain_clone = self.clone();
         // TODO: make this work
         thread::spawn(move || {
