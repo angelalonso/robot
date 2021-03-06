@@ -1061,10 +1061,8 @@ impl Brain {
         let msgs_api = s.clone();
         let mut arduino_clone = self.arduino.clone();
         let mut api_clone_runner = self.api.clone();
-        thread::spawn(move || {
-            api_clone_runner.run(msgs_api);
-        });
         let brain_clone = self.clone();
+        // TODO: ... with this one and see if arduino works or not.
         thread::spawn(move || {
             if brain_clone.mode != "dryrun" {
                 //TODO: find a way to reproduce this error, then add BrainDeadError to this function
@@ -1072,6 +1070,10 @@ impl Brain {
             } else {
                 arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
             };
+        });
+        // TODO: Exchange positions...
+        thread::spawn(move || {
+            api_clone_runner.run(msgs_api);
         });
         if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m, sender.clone()) }
         loop {
