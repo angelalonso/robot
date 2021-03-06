@@ -1058,8 +1058,8 @@ impl Brain {
         // communication with arduino
         let (s, r): (SyncSender<String>, Receiver<String>) = std::sync::mpsc::sync_channel(2);
         let msgs = s.clone();
-        let msgs_api = s.clone();
         let mut arduino_clone = self.arduino.clone();
+        //let msgs_api = s.clone();
         // TODO: Recover this when arduino part works
         //let mut api_clone_runner = self.api.clone();
         //thread::spawn(move || {
