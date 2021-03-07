@@ -26,7 +26,7 @@ impl Motors {
         for o in motor_map {
             let mut m_o = None;
             let mut m_e = None;
-            if mode != "dryrun" {
+            if mode != "dryrun" && mode != "check" {
                 let motor_pin1 = o.1["gpio1"].parse::<u8>().unwrap();
                 let motor_pin2 = o.1["gpio2"].parse::<u8>().unwrap();
                 let motor_enablerpin = o.1["gpio_enabler"].parse::<u8>().unwrap();

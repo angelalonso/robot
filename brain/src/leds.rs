@@ -20,7 +20,7 @@ impl LEDs {
         let mut objs = [].to_vec();
         for o in led_map {
             let mut l_o = None;
-            if mode != "dryrun" {
+            if mode != "dryrun" && mode != "check" {
                 let gpio = o.1["gpio"].parse::<u8>().unwrap();
                 l_o = Some(Arc::new(Mutex::new(LED::new(gpio))));
             }
