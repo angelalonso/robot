@@ -1,3 +1,4 @@
+use rust_gpiozero;
 use rust_gpiozero::{Motor, PWMOutputDevice};
 use log::{debug, info, warn};
 use std::cmp::Ordering;
@@ -26,12 +27,25 @@ impl Motors {
         for o in motor_map {
             let mut m_o = None;
             let mut m_e = None;
-            if mode != "dryrun" && mode != "check" {
+            if mode != "dryrun" {
+            // TODO: use this if no solution found
+            //if mode != "dryrun" && mode != "check" {
                 let motor_pin1 = o.1["gpio1"].parse::<u8>().unwrap();
                 let motor_pin2 = o.1["gpio2"].parse::<u8>().unwrap();
                 let motor_enablerpin = o.1["gpio_enabler"].parse::<u8>().unwrap();
-                m_o = Some(Arc::new(Mutex::new(Motor::new(motor_pin1, motor_pin2))));
-                m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(motor_enablerpin))));
+                //Am I running on the Raspberry?
+                match std::env::var("TARGET") {
+                    Ok(_a) => {
+                        warn!("If your ar not on a Raspberry and you see this, there's a bug");
+                        m_o = Some(Arc::new(Mutex::new(Motor::new(motor_pin1, motor_pin2))));
+                        m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(motor_enablerpin))));
+                    },
+                    Err(_e) => {
+                        warn!("Not running on a Raspberry, there are probably no GPIOs we can use");
+                    },
+                };
+                //m_o = Some(Arc::new(Mutex::new(Motor::new(motor_pin1, motor_pin2))));
+                //m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(motor_enablerpin))));
             }
             let m = MotorObj {
                 name: o.0.to_string(),
