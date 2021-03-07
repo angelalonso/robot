@@ -6,7 +6,7 @@ use std::thread;
 extern crate clap;
 use clap::{Arg, App};
 
-#[macro_use]
+//#[macro_use]
 extern crate log;
 
 /// check the parameters and start the related mode
@@ -25,8 +25,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                                .takes_value(true)
 							   .possible_value("check")
 							   .possible_value("live")
-							   .possible_value("reset")
 							   .possible_value("record")
+							   .possible_value("reset")
 							   .possible_value("test")
                                .index(1))
                           .arg(Arg::with_name("SETUP_FILE")
@@ -43,12 +43,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     match start_mode {
         "check" => {
             run_time = Some(20.0);
-        },
-        "reset" => {
-            run_time = Some(0.2);
+            actual_mode = "check".to_string();
         },
         "record" => {
             actual_mode = "live_record".to_string();
+        },
+        "reset" => {
+            run_time = Some(0.2);
         },
         "test" => {
             run_time = Some(20.0);
