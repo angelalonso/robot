@@ -1058,7 +1058,7 @@ impl Brain {
         // communication with arduino
         let (s, r): (SyncSender<String>, Receiver<String>) = std::sync::mpsc::sync_channel(2);
         let msgs = s.clone();
-        let mut port = serial::open(&"/dev/ttyACM0".to_string()).unwrap(); // Added
+        //let mut port = serial::open(&"/dev/ttyACM0".to_string()).unwrap(); // Added
         let mut arduino_clone = self.arduino.clone();
         let mut arduino_clone_loop = self.arduino.clone();
         let msgs_api = s.clone();
