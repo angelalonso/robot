@@ -1086,8 +1086,8 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                if let Ok(m) = arduino_clone_loop.interact(&mut port) { self.use_received_msg(ct, m, sender.clone()) }
-                //if let Ok(m) = r.try_recv() { println!("{}", m); self.use_received_msg(ct, m, sender.clone()) }
+                //if let Ok(m) = arduino_clone_loop.interact(&mut port) { self.use_received_msg(ct, m, sender.clone()) }
+                if let Ok(m) = r.try_recv() { println!("{}", m); self.use_received_msg(ct, m, sender.clone()) }
                 self.show_metrics();
                 self.show_actionbuffers();
                 // get actions
