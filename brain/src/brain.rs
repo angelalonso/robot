@@ -1058,7 +1058,9 @@ impl Brain {
         // communication with arduino
         let (s, r): (SyncSender<String>, Receiver<String>) = std::sync::mpsc::sync_channel(2);
         let msgs = s.clone();
+        let mut port = serial::open(&"/dev/ttyACM0".to_string()).unwrap(); // Added
         let mut arduino_clone = self.arduino.clone();
+        let mut arduino_clone_loop = self.arduino.clone();
         let msgs_api = s.clone();
         // TODO: Recover this when arduino part works
         let mut api_clone_runner = self.api.clone();
@@ -1084,7 +1086,8 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m, sender.clone()) }
+                if let Ok(m) = arduino_clone_loop.interact(&mut port) { self.use_received_msg(ct, m, sender.clone()) }
+                //if let Ok(m) = r.try_recv() { println!("{}", m); self.use_received_msg(ct, m, sender.clone()) }
                 self.show_metrics();
                 self.show_actionbuffers();
                 // get actions

@@ -5,6 +5,7 @@ const int ButtonPin = 7;
 // OTHER VARS
 int incomingByte = 0;
 String msg;
+bool sync = false;
 bool news = false;
 int distanceVal;
 int distancePrevVal;
@@ -17,6 +18,7 @@ void setup() {
   pinMode(ProximityEchoPin, INPUT);
   pinMode(ButtonPin, INPUT);
   Serial.begin(9600);
+  
 }
 
 void blink1() {
@@ -69,24 +71,23 @@ String getButton(String msg) {
 }
 
 void loop() {
+  msg = "SENSOR: ";
+  news = false;
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.read();
     Serial.println("received something");
-    
-    msg = "SENSOR: ";
-    news = false;
-
+    delay(50);
     // DISTANCE SENSOR
     msg = getDistance(msg);
 
     // BUTTON SENSOR
     msg = getButton(msg);
-
-
-    // SEND MESSAGE OR NOT
+    
     if (news == true) {
       Serial.println(msg);
     }
   }
+    
+
 }

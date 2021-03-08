@@ -42,7 +42,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Setup configs for each mode
     match start_mode {
         "check" => {
-            run_time = Some(20.0);
+            //run_time = Some(20.0);
             actual_mode = "check".to_string();
         },
         "record" => {
