@@ -25,16 +25,16 @@ impl LEDs {
             //if mode != "dryrun" && mode != "check" {
                 let gpio = o.1["gpio"].parse::<u8>().unwrap();
                 //Am I running on the Raspberry?
-                match std::env::var("TARGET") {
-                    Ok(_a) => {
-                        warn!("If your ar not on a Raspberry and you see this, there's a bug");
-                        l_o = Some(Arc::new(Mutex::new(LED::new(gpio))));
-                    },
-                    Err(_e) => {
-                        warn!("Not running on a Raspberry, there are probably no GPIOs we can use");
-                    },
-                };
-                //l_o = Some(Arc::new(Mutex::new(LED::new(gpio))));
+                //-match std::env::var("TARGET") {
+                //-    Ok(_a) => {
+                //-        warn!("If your ar not on a Raspberry and you see this, there's a bug");
+                //-        l_o = Some(Arc::new(Mutex::new(LED::new(gpio))));
+                //-    },
+                //-    Err(_e) => {
+                //-        warn!("Not running on a Raspberry, there are probably no GPIOs we can use");
+                //-    },
+                //-};
+                l_o = Some(Arc::new(Mutex::new(LED::new(gpio))));
             }
             let l = LEDObj {
                 name: o.0.to_string(),
