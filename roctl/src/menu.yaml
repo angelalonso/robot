@@ -1,0 +1,44 @@
+name: yaml_app
+version: "1.0"
+about: an example using a .yaml file to build a CLI
+author: Kevin K. <kbknapp@gmail.com>
+
+# AppSettings can be defined as a list and are **not** ascii case sensitive
+settings:
+    - ArgRequiredElseHelp
+
+# All Args must be defined in the 'args:' list where the name of the arg, is the
+# key to a Hash object
+args:
+    # The name of this argument, is 'opt' which will be used to access the value
+    # later in your Rust code
+    - verb:
+        help: example option argument from yaml
+        index: 1
+        possible_values:
+            - do
+            - get
+    - pred1:
+        help: example option argument from yaml
+        index: 2
+        requires:
+            - verb
+        conflicts_with:
+            - pred2 
+        possible_values:
+            - online
+            - get
+    - pred2:
+        help: example option argument from yaml
+        requires:
+            - verb
+        conflicts_with:
+            - pred1 
+        possible_values:
+            - check
+            - run
+            - record
+            - reset
+            - test
+            - compile
+            - gitpush
