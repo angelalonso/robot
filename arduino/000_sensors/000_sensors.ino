@@ -73,11 +73,17 @@ String getButton(String msg) {
 void loop() {
   msg = "SENSOR: ";
   news = false;
+  delay(30);
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.read();
-    Serial.println("received something");
-    delay(50);
+    Serial.println("LOG: Synced");
+    
+    sync = true;
+  }
+
+  delay(30);
+  if (sync == true) {
     // DISTANCE SENSOR
     msg = getDistance(msg);
 
@@ -88,6 +94,4 @@ void loop() {
       Serial.println(msg);
     }
   }
-    
-
 }

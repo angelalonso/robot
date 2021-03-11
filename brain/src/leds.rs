@@ -1,7 +1,7 @@
 use rust_gpiozero::LED;
 use std::sync::Arc;
 use std::sync::Mutex;
-use log::{debug, warn};
+use log::{debug};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]

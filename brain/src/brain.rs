@@ -1055,29 +1055,28 @@ impl Brain {
         // timestamps
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
-        // communication with arduino
+        // communication
         let (s, r): (SyncSender<String>, Receiver<String>) = std::sync::mpsc::sync_channel(2);
-        let msgs = s.clone();
-        //let mut port = serial::open(&"/dev/ttyACM0".to_string()).unwrap(); // Added
-        let mut arduino_clone = self.arduino.clone();
-        let mut arduino_clone_loop = self.arduino.clone();
-        let msgs_api = s.clone();
-        // TODO: Recover this when arduino part works
-        let mut api_clone_runner = self.api.clone();
-        thread::spawn(move || {
-            api_clone_runner.run(msgs_api);
-        });
+
+        let s_arduino = s.clone();
+        let mut thread_arduino = self.arduino.clone();
         let brain_clone = self.clone();
-        // TODO: make this work
         thread::spawn(move || {
             if brain_clone.mode != "dryrun" {
                 //TODO: find a way to reproduce this error, then add BrainDeadError to this function
-                arduino_clone.read_channel(msgs).unwrap();
+                thread_arduino.read_channel(s_arduino).unwrap();
             } else {
-                arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
+                thread_arduino.read_channel_mock(s_arduino, brain_clone.setup_file.clone()).unwrap();
             };
         });
-        if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m, sender.clone()) }
+
+        let s_api = s.clone();
+        let mut thread_api = self.api.clone();
+        thread::spawn(move || {
+            thread_api.run(s_api);
+        });
+
+        // Needed? if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m, sender.clone()) }
         loop {
             let mut new_metrics: Vec<String> = [].to_vec();
             let mut new_actions: Vec<String> = [].to_vec();
@@ -1086,7 +1085,6 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                //if let Ok(m) = arduino_clone_loop.interact(&mut port) { self.use_received_msg(ct, m, sender.clone()) }
                 if let Ok(m) = r.try_recv() { println!("{}", m); self.use_received_msg(ct, m, sender.clone()) }
                 self.show_metrics();
                 self.show_actionbuffers();
