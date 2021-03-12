@@ -1,53 +1,51 @@
-extern crate clap;
+use docopt::Docopt;
+use serde::{Deserialize, Serialize};
+use serde_yaml;
 
+const USAGE: &'static str = "
+Robot controller.
 
-fn main() {
-    use clap::{load_yaml, App};
+Usage:
+  roctl get (online|status)
+  roctl do (run|test|reset)
+  roctl init
+  roctl (-h | --help)
+  roctl --version
 
-    // To load a yaml file containing our CLI definition such as the example '17_yaml.yaml' we can
-    // use the convenience macro which loads the file at compile relative to the current file
-    // similar to how modules are found.
-    //
-    // Then we pass that yaml object to App to build the CLI.
-    //
-    // Finally we call get_matches() to start the parsing process. We use the matches just as we
-    // normally would
-    let yaml = load_yaml!("menu.yaml");
-    let m = App::from(yaml).get_matches();
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+";
 
-    // Because the example 17_yaml.yaml is rather large we'll just look a single arg so you can
-    // see that it works...
-    println!("verb: {:?}", m.value_of("verb"));
-    println!("verb_do: {:?}", m.value_of("verb_do"));
-    println!("verb_get: {:?}", m.value_of("verb_get"));
-    println!("predicate: {:?}", m.value_of("predicate"));
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct Args {
+    cmd_get: bool,
+    cmd_online: bool,
+    cmd_status: bool,
+    cmd_do: bool,
+    cmd_run: bool,
+    cmd_test: bool,
+    cmd_reset: bool,
+    cmd_init: bool,
 }
 
-    //let matches = App::new(option_env!("CARGO_PKG_NAME").unwrap())
-    //                      .version(option_env!("CARGO_PKG_VERSION").unwrap())
-    //                      .author(option_env!("CARGO_PKG_AUTHORS").unwrap())
-    //                      .about("controls your robot")
-    //                      .arg(Arg::with_name("VERB")
-    //                           .help("Controls your workflow with the robot")
-    //                           .required(true)
-    //                           .takes_value(true)
-	//						   .possible_value("get")
-	//						   .possible_value("do")
-    //                           .index(1))
-    //                      .arg(Arg::with_name("GET_SMTHG")
-    //                           .help("Sets the predicate to complement the verb")
-    //                           .required(false)
-	//						   .possible_value("online")
-    //                           .index(2))
-    //                      .arg(Arg::with_name("DO_SMTHG")
-    //                           .help("Sets the predicate to complement the verb")
-    //                           .required(false)
-	//						   .possible_value("check")
-	//						   .possible_value("run")
-	//						   .possible_value("record")
-	//						   .possible_value("reset")
-	//						   .possible_value("test")
-	//						   .possible_value("compile")
-	//						   .possible_value("gitpush")
-    //                           .index(2))
-    //                      .get_matches();
+fn main() {
+    let mut mode: String = "".to_owned();
+    let args: Args = Docopt::new(USAGE)
+        .and_then(|d| d.deserialize())
+        .unwrap_or_else(|e| e.exit());
+    // This does not look very elegant but somehow...it's short at least
+    if args.cmd_get {
+        if args.cmd_online { mode.push_str("get_online")
+        } else if args.cmd_status { mode.push_str("get_status")
+        };
+    } else if args.cmd_do {
+        if args.cmd_run { mode.push_str("do_run")
+        } else if args.cmd_test { mode.push_str("do_test")
+        } else if args.cmd_reset { mode.push_str("do_reset")
+        };
+    } else if args.cmd_init {mode.push_str("init")};
+
+    println!("{}", mode);
+
+}
