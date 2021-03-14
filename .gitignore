@@ -11,3 +11,4 @@ development
 **/perf.data*
 **/callgrind*
 **/app/release/*
+**/esp32*
