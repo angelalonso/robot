@@ -52,6 +52,7 @@ This Guide will allow you to:
 - [x] Create a set of rules to "make your Robot do things" and deploy them to the Robot. [[1]](docs/005_FirstExample.md) [[2]](docs/006_MovingExample.md)
 - [x] Test those rules with mocked sensors. [[1]](docs/007_TestingExample.md) [[2]](docs/007_TestingExample.md)
 - [x] Use Robot's real data as mocks on tests. [[1]](docs/008_TestingWithRealMocks.md)
+- [ ] Attach a Camera to the Robot. [[1]](docs/009_AttachingCamera.md)
 - [ ] Have the Robot launch on boot
 - [ ] Add and callibrate position sensors
 - [ ] Set the rules "on the go" with Reinforcement Learning instead of a rules YAML.
