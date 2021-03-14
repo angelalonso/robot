@@ -16,4 +16,4 @@ Get the path of your setup file, probably called something like testfiles/yourte
 
 # Challenges
 
-[PREV: Testing a movement Ruleset <--](007_TestingExample.md)
+[PREV: Testing a movement Ruleset <--](007_TestingExample.md) [--> NEXT: Attaching a Camera](009_AttachingCamera.md)
