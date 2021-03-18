@@ -38,6 +38,7 @@ fn init() {
 fn build_dot_env() -> Result<String, std::io::Error> {
     let file = ".env";
     let envvars = ["ROBOT_IP", "SSH_CONFIG", "SSH_COMMAND", "CODE_BRANCH", "ARDUINO_FILES_PATH", "CARGO"];
+    let mut dotenv_content: String = "".to_string();
 
     // check if there is a .env file, no? -> create it
     if Path::new(file).exists() {
@@ -56,13 +57,26 @@ fn build_dot_env() -> Result<String, std::io::Error> {
     //   ask user showing current value as default
     //   once all vars have a value, write them to .env
     for envvar in envvars.iter() {
-        println!("{}", envvar);
-        let mut f = File::open(file)?;
-        let mut reader = BufReader::new(f);
-        for i in reader.lines() {
-            println!("hey");
+        println!("checking {}...", envvar);
+        let mut fenv = File::open(file)?;
+        let mut reader = BufReader::new(fenv);
+        let mut envvar_found = false;
+        for line_opt in reader.lines() {
+            match line_opt {
+                Ok(l) => {
+                    if l.contains(envvar) {
+                        println!("fooooooound!");
+                        envvar_found = true;
+                    };
+                },
+                Err(_) => ()
+            }
         };
+        if !envvar_found {dotenv_content.push_str(&format!("{}: null\n", envvar));}
     };
+    println!("{}", dotenv_content);
+    let mut f = File::open(file)?;
+    f.write_all(dotenv_content.as_bytes()).expect("Unable to write data");
     Ok("".to_string())
 }
 
