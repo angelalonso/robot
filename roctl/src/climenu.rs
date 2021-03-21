@@ -1,7 +1,7 @@
 use docopt::Docopt;
 use serde::{Deserialize, Serialize};
 
-const USAGE: &'static str = "
+const USAGE: &str = "
 Robot controller.
 
 Usage:
