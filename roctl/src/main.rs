@@ -1,7 +1,13 @@
 use roctl::climenu::parser;
 use roctl::roctl::proxy_action;
 
-fn main() {
-    proxy_action(parser());
+//#[macro_use]
+extern crate log;
 
+fn main() {
+    env_logger::builder()
+    .format_timestamp_millis()
+    .init();
+
+    proxy_action(parser());
 }

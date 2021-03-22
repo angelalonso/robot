@@ -4,33 +4,34 @@ use std::fs;
 use std::fs::File;
 use std::io::{stdin,stdout,Write, BufReader};
 use crate::dostuff;
+use log::{debug, error, info, trace, warn};
 
 pub fn proxy_action(mode: String) {
     let mode_split: Vec<&str> = mode.split('_').collect();
     match mode_split[0] {
         "init" => {
             if mode.replace("init", "") != "" {
-                println!("ERROR");
+                error!("ERROR");
             } else {init()};
         },
         "get" => {
             let mode_clean = mode.replace("get_", "");
             if mode_clean.is_empty() {
-                println!("ERROR");
+                error!("ERROR");
             } else {get_stuff(mode_clean)};
         },
         "do" => {
             let mode_clean = mode.replace("do_", "");
             if mode_clean.is_empty() {
-                println!("ERROR");
+                error!("ERROR");
             } else {do_stuff(mode_clean)};
         },
-        &_ => println!("ERROR"),
+        &_ => error!("ERROR"),
     };
 }
 
 fn init() {
-    println!("INIT mode");
+    info!("INIT mode");
     if let Ok(()) = build_dot_env() { }
 }
 
@@ -44,9 +45,9 @@ fn build_dot_env() -> Result<(), std::io::Error> {
     let envvars = ["ROBOT_IP", "SSH_COMMAND", "SSH_CONFIG", "CODE_BRANCH", "ARDUINO_FILES_PATH", "CARGO"];
     let mut dotenv_content: String = "".to_string();
     if Path::new(file).exists() {
-        println!(".env exists (Press <Enter> to keep current values)");
+        debug!(".env exists (Press <Enter> to keep current values)");
     } else {
-      println!(".env DOES NOT exist, using values from the template");
+      debug!(".env DOES NOT exist, using values from the template");
       match fs::copy(file_template, file) {
           Ok(_) => (),
           Err(_) => panic!(),
@@ -93,16 +94,16 @@ fn get_new_envvar(entry: String, previous_entry: String) -> String {
     }
     if s.is_empty() {s.push_str(prev_keyval[1])};
     if s.starts_with(' ') {s.remove(0);};
-    println!("Added: '{}: {}'", entry, s);
+    info!("Added: '{}: {}'", entry, s);
     return format!("{}: {}\n", entry, s)
 }
 
 fn get_stuff(what: String) {
-    println!("GET mode with {} parameters", what);
+    info!("GET mode with {} parameters", what);
 }
 
 fn do_stuff(what: String) {
-    println!("DO mode with {} parameters", what);
+    info!("DO mode with {} parameters", what);
     match what.as_str() {
         "run" => dostuff::run(),
         &_ => (),
