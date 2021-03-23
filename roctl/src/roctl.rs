@@ -1,6 +1,7 @@
 use std::path::Path;
 use std::io::prelude::*;
 use std::fs;
+use std::env;
 use std::fs::File;
 use std::io::{stdin,stdout,Write, BufReader};
 use crate::dostuff;
@@ -100,6 +101,8 @@ fn get_new_envvar(entry: String, previous_entry: String) -> String {
 
 fn get_stuff(what: String) {
     info!("GET mode with {} parameters", what);
+    let test = env::var("RUST_LOG").unwrap();
+    println!("RUST_LOG is {}", test);
 }
 
 fn do_stuff(what: String) {
