@@ -101,7 +101,10 @@ fn get_new_envvar(entry: String, previous_entry: String) -> String {
 
 fn get_stuff(what: String) {
     info!("GET mode with {} parameters", what);
-    let test = env::var("RUST_LOG").unwrap();
+    let test = match env::var("RUST_LOG") {
+        Ok(t) => t,
+        Err(_) => "".to_string(),
+    };
     println!("RUST_LOG is {}", test);
 }
 
