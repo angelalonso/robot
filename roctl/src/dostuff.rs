@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::env;
 
-pub fn run() {
+pub fn run() -> bool {
     if compile() {
         println!("Compilation OK");
         if git_push() {
@@ -15,22 +15,42 @@ pub fn run() {
 //    doGitPush
 //      doReset
 //        ${SSH_COMM} "cd robot/brain; git pull; git checkout ${DEV_BRANCH} && git stash; git stash drop; git pull && \
+    true
 }
 
-fn compile() -> bool {
+pub fn compile() -> bool {
+    let log_mode = match env::var("RUST_LOG") {
+        Ok(lm) => lm,
+        Err(_) => "".to_string(),
+    };
     let cwd: String = env::current_dir().unwrap().into_os_string().into_string().unwrap();
     let brain_dir: &str = &format!("{}/../brain/", cwd);
     // TODO: avoid using a script to do this. Is it possible even?
-    let comm_status = Command::new("./roctl_do_compile.sh")
-        .current_dir(brain_dir)
-        .status()
-        .expect("cross compile command failed to start");
-    if comm_status.success() {
-        return true
-            
-    } else {
-        return false
-    }
+    match log_mode.as_str() {
+        "debug" => {
+            let comm_status = Command::new("./roctl_do_compile.sh")
+                .current_dir(brain_dir)
+                .status()
+                .expect("cross compile command failed to start");
+            if comm_status.success() {
+                return true
+            } else {
+                return false
+            }
+        },
+        &_ => {
+            let comm_output = Command::new("./roctl_do_compile.sh")
+                .current_dir(brain_dir)
+                .output()
+                .expect("cross compile command failed to start");
+            if comm_output.status.success() {
+                return true
+            } else {
+                return false
+            }
+        },
+
+    };
 }
 
 fn git_push() -> bool {
@@ -82,6 +102,30 @@ fn git_push() -> bool {
     }
 }
 
-fn reset() -> bool {
-    true
+pub fn reset() -> bool {
+    let cwd: String = env::current_dir().unwrap().into_os_string().into_string().unwrap();
+    let brain_dir: &str = &format!("{}/../brain/", cwd);
+    // TODO: avoid using a script to do this. Is it possible even?
+    let comm_output = Command::new("./roctl_do_compile.sh")
+        .current_dir(brain_dir)
+        .output()
+        .expect("cross compile command failed to start");
+    if comm_output.status.success() {
+        return true
+    } else {
+        return false
+    }
+
+//    ${SSH_COMM} "kill \$(ps aux | grep brain | grep setup | awk '{print \$2}')" > /dev/null 2>&1
+//    ${SSH_COMM} "cd robot/brain; \
+//      RUST_LOG=info target/arm-unknown-linux-gnueabihf/debug/brain reset setup_reset.yaml
+//      " > /dev/null 2>&1
+//      EXIT=$?
+//    if [[ $EXIT -eq 0 ]]; then
+//      ${SSH_COMM} "kill \$(ps aux | grep brain | grep cfg | awk '{print \$2}')"
+//      RESULT="Robot   True"
+//    else
+//      RESULT="Robot   Error: "$EXIT
+//    fi
 }
+

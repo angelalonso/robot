@@ -6,7 +6,7 @@ Robot controller.
 
 Usage:
   roctl get (online|status)
-  roctl do (run|test|reset)
+  roctl do (run|test|compile|reset)
   roctl init
   roctl (-h | --help)
   roctl --version
@@ -24,6 +24,7 @@ struct Args {
     cmd_do: bool,
     cmd_run: bool,
     cmd_test: bool,
+    cmd_compile: bool,
     cmd_reset: bool,
     cmd_init: bool,
 }
@@ -41,6 +42,7 @@ pub fn parser() -> String {
     } else if args.cmd_do {
         if args.cmd_run { mode.push_str("do_run")
         } else if args.cmd_test { mode.push_str("do_test")
+        } else if args.cmd_compile { mode.push_str("do_compile")
         } else if args.cmd_reset { mode.push_str("do_reset")
         };
     } else if args.cmd_init {mode.push_str("init")};
