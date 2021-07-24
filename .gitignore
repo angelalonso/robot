@@ -7,3 +7,8 @@ brain/Cargo.lock
 brain/records
 test_svc
 development
+**/.criterion
+**/perf.data*
+**/callgrind*
+**/app/release/*
+**/esp32*

@@ -1,4 +1,5 @@
 extern crate regex;
+use crate::api::Api;
 use crate::arduino::Arduino;
 use crate::leds::LEDs;
 use crate::motors::Motors;
@@ -10,7 +11,7 @@ use std::fs;
 use std::io::prelude::*;
 use std::process;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{SyncSender, Sender, Receiver};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use thiserror::Error;
@@ -32,6 +33,21 @@ pub enum BrainDeadError {
 
     #[error("File does not exist")]
     FileNotFoundError,
+
+    #[error("Couldn't translate String into action")]
+    GetActionFromStringError,
+
+    #[error("Couldn't add action")]
+    AddActionError,
+
+    #[error("Couldn't do action")]
+    DoActionError,
+}
+
+#[derive(Deserialize)]
+pub struct ConfigHashmap {
+    #[allow(dead_code)]
+    entries: HashMap<String, HashMap<String, String>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -97,13 +113,14 @@ pub struct Set {
 #[derive(Clone)]
 pub struct Brain {
     name: String,
-    mode: String,
-    setup_file: String,
+    pub mode: String,
+    pub setup_file: String,
     start_time: u128,
     timestamp: f64,
-    rec_file: String,
+    record_file: String,
     actionrules: Vec<ActionRule>,
-    arduino: Arduino,
+    pub arduino: Arduino,
+    pub api: Api,
     motors: Motors,
     leds: LEDs,
     actionbuffersets: Vec<Set>,
@@ -114,18 +131,15 @@ static COUNTER: std::sync::atomic::AtomicUsize = AtomicUsize::new(1);
 static MAX_BUFFERSIZE: u8 = 25;
 static MAX_METRICSIZE: u8 = 25;
 // this is a list of the actions that go in the same actionbufferset, called brilliantly "other"
-const OTHER_ACTIONS: &'static [&'static str] = &["load", "wait"];
+const OTHER_ACTIONS: &[&str; 2] = &["load", "wait"];
 
 impl Brain {
-    pub fn new(brain_name: String, mut mode: String, setupfile: String) -> Result<Self, BrainDeadError> {
+    pub fn new(brain_name: String, mut mode: String, setup_file: String) -> Result<Self, BrainDeadError> {
         // CATCH the record mode and clean up the original mode variable
-        let special_mode = mode.split("_").collect::<Vec<_>>();
+        let special_mode = mode.split('_').collect::<Vec<_>>();
         let mut record_file = "".to_string();
         if special_mode.len() > 1 {
-            match special_mode[1] {
-                "record" => record_file = Brain::create_record_file(),
-                _ => (),
-            }
+            if let "record" = special_mode[1] { record_file = Brain::create_record_file() }
         }
         mode = special_mode[0].to_string();
         let st = SystemTime::now();
@@ -133,7 +147,7 @@ impl Brain {
             Ok(time) => time.as_millis(),
             Err(_e) => 0,
         };
-        let (first_action_set, _first_arduino_program, inputs, outputs) = match Brain::load_setup(setupfile.to_string()) {
+        let (first_action_set, _first_arduino_program, inputs, outputs) = match Brain::load_setup(setup_file.to_string()) {
             Ok((fas,fap,i,o)) => (fas,fap,i,o),
             Err(e) => {
                 error!("There was an error!: {}", e);
@@ -147,10 +161,13 @@ impl Brain {
                 error!("There was an error!: {}", e);
                 return Err(BrainDeadError::LoadActionRulesError)
             }
-
         };
         let mut a = Arduino::new("arduino".to_string(), Some("/dev/null".to_string())).unwrap_or_else(|err| {
             eprintln!("Problem Initializing Arduino: {}", err);
+            process::exit(1);
+        });
+        let ap = Api::new().unwrap_or_else(|err| {
+            eprintln!("Problem Initializing Aoi: {}", err);
             process::exit(1);
         });
         if mode.clone() != "dryrun" {
@@ -173,7 +190,8 @@ impl Brain {
             time: 0.0,
         };
         // INPUTS -> they only have metrics buffers
-        for i in inputs {
+        //for i in inputs.entries {
+        for i in inputs { // previous line when new_load_setup works
             let s = Set {
                 object: i.0,
                 obj_type: i.1["type"].clone(),
@@ -185,7 +203,8 @@ impl Brain {
             ms.push(s);
         }
         // OUTPUTS -> they have actions buffers and metrics buffers
-        for o in outputs {
+        //for o in outputs.entries {
+        for o in outputs { // previous line when new_load_setup works
             // This trick allows us to define configs for the output objects
             let mut name = o.0.clone();
             if o.0.starts_with("led_") {
@@ -232,7 +251,7 @@ impl Brain {
             obj_type: "other".to_string(),
             entries: [].to_vec(),
             last_change_timestamp: 0.0,
-            current_entry: s_e.clone(),
+            current_entry: s_e,
             max_size: MAX_METRICSIZE,
         };
         abs.push(s_b_o);
@@ -247,13 +266,14 @@ impl Brain {
         });
         Ok(Self {
             name: brain_name,
-            mode: mode,
-            setup_file: setupfile,
-            start_time: start_time,
+            mode,
+            setup_file,
+            start_time,
             timestamp: 0.0,
-            rec_file: record_file,
+            record_file,
             actionrules: ar,
             arduino: a,
+            api: ap,
             motors: m,
             leds: l,
             actionbuffersets: abs,
@@ -288,52 +308,100 @@ impl Brain {
         //return (a.start_ruleset_file, a.start_arduinohex_file, [].to_vec(), [].to_vec())
     }
 
+    /// Load a robot setup yaml file and configures the system
+    pub fn new_load_setup(setup_file: String) -> Result<(String, String, ConfigHashmap, ConfigHashmap), BrainDeadError> {
+        #[derive(Deserialize)]
+        struct Setup {
+            start_ruleset_file: String,
+            start_arduinohex_file: String,
+            inputs: ConfigHashmap,
+            outputs: ConfigHashmap,
+        }
+        let file_pointer = match File::open(setup_file.clone()) {
+            Ok(fp) => fp,
+            Err(_) => {
+                error!("File {} does not exist", setup_file);
+                return Err(BrainDeadError::FileNotFoundError)
+            }
+        };
+        let a: Setup = match serde_yaml::from_reader(file_pointer) {
+            Ok(ya) => ya,
+            Err(e) => {
+                error!("The file {}'s YAML is incorrect! - {}", setup_file, e);
+                return Err(BrainDeadError::YamlError)
+            }
+        };
+        Ok((a.start_ruleset_file, a.start_arduinohex_file, a.inputs, a.outputs))
+    }
+
     /// Return current timestamp as millis
     pub fn get_current_time(&mut self) -> f64 {
         let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
+        match now.duration_since(UNIX_EPOCH) {
             Ok(time) => time.as_millis() as f64,
             Err(_e) => 0.0,
-        };
-        return timestamp;
+        }
     }
 
     /// Return difference between current timestamp and a given one, in millis
     pub fn get_time_since(&mut self, start_timestamp: f64) -> f64 {
         let now = SystemTime::now();
-        let timestamp = match now.duration_since(UNIX_EPOCH) {
-            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000 as f64,
+        match now.duration_since(UNIX_EPOCH) {
+            Ok(time) => (time.as_millis() as f64 - start_timestamp as f64) / 1000_f64,
             Err(_e) => 0.0,
-        };
-        return timestamp;
+        }
     }
 
     /// Translates a message coming from the Arduino to actions
-    pub fn use_arduino_msg(&mut self, timestamp: f64, raw_msg: String) {
+    pub fn use_received_msg(&mut self, timestamp: f64, raw_msg: String, sender: Sender<String>) {
         let msg_parts = raw_msg.split(": ").collect::<Vec<_>>();
-        if self.rec_file != "".to_string() {
+        if self.record_file != "" {
             self.record(timestamp, raw_msg.to_string());
         };
-        match msg_parts[0] {
-            // NOTE: we could have other types of messages but we don't need them just yet
-            "SENSOR" => {
-                let sensors = msg_parts[1].split("|").collect::<Vec<_>>();
-                for s in sensors {
-                    let sensor = s.split("=").collect::<Vec<_>>();
-                    if sensor != [""] {
-                        info!("Message from Arduino: {:?}", sensor);
-                    } else {
-                        debug!("Message from Arduino: {:?}", sensor);
-                    }
-                    let sensor_id = "arduino".to_string();
-                    if sensor.len() > 1 {
-                        self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
-                    } else {
-                        trace!("{:?}", sensor);
-                    }
+        // NOTE: we could have other types of messages but we don't need them just yet
+        if let "SENSOR" = msg_parts[0] {
+            let sensors = msg_parts[1].split('|').collect::<Vec<_>>();
+            for s in sensors {
+                let sensor = s.split('=').collect::<Vec<_>>();
+                if sensor != [""] {
+                    info!("Message from Arduino: {:?}", sensor);
+                } else {
+                    debug!("NO Message from Arduino");
                 }
-            },
-            _ => (),
+                let sensor_id = "arduino".to_string();
+                if sensor.len() > 1 {
+                    self.add_metric(timestamp, format!("{}__{}", sensor[0], sensor[1]), sensor_id);
+                } else {
+                    trace!("{:?}", sensor);
+                }
+            }
+        }
+        else if let "DO" = msg_parts[0] {
+            let orders = msg_parts[1].split('|').collect::<Vec<_>>();
+            for o in orders {
+                let order = o.split('=').collect::<Vec<_>>();
+                if order != [""] {
+                    info!("Message from API: {:?}", order);
+                    let (these_metrics, these_actions) = match self.do_action_from_string(o.to_string(), timestamp) {
+                        Ok((met, act)) => (met, act),
+                        Err(_) => {
+                            ([].to_vec(), [].to_vec())
+                        }
+                    };
+                    for m_raw in these_metrics {
+                        let m = m_raw.split('|').collect::<Vec<_>>();
+                        if m.len() > 1 {
+                            self.add_metric(timestamp, m[0].to_string(), m[1].to_string());
+                        }
+                    }
+                    for c_raw in these_actions {
+                        // Send back the actions -> needed for tests
+                        sender.send(format!("{:?}|{:?}", timestamp, c_raw)).unwrap();
+                    }
+                } else {
+                    debug!("NO Message from API");
+                }
+            }
         }
     }
 
@@ -361,27 +429,27 @@ impl Brain {
         let file_pointer = match File::open(file.clone()){
             Ok(fp) => fp,
             Err(_e) => {
-                error!("File {} does not exist", file.clone());
+                error!("File {} does not exist", file);
                 return Err(BrainDeadError::FileNotFoundError)
             }
         };
         let mut c: Vec<ActionRule> = [].to_vec();
         match serde_yaml::from_reader(file_pointer) {
-            Ok(v) => return Ok(v),
+            Ok(v) => Ok(v),
             Err(e) => {
                 if e.to_string().contains("missing field `triggercount`") {
 
                     let file_pointer = match File::open(file.clone()){
                         Ok(fp) => fp,
                         Err(_e) => {
-                            error!("File {} does not exist", file.clone());
+                            error!("File {} does not exist", file);
                             return Err(BrainDeadError::FileNotFoundError)
                         }
                     };
                     let a: Vec<NoTriggerActionRule> = match serde_yaml::from_reader(file_pointer) {
                         Ok(a) => a,
                         Err(e) => {
-                            error!("The file {}'s YAML is incorrect! - {}", file.clone(), e);
+                            error!("The file {}'s YAML is incorrect! - {}", file, e);
                             return Err(BrainDeadError::YamlError)
                         }
                     };
@@ -395,19 +463,19 @@ impl Brain {
                         };
                         c.push(c_elem);
                     }
-                    return Ok(c)
+                    Ok(c)
                 } else if e.to_string().contains("missing field `condition`") {
                     let file_pointer = match File::open(file.clone()){
                         Ok(fp) => fp,
                         Err(_e) => {
-                            error!("File {} does not exist", file.clone());
+                            error!("File {} does not exist", file);
                             return Err(BrainDeadError::FileNotFoundError)
                         }
                     };
                     let a: Vec<NoConditionActionRule> = match serde_yaml::from_reader(file_pointer) {
                         Ok(a) => a,
                         Err(e) => {
-                            error!("The file {}'s YAML is incorrect for a RuleSet! - {}", file.clone(), e);
+                            error!("The file {}'s YAML is incorrect for a RuleSet! - {}", file, e);
                             return Err(BrainDeadError::YamlError)
                         }
                     };
@@ -424,21 +492,21 @@ impl Brain {
                         };
                         c.push(c_elem);
                     }
-                    return Ok(c)
+                    Ok(c)
                 } else {
                     error!("The file {}'s YAML is incorrect! - {}", file, e);
-                    return Err(BrainDeadError::YamlError)                    
+                    Err(BrainDeadError::YamlError)                    
                 }
             },
-        };
+        }
     }
 
     /// Turn a String containing an action into the related object
-    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, String> {
-        let format = action.split(",").collect::<Vec<_>>();
+    pub fn get_action_from_string(&mut self, action: String) -> Result<ResultAction, BrainDeadError> {
+        let format = action.split(',').collect::<Vec<_>>();
         //TODO: reproduce this error, then use BrainDeadError instead of unwrap
-        let t = format[1].split("=").collect::<Vec<_>>()[1].parse::<f64>().unwrap();
-        let data = format[0].split("=").collect::<Vec<_>>();
+        let t = format[1].split('=').collect::<Vec<_>>()[1].parse::<f64>().unwrap();
+        let data = format[0].split('=').collect::<Vec<_>>();
         let mut source = "";
         if format.len() > 2 {
             source = format[2];
@@ -473,68 +541,66 @@ impl Brain {
     }
 
     /// Adds action to the related actions buffer
-    pub fn add_action(&mut self, action: String) {
+    pub fn add_action(&mut self, action: String) -> Result<String, BrainDeadError> {
         trace!("- Adding action {}", action);
-        //TODO: once get_action_from_string has BrainDeadError, add a Result to this function
-        let action_to_add = self.clone().get_action_from_string(action).unwrap();
+        let action_to_add = match self.clone().get_action_from_string(action) {
+            Ok(resultaction) => resultaction,
+            Err(e) => {
+                error!("There was an error!: {}", e);
+                return Err(BrainDeadError::GetActionFromStringError)
+            }
+        };
         if OTHER_ACTIONS.iter().any(|&i| i==action_to_add.resource) {
-            match self.actionbuffersets.iter_mut().find(|x| *x.object == "other".to_string()) {
-                Some(abs) => {
-                    if abs.entries.len() >= abs.max_size.into() {
-                        warn!("Buffer for {} is full! not adding new actions...", abs.object);
-                    } else {
-                        match action_to_add.resource.as_str() {
-                            "load" => {
-                                let a = TimedData {
-                                    id: action_to_add.action.id,
-                                    belongsto: action_to_add.action.belongsto,
-                                    data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
-                                    time: action_to_add.action.time,
-                                };
-                                abs.entries.push(a);
-                            },
-                            "wait" => {
-                                let a = TimedData {
-                                    id: action_to_add.action.id,
-                                    belongsto: action_to_add.action.belongsto,
-                                    data: format!("{}_{}secs", action_to_add.resource, action_to_add.action.time),
-                                    time: action_to_add.action.time,
-                                };
-                                abs.entries.push(a);
-                            },
-                            _ => {
-                                abs.entries.push(action_to_add.action);
-                            },
-                        }
-                    };
-                },
-                None => (),
+            if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| x.object == "other") {
+                if abs.entries.len() >= abs.max_size.into() {
+                    warn!("Buffer for {} is full! not adding new actions...", abs.object);
+                } else {
+                    match action_to_add.resource.as_str() {
+                        "load" => {
+                            let a = TimedData {
+                                id: action_to_add.action.id,
+                                belongsto: action_to_add.action.belongsto,
+                                data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+                                time: action_to_add.action.time,
+                            };
+                            abs.entries.push(a);
+                        },
+                        "wait" => {
+                            let a = TimedData {
+                                id: action_to_add.action.id,
+                                belongsto: action_to_add.action.belongsto,
+                                data: format!("{}_{}secs", action_to_add.resource, action_to_add.action.time),
+                                time: action_to_add.action.time,
+                            };
+                            abs.entries.push(a);
+                        },
+                        _ => {
+                            abs.entries.push(action_to_add.action);
+                        },
+                    }
+                };
             };
-        } else {
-            match self.actionbuffersets.iter_mut().find(|x| *x.object == *action_to_add.resource) {
-                Some(abs) => {
-                    if abs.entries.len() >= abs.max_size.into() {
-                        warn!("Buffer for {} is full! not adding new actions...", abs.object);
-                    } else {
-                        match abs.object.as_str() {
-                            "load" => {
-                                let a = TimedData {
-                                    id: action_to_add.action.id,
-                                    belongsto: action_to_add.action.belongsto,
-                                    data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
-                                    time: action_to_add.action.time,
-                                };
-                                abs.entries.push(a);
-                            },
-                            _ => {
-                                abs.entries.push(action_to_add.action);
-                            },
-                        }
-                    };
-                },
-                None => (),
+        } else if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action_to_add.resource) {
+            if abs.entries.len() >= abs.max_size.into() {
+                warn!("Buffer for {} is full! not adding new actions...", abs.object);
+            } else {
+                match abs.object.as_str() {
+                    "load" => {
+                        let a = TimedData {
+                            id: action_to_add.action.id,
+                            belongsto: action_to_add.action.belongsto,
+                            data: format!("{}_{}", action_to_add.resource, action_to_add.action.data),
+                            time: action_to_add.action.time,
+                        };
+                        abs.entries.push(a);
+                    },
+                    _ => {
+                        abs.entries.push(action_to_add.action);
+                    },
+                }
             };
         }
+        Ok("".to_string())
     }
 
     /// Starting from a list of actions received from the actionrules:
@@ -542,86 +608,93 @@ impl Brain {
     /// - Performs the first action(s) for each object
     /// - Adds the other actions for each object to the actionbuffersets
     /// Return the action(s) taken and it's related metric
-    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>, ct: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_actions_from_rules(&mut self, actions: Vec<Set>, ct: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
         let mut new_metrics: Vec<String> = [].to_vec();
         let mut new_actions: Vec<String> = [].to_vec();
         for mut action in actions {
             // cleanup actionbufferset
             let mut action_object = action.object.clone();
             if OTHER_ACTIONS.iter().any(|&i| i == action.object) { action_object = "other".to_string() }
-            match self.actionbuffersets.iter_mut().find(|x| *x.object == action_object.to_string()) {
-                Some(abs) => abs.entries = Vec::new(),
-                None => (),
-            };
+            if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| x.object == action_object) { abs.entries = Vec::new() }
             // trigger first action
-            match action.entries.first() {
-                Some(entry) => {
-                    let (these_metrics, these_actions) = self.do_action(action.clone(), entry.clone(), ct).unwrap();
-                    for m_raw in these_metrics {
-                        new_metrics.push(m_raw);
+            if let Some(entry) = action.entries.first() {
+                let (these_metrics, these_actions) = match self.do_action(action.clone(), entry.clone(), ct) {
+                    Ok((met, act)) => (met, act),
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::DoActionError)
                     }
-                    for c_raw in these_actions {
-                        new_actions.push(c_raw);
-                    }
-                    action.entries.remove(0);
-                },
-                None => (),
+                };
+                for m_raw in these_metrics {
+                    new_metrics.push(m_raw);
+                }
+                for c_raw in these_actions {
+                    new_actions.push(c_raw);
+                }
+                action.entries.remove(0);
             }
             // add the rest to actionbufferset
             for entry in action.entries {
                 let action_string = format!("{}={},time={},{}", action.object, entry.data, entry.time, entry.id);
-                self.add_action(action_string);
+                match self.add_action(action_string) {
+                    Ok(_) => (),
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::AddActionError)
+                    }
+                };
             }
         }
-        return Ok((new_metrics, new_actions))
+        Ok((new_metrics, new_actions))
     }
 
     /// Performs the next action on each action buffer if the timestamp is right.
     /// Return the action(s) taken and it's related metric
-    pub fn do_actions_from_actionbuffersets(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_actions_from_actionbuffersets(&mut self, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
         for abs in self.actionbuffersets.iter_mut() {
-            match self.metricsets.iter_mut().find(|x| *x.object == *abs.object) {
-                Some(om) => {
-                    if timestamp >= om.last_change_timestamp {
-                        if abs.entries.len() > 0 {
-                            let a = &abs.entries.clone()[0];             
-                            let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000 as f64).ceil() / 1000 as f64;
-                            trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
-                            if time_passed >= abs.current_entry.time {
-                                abs.current_entry = a.clone();
-                                abs.entries.retain(|x| *x != *a);
-                                abs.last_change_timestamp = timestamp.clone();
-                                debug!("- Buffer: {:#x?}", abs.entries);
-                                // TODO: Avoid hardcoding this (use types of actions?)
-                                if abs.object.starts_with("led") {
-                                    self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
-                                } else if abs.object.starts_with("motor") {
-                                    let action_vector = a.data.split("_").collect::<Vec<_>>();
-                                    self.motors.set(abs.object.clone(), action_vector[0].to_string());
-                                } else if abs.object.starts_with("other") {
-                                    let other_action = a.data.split("_").collect::<Vec<_>>();
-                                    if other_action[0] == "load" {
-                                        let file_to_load = other_action[1..].join("_").to_string();
-                                        // TODO: use BrainDeadError instead
-                                        // of String in this function
-                                        self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
+            if let Some(om) = self.metricsets.iter_mut().find(|x| *x.object == *abs.object) {
+                //if timestamp >= om.last_change_timestamp {
+                //    if abs.entries.len() > 0 {
+                if (timestamp >= om.last_change_timestamp) && (!abs.entries.is_empty()) {
+                    let a = &abs.entries.clone()[0];             
+                    let time_passed = ((timestamp - abs.last_change_timestamp) as f64 * 1000_f64).ceil() / 1000_f64;
+                    trace!("- {} > Time passed on current value - {:?}", om.object, time_passed);
+                    if time_passed >= abs.current_entry.time {
+                        abs.current_entry = a.clone();
+                        abs.entries.retain(|x| *x != *a);
+                        abs.last_change_timestamp = timestamp;
+                        debug!("- Buffer: {:#x?}", abs.entries);
+                        // TODO: Avoid hardcoding this (use types of actions?)
+                        if abs.object.starts_with("led") {
+                            self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
+                        } else if abs.object.starts_with("motor") {
+                            let action_vector = a.data.split('_').collect::<Vec<_>>();
+                            self.motors.set(abs.object.clone(), action_vector[0].to_string());
+                        } else if abs.object.starts_with("other") {
+                            let other_action = a.data.split('_').collect::<Vec<_>>();
+                            if other_action[0] == "load" {
+                                let file_to_load = other_action[1..].join("_").to_string();
+                                self.actionrules = match Brain::load_action_rules(file_to_load) {
+                                    Ok(action_rules) => action_rules,
+                                    Err(e) => {
+                                        error!("There was an error!: {}", e);
+                                        return Err(BrainDeadError::LoadActionRulesError)
                                     }
-                                }
-                                info!("- Just did {} -> {} (from buffer)", om.object, a.data);
-                                // TODO actually both the following could be one if we unified format
-                                metrics.push(format!("{}__{}|{}", abs.object, a.data, a.id.to_string()));
-                                result.push(format!("{}__{}__{:?}", abs.object, a.clone().data, a.clone().time));
+                                };
                             }
                         }
+                        info!("- Just did {} -> {} (from buffer)", om.object, a.data);
+                        // TODO actually both the following could be one if we unified format
+                        metrics.push(format!("{}__{}|{}", abs.object, a.data, a.id.to_string()));
+                        result.push(format!("{}__{}__{:?}", abs.object, a.clone().data, a.clone().time));
                     }
-                },
-                None => (),
-            };
+                }
+            }
         };
-        if result.len() == 0 {result.push("".to_string())};
-        if metrics.len() == 0 {metrics.push("".to_string())};
+        if result.is_empty() {result.push("".to_string())};
+        if metrics.is_empty() {metrics.push("".to_string())};
         Ok((metrics, result))
     }
 
@@ -648,147 +721,135 @@ impl Brain {
         // NOTE: debug entry point
         //println!("- Adding metric {} from {}", metric, source_id);
         let metric_decomp = metric.split("__").collect::<Vec<_>>();
-        match self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
-            Some(om) => {
-                if om.entries.len() == 0 {
-                    let new_m = TimedData {
-                        id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                        belongsto: source_id,
-                        data: metric_decomp[1].to_string(),
-                        time: timestamp.clone(), // here time means "since_timestamp"
-                    };
-                    om.entries.push(new_m);
-                    om.last_change_timestamp = timestamp;
-                } else {
-                    if om.entries[0].data != metric_decomp[1].to_string() {
-                        let new_m = TimedData {
-                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                            belongsto: source_id,
-                            data: metric_decomp[1].to_string(),
-                            time: timestamp.clone(),
-                        };
-                        om.entries.insert(0, new_m);
-                        om.last_change_timestamp = timestamp;
-                    }
-                }; 
-                if om.entries.len() > om.max_size.into() {
-                    om.entries.pop();
+        if let Some(om) = self.metricsets.iter_mut().find(|x| *x.object == *metric_decomp[0]) {
+            if om.entries.is_empty() {
+                let new_m = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    belongsto: source_id,
+                    data: metric_decomp[1].to_string(),
+                    time: timestamp, 
                 };
-            },
-            None => (),
-        };
+                om.entries.push(new_m);
+                om.last_change_timestamp = timestamp;
+            } else if om.entries[0].data != metric_decomp[1] {
+                let new_m = TimedData {
+                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                    belongsto: source_id,
+                    data: metric_decomp[1].to_string(),
+                    time: timestamp,
+                };
+                om.entries.insert(0, new_m);
+                om.last_change_timestamp = timestamp;
+            }; 
+            if om.entries.len() > om.max_size.into() {
+                om.entries.pop();
+            };
+        }
     }
 
     pub fn does_condition_match(&mut self, rule: ActionRule, timestamp: f64) -> bool {
         let mut result = true;
-        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
+        let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
         for check in &checks {
             let re = regex::Regex::new(r"=|<=|>=|<|>").unwrap();
             let keyval = re.split(check).collect::<Vec<_>>();
-            match self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
-                Some(om) => {
-                    match om.obj_type.as_str() {
-                        // for binary and output we just try to match fully
-                        "binary" | "output" => {
-                            if om.entries.len() > 0 {
-                                if om.entries[0].data != keyval[1] {
-                                    result = false;
-                                    return result
-                                } else {
-                                    if (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0){
-                                        result = false;
-                                        return result
-                                    };
-                                };
-                            } else if keyval[1] != "0" {
+            if let Some(om) = self.metricsets.iter_mut().find(|x| *x.object == *keyval[0]) {
+                match om.obj_type.as_str() {
+                    // for binary and output we just try to match fully
+                    "binary" | "output" => {
+                        if !om.entries.is_empty() {
+                            if om.entries[0].data != keyval[1] || 
+                                (timestamp - om.entries[0].time < rule.condition[0].time.parse::<f64>().unwrap()) && (om.entries[0].time != 0.0) {
                                 result = false;
                                 return result
-                            }
-                        },
-                        "continuous" => {
-                            let comparison = check.replace(keyval[0], "").replace(keyval[1], "");
-                            let mut matched_metrics: Vec<TimedData> = [].to_vec();
-                            if om.entries.len() > 0 {
-                                match comparison.as_str() {
-                                    "=" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() == keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    "<=" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() <= keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    ">=" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() >= keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    "<" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() < keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    ">" => {
-                                        for m in om.entries.clone() {
-                                            if m.data.parse::<u16>().unwrap() > keyval[1].parse::<u16>().unwrap() {
-                                                matched_metrics.push(m);
-                                            } else {
-                                                break;
-                                            }
-                                        }
-                                    },
-                                    &_ => {},
-                                }
-                                if matched_metrics.len() > 0 {
-                                    let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
-                                    if acc_time.to_string() == "NaN"{
-                                        result = false;
-                                        return result
-                                    } else {
-                                        if (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0){
-                                            result = false;
-                                            return result
+                            };
+                        } else if keyval[1] != "0" {
+                            result = false;
+                            return result
+                        }
+                    },
+                    "continuous" => {
+                        let comparison = check.replace(keyval[0], "").replace(keyval[1], "");
+                        let mut matched_metrics: Vec<TimedData> = [].to_vec();
+                        if !om.entries.is_empty() {
+                            match comparison.as_str() {
+                                "=" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() == keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
                                         }
                                     }
-                                } else {
+                                },
+                                "<=" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() <= keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                ">=" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() >= keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                "<" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() < keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                ">" => {
+                                    for m in om.entries.clone() {
+                                        if m.data.parse::<u16>().unwrap() > keyval[1].parse::<u16>().unwrap() {
+                                            matched_metrics.push(m);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+                                },
+                                &_ => {},
+                            }
+                            if !matched_metrics.is_empty() {
+                                // This is a trick meant to get NaN as the initial value, that's why we want to ignore
+                                // https://www.reddit.com/r/rust/comments/3fg0xr/how_do_i_find_the_max_value_in_a_vecf64/
+                                #[allow(clippy::zero_divided_by_zero)]
+                                #[allow(clippy::eq_op)]
+                                let acc_time = matched_metrics.clone().iter().map(|x| x.time).collect::<Vec<_>>().iter().cloned().fold(0./0., f64::min);
+                                if acc_time.to_string() == "NaN" || 
+                                    (timestamp - acc_time < rule.condition[0].time.parse::<f64>().unwrap()) && (acc_time != 0.0) {
                                     result = false;
                                     return result
                                 }
-                                // put together all metrics that fit comparison
-                                // add the timestamps
-                                // compare to desired time
-                                // ...and if it doesnt fit, remove
                             } else {
                                 result = false;
                                 return result
                             }
-                        },
-                        &_ => {
-                        },
-                    };
-                },
-                None => (),
-            };
+                            // put together all metrics that fit comparison
+                            // add the timestamps
+                            // compare to desired time
+                            // ...and if it doesnt fit, remove
+                        } else {
+                            result = false;
+                            return result
+                        }
+                    },
+                    &_ => {
+                    },
+                };
+            }
         }
-        return result
+        result
     }
 
     pub fn create_record_file() -> String {
@@ -796,16 +857,16 @@ impl Brain {
         fs::create_dir_all(path).unwrap();
         let filename = path.to_owned() + "/last_run.yaml";
         File::create(filename.clone()).unwrap();
-        filename.to_string()
+        filename
     }
 
     pub fn record(&mut self, timestamp: f64, entry: String) {
         let mut file = OpenOptions::new()
             .append(true)
-            .open(self.rec_file.clone())
+            .open(self.record_file.clone())
             .unwrap();
         let log = format!("- time: {}\n  msg: \"{}\"", timestamp, entry);
-        warn!("We are writing {} to {}", log, self.rec_file);
+        warn!("We are writing {} to {}", log, self.record_file);
         writeln!(&mut file, "{}", log).unwrap();
     }
 
@@ -843,13 +904,13 @@ impl Brain {
                 //            y -> add, adjust triggercount for self to +1
                 //            n -> remove
                 if rule.triggercount > 0 {
-                    if rule.actionsloop != true {
+                    if !rule.actionsloop {
                         //if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
                         //    partial_rules.retain(|x| *x != rule);
                         //}
-                        let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                        if checks != [""].to_vec() && checks.len() != 0{
-                            if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
+                        let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
+                        if checks != [""].to_vec() && !checks.is_empty() {
+                            if ! self.does_condition_match(rule.clone(), timestamp) {
                                 partial_rules.retain(|x| *x != rule);
                             }
                         } else {
@@ -857,28 +918,22 @@ impl Brain {
                         }
                     }
                 } else {
-                    let checks = rule.condition[0].input_objs.split(",").collect::<Vec<_>>();
-                    if checks != [""].to_vec() && checks.len() != 0{
-                        if ! self.does_condition_match(rule.clone(), timestamp.clone()) {
-                            partial_rules.retain(|x| *x != rule);
-                        }
+                    let checks = rule.condition[0].input_objs.split(',').collect::<Vec<_>>();
+                    if (checks != [""].to_vec()) && (!checks.is_empty()) && (! self.does_condition_match(rule.clone(), timestamp)) {
+                        partial_rules.retain(|x| *x != rule);
                     }
                 }
             }
         }
         // We want to count the amount of times the trigger was...triggered
-        if partial_rules.len() > 0 {
+        if !partial_rules.is_empty() {
             for rule in self.actionrules.iter_mut() {
-                match partial_rules.clone().iter_mut().find(|x| *x.id == *rule.id) {
-                    Some(_) => {
-                        rule.triggercount += 1;
-                    },
-                    //None => rule.triggercount = 0,
-                    None => (),
+                if partial_rules.clone().iter_mut().any(|x| x.id == *rule.id) {
+                    rule.triggercount += 1;
                 };
             }
             debug!("- Rules matching :");
-            for (ix, rule) in partial_rules.clone().iter().enumerate() {
+            for (ix, rule) in partial_rules.iter().enumerate() {
                 debug!(" #{} {} input:", ix, rule.id);
                 debug!("     input:");
                 for ri in rule.condition.clone() {
@@ -887,71 +942,109 @@ impl Brain {
                 debug!("     output:");
                 // we store a vector of actionbuffersets
                 for action in rule.actions.clone() {
-                    match action_vectors.iter_mut().find(|x| *x.object == *action.object) {
-                        Some(bf) => {
-                            let entry = TimedData {
-                                id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                                belongsto: rule.id.clone(),
-                                data: action.value,
-                                time: action.time.parse::<f64>().unwrap(),
-                            };
-                            bf.entries.push(entry);
-                        },
-                        None => (),
+                    if let Some(bf) = action_vectors.iter_mut().find(|x| *x.object == *action.object) {
+                        let entry = TimedData {
+                            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                            belongsto: rule.id.clone(),
+                            data: action.value,
+                            time: action.time.parse::<f64>().unwrap(),
+                        };
+                        bf.entries.push(entry);
                     }
                 }
             }
         }
         // Clean up the vector from actionbuffersets that are empty
         for s in action_vectors.clone() {
-            if s.entries.len() == 0 {
+            if s.entries.is_empty() {
                 action_vectors.retain(|x| *x != s);
             }
         }
         Ok(action_vectors)
     }
 
-    pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), String>{
+    pub fn do_action(&mut self, om: Set, a: TimedData, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
         let mut result = [].to_vec();
         let mut metrics = [].to_vec();
-        match self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
-            Some(abs) => {
-                abs.last_change_timestamp = timestamp.clone();
-            },
-            None => ()
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
+            abs.last_change_timestamp = timestamp;
         }
         if om.object.starts_with("led") {
             self.leds.set_led(om.object.clone(), a.data.parse::<u8>().unwrap() == 1);
         } else if om.object.starts_with("motor") {
-            let action_vector = a.data.split("_").collect::<Vec<_>>();
+            let action_vector = a.data.split('_').collect::<Vec<_>>();
             self.motors.set(om.object.clone(), action_vector[0].to_string());
         } else if om.object.starts_with("other") {
-            let other_action = a.data.split("_").collect::<Vec<_>>();
+            let other_action = a.data.split('_').collect::<Vec<_>>();
             if other_action[0] == "load" {
-                let file_to_load = other_action[1..].join("_").to_string();
-                // TODO: add BrainDeadError to this function
-                self.actionrules = Brain::load_action_rules(file_to_load).unwrap();
+                let file_to_load = other_action[1..].join("_");
+                self.actionrules = match Brain::load_action_rules(file_to_load) {
+                    Ok(action_rules) => action_rules,
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::LoadActionRulesError)
+                    }
+                };
             }
         }
-        // TODO: should this be done on the do_next_action too?
-        match self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
-            Some(abs) => {
-                abs.current_entry = TimedData {
-                    id: COUNTER.fetch_add(1, Ordering::Relaxed),
-                    belongsto: om.entries[0].clone().belongsto.clone(),
-                    data: om.entries[0].clone().data,
-                    time: om.entries[0].clone().time,
-                };
-            },
-            None => (),
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *om.object) {
+            abs.current_entry = TimedData {
+                id: COUNTER.fetch_add(1, Ordering::Relaxed),
+                belongsto: om.entries[0].clone().belongsto,
+                data: om.entries[0].clone().data,
+                time: om.entries[0].clone().time,
+            };
         }
         //TODO: this info should come from the leds module itself
-        //TODO: all printlns should show a proper timestamp but self.timestamp is 0 here
         info!("- Just did {} -> {}", om.object, a.data);
         // TODO actually both the following could be one if we unified format
         metrics.push(format!("{}__{}|{}", om.object, a.data, a.belongsto.to_string()));
-        result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.clone().time));
-        return Ok((metrics, result))
+        result.push(format!("{}__{}__{:?}", om.object, a.clone().data, a.time));
+        Ok((metrics, result))
+    }
+
+    /// From a simple String (e.g.: motor_r=50), take an action
+    pub fn do_action_from_string(&mut self, action_raw: String, timestamp: f64) -> Result<(Vec<String>, Vec<String>), BrainDeadError>{
+        let mut result = [].to_vec();
+        let mut metrics = [].to_vec();
+        let action = action_raw.split("=").collect::<Vec<_>>();
+        // TODO: are these values correct?
+        let a = TimedData {
+            id: COUNTER.fetch_add(1, Ordering::Relaxed),
+            belongsto: "api".to_string(),
+            data: action[1].to_string(),
+            time: 0.1,
+        };
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
+            abs.last_change_timestamp = timestamp;
+        }
+        if action[0].starts_with("led") {
+            self.leds.set_led(action[0].to_string(), a.data.parse::<u8>().unwrap() == 1);
+        } else if action[0].starts_with("motor") {
+            let action_vector = a.data.split('_').collect::<Vec<_>>();
+            self.motors.set(action[0].to_string(), action_vector[0].to_string());
+        } else if action[0].starts_with("other") {
+            let other_action = a.data.split('_').collect::<Vec<_>>();
+            if other_action[0] == "load" {
+                let file_to_load = other_action[1..].join("_");
+                self.actionrules = match Brain::load_action_rules(file_to_load) {
+                    Ok(action_rules) => action_rules,
+                    Err(e) => {
+                        error!("There was an error!: {}", e);
+                        return Err(BrainDeadError::LoadActionRulesError)
+                    }
+                };
+            }
+        }
+        if let Some(abs) = self.actionbuffersets.iter_mut().find(|x| *x.object == *action[0]) {
+            abs.current_entry = a.clone();
+        }
+        //TODO: this info should come from the leds module itself
+        info!("- Just did {} -> {}", action[0], a.data);
+        // TODO actually both the following could be one if we unified format
+        metrics.push(format!("{}__{}|{}", action[0], a.data, a.belongsto.to_string()));
+        result.push(format!("{}__{}__{:?}", action[0], a.clone().data, a.time));
+        Ok((metrics, result))
     }
 
     /// Just run the brain.
@@ -962,23 +1055,28 @@ impl Brain {
         // timestamps
         let start_timestamp = self.get_current_time();
         let mut ct: f64 = 0.0;
-        // communication with arduino
-        let (s, r): (Sender<String>, Receiver<String>) = std::sync::mpsc::channel();
-        let msgs = s.clone();
-        let mut arduino_clone = self.arduino.clone();
+        // communication
+        let (s, r): (SyncSender<String>, Receiver<String>) = std::sync::mpsc::sync_channel(2);
+
+        let s_arduino = s.clone();
+        let mut thread_arduino = self.arduino.clone();
         let brain_clone = self.clone();
         thread::spawn(move || {
             if brain_clone.mode != "dryrun" {
                 //TODO: find a way to reproduce this error, then add BrainDeadError to this function
-                arduino_clone.read_channel(msgs).unwrap();
+                thread_arduino.read_channel(s_arduino).unwrap();
             } else {
-                arduino_clone.read_channel_mock(msgs, brain_clone.setup_file.clone()).unwrap();
+                thread_arduino.read_channel_mock(s_arduino, brain_clone.setup_file.clone()).unwrap();
             };
         });
-        match r.try_recv() {
-            Ok(m) => self.use_arduino_msg(ct, m),
-            Err(_) => (),
-        };
+
+        let s_api = s.clone();
+        let mut thread_api = self.api.clone();
+        thread::spawn(move || {
+            thread_api.run(s_api);
+        });
+
+        // Needed? if let Ok(m) = r.try_recv() { self.use_received_msg(ct, m, sender.clone()) }
         loop {
             let mut new_metrics: Vec<String> = [].to_vec();
             let mut new_actions: Vec<String> = [].to_vec();
@@ -987,10 +1085,7 @@ impl Brain {
             let new_ct = (ct_raw * precission as f64).floor() / precission as f64;
             if new_ct > ct { 
                 ct = new_ct;
-                let _msg = match r.try_recv() {
-                    Ok(m) => self.use_arduino_msg(ct, m),
-                    Err(_) => (),
-                };
+                if let Ok(m) = r.try_recv() { println!("{}", m); self.use_received_msg(ct, m, sender.clone()) }
                 self.show_metrics();
                 self.show_actionbuffers();
                 // get actions
@@ -1021,7 +1116,7 @@ impl Brain {
                 }
                 // add metrics to metricsets
                 for m_raw in new_metrics.clone() {
-                    let m = m_raw.split("|").collect::<Vec<_>>();
+                    let m = m_raw.split('|').collect::<Vec<_>>();
                     if m.len() > 1 {
                         self.add_metric(ct, m[0].to_string(), m[1].to_string());
                     }
@@ -1030,16 +1125,14 @@ impl Brain {
                 sender.send(format!("{:?}|{:?}", ct, new_actions)).unwrap();
             };
             // break mechanism
-            match secs_to_run {
-                Some(s) => {
-                    if ct >= s {
-                        println!("Finished execution");
-                        break
-                    }
-                },
-                None => (),
+            if let Some(s) = secs_to_run {
+                if ct >= s {
+                    println!("Finished execution");
+                    break
+                }                
             }
         }
     }
+
 
 }

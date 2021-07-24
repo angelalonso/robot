@@ -8,7 +8,7 @@ use std::io;
 use std::path::Path;
 use std::process::Command;
 use std::str;
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::SyncSender;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 use std::{thread, time};
@@ -53,7 +53,8 @@ impl Arduino {
     /// This tries to reproduce input from the arduino when there's none
     /// Since it's just needed for testing, I'll hardcode the behaviour, which depends on what is
     /// being tested
-    pub fn read_channel_mock(&mut self, channel: Sender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
+    //pub fn read_channel_mock(&mut self, channel: Sender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
+    pub fn read_channel_mock(&mut self, channel: SyncSender<String>, setup_file: String) -> Result<String, BrainArduinoError> {
         debug!("...reading from Mocked Serial Port");
         let mut got: String;
         let mock_file = setup_file.replace("setup", "mock");
@@ -72,7 +73,7 @@ impl Arduino {
                 Err(_e) => 0,
             };
             debug!(", which has {} entries", e.len());
-            while e.len() > 0 {
+            while !e.is_empty() {
                 let now = SystemTime::now();
                 let timestamp = match now.duration_since(UNIX_EPOCH) {
                     // This WHOLE complication is needed to give my timestamp a x.x precision
@@ -80,11 +81,10 @@ impl Arduino {
                     Ok(time) => ((((time.as_millis() as f64 - start_time as f64) / 100.0) as i64)as f64) / (10.0) as f64,
                     Err(_e) => 0.0,
                 };
-                if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
-                    match channel.send(e[0].msg.clone()){
-                        Ok(_) => debug!("- Forwarded to brain: {:?} ", e[0]),
-                        Err(_) => (),
-                    };
+                let error_margin = f64::EPSILON;
+                if (e[0].time.parse::<f64>().unwrap() - timestamp as f64).abs() < error_margin {
+                //if e[0].time.parse::<f64>().unwrap() == timestamp as f64 {
+                    if channel.send(e[0].msg.clone()).is_ok() { debug!("- Forwarded to brain: {:?} ", e[0]) }
                     e.remove(0);
                 }
             }
@@ -119,7 +119,8 @@ impl Arduino {
         Ok("".to_string())
     }
 
-    pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
+    //pub fn read_channel(&mut self, channel: Sender<String>) -> Result<String, BrainArduinoError> {
+    pub fn read_channel(&mut self, channel: SyncSender<String>) -> Result<String, BrainArduinoError> {
         println!("...reading Arduino messages from Serial Port {}", &self.serialport);
         let mut port = serial::open(&self.serialport).unwrap();
         loop {
@@ -157,7 +158,7 @@ impl Arduino {
         // What we need to solve is the problem that the Arduino program boots and starts sending
         //   before our brain  program is ready.
         let buf: Vec<u8> = (0..1).collect();
-        port.write(&buf[..])?;
+        port.write_all(&buf[..])?;
 
         let reader = BufReader::new(port);
         let mut lines = reader.lines();

@@ -1,10 +1,16 @@
+#![feature(decl_macro)]
 pub mod config;
 pub mod brain;
 pub mod brain_test;
+pub mod api;
 pub mod arduino;
 pub mod arduino_test;
 pub mod motors;
 pub mod leds;
+
+
+#[macro_use]
+extern crate rocket;
 
 extern crate chrono;
 use chrono::offset::Utc;

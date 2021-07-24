@@ -7,6 +7,12 @@ The program manages:
 - Installing new .hex files into the Arduino
 - Movement of the motors
 
+## Rust setup
+```
+rustup override set nightly
+rustup update && cargo update
+```
+
 ## Configuration
 
 Check [the setup and actions README](./SETUP_README.md)

@@ -16,7 +16,7 @@ _roctl()
                     COMPREPLY=($(compgen -W "online" -- ${cur}))
                     ;;
                 do)
-                    COMPREPLY=($(compgen -W "run record reset test compile gitpush" -- ${cur}))
+                    COMPREPLY=($(compgen -W "check run record reset test compile gitpush" -- ${cur}))
                     ;;
             esac
             ;;

@@ -1,5 +1,7 @@
+use rust_gpiozero;
 use rust_gpiozero::{Motor, PWMOutputDevice};
 use log::{debug, info, warn};
+use std::cmp::Ordering;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::collections::HashMap;
@@ -26,9 +28,22 @@ impl Motors {
             let mut m_o = None;
             let mut m_e = None;
             if mode != "dryrun" {
+            // TODO: use this if no solution found
+            //if mode != "dryrun" && mode != "check" {
                 let motor_pin1 = o.1["gpio1"].parse::<u8>().unwrap();
                 let motor_pin2 = o.1["gpio2"].parse::<u8>().unwrap();
                 let motor_enablerpin = o.1["gpio_enabler"].parse::<u8>().unwrap();
+                //Am I running on the Raspberry?
+                //-match std::env::var("TARGET") {
+                //-    Ok(_a) => {
+                //-        warn!("If your are not on a Raspberry and you see this, there's a bug");
+                //-        m_o = Some(Arc::new(Mutex::new(Motor::new(motor_pin1, motor_pin2))));
+                //-        m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(motor_enablerpin))));
+                //-    },
+                //-    Err(_e) => {
+                //-        warn!("Not running on a Raspberry, there are probably no GPIOs we can use");
+                //-    },
+                //-};
                 m_o = Some(Arc::new(Mutex::new(Motor::new(motor_pin1, motor_pin2))));
                 m_e = Some(Arc::new(Mutex::new(PWMOutputDevice::new(motor_enablerpin))));
             }
@@ -48,8 +63,8 @@ impl Motors {
     }
 
     pub fn change_movement(&mut self, movement: String) {
-        let move_vector = movement.split("_").collect::<Vec<_>>();
-        let prev_move_vector = self.movement.split("_").collect::<Vec<_>>();
+        let move_vector = movement.split('_').collect::<Vec<_>>();
+        let prev_move_vector = self.movement.split('_').collect::<Vec<_>>();
         //println!("{:#x?} vs. {:#x?}", move_vector, prev_move_vector);
         if move_vector != prev_move_vector {
             let move_l = move_vector[0];
@@ -58,7 +73,7 @@ impl Motors {
             // LEFT MOTOR
             if move_l != prev_move_vector[0] {
                 if move_l.parse::<i16>().unwrap() == 0 {
-                    match self.objects.iter_mut().find(|x| *x.name == "motor_l".to_string()) {
+                    match self.objects.iter_mut().find(|x| x.name == "motor_l") {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
@@ -75,14 +90,14 @@ impl Motors {
                         None => warn!("There's no motor_l"),
                     }
                 } else {
-                    match self.objects.iter_mut().find(|x| *x.name == "motor_l".to_string()) {
+                    match self.objects.iter_mut().find(|x| x.name == "motor_l") {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
-                                    if move_l.parse::<i16>().unwrap() > 0 {
-                                        o.lock().unwrap().forward();
-                                    } else if move_l.parse::<i16>().unwrap() < 0 {
-                                        o.lock().unwrap().backward();
+                                    match move_l.parse::<i16>().unwrap().cmp(&0) {
+                                        Ordering::Greater => o.lock().unwrap().forward(),
+                                        Ordering::Less => o.lock().unwrap().backward(),
+                                        Ordering::Equal => (),
                                     }
                                     match &m.enabler {
                                         Some(e) => {
@@ -104,7 +119,7 @@ impl Motors {
             // RIGHT MOTOR
             if move_r != prev_move_vector[1] {
                 if move_r.parse::<i16>().unwrap() == 0 {
-                    match self.objects.iter_mut().find(|x| *x.name == "motor_r".to_string()) {
+                    match self.objects.iter_mut().find(|x| x.name == "motor_r") {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
@@ -121,14 +136,14 @@ impl Motors {
                         None => warn!("There's no motor_r"),
                     }
                 } else {
-                    match self.objects.iter_mut().find(|x| *x.name == "motor_r".to_string()) {
+                    match self.objects.iter_mut().find(|x| x.name == "motor_r") {
                         Some(m) => {
                             match m.clone().object {
                                 Some(o) => {
-                                    if move_r.parse::<i16>().unwrap() > 0 {
-                                        o.lock().unwrap().forward();
-                                    } else if move_r.parse::<i16>().unwrap() < 0 {
-                                        o.lock().unwrap().backward();
+                                    match move_r.parse::<i16>().unwrap().cmp(&0) {
+                                        Ordering::Greater => o.lock().unwrap().forward(),
+                                        Ordering::Less => o.lock().unwrap().backward(),
+                                        Ordering::Equal => (),
                                     }
                                     match &m.enabler {
                                         Some(e) => {
@@ -154,7 +169,7 @@ impl Motors {
 
     pub fn set(&mut self, motor: String, value: String) {
         let movement = self.movement.clone();
-        let movement_vector = movement.split("_").collect::<Vec<_>>();
+        let movement_vector = movement.split('_').collect::<Vec<_>>();
         match motor.as_str() {
             "motor_l" => {
                 self.change_movement(format!("{}_{}", value, movement_vector[1]));
@@ -162,9 +177,7 @@ impl Motors {
             "motor_r" => {
                 self.change_movement(format!("{}_{}", movement_vector[0], value));
             },
-            _ => {
-                ()
-            },
+            _ => {},
         }
         
     }

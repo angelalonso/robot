@@ -12,4 +12,7 @@
 - Chassis made of Cardboard and plastic  
 - [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
 
+## A different kind of Shopping list: your laptop
+- I use ubuntu LTS
+
 [PREV: Main README <--](../README.md) [--> NEXT: Setup and manifest](001_Setup.md)
