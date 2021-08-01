@@ -43,5 +43,6 @@ rosdep install -y --from-paths src --ignore-src --rosdistro noetic -r --os=ubunt
 sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -j1 -DPYTHON_EXECUTABLE=/usr/bin/python3
 source /opt/ros/noetic/setup.bash
 roscd
+sudo apt install python3-roslaunch
 - test everything is good
 roscore
