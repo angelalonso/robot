@@ -26,27 +26,44 @@ ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no ubuntu@192.1
 --- Edit /etc/locale.gen and uncomment the line with en_US.UTF-8
 --locale-gen en_US.UTF-8
 --update-locale en_US.UTF-8
-- Install ROS on Ubuntu
-  - https://varhowto.com/install-ros-noetic-raspberry-pi-4/
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros-noetic.list'
-sudo apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+- Connect it to your Wifi
+sudo apt install wireless-tools wpasupplicant
+iwconfig # Check your ESSID
+wpa_passphrase your-ESSID your-wifi-passphrase | sudo tee /etc/wpa_supplicant.conf # Check and correct contents of the file
+sudo wpa_supplicant -c /etc/wpa_supplicant.conf -i 
+sudo dhclient wlan0
+sudo cp /lib/systemd/system/wpa_supplicant.service /etc/systemd/system/wpa_supplicant.service
+sudo vim /etc/systemd/system/wpa_supplicant.service
+- Change
+  - ExecStart=/sbin/wpa_supplicant -u -s -O /run/wpa_supplicant
+- to:
+  - ExecStart=/sbin/wpa_supplicant -u -s -c /etc/wpa_supplicant.conf -i wlan0
+  - Restart=always
+- Comment out this line:
+  - Alias=dbus-fi.w1.wpa_supplicant1.service
+sudo systemctl daemon-reload
+sudo systemctl enable wpa_supplicant.service
+sudo vim /etc/systemd/system/dhclient.service
+- Add:
+```[Unit]
+Description= DHCP Client
+Before=network.target
+After=wpa_supplicant.service
+
+[Service]
+Type=forking
+ExecStart=/sbin/dhclient wlan0 -v
+ExecStop=/sbin/dhclient wlan0 -r
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
+```
+sudo init 6
+
+## Install ROS2 on Ubuntu
+sudo apt update && sudo apt install curl gnupg2 lsb-release build-essential
+curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
+sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
 sudo apt update
-sudo apt-get install -y python3-rosdep python3-rosinstall-generator python3-wstool python3-rosinstall build-essential cmake
-sudo rosdep init
-rosdep update
-mkdir ~/ros_catkin_ws
-cd ~/ros_catkin_ws
-rosinstall_generator ros_comm --rosdistro noetic --deps --wet-only --tar > noetic-ros_comm-wet.rosinstall
-wstool init src noetic-ros_comm-wet.rosinstall
-- If it fails, rm src/.rosinstall and re-run it
-rosdep install -y --from-paths src --ignore-src --rosdistro noetic -r --os=ubuntu:focal
-sudo src/catkin/bin/catkin_make_isolated --install -DCMAKE_BUILD_TYPE=Release --install-space /opt/ros/noetic -j1 -DPYTHON_EXECUTABLE=/usr/bin/python3
-source /opt/ros/noetic/setup.bash
-roscd
-sudo apt install python3-roslaunch
-- test everything is good
-roscore
-- Create workspace
-mkdir -p ~/catkin_ws/src
-cd ~/catkin_ws/
-catkin_make
+sudo apt install ros-foxy-ros-base python3-colcon-common-extensions python3-argcomplete
