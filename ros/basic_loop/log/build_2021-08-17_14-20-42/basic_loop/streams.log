@@ -1,0 +1,22 @@
+[0.398s] Invoking command in '/home/aaf/Software/Dev/robot/ros/basic_loop': PYTHONPATH=/home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/basic_loop build --build-base /home/aaf/Software/Dev/robot/ros/basic_loop/build/basic_loop/build install --prefix /home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop --record /home/aaf/Software/Dev/robot/ros/basic_loop/build/basic_loop/install.log --single-version-externally-managed
+[0.753s] running egg_info
+[0.753s] writing build/basic_loop/basic_loop.egg-info/PKG-INFO
+[0.754s] writing dependency_links to build/basic_loop/basic_loop.egg-info/dependency_links.txt
+[0.755s] writing entry points to build/basic_loop/basic_loop.egg-info/entry_points.txt
+[0.755s] writing requirements to build/basic_loop/basic_loop.egg-info/requires.txt
+[0.755s] writing top-level names to build/basic_loop/basic_loop.egg-info/top_level.txt
+[0.797s] reading manifest file 'build/basic_loop/basic_loop.egg-info/SOURCES.txt'
+[0.798s] writing manifest file 'build/basic_loop/basic_loop.egg-info/SOURCES.txt'
+[0.798s] running build
+[0.798s] running build_py
+[0.798s] running install
+[0.799s] running install_lib
+[0.801s] running install_data
+[0.802s] copying resource/basic_loop -> /home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop/share/ament_index/resource_index/packages
+[0.803s] copying package.xml -> /home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop/share/basic_loop
+[0.803s] running install_egg_info
+[0.806s] Copying build/basic_loop/basic_loop.egg-info to /home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop/lib/python3.8/site-packages/basic_loop-0.0.0-py3.8.egg-info
+[0.807s] running install_scripts
+[0.834s] Installing minimal_python_node script to /home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop/lib/basic_loop
+[0.834s] writing list of installed files to '/home/aaf/Software/Dev/robot/ros/basic_loop/build/basic_loop/install.log'
+[0.863s] Invoked command in '/home/aaf/Software/Dev/robot/ros/basic_loop' returned '0': PYTHONPATH=/home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/basic_loop build --build-base /home/aaf/Software/Dev/robot/ros/basic_loop/build/basic_loop/build install --prefix /home/aaf/Software/Dev/robot/ros/basic_loop/install/basic_loop --record /home/aaf/Software/Dev/robot/ros/basic_loop/build/basic_loop/install.log --single-version-externally-managed

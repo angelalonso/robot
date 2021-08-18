@@ -1,19 +1,3 @@
-# On the laptop
-
-- Install ROS on Ubuntu
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-sudo apt update
-sudo apt-get install ros-noetic-desktop-full python3-rosdep2 # rosdep was missing
-sudo rm /etc/ros/rosdep/sources.list.d/20-default.list
-sudo rosdep init
-rosdep update
-source /opt/ros/noetic/setup.zsh # because I use...zsh
-- Navigate to the folder for your robot files and prepare it
-mkdir src
-catkin_make
-source devel/setup.zsh
-
 # On the Raspberry
 - https://roboticsbackend.com/install-ubuntu-on-raspberry-pi-without-monitor/
 - Get image from here https://ubuntu.com/download/raspberry-pi
@@ -59,6 +43,10 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 ```
+sudo vim /etc/default/crda
+```
+REGDOMAIN=DE
+```
 sudo init 6
 
 ## Install ROS2 on Ubuntu
@@ -66,4 +54,5 @@ sudo apt update && sudo apt install curl gnupg2 lsb-release build-essential
 curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
 sudo apt update
-sudo apt install ros-foxy-ros-base python3-colcon-common-extensions python3-argcomplete
+sudo apt install ros-foxy-ros-base python3-colcon-common-extensions python3-argcomplete python3-rosdep2
+
