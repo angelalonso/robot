@@ -1,0 +1,22 @@
+[0.279s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain': PYTHONPATH=/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/brain build --build-base /home/aaf/Software/Dev/robot/ros/brain/build/brain/build install --prefix /home/aaf/Software/Dev/robot/ros/brain/install/brain --record /home/aaf/Software/Dev/robot/ros/brain/build/brain/install.log --single-version-externally-managed
+[0.521s] running egg_info
+[0.522s] writing build/brain/brain.egg-info/PKG-INFO
+[0.522s] writing dependency_links to build/brain/brain.egg-info/dependency_links.txt
+[0.522s] writing entry points to build/brain/brain.egg-info/entry_points.txt
+[0.522s] writing requirements to build/brain/brain.egg-info/requires.txt
+[0.522s] writing top-level names to build/brain/brain.egg-info/top_level.txt
+[0.558s] reading manifest file 'build/brain/brain.egg-info/SOURCES.txt'
+[0.559s] writing manifest file 'build/brain/brain.egg-info/SOURCES.txt'
+[0.559s] running build
+[0.559s] running build_py
+[0.560s] running install
+[0.560s] running install_lib
+[0.562s] running install_data
+[0.562s] running install_egg_info
+[0.564s] removing '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain-0.0.0-py3.8.egg-info' (and everything under it)
+[0.564s] Copying build/brain/brain.egg-info to /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain-0.0.0-py3.8.egg-info
+[0.565s] running install_scripts
+[0.583s] Installing listener script to /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain
+[0.583s] Installing talker script to /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain
+[0.583s] writing list of installed files to '/home/aaf/Software/Dev/robot/ros/brain/build/brain/install.log'
+[0.612s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain' returned '0': PYTHONPATH=/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages:${PYTHONPATH} /usr/bin/python3 setup.py egg_info --egg-base build/brain build --build-base /home/aaf/Software/Dev/robot/ros/brain/build/brain/build install --prefix /home/aaf/Software/Dev/robot/ros/brain/install/brain --record /home/aaf/Software/Dev/robot/ros/brain/build/brain/install.log --single-version-externally-managed

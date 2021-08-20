@@ -54,5 +54,19 @@ sudo apt update && sudo apt install curl gnupg2 lsb-release build-essential
 curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 sudo sh -c 'echo "deb [arch=$(dpkg --print-architecture)] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2-latest.list'
 sudo apt update
-sudo apt install ros-foxy-ros-base python3-colcon-common-extensions python3-argcomplete python3-rosdep2
+sudo apt install ros-foxy-ros-base python3-colcon-common-extensions python3-argcomplete python3-rosdep2 unzip
 
+# Creating new project
+source /opt/ros/rolling/setup.zsh
+ros2 pkg create --build-type ament_python py_pubsub
+-- Add code
+rosdep install -i --from-path . --rosdistro rolling -y
+colcon build --packages-select brain
+. install/setup.zsh
+
+# Raspberry GPIO
+wget https://github.com/joan2937/pigpio/archive/master.zip
+unzip master.zip
+cd pigpio-master
+make
+sudo make install

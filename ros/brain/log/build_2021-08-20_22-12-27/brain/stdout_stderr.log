@@ -1,0 +1,39 @@
+running egg_info
+creating build/brain/brain.egg-info
+writing build/brain/brain.egg-info/PKG-INFO
+writing dependency_links to build/brain/brain.egg-info/dependency_links.txt
+writing entry points to build/brain/brain.egg-info/entry_points.txt
+writing requirements to build/brain/brain.egg-info/requires.txt
+writing top-level names to build/brain/brain.egg-info/top_level.txt
+writing manifest file 'build/brain/brain.egg-info/SOURCES.txt'
+reading manifest file 'build/brain/brain.egg-info/SOURCES.txt'
+writing manifest file 'build/brain/brain.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/aaf/Software/Dev/robot/ros/brain/build/brain/build
+creating /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib
+creating /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib/brain
+copying brain/publisher_member_function.py -> /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib/brain
+copying brain/__init__.py -> /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib/brain
+copying brain/subscriber_member_function.py -> /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib/brain
+running install
+running install_lib
+creating /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain
+copying /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib/brain/publisher_member_function.py -> /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain
+copying /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib/brain/__init__.py -> /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain
+copying /home/aaf/Software/Dev/robot/ros/brain/build/brain/build/lib/brain/subscriber_member_function.py -> /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain
+byte-compiling /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/publisher_member_function.py to publisher_member_function.cpython-38.pyc
+byte-compiling /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/__init__.py to __init__.cpython-38.pyc
+byte-compiling /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/subscriber_member_function.py to subscriber_member_function.cpython-38.pyc
+running install_data
+creating /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index
+creating /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index
+creating /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/packages
+copying resource/brain -> /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/packages
+copying package.xml -> /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain
+running install_egg_info
+Copying build/brain/brain.egg-info to /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain-0.0.0-py3.8.egg-info
+running install_scripts
+Installing listener script to /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain
+Installing talker script to /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain
+writing list of installed files to '/home/aaf/Software/Dev/robot/ros/brain/build/brain/install.log'
