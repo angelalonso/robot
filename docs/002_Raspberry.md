@@ -127,49 +127,8 @@ See [README.md](README.md) for physical connection scheme
 
 ```
 $ sudo apt-get update  
-$ sudo apt-get install vim git pkg-config libudev1 libudev-dev # we'll need them later
-$ sudo apt-get install bison flex -y  
-$ wget http://download.savannah.gnu.org/releases/avrdude/avrdude-6.2.tar.gz  
-$ tar xfv avrdude-6.2.tar.gz  
-$ cd avrdude-6.2/  
-$ ./configure --enable-linuxgpio  
-$ make  
-$ sudo make install  
-$ sudo vim /usr/local/etc/avrdude.conf  
-```
-  
-```programmer  
-  id    = "linuxgpio";  
-  desc  = "Use the Linux sysfs interface to bitbang GPIO lines";  
-  type  = "linuxgpio";  
-  reset = 4;  
-  sck   = 11;  
-  mosi  = 10;  
-  miso  = 9;  
-;  
-```
-  
-```
-$ sudo avrdude -c linuxgpio -p atmega328p -v  
-```
-
-## test an installation of an actual program
-```
-$ sudo avrdude -c linuxgpio -p atmega328p -v -U flash:w:arduino/001_test_pong/001_test_pong.ino.hex:i
-```
-
-# Give your user access to the GPIO pins
-, assuming your user is on the gpio Group...   
-```
-$ sudo chgrp gpio /sys/class/gpio/export  
-$ sudo chgrp gpio /sys/class/gpio/unexport  
-```
-
-# Prepare Raspberry to run rust
-```
-$ export RUSTUP_UNPACK_RAM=200000000  # For Raspberry pi 1 REV2 Model B
-$ export RUSTUP_UNPACK_RAM=220000000  # For Raspberry pi 1 B+
-$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
+$ sudo apt-get install vim git rpi.gpio-common # we'll need them later
+$ sudo reboot
 ```
 
 # Make Raspberry connect to LAN through Wi-Fi
@@ -232,8 +191,15 @@ $ sudo raspi-config
 
 ```
 
+# Prepare Raspberry to run rust
+```
+$ export RUSTUP_UNPACK_RAM=200000000  # For Raspberry pi 1 REV2 Model B
+$ export RUSTUP_UNPACK_RAM=220000000  # For Raspberry pi 1 B+
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  
+```
+
 # Challenges
 - The documentation has not been fully tested.
 - The process could use automation.
 
-[PREV: Setup and Manifest <--](001_Setup.md) [--> NEXT: Preparing the Arduino](003_Arduino.md)
+[PREV: Setup and Manifest <--](001_Setup.md) [--> NEXT: Checking your GPIO on Raspberry](003_GPIO.md)

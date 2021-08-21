@@ -1,6 +1,6 @@
 # Robot
 
-A step by step Guide to building and configuring YOUR own robot using MY choice of Rust-based logic.
+A step by step Guide to building and configuring YOUR own robot using MY choice of Hardware and Software.
 
 ## TL;DR
 
@@ -13,7 +13,7 @@ If you cannot live without a step by step, here it goes:
 
 ## Motivation
 
-- I was looking for a project to learn Rust that would have me entertained for longer than a month.
+- I was looking for a project to learn that would have me entertained for longer than a month.
 - As a kid I used to dream of having a Robot at home, like a pet but more advanced.
 
 <p align="center">
@@ -26,7 +26,7 @@ Working but not stable enough to leave your robot around kids or pets.
 
 ## Code Style
 
-Terrible
+Using ROS2 with Python mostly, looking for a way to have Rust added to the formula.
 
 ## Screenshots
 
@@ -34,9 +34,7 @@ To be done
 
 ## Built with
 
-- [Rust](https://www.rust-lang.org/)
-  - [Cross](https://github.com/rust-embedded/cross)
-  - [Rustup](https://rustup.rs/)
+- [ROS2](https://docs.ros.org/en/foxy/index.html)
 - [Bash](https://tiswww.case.edu/php/chet/bash/bashtop.html)
   - [Bash autocompletion](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html)
 - [Raspberry Pi](https://www.raspberrypi.org/)
@@ -48,15 +46,7 @@ Consider the above also a list of minimum requirements.
 
 This Guide will allow you to:
 - [x] Put together some Hardware that you can use for your base Robot. [[1]](docs/000_ShoppingList.md) [[2]](docs/001_Setup.md) [[3]](docs/004_Chassis.md)
-- [x] Configure the Software that makes the communication between all that HW work like a proper Robot (Conditions may apply). [[1]](docs/002_Raspberry.md) [[2]](docs/003_Arduino.md)
-- [x] Create a set of rules to "make your Robot do things" and deploy them to the Robot. [[1]](docs/005_FirstExample.md) [[2]](docs/006_MovingExample.md)
-- [x] Test those rules with mocked sensors. [[1]](docs/007_TestingExample.md) [[2]](docs/007_TestingExample.md)
-- [x] Use Robot's real data as mocks on tests. [[1]](docs/008_TestingWithRealMocks.md)
-- [ ] Attach a Camera to the Robot. [[1]](docs/009_AttachingCamera.md)
-- [ ] Have the Robot launch on boot
-- [ ] Add and callibrate position sensors
-- [ ] Set the rules "on the go" with Reinforcement Learning instead of a rules YAML.
-- [ ] Make the Robot compatible with [ROS](https://www.ros.org/)
+- [x] Configure the Software that makes the communication between all that HW work like a proper Robot (Conditions may apply). [[1]](docs/002_Raspberry.md) 
 
 ## API reference
 
