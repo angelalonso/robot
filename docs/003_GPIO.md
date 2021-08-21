@@ -39,5 +39,21 @@ $ echo "out" > /sys/class/gpio/gpio21/direction
 $ echo "1" > /sys/class/gpio/gpio21/value
 $ echo "0" > /sys/class/gpio/gpio21/value
 ```
+## Turning a GPIO on and off with PIGPIO
+Make sure you have built https://github.com/botamochi6277/ros2_pigpio
+
+On one terminal:
+```
+$ cd robot/ros/brain/src/
+$ . install/setup.bash
+$ sudo pigpiod
+$ ros2 run ros2_pigpio gpio_writer --ros-args --param pin:=21
+```
+On a second terminal:
+```
+$ cd robot/ros/brain/src/
+$ . install/setup.bash
+$ ros2 topic pub --once gpio_output_21 std_msgs/msg/Bool '{data: false}'
+```
 
 [PREV: Preparing the Raspberry <--](002_Raspberry.md) [--> NEXT: Build a Chassis](004_Chassis.md)
