@@ -22,7 +22,7 @@ If you cannot live without a step by step, here it goes:
 
 ## Status
 
-Working but not stable enough to leave your robot around kids or pets.
+Redoing from scratch, this time around using ROS2 instead of my own Rust-based program. In short: it doesn't do anything yet.
 
 ## Code Style
 

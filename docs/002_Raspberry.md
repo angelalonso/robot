@@ -19,7 +19,7 @@ $ nmap -sP 192.168.0.0/24
 
 ## SSH into it, give it a name, tweak raspbian
 ```
-$ ssh pi@\<IP\> # password is raspberry, accept authenticity
+$ ssh ubuntu@\<IP\> # password is ubuntu, accept authenticity
 ```
 - once in, change hostname to your liking  
 ```
@@ -32,7 +32,6 @@ $ sudo vim /etc/hostname # change raspberrypi to \$HOSTNAME
 $ sudo raspi-config  
 ```
 - \> Localisation Options > Change Locale > choose the Locales you need, hit OK  
-- \> Advanced Options > Expand Filesystem  
 - \> Exit > Reboot  
 
 ## Add your own admin user, remove user pi
@@ -53,7 +52,7 @@ $ sudo vi /home/$NEWUSER/.ssh/authorized_keys # Here you should paste your publi
 $ vigr
 ```
 ```
-:%s/:pi/:pi,$NEWUSER/g
+:%s/:ubuntu/:ubuntu,$NEWUSER/g
 ```
 - Make your NEW USER owner of its own environment  
 ```
@@ -67,19 +66,18 @@ $ ssh -i <PATH TO YOUR SSH KEY> $NEWUSER@<IP>
 ```
 - Get rid of pi  
 ```
-$ sudo deluser -remove-home pi  
+$ sudo deluser -remove-home ubuntu
 ```
   
 ## Update, upgrade, install the basics
 ```
 $ sudo apt-get update  
 $ sudo apt-get upgrade  
-$ sudo apt-get install git vim  
 ```
   
 ## Strengthen SSH
 ```
-$ sudo vi /etc/ssh/sshd_config   
+$ sudo vim /etc/ssh/sshd_config   
 ```
 ```ChallengeResponseAuthentication no
 PasswordAuthentication no  
