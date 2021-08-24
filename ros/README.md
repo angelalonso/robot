@@ -64,9 +64,3 @@ rosdep install -i --from-path . --rosdistro rolling -y
 colcon build --packages-select brain
 . install/setup.zsh
 
-# Raspberry GPIO
-wget https://github.com/joan2937/pigpio/archive/master.zip
-unzip master.zip
-cd pigpio-master
-make
-sudo make install

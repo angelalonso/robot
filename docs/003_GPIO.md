@@ -34,27 +34,44 @@ Schematics (proper drawing TBD)
 ```
 Commands
 ```
-$ echo "21" > /sys/class/gpio/export
-$ echo "out" > /sys/class/gpio/gpio21/direction
-$ echo "1" > /sys/class/gpio/gpio21/value
-$ echo "0" > /sys/class/gpio/gpio21/value
+echo "21" > /sys/class/gpio/export
+echo "out" > /sys/class/gpio/gpio21/direction
+echo "1" > /sys/class/gpio/gpio21/value
+echo "0" > /sys/class/gpio/gpio21/value
 ```
-## Turning a GPIO on and off with PIGPIO
-Make sure you have built https://github.com/botamochi6277/ros2_pigpio
--- TBD --
 
-On one terminal:
+## Turning a GPIO on and off with PIGPIO
+Install PIGPIO
 ```
-$ cd robot/ros/brain/src/
-$ . install/setup.bash
-$ sudo pigpiod
-$ ros2 run ros2_pigpio gpio_writer --ros-args --param pin:=21
+cd ros/brain
+mkdir src && cd src
+wget https://github.com/joan2937/pigpio/archive/master.zip
+unzip master.zip
+cd pigpio-master
+make
+sudo make install
+cd ..
+rm master.zip
+sudo rm -r pigpio-master
+```
+Build https://github.com/botamochi6277/ros2_pigpio
+```
+cd robot/ros/brain/src/
+git clone https://github.com/botamochi6277/ros2_pigpio
+. /opt/ros/foxy/setup.bash
+MAKEFLAGS="-j1 -l1" colcon build
+. install/setup.bash
+sudo pigpiod
+ros2 run ros2_pigpio gpio_writer --ros-args --param pin:=21
 ```
 On a second terminal:
 ```
-$ cd robot/ros/brain/src/
-$ . install/setup.bash
-$ ros2 topic pub --once gpio_output_21 std_msgs/msg/Bool '{data: false}'
+cd robot/ros/brain/src/
+. install/setup.bash
+ros2 topic pub --once gpio_output_21 std_msgs/msg/Bool '{data: false}'
 ```
+
+## Turning a GPIO on and off with ROS2
+TBD
 
 [PREV: Preparing the Raspberry <--](002_Raspberry.md) [--> NEXT: Build a Chassis](004_Chassis.md)
