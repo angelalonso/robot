@@ -12,9 +12,8 @@ class MinimalTest(Node):
         self.i = 0
 
     def timer_callback(self):
-        msg = String()
-        msg.data = 'Hello World: %d' % self.i
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+        msg_data = 'Hello World: %d' % self.i
+        self.get_logger().info('Publishing: "%s"' % msg_data)
         self.i += 1
 
 
