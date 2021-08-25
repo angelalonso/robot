@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'test = brain.test_function:main',
             'talker = brain.publisher_member_function:main',
             'listener = brain.subscriber_member_function:main',
         ],
