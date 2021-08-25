@@ -54,22 +54,28 @@ cd ..
 rm master.zip
 sudo rm -r pigpio-master
 ```
-Build https://github.com/botamochi6277/ros2_pigpio
+
+Build https://github.com/mlherd/ros2_pi_gpio
 ```
+sudo apt update && sudo apt install python3-rpi.gpio
 cd robot/ros/brain/src/
-git clone https://github.com/botamochi6277/ros2_pigpio
-. /opt/ros/foxy/setup.bash
-MAKEFLAGS="-j1 -l1" colcon build
+git clone https://github.com/mlherd/ros2_pi_gpio
+vim ros2_pi_gpio/pi_gpio/pi_gpio/pi_gpio_server.py # Change line 35 to f = open("gpio_pins.txt", "r")
+MAKEFLAGS="-j1 -l1" colcon build --symlink-install
 . install/setup.bash
-sudo pigpiod
-ros2 run ros2_pigpio gpio_writer --ros-args --param pin:=21
+ln -s ros2_pi_gpio/pi_gpio/gpio_pins.txt .
+vim gpio_pins.txt # configure your pins
+ros2 run pi_gpio pi_gpio_server
 ```
 On a second terminal:
 ```
 cd robot/ros/brain/src/
 . install/setup.bash
 ros2 topic pub --once gpio_output_21 std_msgs/msg/Bool '{data: false}'
+ros2 action send_goal pi_gpio_server pi_gpio_interface/action/GPIO {'gpio: "21,low"'} # or whatever you want to test
+
 ```
+
 
 ## Turning a GPIO on and off with ROS2
 TBD
