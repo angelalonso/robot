@@ -1,12 +1,15 @@
 import rclpy
 from rclpy.node import Node
 
+from rclpy.action import ActionClient
+from pi_gpio_server import GPIO
 
 
 class MinimalTest(Node):
 
     def __init__(self):
         super().__init__('minimal_test')
+        self._action_client = ActionClient(self, GPIO, 'GPIO')
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
@@ -23,7 +26,9 @@ def main(args=None):
 
     minimal_test = MinimalTest()
 
-    rclpy.spin(minimal_test)
+    future = action_client.send_goal({'gpio: "21,high"'})
+
+    rclpy.spin_until_future_complete(minimal_test, future)
 
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
