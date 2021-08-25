@@ -2,7 +2,7 @@ import rclpy
 from rclpy.node import Node
 
 from rclpy.action import ActionClient
-from pi_gpio_server import GPIO
+from pi_gpio_interface.action import GPIO
 
 
 class MinimalTest(Node):
@@ -19,6 +19,12 @@ class MinimalTest(Node):
         self.get_logger().info('Publishing: "%s"' % msg_data)
         self.i += 1
 
+    def send_goal(self, order):
+        goal_msg = GPIO.Goal()
+
+        self._action_client.wait_for_server()
+
+        return self._action_client.send_goal_async(goal_msg)
 
 
 def main(args=None):
@@ -26,7 +32,7 @@ def main(args=None):
 
     minimal_test = MinimalTest()
 
-    future = action_client.send_goal({'gpio: "21,high"'})
+    future = minimal_test.send_goal({'gpio: "21,high"'})
 
     rclpy.spin_until_future_complete(minimal_test, future)
 
@@ -39,3 +45,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
