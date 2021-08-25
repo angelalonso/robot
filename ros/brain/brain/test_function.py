@@ -22,7 +22,7 @@ class MinimalTest(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    minimal_test = Test()
+    minimal_test = MinimalTest()
 
     rclpy.spin(minimal_test)
 
