@@ -16,7 +16,7 @@ class BrainMain(Node):
 
     def __init__(self):
         super().__init__('brain_main')
-        GPIO.setwarning(False)
+        #GPIO.setwarning(False) # needed?
         GPIO.setmode(GPIO.BCM)
         # TODO: read pin config file and fix pins setup 
 
@@ -44,7 +44,7 @@ def main(args=None):
         else:
             led_state = True
 
-        brain.led("21", led_state)
+        brain.led(21, led_state)
         time.sleep(1)
 
 if __name__ == '__main__':
