@@ -42,4 +42,14 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
+find_package(rosidl_default_generators REQUIRED)
+
+set(action_files
+  "action/Led21On.action"
+  "action/Led21Off.action"
+  )
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${action_files}
+)
 ament_package()
