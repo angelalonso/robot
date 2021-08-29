@@ -59,7 +59,7 @@ function colcon_package_source_powershell_script {
 # the prefix is two levels up from the package specific share directory
 $env:COLCON_CURRENT_PREFIX=(Get-Item $PSCommandPath).Directory.Parent.Parent.FullName
 
-colcon_package_source_powershell_script "$env:COLCON_CURRENT_PREFIX\share/brain/hook/cmake_prefix_path.ps1"
-colcon_package_source_powershell_script "$env:COLCON_CURRENT_PREFIX\share/brain/local_setup.ps1"
+colcon_package_source_powershell_script "$env:COLCON_CURRENT_PREFIX\share/ros2_cpp_py_package/hook/cmake_prefix_path.ps1"
+colcon_package_source_powershell_script "$env:COLCON_CURRENT_PREFIX\share/ros2_cpp_py_package/local_setup.ps1"
 
 Remove-Item Env:\COLCON_CURRENT_PREFIX
