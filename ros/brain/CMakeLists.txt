@@ -32,7 +32,13 @@ DESTINATION lib/${PROJECT_NAME}
 
 # Install python scripts
 install(PROGRAMS
-  scripts/py_test.py
+  scripts/brain_main.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install python scripts
+install(PROGRAMS
+  scripts/fake_rpi.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
