@@ -35,10 +35,12 @@ install(PROGRAMS
   scripts/brain_main.py
   DESTINATION lib/${PROJECT_NAME}
 )
-
-# Install python scripts
 install(PROGRAMS
   scripts/fake_rpi.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/led21on_action_server.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

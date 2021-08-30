@@ -1,5 +1,5 @@
-bool off
+string turn_on
 ---
 string confirmed
 ---
-string process
+string process_feed
