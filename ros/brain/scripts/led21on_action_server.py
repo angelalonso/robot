@@ -3,8 +3,8 @@
 import rclpy
 from rclpy.action import ActionServer
 from rclpy.node import Node
-#import RPi.GPIO as GPIO
-from fake_rpi import fake_rpi as GPIO
+import RPi.GPIO as GPIO
+#from fake_rpi import fake_rpi as GPIO
 
 from brain.action import Led21On
 

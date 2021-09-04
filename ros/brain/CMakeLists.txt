@@ -43,6 +43,10 @@ install(PROGRAMS
   scripts/led21on_action_server.py
   DESTINATION lib/${PROJECT_NAME}
 )
+install(PROGRAMS
+  scripts/test_brain.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 find_package(rosidl_default_generators REQUIRED)
 
@@ -54,4 +58,11 @@ set(action_files
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${action_files}
 )
+
+# Install launch files.
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 ament_package()
