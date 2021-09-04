@@ -32,7 +32,7 @@ DESTINATION lib/${PROJECT_NAME}
 
 # Install python scripts
 install(PROGRAMS
-  scripts/brain_main.py
+  scripts/main_brain.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
@@ -44,7 +44,7 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/test_brain.py
+  scripts/led21off_action_server.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

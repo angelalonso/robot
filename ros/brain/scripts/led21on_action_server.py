@@ -25,7 +25,7 @@ class Led21OnActionServer(Node):
         self.get_logger().info('Executing goal...')
 
         feedback_msg = Led21On.Feedback()
-        feedback_msg.process_feed = "handling PIN " + str(self.pin_id)
+        feedback_msg.process_feed = "setting PIN " + str(self.pin_id) + " On"
         self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
         goal_handle.publish_feedback(feedback_msg)
 

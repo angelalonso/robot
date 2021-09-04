@@ -6,7 +6,7 @@ from rclpy.node import Node
 import RPi.GPIO as GPIO
 #from fake_rpi import fake_rpi as GPIO
 
-from brain.action import Led21ffO
+from brain.action import Led21Off
 
 
 class Led21OffActionServer(Node):
@@ -25,7 +25,7 @@ class Led21OffActionServer(Node):
         self.get_logger().info('Executing goal...')
 
         feedback_msg = Led21Off.Feedback()
-        feedback_msg.process_feed = "handling PIN " + str(self.pin_id)
+        feedback_msg.process_feed = "setting PIN " + str(self.pin_id) + " Off"
         self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
         goal_handle.publish_feedback(feedback_msg)
 

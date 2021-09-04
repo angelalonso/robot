@@ -6,11 +6,15 @@ function ctrl_c() {
   # Set back to real libraries to have them ready to be pushed to the repo
   sed -i 's/^#import RPi.GPIO as GPIO/import RPi.GPIO as GPIO/g' scripts/led21on_action_server.py
   sed -i 's/^from fake_rpi import fake_rpi as GPIO/#from fake_rpi import fake_rpi as GPIO/g' scripts/led21on_action_server.py
+  sed -i 's/^#import RPi.GPIO as GPIO/import RPi.GPIO as GPIO/g' scripts/led21off_action_server.py
+  sed -i 's/^from fake_rpi import fake_rpi as GPIO/#from fake_rpi import fake_rpi as GPIO/g' scripts/led21off_action_server.py
 }
 
 # Set fake libraries for laptop development
 sed -i 's/^import RPi.GPIO as GPIO/#import RPi.GPIO as GPIO/g' scripts/led21on_action_server.py
 sed -i 's/^#from fake_rpi import fake_rpi as GPIO/from fake_rpi import fake_rpi as GPIO/g' scripts/led21on_action_server.py
+sed -i 's/^import RPi.GPIO as GPIO/#import RPi.GPIO as GPIO/g' scripts/led21off_action_server.py
+sed -i 's/^#from fake_rpi import fake_rpi as GPIO/from fake_rpi import fake_rpi as GPIO/g' scripts/led21off_action_server.py
 
 trap ctrl_c INT
 
