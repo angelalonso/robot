@@ -30,7 +30,7 @@ class Led21OffActionServer(Node):
         goal_handle.publish_feedback(feedback_msg)
 
         GPIO.setup(self.pin_id, GPIO.OUT)
-        GPIO.output(self.pin_id, GPIO.HIGH)
+        GPIO.output(self.pin_id, GPIO.LOW)
         goal_handle.succeed()
         result = Led21Off.Result()
         return result
