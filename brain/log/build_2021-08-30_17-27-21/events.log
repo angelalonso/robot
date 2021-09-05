@@ -1,0 +1,182 @@
+[0.000000] (-) TimerEvent: {}
+[0.000834] (brain) JobQueued: {'identifier': 'brain', 'dependencies': OrderedDict()}
+[0.001384] (brain) JobStarted: {'identifier': 'brain'}
+[0.018467] (brain) JobProgress: {'identifier': 'brain', 'progress': 'cmake'}
+[0.019886] (brain) JobProgress: {'identifier': 'brain', 'progress': 'build'}
+[0.022144] (brain) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/aaf/Software/Dev/robot/ros/brain/build/brain', '--', '-j8', '-l8'], 'cwd': '/home/aaf/Software/Dev/robot/ros/brain/build/brain', 'env': OrderedDict([('USER', 'aaf'), ('LC_TIME', 'de_DE.UTF-8'), ('SSH_AGENT_PID', '2308'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib:/opt/ros/rolling/opt/yaml_cpp_vendor/lib:/opt/ros/rolling/opt/rviz_ogre_vendor/lib:/opt/ros/rolling/lib/x86_64-linux-gnu:/opt/ros/rolling/lib'), ('HOME', '/home/aaf'), ('OLDPWD', '/home/aaf/Software/Dev/robot/ros/brain/scripts'), ('LESS', '-R'), ('DESKTOP_SESSION', 'ubuntu'), ('ZSH', '/home/aaf/.oh-my-zsh'), ('LSCOLORS', 'Gxfxcxdxbxegedabagacad'), ('GTK_MODULES', 'gail:atk-bridge'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('PAGER', 'less'), ('ROS_PYTHON_VERSION', '3'), ('MANAGERPID', '2123'), ('LC_MONETARY', 'de_DE.UTF-8'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '3077'), ('COLORTERM', 'truecolor'), ('TERMINATOR_DBUS_NAME', 'net.tenshu.Terminator21a9d5db22c73a993ff0b42f64b396873'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu.mandatory.path'), ('IM_CONFIG_PHASE', '1'), ('ROS_DISTRO', 'rolling'), ('COLCON_PREFIX_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install'), ('LOGNAME', 'aaf'), ('_', '/usr/bin/colcon'), ('JOURNAL_STREAM', '8:62600'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu.default.path'), ('XDG_SESSION_CLASS', 'user'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('USERNAME', 'aaf'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/opt/ros/rolling/bin:/home/aaf/bin:/usr/local/bin:/home/aaf/.local/bin:/home/aaf/Software/Dev/sysangel/scripts:/usr/local/go/bin:/home/aaf/.cargo/bin:/home/aaf/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('SESSION_MANAGER', 'local/aafhome:@/tmp/.ICE-unix/2351,unix/aafhome:/tmp/.ICE-unix/2351'), ('INVOCATION_ID', '68b92e131e1e4c9387bed26c15faa72c'), ('XDG_MENU_PREFIX', 'gnome-'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('LC_ADDRESS', 'de_DE.UTF-8'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('TERMINATOR_DBUS_PATH', '/net/tenshu/Terminator2'), ('LC_TELEPHONE', 'de_DE.UTF-8'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XMODIFIERS', '@im=ibus'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain:/opt/ros/rolling'), ('TERMINATOR_UUID', 'urn:uuid:7f9d772d-8568-416a-aebc-132cff6dccab'), ('SHELL', '/usr/bin/zsh'), ('LC_NAME', 'de_DE.UTF-8'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LC_MEASUREMENT', 'de_DE.UTF-8'), ('LC_IDENTIFICATION', 'de_DE.UTF-8'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/aaf/Software/Dev/robot/ros/brain/build/brain'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('LC_NUMERIC', 'de_DE.UTF-8'), ('PYTHONPATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages:/opt/ros/rolling/lib/python3.8/site-packages'), ('LC_PAPER', 'de_DE.UTF-8'), ('COLCON', '1'), ('VTE_VERSION', '6003'), ('CMAKE_PREFIX_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain:/opt/ros/rolling')]), 'shell': False}
+[0.099680] (-) TimerEvent: {}
+[0.112602] (brain) StdoutLine: {'line': b'[  2%] Built target brain__cpp\n'}
+[0.116287] (brain) StdoutLine: {'line': b'[ 12%] Built target brain__rosidl_generator_c\n'}
+[0.128792] (brain) StdoutLine: {'line': b'[ 17%] Built target brain_boot\n'}
+[0.136357] (brain) StdoutLine: {'line': b'[ 17%] Built target ament_cmake_python_symlink_brain\n'}
+[0.164668] (brain) StdoutLine: {'line': b'[ 26%] Built target brain__rosidl_typesupport_cpp\n'}
+[0.166660] (brain) StdoutLine: {'line': b'[ 36%] Built target brain__rosidl_typesupport_introspection_cpp\n'}
+[0.170334] (brain) StdoutLine: {'line': b'[ 46%] Built target brain__rosidl_typesupport_introspection_c\n'}
+[0.170784] (brain) StdoutLine: {'line': b'[ 56%] Built target brain__rosidl_typesupport_c\n'}
+[0.174868] (brain) StdoutLine: {'line': b'[ 65%] Built target brain__rosidl_typesupport_fastrtps_cpp\n'}
+[0.199761] (-) TimerEvent: {}
+[0.211908] (brain) StdoutLine: {'line': b'[ 75%] Built target brain__rosidl_typesupport_fastrtps_c\n'}
+[0.244966] (brain) StdoutLine: {'line': b'[ 75%] Built target brain\n'}
+[0.276980] (brain) StdoutLine: {'line': b'[ 78%] Built target brain__py\n'}
+[0.299879] (-) TimerEvent: {}
+[0.317465] (brain) StdoutLine: {'line': b'[ 85%] Built target brain__python\n'}
+[0.364866] (brain) StdoutLine: {'line': b'[100%] Built target brain__rosidl_typesupport_c__pyext\n'}
+[0.365249] (brain) StdoutLine: {'line': b'[100%] Built target brain__rosidl_typesupport_fastrtps_c__pyext\n'}
+[0.365467] (brain) StdoutLine: {'line': b'[100%] Built target brain__rosidl_typesupport_introspection_c__pyext\n'}
+[0.400002] (-) TimerEvent: {}
+[0.500353] (-) TimerEvent: {}
+[0.515545] (brain) StdoutLine: {'line': b'running egg_info\n'}
+[0.517024] (brain) StdoutLine: {'line': b'writing brain.egg-info/PKG-INFO\n'}
+[0.517723] (brain) StdoutLine: {'line': b'writing dependency_links to brain.egg-info/dependency_links.txt\n'}
+[0.518267] (brain) StdoutLine: {'line': b'writing top-level names to brain.egg-info/top_level.txt\n'}
+[0.572620] (brain) StdoutLine: {'line': b"reading manifest file 'brain.egg-info/SOURCES.txt'\n"}
+[0.573393] (brain) StdoutLine: {'line': b"writing manifest file 'brain.egg-info/SOURCES.txt'\n"}
+[0.600468] (-) TimerEvent: {}
+[0.605703] (brain) StdoutLine: {'line': b'[100%] Built target ament_cmake_python_build_brain_egg\n'}
+[0.623458] (brain) CommandEnded: {'returncode': 0}
+[0.700697] (-) TimerEvent: {}
+[0.751643] (brain) JobProgress: {'identifier': 'brain', 'progress': 'install'}
+[0.774700] (brain) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/aaf/Software/Dev/robot/ros/brain/build/brain'], 'cwd': '/home/aaf/Software/Dev/robot/ros/brain/build/brain', 'env': OrderedDict([('USER', 'aaf'), ('LC_TIME', 'de_DE.UTF-8'), ('SSH_AGENT_PID', '2308'), ('XDG_SESSION_TYPE', 'x11'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib:/opt/ros/rolling/opt/yaml_cpp_vendor/lib:/opt/ros/rolling/opt/rviz_ogre_vendor/lib:/opt/ros/rolling/lib/x86_64-linux-gnu:/opt/ros/rolling/lib'), ('HOME', '/home/aaf'), ('OLDPWD', '/home/aaf/Software/Dev/robot/ros/brain/scripts'), ('LESS', '-R'), ('DESKTOP_SESSION', 'ubuntu'), ('ZSH', '/home/aaf/.oh-my-zsh'), ('LSCOLORS', 'Gxfxcxdxbxegedabagacad'), ('GTK_MODULES', 'gail:atk-bridge'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('PAGER', 'less'), ('ROS_PYTHON_VERSION', '3'), ('MANAGERPID', '2123'), ('LC_MONETARY', 'de_DE.UTF-8'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('GIO_LAUNCHED_DESKTOP_FILE_PID', '3077'), ('COLORTERM', 'truecolor'), ('TERMINATOR_DBUS_NAME', 'net.tenshu.Terminator21a9d5db22c73a993ff0b42f64b396873'), ('MANDATORY_PATH', '/usr/share/gconf/ubuntu.mandatory.path'), ('IM_CONFIG_PHASE', '1'), ('ROS_DISTRO', 'rolling'), ('COLCON_PREFIX_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install'), ('LOGNAME', 'aaf'), ('_', '/usr/bin/colcon'), ('JOURNAL_STREAM', '8:62600'), ('DEFAULTS_PATH', '/usr/share/gconf/ubuntu.default.path'), ('XDG_SESSION_CLASS', 'user'), ('ROS_VERSION', '2'), ('TERM', 'xterm-256color'), ('USERNAME', 'aaf'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/opt/ros/rolling/bin:/home/aaf/bin:/usr/local/bin:/home/aaf/.local/bin:/home/aaf/Software/Dev/sysangel/scripts:/usr/local/go/bin:/home/aaf/.cargo/bin:/home/aaf/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin'), ('SESSION_MANAGER', 'local/aafhome:@/tmp/.ICE-unix/2351,unix/aafhome:/tmp/.ICE-unix/2351'), ('INVOCATION_ID', '68b92e131e1e4c9387bed26c15faa72c'), ('XDG_MENU_PREFIX', 'gnome-'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('LC_ADDRESS', 'de_DE.UTF-8'), ('DISPLAY', ':0'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('TERMINATOR_DBUS_PATH', '/net/tenshu/Terminator2'), ('LC_TELEPHONE', 'de_DE.UTF-8'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XMODIFIERS', '@im=ibus'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('AMENT_PREFIX_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain:/opt/ros/rolling'), ('TERMINATOR_UUID', 'urn:uuid:7f9d772d-8568-416a-aebc-132cff6dccab'), ('SHELL', '/usr/bin/zsh'), ('LC_NAME', 'de_DE.UTF-8'), ('QT_ACCESSIBILITY', '1'), ('GDMSESSION', 'ubuntu'), ('LC_MEASUREMENT', 'de_DE.UTF-8'), ('LC_IDENTIFICATION', 'de_DE.UTF-8'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/aaf/Software/Dev/robot/ros/brain/build/brain'), ('XDG_DATA_DIRS', '/usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('LC_NUMERIC', 'de_DE.UTF-8'), ('PYTHONPATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages:/opt/ros/rolling/lib/python3.8/site-packages'), ('LC_PAPER', 'de_DE.UTF-8'), ('COLCON', '1'), ('VTE_VERSION', '6003'), ('CMAKE_PREFIX_PATH', '/home/aaf/Software/Dev/robot/ros/brain/install/brain:/opt/ros/rolling')]), 'shell': False}
+[0.790390] (brain) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[0.790662] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_boot\n'}
+[0.790979] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_main.py\n'}
+[0.791175] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/fake_rpi.py\n'}
+[0.791278] (brain) StdoutLine: {'line': b'-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/led_action_server.py\n'}
+[0.791525] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/rosidl_interfaces/brain\n'}
+[0.791779] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain\n'}
+[0.792013] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action\n'}
+[0.792273] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_off.h\n'}
+[0.792365] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_on.h\n'}
+[0.792514] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail\n'}
+[0.792695] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__type_support.h\n'}
+[0.792929] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__type_support.h\n'}
+[0.793160] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__functions.h\n'}
+[0.793254] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__struct.h\n'}
+[0.793341] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__functions.c\n'}
+[0.793469] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__functions.c\n'}
+[0.793559] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__struct.h\n'}
+[0.793662] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__functions.h\n'}
+[0.793865] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg\n'}
+[0.794068] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_generator_c__visibility_control.h\n'}
+[0.794162] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/library_path.sh\n'}
+[0.794249] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/library_path.dsv\n'}
+[0.794383] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_generator_c.so\n'}
+[0.794480] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain\n'}
+[0.794568] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action\n'}
+[0.794763] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail\n'}
+[0.794975] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_fastrtps_c.h\n'}
+[0.795082] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_fastrtps_c.h\n'}
+[0.795216] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg\n'}
+[0.795386] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_typesupport_fastrtps_c__visibility_control.h\n'}
+[0.795475] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_fastrtps_c.so\n'}
+[0.795561] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain\n'}
+[0.795647] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action\n'}
+[0.795733] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail\n'}
+[0.795865] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[0.795955] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/dds_fastrtps\n'}
+[0.796100] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_fastrtps_cpp.hpp\n'}
+[0.796560] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg\n'}
+[0.797393] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h\n'}
+[0.797661] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_fastrtps_cpp.so\n'}
+[0.797802] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain\n'}
+[0.798013] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action\n'}
+[0.798248] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail\n'}
+[0.798367] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_introspection_c.h\n'}
+[0.798479] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_introspection_c.h\n'}
+[0.798589] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__type_support.c\n'}
+[0.798747] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__type_support.c\n'}
+[0.798858] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg\n'}
+[0.798978] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_typesupport_introspection_c__visibility_control.h\n'}
+[0.799181] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_introspection_c.so\n'}
+[0.799353] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_c.so\n'}
+[0.799467] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain\n'}
+[0.799609] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action\n'}
+[0.799760] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail\n'}
+[0.799907] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__struct.hpp\n'}
+[0.800060] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__traits.hpp\n'}
+[0.800230] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__struct.hpp\n'}
+[0.800460] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__builder.hpp\n'}
+[0.800673] (-) TimerEvent: {}
+[0.800890] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__builder.hpp\n'}
+[0.801037] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__traits.hpp\n'}
+[0.801135] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_off.hpp\n'}
+[0.801253] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_on.hpp\n'}
+[0.801380] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain\n'}
+[0.801469] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action\n'}
+[0.801557] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail\n'}
+[0.801645] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_introspection_cpp.hpp\n'}
+[0.801747] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_introspection_cpp.hpp\n'}
+[0.801859] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__type_support.cpp\n'}
+[0.801974] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__type_support.cpp\n'}
+[0.802063] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_introspection_cpp.so\n'}
+[0.802152] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_cpp.so\n'}
+[0.802240] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/pythonpath.sh\n'}
+[0.802328] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/pythonpath.dsv\n'}
+[0.802416] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info\n'}
+[0.802511] (brain) StdoutLine: {'line': b'-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/PKG-INFO\n'}
+[0.802599] (brain) StdoutLine: {'line': b'-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/SOURCES.txt\n'}
+[0.802688] (brain) StdoutLine: {'line': b'-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/top_level.txt\n'}
+[0.802777] (brain) StdoutLine: {'line': b'-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/dependency_links.txt\n'}
+[0.802867] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain\n'}
+[0.802957] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action\n'}
+[0.803045] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_on.py\n'}
+[0.803132] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_on_s.c\n'}
+[0.803220] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_off_s.c\n'}
+[0.803308] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/__init__.py\n'}
+[0.803397] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_off.py\n'}
+[0.803487] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/_brain_s.ep.rosidl_typesupport_c.c\n'}
+[0.803582] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_introspection_c.cpython-38-x86_64-linux-gnu.so\n'}
+[0.803674] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c\n'}
+[0.803763] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_c.cpython-38-x86_64-linux-gnu.so\n'}
+[0.803851] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/__init__.py\n'}
+[0.803939] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/_brain_s.ep.rosidl_typesupport_introspection_c.c\n'}
+[0.804065] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_fastrtps_c.cpython-38-x86_64-linux-gnu.so\n'}
+[0.804187] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/libbrain__python.so\n'}
+[0.846439] (brain) StdoutLine: {'line': b"Listing '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain'...\n"}
+[0.846660] (brain) StdoutLine: {'line': b"Listing '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action'...\n"}
+[0.851589] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_fastrtps_c.cpython-38-x86_64-linux-gnu.so\n'}
+[0.852576] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_introspection_c.cpython-38-x86_64-linux-gnu.so\n'}
+[0.853374] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_c.cpython-38-x86_64-linux-gnu.so\n'}
+[0.854875] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__python.so\n'}
+[0.855391] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21On.idl\n'}
+[0.855886] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21Off.idl\n'}
+[0.856214] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21On.action\n'}
+[0.856428] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21Off.action\n'}
+[0.856594] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/package_run_dependencies/brain\n'}
+[0.856759] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/parent_prefix_path/brain\n'}
+[0.856903] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.sh\n'}
+[0.857018] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.dsv\n'}
+[0.857163] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.sh\n'}
+[0.857278] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.dsv\n'}
+[0.857390] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.bash\n'}
+[0.857564] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.sh\n'}
+[0.857723] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.zsh\n'}
+[0.857850] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.dsv\n'}
+[0.858006] (brain) StdoutLine: {'line': b'-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.dsv\n'}
+[0.858222] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/packages/brain\n'}
+[0.858405] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_generator_cExport.cmake\n'}
+[0.858511] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_generator_cExport-noconfig.cmake\n'}
+[0.858683] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cExport.cmake\n'}
+[0.858792] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cExport-noconfig.cmake\n'}
+[0.858969] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cExport.cmake\n'}
+[0.859114] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cExport-noconfig.cmake\n'}
+[0.859258] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_generator_cppExport.cmake\n'}
+[0.859474] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cppExport.cmake\n'}
+[0.859646] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cppExport-noconfig.cmake\n'}
+[0.859810] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cppExport.cmake\n'}
+[0.859953] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cppExport-noconfig.cmake\n'}
+[0.860192] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/rosidl_cmake-extras.cmake\n'}
+[0.860331] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_dependencies-extras.cmake\n'}
+[0.860427] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_libraries-extras.cmake\n'}
+[0.860521] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_targets-extras.cmake\n'}
+[0.860616] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_include_directories-extras.cmake\n'}
+[0.860766] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake\n'}
+[0.860861] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake\n'}
+[0.860954] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig.cmake\n'}
+[0.861047] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig-version.cmake\n'}
+[0.861140] (brain) StdoutLine: {'line': b'-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.xml\n'}
+[0.863125] (brain) CommandEnded: {'returncode': 0}
+[0.900925] (-) TimerEvent: {}
+[1.001453] (-) TimerEvent: {}
+[1.032101] (brain) JobEnded: {'identifier': 'brain', 'rc': 0}
+[1.034281] (-) EventReactorShutdown: {}

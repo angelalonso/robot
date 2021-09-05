@@ -1,0 +1,4 @@
+Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8
+Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain' returned '0': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8
+Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/brain
+Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain' returned '0': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/brain

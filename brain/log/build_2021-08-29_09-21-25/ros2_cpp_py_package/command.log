@@ -1,0 +1,2 @@
+Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package': /usr/bin/cmake /home/aaf/Software/Dev/robot/ros/brain -DCMAKE_INSTALL_PREFIX=/home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package
+Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package' returned '1': /usr/bin/cmake /home/aaf/Software/Dev/robot/ros/brain -DCMAKE_INSTALL_PREFIX=/home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package

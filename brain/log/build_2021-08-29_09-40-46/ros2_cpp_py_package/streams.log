@@ -1,0 +1,50 @@
+[0.014s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package': CMAKE_PREFIX_PATH=/opt/ros/rolling:${CMAKE_PREFIX_PATH} /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package -- -j8 -l8
+[0.062s] [35m[1mScanning dependencies of target cpp_test[0m
+[0.089s] [ 50%] [32mBuilding CXX object CMakeFiles/cpp_test.dir/src/cpp_test.cpp.o[0m
+[2.145s] In file included from [01m[K/opt/ros/rolling/include/rclcpp/client.hpp:40[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/callback_group.hpp:23[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/any_executable.hpp:20[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/memory_strategy.hpp:25[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/memory_strategies.hpp:18[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/executor_options.hpp:20[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/executor.hpp:36[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/executors/multi_threaded_executor.hpp:25[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/executors.hpp:21[m[K,
+[2.146s]                  from [01m[K/opt/ros/rolling/include/rclcpp/rclcpp.hpp:156[m[K,
+[2.146s]                  from [01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:4[m[K:
+[2.146s] [01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:[m[K In member function ‘[01m[Kvoid CppTest::timer_callback_()[m[K’:
+[2.146s] [01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:16:37:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%llu[m[K’ expects argument of type ‘[01m[Klong long unsigned int[m[K’, but argument 5 has type ‘[01m[Ksize_t[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K-Wformat=[m[K]
+[2.146s]    16 |     RCLCPP_INFO(this->get_logger(), [01;35m[K"Hello! %llu"[m[K, [32m[Kcount_[m[K);
+[2.146s]       |                                     [01;35m[K^~~~~~~~~~~~~[m[K  [32m[K~~~~~~[m[K
+[2.147s]       |                                                    [32m[K|[m[K
+[2.147s]       |                                                    [32m[Ksize_t {aka long unsigned int}[m[K
+[2.147s] [01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:16:48:[m[K [01;36m[Knote: [m[Kformat string is defined here
+[2.147s]    16 |     RCLCPP_INFO(this->get_logger(), "Hello! [01;36m[K%llu[m[K", count_);
+[2.147s]       |                                             [01;36m[K~~~^[m[K
+[2.147s]       |                                                [01;36m[K|[m[K
+[2.147s]       |                                                [01;36m[Klong long unsigned int[m[K
+[2.147s]       |                                             [32m[K%lu[m[K
+[2.854s] [100%] [32m[1mLinking CXX executable cpp_test[0m
+[3.003s] [100%] Built target cpp_test
+[3.018s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package' returned '0': CMAKE_PREFIX_PATH=/opt/ros/rolling:${CMAKE_PREFIX_PATH} /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package -- -j8 -l8
+[3.064s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package': CMAKE_PREFIX_PATH=/opt/ros/rolling:${CMAKE_PREFIX_PATH} /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package
+[3.075s] -- Install configuration: ""
+[3.075s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/cpp_test
+[3.076s] -- Set runtime path of "/home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/cpp_test" to ""
+[3.076s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/py_test.py
+[3.076s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ament_index/resource_index/package_run_dependencies/ros2_cpp_py_package
+[3.076s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ament_index/resource_index/parent_prefix_path/ros2_cpp_py_package
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/ament_prefix_path.sh
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/ament_prefix_path.dsv
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/path.sh
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/path.dsv
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.bash
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.sh
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.zsh
+[3.077s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.dsv
+[3.077s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/package.dsv
+[3.078s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ament_index/resource_index/packages/ros2_cpp_py_package
+[3.078s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/cmake/ros2_cpp_py_packageConfig.cmake
+[3.078s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/cmake/ros2_cpp_py_packageConfig-version.cmake
+[3.078s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/package.xml
+[3.080s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package' returned '0': CMAKE_PREFIX_PATH=/opt/ros/rolling:${CMAKE_PREFIX_PATH} /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package

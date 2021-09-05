@@ -1,0 +1,58 @@
+-- Found ament_cmake: 1.1.4 (/opt/ros/rolling/share/ament_cmake/cmake)
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Found rclcpp: 12.0.0 (/opt/ros/rolling/share/rclcpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Found rosidl_adapter: 2.5.0 (/opt/ros/rolling/share/rosidl_adapter/cmake)
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 4.0.0 (/opt/ros/rolling/share/rmw_implementation_cmake/cmake)
+-- Found rmw_cyclonedds_cpp: 0.23.1 (/opt/ros/rolling/share/rmw_cyclonedds_cpp/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package
+[35m[1mScanning dependencies of target cpp_test[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/cpp_test.dir/src/cpp_test.cpp.o[0m
+In file included from [01m[K/opt/ros/rolling/include/rclcpp/client.hpp:40[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/callback_group.hpp:23[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/any_executable.hpp:20[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/memory_strategy.hpp:25[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/memory_strategies.hpp:18[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/executor_options.hpp:20[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/executor.hpp:36[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/executors/multi_threaded_executor.hpp:25[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/executors.hpp:21[m[K,
+                 from [01m[K/opt/ros/rolling/include/rclcpp/rclcpp.hpp:156[m[K,
+                 from [01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:4[m[K:
+[01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:[m[K In member function ‘[01m[Kvoid CppTest::timer_callback_()[m[K’:
+[01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:16:37:[m[K [01;35m[Kwarning: [m[Kformat ‘[01m[K%d[m[K’ expects argument of type ‘[01m[Kint[m[K’, but argument 5 has type ‘[01m[Ksize_t[m[K’ {aka ‘[01m[Klong unsigned int[m[K’} [[01;35m[K-Wformat=[m[K]
+   16 |     RCLCPP_INFO(this->get_logger(), [01;35m[K"Hello! %d"[m[K, [32m[Kcount_[m[K);
+      |                                     [01;35m[K^~~~~~~~~~~[m[K  [32m[K~~~~~~[m[K
+      |                                                  [32m[K|[m[K
+      |                                                  [32m[Ksize_t {aka long unsigned int}[m[K
+[01m[K/home/aaf/Software/Dev/robot/ros/brain/src/cpp_test.cpp:16:46:[m[K [01;36m[Knote: [m[Kformat string is defined here
+   16 |     RCLCPP_INFO(this->get_logger(), "Hello! [01;36m[K%d[m[K", count_);
+      |                                             [01;36m[K~^[m[K
+      |                                              [01;36m[K|[m[K
+      |                                              [01;36m[Kint[m[K
+      |                                             [32m[K%ld[m[K
+[100%] [32m[1mLinking CXX executable cpp_test[0m
+[100%] Built target cpp_test
+-- Install configuration: ""
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/cpp_test
+-- Set runtime path of "/home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/cpp_test" to ""
+CMake Error at cmake_install.cmake:61 (file):
+  file INSTALL cannot find
+  "/home/aaf/Software/Dev/robot/ros/brain/scripts/py_test.py": No such file
+  or directory.
+
+

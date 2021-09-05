@@ -1,0 +1,36 @@
+[0.018s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8
+[0.089s] -- Found ament_cmake: 1.1.4 (/opt/ros/rolling/share/ament_cmake/cmake)
+[0.117s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[0.195s] -- Found rclcpp: 12.0.0 (/opt/ros/rolling/share/rclcpp/cmake)
+[0.247s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.252s] -- Found rosidl_adapter: 2.5.0 (/opt/ros/rolling/share/rosidl_adapter/cmake)
+[0.298s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.365s] -- Found rmw_implementation_cmake: 4.0.0 (/opt/ros/rolling/share/rmw_implementation_cmake/cmake)
+[0.368s] -- Found rmw_cyclonedds_cpp: 0.23.1 (/opt/ros/rolling/share/rmw_cyclonedds_cpp/cmake)
+[0.390s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.549s] -- Found rclpy: 3.0.1 (/opt/ros/rolling/share/rclpy/cmake)
+[0.609s] -- Configuring done
+[0.624s] -- Generating done
+[0.625s] -- Build files have been written to: /home/aaf/Software/Dev/robot/ros/brain/build/brain
+[0.682s] [100%] Built target brain_boot
+[0.699s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8
+[0.756s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/rolling /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/brain
+[0.769s] -- Install configuration: ""
+[0.769s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_boot
+[0.769s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/py_test.py
+[0.769s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/package_run_dependencies/brain
+[0.770s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/parent_prefix_path/brain
+[0.770s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.sh
+[0.770s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.dsv
+[0.770s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.sh
+[0.770s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.dsv
+[0.770s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.bash
+[0.770s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.sh
+[0.771s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.zsh
+[0.771s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.dsv
+[0.771s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.dsv
+[0.771s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/packages/brain
+[0.771s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig.cmake
+[0.771s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig-version.cmake
+[0.771s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.xml
+[0.774s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/rolling /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/brain

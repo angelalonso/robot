@@ -1,0 +1,28 @@
+[  2%] Built target brain__cpp
+[ 12%] Built target brain__rosidl_generator_c
+[ 12%] Built target ament_cmake_python_symlink_brain
+[ 17%] Built target brain_boot
+[ 26%] Built target brain__rosidl_typesupport_cpp
+[ 36%] Built target brain__rosidl_typesupport_introspection_cpp
+[ 46%] Built target brain__rosidl_typesupport_fastrtps_cpp
+[ 56%] Built target brain__rosidl_typesupport_c
+[ 65%] Built target brain__rosidl_typesupport_introspection_c
+[ 75%] Built target brain__rosidl_typesupport_fastrtps_c
+[ 75%] Built target brain
+[ 78%] Built target brain__py
+[ 85%] Built target brain__python
+[100%] Built target brain__rosidl_typesupport_c__pyext
+[100%] Built target brain__rosidl_typesupport_fastrtps_c__pyext
+[100%] Built target brain__rosidl_typesupport_introspection_c__pyext
+running egg_info
+writing brain.egg-info/PKG-INFO
+writing dependency_links to brain.egg-info/dependency_links.txt
+writing top-level names to brain.egg-info/top_level.txt
+reading manifest file 'brain.egg-info/SOURCES.txt'
+writing manifest file 'brain.egg-info/SOURCES.txt'
+[100%] Built target ament_cmake_python_build_brain_egg
+-- Install configuration: ""
+-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_boot
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_main.py
+-- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/fake_rpi.py
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/led21on_action_server.py

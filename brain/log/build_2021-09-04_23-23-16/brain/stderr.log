@@ -1,0 +1,8 @@
+make[1]: *** [CMakeFiles/Makefile2:349: CMakeFiles/brain__rosidl_typesupport_introspection_c.dir/all] Interrupt
+make[1]: *** [CMakeFiles/Makefile2:608: CMakeFiles/brain__rosidl_typesupport_cpp.dir/all] Interrupt
+make[1]: *** [CMakeFiles/Makefile2:471: CMakeFiles/brain__rosidl_typesupport_fastrtps_cpp.dir/all] Interrupt
+make[1]: *** [CMakeFiles/Makefile2:525: CMakeFiles/brain__rosidl_typesupport_c.dir/all] Interrupt
+make[1]: *** [CMakeFiles/Makefile2:323: CMakeFiles/brain__rosidl_typesupport_introspection_cpp.dir/all] Interrupt
+make[2]: *** [CMakeFiles/ament_cmake_python_build_brain_egg.dir/build.make:74: CMakeFiles/ament_cmake_python_build_brain_egg.dir/depend] Interrupt
+make[1]: *** [CMakeFiles/Makefile2:186: CMakeFiles/ament_cmake_python_build_brain_egg.dir/all] Interrupt
+make: *** [Makefile:141: all] Interrupt

@@ -1,0 +1,193 @@
+[0.022s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8
+[0.061s] -- Found ament_cmake: 1.1.4 (/opt/ros/rolling/share/ament_cmake/cmake)
+[0.085s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+[0.085s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[0.177s] -- Found rclcpp: 12.0.0 (/opt/ros/rolling/share/rclcpp/cmake)
+[0.219s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.223s] -- Found rosidl_adapter: 2.5.0 (/opt/ros/rolling/share/rosidl_adapter/cmake)
+[0.267s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.331s] -- Found rmw_implementation_cmake: 4.0.0 (/opt/ros/rolling/share/rmw_implementation_cmake/cmake)
+[0.334s] -- Found rmw_cyclonedds_cpp: 0.23.1 (/opt/ros/rolling/share/rmw_cyclonedds_cpp/cmake)
+[0.355s] -- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+[0.523s] -- Found rclpy: 3.0.1 (/opt/ros/rolling/share/rclpy/cmake)
+[0.525s] -- Found rosidl_default_generators: 1.1.1 (/opt/ros/rolling/share/rosidl_default_generators/cmake)
+[0.562s] -- Found PythonInterp: /usr/bin/python3 (found version "3.8.10") 
+[0.780s] -- Found ament_cmake_ros: 0.9.2 (/opt/ros/rolling/share/ament_cmake_ros/cmake)
+[0.835s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.862s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.890s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3.5") 
+[0.890s] -- Found python_cmake_module: 0.8.1 (/opt/ros/rolling/share/python_cmake_module/cmake)
+[0.922s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[0.922s] -- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.8
+[0.922s] -- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.8.so
+[0.964s] -- Configuring done
+[1.029s] -- Generating done
+[1.035s] -- Build files have been written to: /home/aaf/Software/Dev/robot/ros/brain/build/brain
+[1.088s] [  2%] Built target brain__cpp
+[1.090s] [ 12%] Built target brain__rosidl_generator_c
+[1.101s] [ 17%] Built target brain_boot
+[1.104s] [ 17%] Built target ament_cmake_python_symlink_brain
+[1.135s] [ 26%] Built target brain__rosidl_typesupport_introspection_cpp
+[1.140s] [ 36%] Built target brain__rosidl_typesupport_cpp
+[1.142s] [ 46%] Built target brain__rosidl_typesupport_introspection_c
+[1.144s] [ 56%] Built target brain__rosidl_typesupport_c
+[1.147s] [ 65%] Built target brain__rosidl_typesupport_fastrtps_cpp
+[1.180s] [ 75%] Built target brain__rosidl_typesupport_fastrtps_c
+[1.207s] [ 75%] Built target brain
+[1.238s] [ 78%] Built target brain__py
+[1.275s] [ 85%] Built target brain__python
+[1.320s] [ 95%] Built target brain__rosidl_typesupport_c__pyext
+[1.320s] [ 95%] Built target brain__rosidl_typesupport_fastrtps_c__pyext
+[1.322s] [100%] Built target brain__rosidl_typesupport_introspection_c__pyext
+[1.446s] running egg_info
+[1.447s] writing brain.egg-info/PKG-INFO
+[1.447s] writing dependency_links to brain.egg-info/dependency_links.txt
+[1.448s] writing top-level names to brain.egg-info/top_level.txt
+[1.485s] reading manifest file 'brain.egg-info/SOURCES.txt'
+[1.485s] writing manifest file 'brain.egg-info/SOURCES.txt'
+[1.516s] [100%] Built target ament_cmake_python_build_brain_egg
+[1.530s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain' returned '0': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8
+[1.637s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/brain
+[1.650s] -- Install configuration: ""
+[1.650s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_boot
+[1.650s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_main.py
+[1.650s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/fake_rpi.py
+[1.651s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/led21on_action_server.py
+[1.651s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/led21off_action_server.py
+[1.652s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/test_brain.py
+[1.652s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/rosidl_interfaces/brain
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_off.h
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_on.h
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__type_support.h
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__type_support.h
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__functions.h
+[1.653s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__struct.h
+[1.654s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__functions.c
+[1.654s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__functions.c
+[1.654s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__struct.h
+[1.654s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__functions.h
+[1.654s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg
+[1.654s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_generator_c__visibility_control.h
+[1.654s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/library_path.sh
+[1.655s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/library_path.dsv
+[1.655s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_generator_c.so
+[1.655s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain
+[1.655s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action
+[1.655s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail
+[1.655s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_fastrtps_c.h
+[1.655s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_fastrtps_c.h
+[1.656s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg
+[1.656s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[1.656s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_fastrtps_c.so
+[1.656s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain
+[1.656s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action
+[1.656s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail
+[1.656s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_fastrtps_cpp.hpp
+[1.657s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/dds_fastrtps
+[1.657s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_fastrtps_cpp.hpp
+[1.657s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg
+[1.657s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[1.657s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_fastrtps_cpp.so
+[1.657s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_introspection_c.h
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_introspection_c.h
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__type_support.c
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__type_support.c
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg
+[1.658s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[1.659s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_introspection_c.so
+[1.659s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_c.so
+[1.659s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain
+[1.659s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action
+[1.659s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail
+[1.659s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__struct.hpp
+[1.659s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__traits.hpp
+[1.660s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__struct.hpp
+[1.660s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__builder.hpp
+[1.660s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__builder.hpp
+[1.660s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__traits.hpp
+[1.660s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_off.hpp
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/led21_on.hpp
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__rosidl_typesupport_introspection_cpp.hpp
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__rosidl_typesupport_introspection_cpp.hpp
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_off__type_support.cpp
+[1.661s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/include/brain/action/detail/led21_on__type_support.cpp
+[1.662s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_introspection_cpp.so
+[1.662s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__rosidl_typesupport_cpp.so
+[1.662s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/pythonpath.sh
+[1.662s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/pythonpath.dsv
+[1.662s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info
+[1.662s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/PKG-INFO
+[1.662s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/SOURCES.txt
+[1.662s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/top_level.txt
+[1.662s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages//brain.egg-info/dependency_links.txt
+[1.662s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain
+[1.662s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_on.py
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_on_s.c
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_off_s.c
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/__init__.py
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action/_led21_off.py
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/_brain_s.ep.rosidl_typesupport_c.c
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_introspection_c.cpython-38-x86_64-linux-gnu.so
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
+[1.663s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_c.cpython-38-x86_64-linux-gnu.so
+[1.663s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/__init__.py
+[1.664s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/_brain_s.ep.rosidl_typesupport_introspection_c.c
+[1.664s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_fastrtps_c.cpython-38-x86_64-linux-gnu.so
+[1.664s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/libbrain__python.so
+[1.703s] Listing '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain'...
+[1.703s] Compiling '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/__init__.py'...
+[1.703s] Listing '/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/action'...
+[1.708s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_fastrtps_c.cpython-38-x86_64-linux-gnu.so
+[1.709s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_introspection_c.cpython-38-x86_64-linux-gnu.so
+[1.709s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/python3.8/site-packages/brain/brain_s__rosidl_typesupport_c.cpython-38-x86_64-linux-gnu.so
+[1.710s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/libbrain__python.so
+[1.711s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21On.idl
+[1.711s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21Off.idl
+[1.711s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21On.action
+[1.711s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/action/Led21Off.action
+[1.711s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain//launch
+[1.711s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain//launch/brain.launch.py
+[1.712s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/package_run_dependencies/brain
+[1.712s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/parent_prefix_path/brain
+[1.712s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.sh
+[1.712s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.dsv
+[1.712s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.sh
+[1.713s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.dsv
+[1.713s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.bash
+[1.713s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.sh
+[1.713s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.zsh
+[1.713s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.dsv
+[1.713s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.dsv
+[1.713s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/packages/brain
+[1.713s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_generator_cExport.cmake
+[1.714s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_generator_cExport-noconfig.cmake
+[1.714s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cExport.cmake
+[1.714s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[1.714s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cExport.cmake
+[1.714s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cExport-noconfig.cmake
+[1.714s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_generator_cppExport.cmake
+[1.714s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cppExport.cmake
+[1.714s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[1.715s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cppExport.cmake
+[1.715s] -- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brain__rosidl_typesupport_cppExport-noconfig.cmake
+[1.715s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/rosidl_cmake-extras.cmake
+[1.715s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_dependencies-extras.cmake
+[1.715s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_libraries-extras.cmake
+[1.716s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_targets-extras.cmake
+[1.716s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/ament_cmake_export_include_directories-extras.cmake
+[1.716s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[1.716s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[1.716s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig.cmake
+[1.717s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig-version.cmake
+[1.717s] -- Up-to-date: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.xml
+[1.719s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain' returned '0': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --install /home/aaf/Software/Dev/robot/ros/brain/build/brain

@@ -1,0 +1,59 @@
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.1.4 (/opt/ros/rolling/share/ament_cmake/cmake)
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Found rclcpp: 12.0.0 (/opt/ros/rolling/share/rclcpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Found rosidl_adapter: 2.5.0 (/opt/ros/rolling/share/rosidl_adapter/cmake)
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 4.0.0 (/opt/ros/rolling/share/rmw_implementation_cmake/cmake)
+-- Found rmw_cyclonedds_cpp: 0.23.1 (/opt/ros/rolling/share/rmw_cyclonedds_cpp/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/aaf/Software/Dev/robot/ros/brain/build/brain
+[35m[1mScanning dependencies of target brain_boot[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/brain_boot.dir/src/brain_boot.cpp.o[0m
+[100%] [32m[1mLinking CXX executable brain_boot[0m
+[100%] Built target brain_boot
+-- Install configuration: ""
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_boot
+-- Set runtime path of "/home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/brain_boot" to ""
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/lib/brain/py_test.py
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/package_run_dependencies/brain
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/parent_prefix_path/brain
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.sh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/ament_prefix_path.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.sh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/environment/path.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.bash
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.sh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.zsh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/local_setup.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/ament_index/resource_index/packages/brain
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig.cmake
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/cmake/brainConfig-version.cmake
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/brain/share/brain/package.xml

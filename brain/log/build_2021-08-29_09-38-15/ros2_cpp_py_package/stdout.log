@@ -1,0 +1,59 @@
+-- The C compiler identification is GNU 9.3.0
+-- The CXX compiler identification is GNU 9.3.0
+-- Check for working C compiler: /usr/bin/cc
+-- Check for working C compiler: /usr/bin/cc -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/c++
+-- Check for working CXX compiler: /usr/bin/c++ -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.1.4 (/opt/ros/rolling/share/ament_cmake/cmake)
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.8.10", minimum required is "3") 
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Found rclcpp: 12.0.0 (/opt/ros/rolling/share/rclcpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Found rosidl_adapter: 2.5.0 (/opt/ros/rolling/share/rosidl_adapter/cmake)
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 4.0.0 (/opt/ros/rolling/share/rmw_implementation_cmake/cmake)
+-- Found rmw_cyclonedds_cpp: 0.23.1 (/opt/ros/rolling/share/rmw_cyclonedds_cpp/cmake)
+-- Using RMW implementation 'rmw_cyclonedds_cpp' as default
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package
+[35m[1mScanning dependencies of target cpp_test[0m
+[ 50%] [32mBuilding CXX object CMakeFiles/cpp_test.dir/src/cpp_test.cpp.o[0m
+[100%] [32m[1mLinking CXX executable cpp_test[0m
+[100%] Built target cpp_test
+-- Install configuration: ""
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/cpp_test
+-- Set runtime path of "/home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/cpp_test" to ""
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/lib/ros2_cpp_py_package/py_test.py
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ament_index/resource_index/package_run_dependencies/ros2_cpp_py_package
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ament_index/resource_index/parent_prefix_path/ros2_cpp_py_package
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/ament_prefix_path.sh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/ament_prefix_path.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/path.sh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/environment/path.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.bash
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.sh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.zsh
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/local_setup.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/package.dsv
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ament_index/resource_index/packages/ros2_cpp_py_package
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/cmake/ros2_cpp_py_packageConfig.cmake
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/cmake/ros2_cpp_py_packageConfig-version.cmake
+-- Installing: /home/aaf/Software/Dev/robot/ros/brain/install/ros2_cpp_py_package/share/ros2_cpp_py_package/package.xml

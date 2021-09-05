@@ -1,0 +1,14 @@
+[0.019s] Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8
+[0.109s] [  2%] Built target brain__cpp
+[0.111s] [ 12%] Built target brain__rosidl_generator_c
+[0.125s] [ 17%] Built target brain_boot
+[0.129s] [ 17%] Built target ament_cmake_python_symlink_brain
+[0.146s] make[1]: *** [CMakeFiles/Makefile2:349: CMakeFiles/brain__rosidl_typesupport_introspection_c.dir/all] Interrupt
+[0.146s] make[1]: *** [CMakeFiles/Makefile2:608: CMakeFiles/brain__rosidl_typesupport_cpp.dir/all] Interrupt
+[0.147s] make[1]: *** [CMakeFiles/Makefile2:471: CMakeFiles/brain__rosidl_typesupport_fastrtps_cpp.dir/all] Interrupt
+[0.147s] make[1]: *** [CMakeFiles/Makefile2:525: CMakeFiles/brain__rosidl_typesupport_c.dir/all] Interrupt
+[0.147s] make[1]: *** [CMakeFiles/Makefile2:323: CMakeFiles/brain__rosidl_typesupport_introspection_cpp.dir/all] Interrupt
+[0.147s] make[2]: *** [CMakeFiles/ament_cmake_python_build_brain_egg.dir/build.make:74: CMakeFiles/ament_cmake_python_build_brain_egg.dir/depend] Interrupt
+[0.147s] make[1]: *** [CMakeFiles/Makefile2:186: CMakeFiles/ament_cmake_python_build_brain_egg.dir/all] Interrupt
+[0.147s] make: *** [Makefile:141: all] Interrupt
+[0.149s] Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/brain' returned '-2': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/brain -- -j8 -l8

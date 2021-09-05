@@ -1,0 +1,2 @@
+Invoking command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package -- -j8 -l8
+Invoked command in '/home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package' returned '2': CMAKE_PREFIX_PATH=/opt/ros/rolling /usr/bin/cmake --build /home/aaf/Software/Dev/robot/ros/brain/build/ros2_cpp_py_package -- -j8 -l8
