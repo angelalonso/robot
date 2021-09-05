@@ -22,7 +22,9 @@ If you cannot live without a step by step, here it goes:
 
 ## Status
 
-Redoing from scratch, this time around using ROS2 instead of my own Rust-based program. In short: it doesn't do anything yet.
+Redoing from scratch, this time around using ROS2 instead of my own Rust-based program. 
+What it does so far: Turn an LED on and off
+Next up: Use some motors to move around
 
 ## Code Style
 

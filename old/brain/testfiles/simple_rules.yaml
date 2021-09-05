@@ -1,0 +1,19 @@
+--- 
+- id: "simple"
+  actionsloop: false
+  condition:
+  - time: "0.4" 
+    input_objs: "led_y=0"
+  actions:
+  - object: "led_y"
+    value: "1"
+    time: "0.2"
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
+  - object: "led_y"
+    value: "1"
+    time: "0.2"
+  - object: "led_y"
+    value: "0"
+    time: "0.2"
