@@ -66,7 +66,7 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/brain" TYPE PROGRAM FILES "/home/aaf/Software/Dev/robot/brain/scripts/led21_action_server.py")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/brain" TYPE PROGRAM FILES "/home/aaf/Software/Dev/robot/brain/scripts/led_action_server.py")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
@@ -383,27 +383,11 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led21On.idl")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led.idl")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led21Off.idl")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led21.idl")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/action/Led21On.action")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/action/Led21Off.action")
-endif()
-
-if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/action/Led21.action")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/brain/action" TYPE FILE FILES "/home/aaf/Software/Dev/robot/brain/action/Led.action")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)

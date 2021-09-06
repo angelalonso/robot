@@ -1,6 +1,2 @@
-action/Led21.action
-action/Led21.idl
-action/Led21Off.action
-action/Led21Off.idl
-action/Led21On.action
-action/Led21On.idl
+action/Led.action
+action/Led.idl

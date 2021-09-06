@@ -3,9 +3,7 @@
   "output_dir": "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_typesupport_fastrtps_cpp/brain",
   "template_dir": "/opt/ros/rolling/share/rosidl_typesupport_fastrtps_cpp/resource",
   "idl_tuples": [
-    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain:action/Led21On.idl",
-    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain:action/Led21Off.idl",
-    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain:action/Led21.idl"
+    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain:action/Led.idl"
   ],
   "ros_interface_dependencies": [
     "action_msgs:/opt/ros/rolling/share/action_msgs/msg/GoalInfo.idl",
@@ -25,9 +23,7 @@
     "/opt/ros/rolling/share/rosidl_typesupport_fastrtps_cpp/resource/msg__type_support.cpp.em",
     "/opt/ros/rolling/share/rosidl_typesupport_fastrtps_cpp/resource/srv__rosidl_typesupport_fastrtps_cpp.hpp.em",
     "/opt/ros/rolling/share/rosidl_typesupport_fastrtps_cpp/resource/srv__type_support.cpp.em",
-    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led21On.idl",
-    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led21Off.idl",
-    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led21.idl",
+    "/home/aaf/Software/Dev/robot/brain/build/brain/rosidl_adapter/brain/action/Led.idl",
     "/opt/ros/rolling/share/action_msgs/msg/GoalInfo.idl",
     "/opt/ros/rolling/share/action_msgs/msg/GoalStatus.idl",
     "/opt/ros/rolling/share/action_msgs/msg/GoalStatusArray.idl",

@@ -4,12 +4,12 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # start a led21_node in the brain namespace
-    led21_node = Node(
+    # start a led_node in the brain namespace
+    led_node = Node(
             package='brain',
             namespace='brain',
-            executable='led21_action_server.py',
-            name='led21_action_server'
+            executable='led_action_server.py',
+            name='led_action_server'
         )
 
     # start a test_brain_node in the brain namespace
@@ -21,6 +21,6 @@ def generate_launch_description():
         )
 
     return LaunchDescription([
-        led21_node,
+        led_node,
         test_brain_node,
     ])

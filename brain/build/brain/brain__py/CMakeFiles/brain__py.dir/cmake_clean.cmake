@@ -3,12 +3,8 @@ file(REMOVE_RECURSE
   "../rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c"
   "../rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_introspection_c.c"
   "../rosidl_generator_py/brain/action/__init__.py"
-  "../rosidl_generator_py/brain/action/_led21.py"
-  "../rosidl_generator_py/brain/action/_led21_off.py"
-  "../rosidl_generator_py/brain/action/_led21_off_s.c"
-  "../rosidl_generator_py/brain/action/_led21_on.py"
-  "../rosidl_generator_py/brain/action/_led21_on_s.c"
-  "../rosidl_generator_py/brain/action/_led21_s.c"
+  "../rosidl_generator_py/brain/action/_led.py"
+  "../rosidl_generator_py/brain/action/_led_s.c"
   "CMakeFiles/brain__py"
 )
 

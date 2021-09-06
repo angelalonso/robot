@@ -40,16 +40,14 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/led21_action_server.py
+  scripts/led_action_server.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
 find_package(rosidl_default_generators REQUIRED)
 
 set(action_files
-  "action/Led21On.action"
-  "action/Led21Off.action"
-  "action/Led21.action"
+  "action/Led.action"
   )
 
 rosidl_generate_interfaces(${PROJECT_NAME}

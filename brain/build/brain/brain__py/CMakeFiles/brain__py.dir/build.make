@@ -56,13 +56,9 @@ include brain__py/CMakeFiles/brain__py.dir/progress.make
 brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
 brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_introspection_c.c
 brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_c.c
-brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led21_on.py
-brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led21_off.py
-brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led21.py
+brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led.py
 brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/__init__.py
-brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led21_on_s.c
-brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led21_off_s.c
-brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led21_s.c
+brain__py/CMakeFiles/brain__py: rosidl_generator_py/brain/action/_led_s.c
 
 
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/rolling/lib/rosidl_generator_py/rosidl_generator_py
@@ -78,9 +74,7 @@ rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/rolling/share/rosidl_generator_py/resource/_msg.py.em
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/rolling/share/rosidl_generator_py/resource/_srv_pkg_typesupport_entry_point.c.em
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/rolling/share/rosidl_generator_py/resource/_srv.py.em
-rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/brain/action/Led21On.idl
-rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/brain/action/Led21Off.idl
-rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/brain/action/Led21.idl
+rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: rosidl_adapter/brain/action/Led.idl
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/rolling/share/action_msgs/msg/GoalInfo.idl
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/rolling/share/action_msgs/msg/GoalStatus.idl
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c: /opt/ros/rolling/share/action_msgs/msg/GoalStatusArray.idl
@@ -97,38 +91,22 @@ rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_introspection_c.c: rosi
 rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_c.c: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_c.c
 
-rosidl_generator_py/brain/action/_led21_on.py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
-	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led21_on.py
-
-rosidl_generator_py/brain/action/_led21_off.py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
-	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led21_off.py
-
-rosidl_generator_py/brain/action/_led21.py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
-	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led21.py
+rosidl_generator_py/brain/action/_led.py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led.py
 
 rosidl_generator_py/brain/action/__init__.py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/__init__.py
 
-rosidl_generator_py/brain/action/_led21_on_s.c: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
-	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led21_on_s.c
-
-rosidl_generator_py/brain/action/_led21_off_s.c: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
-	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led21_off_s.c
-
-rosidl_generator_py/brain/action/_led21_s.c: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
-	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led21_s.c
+rosidl_generator_py/brain/action/_led_s.c: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
+	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_py/brain/action/_led_s.c
 
 brain__py: brain__py/CMakeFiles/brain__py
 brain__py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_fastrtps_c.c
 brain__py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_introspection_c.c
 brain__py: rosidl_generator_py/brain/_brain_s.ep.rosidl_typesupport_c.c
-brain__py: rosidl_generator_py/brain/action/_led21_on.py
-brain__py: rosidl_generator_py/brain/action/_led21_off.py
-brain__py: rosidl_generator_py/brain/action/_led21.py
+brain__py: rosidl_generator_py/brain/action/_led.py
 brain__py: rosidl_generator_py/brain/action/__init__.py
-brain__py: rosidl_generator_py/brain/action/_led21_on_s.c
-brain__py: rosidl_generator_py/brain/action/_led21_off_s.c
-brain__py: rosidl_generator_py/brain/action/_led21_s.c
+brain__py: rosidl_generator_py/brain/action/_led_s.c
 brain__py: brain__py/CMakeFiles/brain__py.dir/build.make
 
 .PHONY : brain__py
