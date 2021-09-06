@@ -1,0 +1,18 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from brain/action/Led21.action
+// generated code does not contain a copyright notice
+
+
+module brain {
+  module action {
+    struct Led21_Goal {
+      boolean turn_on;
+    };
+    struct Led21_Result {
+      string confirmed;
+    };
+    struct Led21_Feedback {
+      string process_feed;
+    };
+  };
+};

@@ -99,6 +99,9 @@ CMakeFiles/brain__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/brain/_bra
  /usr/include/python3.8/unicodeobject.h
  /usr/include/python3.8/warnings.h
  /usr/include/python3.8/weakrefobject.h
+ rosidl_generator_c/brain/action/detail/led21__functions.h
+ rosidl_generator_c/brain/action/detail/led21__struct.h
+ rosidl_generator_c/brain/action/detail/led21__type_support.h
  rosidl_generator_c/brain/action/detail/led21_off__functions.h
  rosidl_generator_c/brain/action/detail/led21_off__struct.h
  rosidl_generator_c/brain/action/detail/led21_off__type_support.h

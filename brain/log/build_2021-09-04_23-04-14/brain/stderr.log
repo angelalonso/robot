@@ -1,6 +1,0 @@
-CMake Error at cmake_install.cmake:73 (file):
-  file INSTALL cannot find
-  "/home/aaf/Software/Dev/robot/ros/brain/scripts/test_brain.py": No such
-  file or directory.
-
-
