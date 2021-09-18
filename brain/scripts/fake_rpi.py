@@ -3,13 +3,16 @@ class fake_rpi(object):
         super().__init__('fake rpi')
         self.setwarning = False
 
-    def setwarning(state):
+    def add_event_detect(pin_nr, state, callback):
+        pass
+
+    def setwarnings(state):
         pass
 
     def setmode(state):
         pass
 
-    def setup(pin, mode):
+    def setup(pin, mode, pull_up_down):
         pass
 
     def output(pin, mode):
@@ -18,14 +21,43 @@ class fake_rpi(object):
     def BCM():
         return ""
 
-    def OUT():
+    def BOARD():
         return ""
 
     def HIGH():
         return ""
 
+    def IN():
+        return ""
+
     def LOW():
         return ""
+
+    def OUT():
+        return ""
+
+    def PUD_DOWN():
+        return ""
+
+    def RISING():
+        return ""
+
+    def cleanup():
+        pass
+
+    def wait_for_edge(rising, timeout):
+        from random import seed
+        from random import randint
+        from time import sleep
+        import time
+        seed(round(time.time() * 1000))
+        sleepytime = randint(0, timeout * 2)
+        if sleepytime > timeout:
+            sleep(timeout / 1000)
+            return None
+        else:
+            sleep(sleepytime / 1000)
+            return ""
 
 import sys
 sys.modules["package.module"] = fake_rpi
