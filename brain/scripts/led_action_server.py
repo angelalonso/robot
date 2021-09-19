@@ -26,7 +26,7 @@ class LedActionServer(Node):
         feedback_msg = Led.Feedback()
         goal_handle.publish_feedback(feedback_msg)
 
-        GPIO.setup(self.pin_id, GPIO.OUT)
+        GPIO.setup(self.pin_id, GPIO.OUT, None)
         if self.turn_on == False:
             feedback_msg.process_feed = "setting PIN " + str(self.pin_id) + " On"
             GPIO.output(self.pin_id, GPIO.HIGH)
