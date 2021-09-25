@@ -3,6 +3,40 @@
 import RPi.GPIO as GPIO
 #from fake_rpi import fake_rpi as GPIO
 
+class Motors:
+    def __init__(self):
+        self.right_in1 = 24
+        self.right_in2 = 23
+        self.right_en = 25
+        self.right_state = 1
+        
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(right_in1,GPIO.OUT,None)
+        GPIO.setup(right_in2,GPIO.OUT,None)
+        GPIO.setup(right_en,GPIO.OUT,None)
+        GPIO.output(right_in1,GPIO.LOW)
+        GPIO.output(right_in2,GPIO.LOW)
+
+        self.p = GPIO.PWM(right_en,1000)
+        self.p.start(100)
+
+    def run(self):
+        print("run")
+        if(right_state==1):
+            GPIO.output(self.right_in1,GPIO.HIGH)
+            GPIO.output(self.right_in2,GPIO.LOW)
+            print("forward")
+        else:
+            GPIO.output(self.right_in1,GPIO.LOW)
+            GPIO.output(self.right_in2,GPIO.HIGH)
+            print("backward")
+
+    def stop(self):
+        print("stop")
+        GPIO.output(self.right_in1,GPIO.LOW)
+        GPIO.output(self.right_in2,GPIO.LOW)
+
+
 class MotorsSubscriber(Node):
     def __init__(self):
         self.subscription = self.create_subscription(
