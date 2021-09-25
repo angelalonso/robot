@@ -36,6 +36,10 @@ class fake_rpi(object):
     def OUT():
         return ""
 
+    def PWM(pin, mode):
+        p = PWM_object()
+        return p
+
     def PUD_DOWN():
         return ""
 
@@ -58,6 +62,16 @@ class fake_rpi(object):
         else:
             sleep(sleepytime / 1000)
             return ""
+
+class PWM_object:
+    def __init__(self):
+        pass
+
+    def start(self, state):
+        pass
+
+    def ChangeDutyCycle(self, state):
+        pass
 
 import sys
 sys.modules["package.module"] = fake_rpi

@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 
-import RPi.GPIO as GPIO          
+#import RPi.GPIO as GPIO          
+from fake_rpi import fake_rpi as GPIO
 from time import sleep
 
-in1 = 24
-in2 = 23
-en = 25
-temp1=1
+right_in1 = 24
+right_in2 = 23
+right_en = 25
+right_state=1
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(in1,GPIO.OUT)
-GPIO.setup(in2,GPIO.OUT)
-GPIO.setup(en,GPIO.OUT)
-GPIO.output(in1,GPIO.LOW)
-GPIO.output(in2,GPIO.LOW)
-p=GPIO.PWM(en,1000)
+GPIO.setup(right_in1,GPIO.OUT,None)
+GPIO.setup(right_in2,GPIO.OUT,None)
+GPIO.setup(right_en,GPIO.OUT,None)
+GPIO.output(right_in1,GPIO.LOW)
+GPIO.output(right_in2,GPIO.LOW)
+p=GPIO.PWM(right_en,1000)
 p.start(100)
 print("\n")
 print("The default speed & direction of motor is LOW & Forward.....")
@@ -27,36 +28,36 @@ while(1):
     
     if x=='r':
         print("run")
-        if(temp1==1):
-         GPIO.output(in1,GPIO.HIGH)
-         GPIO.output(in2,GPIO.LOW)
+        if(right_state==1):
+         GPIO.output(right_in1,GPIO.HIGH)
+         GPIO.output(right_in2,GPIO.LOW)
          print("forward")
          x='z'
         else:
-         GPIO.output(in1,GPIO.LOW)
-         GPIO.output(in2,GPIO.HIGH)
+         GPIO.output(right_in1,GPIO.LOW)
+         GPIO.output(right_in2,GPIO.HIGH)
          print("backward")
          x='z'
 
 
     elif x=='s':
         print("stop")
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
+        GPIO.output(right_in1,GPIO.LOW)
+        GPIO.output(right_in2,GPIO.LOW)
         x='z'
 
     elif x=='f':
         print("forward")
-        GPIO.output(in1,GPIO.HIGH)
-        GPIO.output(in2,GPIO.LOW)
-        temp1=1
+        GPIO.output(right_in1,GPIO.HIGH)
+        GPIO.output(right_in2,GPIO.LOW)
+        right_state=1
         x='z'
 
     elif x=='b':
         print("backward")
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.HIGH)
-        temp1=0
+        GPIO.output(right_in1,GPIO.LOW)
+        GPIO.output(right_in2,GPIO.HIGH)
+        right_state=0
         x='z'
 
     elif x=='l':
