@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-#import RPi.GPIO as GPIO          
-from fake_rpi import fake_rpi as GPIO
+import RPi.GPIO as GPIO          
+#from fake_rpi import fake_rpi as GPIO
 from time import sleep
 
 right_in1 = 24

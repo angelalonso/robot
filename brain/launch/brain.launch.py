@@ -4,23 +4,31 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # start a led_node in the brain namespace
-    led_node = Node(
+    # start motor_workers in the brain namespace
+    right_motor_worker_node = Node(
             package='brain',
             namespace='brain',
-            executable='led_action_server.py',
-            name='led_action_server'
+            executable='node_right_motor_worker.py',
+            name='node_right_motor_worker'
         )
 
-    # start a test_brain_node in the brain namespace
-    test_brain_node = Node(
+    left_motor_worker_node = Node(
             package='brain',
             namespace='brain',
-            executable='main_brain.py',
-            name='test_brain'
+            executable='node_left_motor_worker.py',
+            name='node_left_motor_worker'
+        )
+
+    # start a motors_manager in the brain namespace
+    motor_manager_node = Node(
+            package='brain',
+            namespace='brain',
+            executable='node_motors_manager.py',
+            name='node_motors_manager'
         )
 
     return LaunchDescription([
-        led_node,
-        test_brain_node,
+        right_motor_worker_node,
+        left_motor_worker_node,
+        motor_manager_node,
     ])

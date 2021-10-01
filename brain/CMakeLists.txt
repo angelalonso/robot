@@ -32,15 +32,19 @@ DESTINATION lib/${PROJECT_NAME}
 
 # Install python scripts
 install(PROGRAMS
-  scripts/main_brain.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-install(PROGRAMS
   scripts/fake_rpi.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/led_action_server.py
+  scripts/node_right_motor_worker.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/node_left_motor_worker.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/node_motors_manager.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -48,6 +52,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 set(action_files
   "action/Led.action"
+  "action/Motor.action"
   )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
