@@ -13,7 +13,7 @@ ros::Publisher pub_random("/random_number", &rand_msg);
 
 char frameid[] = "/randomData";
 
-#this function returns the random number
+    
 int random_number(){
   rand_no= random(min, max);
   return rand_no;
