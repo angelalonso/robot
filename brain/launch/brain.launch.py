@@ -19,16 +19,25 @@ def generate_launch_description():
             name='node_left_motor_worker'
         )
 
-    # start a motors_manager in the brain namespace
-    motor_manager_node = Node(
+    # mock the presence of our Arduino when testing locally
+    mock_arduino = Node(
             package='brain',
             namespace='brain',
-            executable='node_motors_manager.py',
-            name='node_motors_manager'
+            executable='mock_arduino.py',
+            name='mock_arduino'
+        )
+
+    # start a motors_manager in the brain namespace
+    main_brain = Node(
+            package='brain',
+            namespace='brain',
+            executable='main_brain.py',
+            name='main_brain'
         )
 
     return LaunchDescription([
         right_motor_worker_node,
         left_motor_worker_node,
-        motor_manager_node,
+        mock_arduino,
+        main_brain,
     ])

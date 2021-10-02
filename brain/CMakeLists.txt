@@ -36,6 +36,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/mock_arduino.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/node_right_motor_worker.py
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -44,7 +48,7 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/node_motors_manager.py
+  scripts/main_brain.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
