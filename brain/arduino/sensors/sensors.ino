@@ -1,7 +1,6 @@
 // PINS
 const int ProximityTriggerPin = 3;
 const int ProximityEchoPin = 2;
-const int ButtonPin = 7;
 // OTHER VARS
 int incomingByte = 0;
 String msg;
@@ -9,14 +8,11 @@ bool sync = false;
 bool news = false;
 int distanceVal;
 int distancePrevVal;
-int buttonVal;
-int buttonPrevVal;
 
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ProximityTriggerPin, OUTPUT);
   pinMode(ProximityEchoPin, INPUT);
-  pinMode(ButtonPin, INPUT);
   Serial.begin(9600);
   
 }
@@ -58,17 +54,6 @@ String getDistance(String msg) {
   return msg;
 }
 
-String getButton(String msg) {
-  buttonVal=digitalRead(ButtonPin); //read the value of the Button
-  if (buttonVal != buttonPrevVal) {
-    news = true;
-    buttonPrevVal = buttonVal;
-    msg.concat("button=");
-    msg.concat(buttonVal);
-    msg.concat("|");
-  };
-  return msg;
-}
 
 void loop() {
   msg = "SENSOR: ";
@@ -77,7 +62,8 @@ void loop() {
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.read();
-    Serial.println("LOG: Synced");
+    
+    //Serial.println("LOG: Synced");
     
     sync = true;
   }
@@ -86,12 +72,12 @@ void loop() {
   if (sync == true) {
     // DISTANCE SENSOR
     msg = getDistance(msg);
-
-    // BUTTON SENSOR
-    msg = getButton(msg);
     
     if (news == true) {
       Serial.println(msg);
+      Serial.println("---------------------");
     }
   }
+  //this is only here to avoid several unnecessary reads per call (current calls happen once per second)
+  delay(750);
 }
