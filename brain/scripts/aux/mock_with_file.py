@@ -5,9 +5,13 @@ from random import randint
 import time
 import hashlib
 
-class Arduino():
+import rclpy
+from rclpy.node import Node
+
+class SerialLink(Node):
 
     def __init__(self):
+        super().__init__('arduino_serial_sync_mocked')
         self.infile = "mock_arduino_serial.input"
         try:
             open(self.infile, 'x')
@@ -36,7 +40,14 @@ class Arduino():
         with open(self.outfile, "w") as outfile:
             outfile.write("SENSOR: distance=" + str(mocked_distance) + "|")
 
-    def sync(self):
+    def process(self, msg):
+        #TODO: 
+        # filter out noise
+        # get one value on each run, or nothing (in the event of several, calculate median maybe?)
+        print(msg)
+
+
+    def sync_and_read(self):
         while True:
             aux_inobj = open(self.infile, 'rb')
             aux_inobj_md5 = hashlib.md5()
@@ -45,15 +56,19 @@ class Arduino():
             new_inobj_hash = aux_inobj_md5.hexdigest()
             
             if self.inobj_hash != new_inobj_hash:
-                print("SYNCFILE CHANGED!")
                 self.inobj_hash = new_inobj_hash
                 self.write()
             time.sleep(1)
 
 
 def main(args=None):
-    arduino = Arduino()
-    arduino.sync()
+    rclpy.init(args=args)
+
+    arduino_serial = SerialLink()
+
+    arduino_serial.sync_and_read()
+
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

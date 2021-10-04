@@ -75,7 +75,6 @@ void loop() {
     
     if (news == true) {
       Serial.println(msg);
-      Serial.println("---------------------");
     }
   }
   //this is only here to avoid several unnecessary reads per call (current calls happen once per second)

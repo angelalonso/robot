@@ -20,11 +20,11 @@ def generate_launch_description():
         )
 
     # mock the presence of our Arduino when testing locally
-    mock_arduino = Node(
+    node_arduino = Node(
             package='brain',
             namespace='brain',
-            executable='mock_arduino.py',
-            name='mock_arduino'
+            executable='node_arduino.py',
+            name='node_arduino'
         )
 
     # start a motors_manager in the brain namespace
@@ -38,6 +38,6 @@ def generate_launch_description():
     return LaunchDescription([
         right_motor_worker_node,
         left_motor_worker_node,
-        mock_arduino,
+        node_arduino,
         main_brain,
     ])

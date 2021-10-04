@@ -36,7 +36,7 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/mock_arduino.py
+  scripts/node_arduino.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
