@@ -30,11 +30,16 @@ install(TARGETS
 DESTINATION lib/${PROJECT_NAME}
 )
 
-# Install python scripts
+# Install python scripts - MODULES et al.
 install(PROGRAMS
   scripts/fake_rpi.py
   DESTINATION lib/${PROJECT_NAME}
 )
+install(PROGRAMS
+  scripts/processing.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+# Install python scripts - NODES
 install(PROGRAMS
   scripts/node_arduino.py
   DESTINATION lib/${PROJECT_NAME}

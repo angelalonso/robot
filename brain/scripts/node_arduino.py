@@ -7,6 +7,7 @@ import time
 
 import rclpy
 from rclpy.node import Node
+from processing import process_input
 
 class SerialLink(Node):
     def __init__(self):
@@ -30,12 +31,6 @@ class SerialLink(Node):
         #TODO: need to close the connection somehow
                 #self.conn.close()
 
-    def process(self, msg):
-        #TODO: 
-        # filter out noise
-        # get one value on each run, or nothing (in the event of several, calculate median maybe?)
-        self.get_logger().info(msg)
-
     def sync_and_read(self):
         while True:
             out = ''
@@ -43,7 +38,7 @@ class SerialLink(Node):
             while self.conn.inWaiting() > 0:
                 out += self.conn.read(1).decode()
             if out != '':
-                self.process(out)
+                self.get_logger().info(process_input(out))
             time.sleep(1)
 
 def main(args=None):
