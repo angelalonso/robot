@@ -16,9 +16,9 @@ class LeftMotorActionServer(Node):
         self.left_in2 = 17
         self.left_en = 22
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.left_in1,GPIO.OUT,10)
-        GPIO.setup(self.left_in2,GPIO.OUT,10)
-        GPIO.setup(self.left_en,GPIO.OUT,10)
+        GPIO.setup(self.left_in1,GPIO.OUT)
+        GPIO.setup(self.left_in2,GPIO.OUT)
+        GPIO.setup(self.left_en,GPIO.OUT)
         GPIO.output(self.left_in1,GPIO.LOW)
         GPIO.output(self.left_in2,GPIO.LOW)
 

@@ -16,9 +16,9 @@ class RightMotorActionServer(Node):
         self.right_in2 = 23
         self.right_en = 25
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.right_in1,GPIO.OUT,10)
-        GPIO.setup(self.right_in2,GPIO.OUT,10)
-        GPIO.setup(self.right_en,GPIO.OUT,10)
+        GPIO.setup(self.right_in1,GPIO.OUT)
+        GPIO.setup(self.right_in2,GPIO.OUT)
+        GPIO.setup(self.right_en,GPIO.OUT)
         GPIO.output(self.right_in1,GPIO.LOW)
         GPIO.output(self.right_in2,GPIO.LOW)
 
