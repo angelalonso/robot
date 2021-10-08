@@ -9,6 +9,6 @@ function ctrl_c() {
 trap ctrl_c INT
 
 colcon build && \
-  . ./install/setup.zsh && \
+  . ./install/setup.bssh && \
   ros2 launch brain brain.launch.py
 
