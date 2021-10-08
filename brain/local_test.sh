@@ -18,7 +18,7 @@ sed -i 's/^#from fake_rpi import fake_rpi as GPIO/from fake_rpi import fake_rpi 
 
 # Use mocked python nodes
 #    Comment out this line if you test your arduino connected to your laptop
-#cp scripts/node_arduino.py.test scripts/node_arduino.py
+cp scripts/node_arduino.py.test scripts/node_arduino.py
 
 trap ctrl_c INT
 
