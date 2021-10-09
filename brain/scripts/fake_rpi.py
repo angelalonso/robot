@@ -12,7 +12,7 @@ class fake_rpi(object):
     def setmode(state):
         pass
 
-    def setup(pin, mode, pull_up_down):
+    def setup(pin, mode, *args, **kwargs):
         pass
 
     def output(pin, mode):
