@@ -1,27 +1,42 @@
-def cleanup(msg):
-    disallowed_characters = "."
-    for character in disallowed_characters:
-        msg = msg.replace(character, "").strip()
 
-    result = msg
-    return result
+class info_entry: 
+    def __init__(self, source, topic, value): 
+        self.source = source 
+        self.topic = topic 
+        self.value = value 
+    def __repr__(self):
+        return 'source: ' + self.source + ', topic: ' + self.topic + ", value: " + self.value
 
-
-def process_input(msg):
-    info_list = msg.split("|")
+def understand(data):
+    info_list = data.split("|")
     info_correct = False
     list_ix = 0
-    info = ''
-    while not info_correct:
-        info = cleanup(info_list[list_ix])
-        list_ix += 1
-        info_correct = True
-        # TODO:
-        # check which kind of info we get (e.g.: SENSOR)
-        # then what specific info it is (e.g.: distance)
-        # get the actual value
-        # If all is OK, use just that one and discard the rest
-    return ("processed " + info)
-    #for info in info_list:
-    #    result = "processed " + cleanup(msg)
-    #return result
+    info_list_clean = [] 
+    for info in info_list:
+        try:
+            source = info.split(': ')[0]
+            try:
+                topic = info.split(': ')[1].split('=')[0]
+                try:
+                    value = info.split(': ')[1].split('=')[1]
+                    #TODO: check source is correct, do different stuff for different sources
+                    #TODO: check topic is correct, do different stuff for different topics
+                    if (source == 'SENSOR') and (topic == 'distance') and (value != ''):
+                        info_list_clean.append(info_entry(source, topic, value))
+                except IndexError:
+                    pass
+            except IndexError:
+                pass
+        except IndexError:
+            pass
+    return info_list_clean
+
+def get_actions(data):
+    info_list = understand(data)
+    action_list = []
+    for entry in info_list:
+        action_list.append(str(entry))
+    return '*'.join(action_list)
+
+def process_input(data):
+    return get_actions(data)
