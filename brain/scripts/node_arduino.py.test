@@ -9,20 +9,31 @@ import rclpy
 from rclpy.node import Node
 from processing import process_input
 
+def mock_distance():
+    result = randint(1, 999)
+    return result
+
 class SerialLink(Node):
 
     def __init__(self):
         super().__init__('arduino_serial_sync_mocked')
+        self.mocked_list = [] 
+        self.mocked_list_ix = 0
+        filename = './arduino_mocked_values.list'
+        with open(filename) as file:
+            for line in file:
+                self.mocked_list.append(line.strip())
 
     def get_value(self):
-        seed(round(time.time() * 1000))
-        mocked_distance = randint(1, 999)
-        seed(round(time.time() * 1000))
-        random_repeated = randint(0, 99)
-        value = ("SENSOR: distance=" + str(mocked_distance) + "|\r\n")
-        if ( random_repeated < 20 ):
-            value += ("SENSOR: distance=" + str(mocked_distance - 1) + "|\r\n")
-        return value
+        try:
+            value = self.mocked_list[self.mocked_list_ix]
+        except IndexError:
+            self.mocked_list_ix = 0
+            value = self.mocked_list[self.mocked_list_ix]
+        self.mocked_list_ix += 1
+        result = "SENSOR: distance=" + value + "|"
+        self.get_logger().info(result)
+        return result
 
     def sync_and_read(self):
         while True:
