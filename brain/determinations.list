@@ -1,0 +1,2 @@
+IF distance < 10 THEN MOTOR='turn on'
+IF distance > 77 THEN MOTOR='turn off'

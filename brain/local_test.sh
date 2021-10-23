@@ -22,6 +22,7 @@ cp scripts/node_arduino.py.test scripts/node_arduino.py
 
 trap ctrl_c INT
 
+source /home/angel.alonso/Downloads/ros2_foxy/ros2-linux/local_setup.zsh
 colcon build && \
   . ./install/setup.zsh && \
   ros2 launch brain brain.launch.py
