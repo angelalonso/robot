@@ -40,12 +40,11 @@ def find_match(dataset, new_input):
         if next_entry == None:
             return None
         else:
-            return next_entry['speed']
+            return next_entry[list(next_entry)[-1]]
     else:
-        return prev_entry['speed']
+        return prev_entry[list(prev_entry)[-1]]
     
 if __name__ == '__main__':
     data = read_rules('rules.csv')
-    print(data.fieldnames[-1])
     print(find_match(data, sys.argv[1]))
 
