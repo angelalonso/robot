@@ -1,3 +1,4 @@
+import csv
 from collections import deque
 
 class info_entries: 
@@ -50,25 +51,56 @@ def understand(latest_infos, data):
             pass
     return info_list_clean
 
+def read_rules(filename):
+    csvfile = open(filename, newline='')
+    dictreader = csv.DictReader(csvfile, delimiter=';')
+    return dictreader
+
+def find_action(dataset, new_input):
+    # TODO: open this up for more than one input variable
+    prev_entry = None
+    prev_diff = None
+    next_entry = None
+    next_diff = None
+    for entry in dataset:
+    # If there's a direct match, get the result
+        if entry['distance'] == new_input:
+            return entry[list(entry)[-1]]
+    # If there isn't a direct match, find the prev and next values, 
+    #   if they have the same result, that's our return
+    #   if not, choose the prev over the next
+        else:
+            diff = int(entry['distance']) - int(new_input)
+            if diff < 0:
+                if prev_diff == None:
+                    prev_diff = diff
+                    prev_entry = entry
+                elif diff > prev_diff:
+                    prev_diff = diff
+                    prev_entry = entry
+
+            elif diff > 0:
+                if next_diff == None:
+                    next_diff = diff
+                    next_entry = entry
+                elif diff < next_diff:
+                    next_diff = diff
+                    next_entry = entry
+    if prev_entry == None:
+        if next_entry == None:
+            return None
+        else:
+            return next_entry[list(next_entry)[-1]]
+    else:
+        return prev_entry[list(prev_entry)[-1]]
+
 def get_actions(latest_infos, data):
     info_list = understand(latest_infos, data)
-    determination_file = open("determinations.list", "r")
-    determinations = determination_file.read().split("\r")
-    determination_file.close()
+    rules_data = read_rules('rules.csv')
     action_list = []
     for entry in info_list:
-        #TODO: after reading determinations, build a set of rules
-        if int(entry.value) < 20:
-            action_list.append("MOTOR: left=-100")
-            action_list.append("MOTOR: right=-100")
-        elif int(entry.value) < 30:
-            action_list.append("MOTOR: left=-100")
-            action_list.append("MOTOR: right=100")
-        else:
-            action_list.append("MOTOR: left=100")
-            action_list.append("MOTOR: right=100")
-    return '*'.join(action_list)
-    #eturn '*'.join(determinations)
+        action_list.append("ACTIONS: " + find_action(rules_data, entry.value))
+    return '|'.join(action_list)
 
 def get_test(latest_infos, data):
     latest_infos.append(data)

@@ -1,0 +1,7 @@
+"distance";"action"
+0;"motor_left=-100|motor_right=-100"
+10;"motor_left=100|motor_right=-100"
+20;"motor_left=100|motor_right=-100"
+21;"motor_left=50|motor_right=50"
+30;"motor_left=50|motor_right=50"
+31;"motor_left=100|motor_right=100"
