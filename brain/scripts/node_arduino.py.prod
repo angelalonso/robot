@@ -12,6 +12,7 @@ from processing import process_input
 class SerialLink(Node):
     def __init__(self):
         super().__init__('arduino_serial_sync')
+        self.latest_infos = info_entries()
         portfound = False
         for portfile in [ '/dev/ttyACM0', '/dev/ttyACM0']:
             if (os.path.exists(portfile) and not portfound):
@@ -39,6 +40,7 @@ class SerialLink(Node):
                 out += self.conn.read(1).decode()
             if out != '':
                 self.get_logger().info(process_input(out))
+                self.get_logger().info(process_input(self.latest_infos, out))
             time.sleep(1)
 
 def main(args=None):
