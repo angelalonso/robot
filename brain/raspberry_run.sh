@@ -5,6 +5,8 @@ function ctrl_c() {
   echo "** Trapped CTRL-C"
 
 }
+# Use non-mocked python nodes
+cp scripts/node_arduino.py.prod scripts/node_arduino.py
 
 trap ctrl_c INT
 
