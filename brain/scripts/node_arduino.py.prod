@@ -41,9 +41,8 @@ class SerialLink(Node):
                 try:
                     out += self.conn.read(1).decode()
                 except UnicodeDecodeError:
-		    pass
+                    pass
             if out != '':
-                self.get_logger().info(process_input(out))
                 self.get_logger().info(process_input(self.latest_infos, out))
             time.sleep(1)
 
