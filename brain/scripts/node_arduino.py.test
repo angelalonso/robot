@@ -10,6 +10,7 @@ from rclpy.node import Node
 from processing import process_input
 from processing import get_test
 from processing import info_entries
+from std_msgs.msg import String
 
 def mock_distance():
     result = randint(1, 999)
@@ -19,6 +20,7 @@ class SerialLink(Node):
 
     def __init__(self):
         super().__init__('arduino_serial_sync_mocked')
+        self.publisher_ = self.create_publisher(String, 'main_topic', 10)
         self.latest_infos = info_entries()
         self.mocked_list = [] 
         self.mocked_list_ix = 0
@@ -40,8 +42,9 @@ class SerialLink(Node):
 
     def sync_and_read(self):
         while True:
-            #self.get_logger().info(get_test(self.latest_infos, self.get_value()))
-            self.get_logger().info(process_input(self.latest_infos, self.get_value()))
+            msg = String()
+            msg.data = process_input(self.latest_infos, self.get_value())
+            self.publisher_.publish(msg)
             time.sleep(1)
 
 

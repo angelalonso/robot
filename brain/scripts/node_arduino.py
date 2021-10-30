@@ -8,10 +8,13 @@ import time
 import rclpy
 from rclpy.node import Node
 from processing import process_input
+from processing import info_entries
+from std_msgs.msg import String
 
 class SerialLink(Node):
     def __init__(self):
         super().__init__('arduino_serial_sync')
+        self.publisher_ = self.create_publisher(String, 'main_topic', 10)
         self.latest_infos = info_entries()
         portfound = False
         for portfile in [ '/dev/ttyACM0', '/dev/ttyACM0']:
@@ -37,10 +40,14 @@ class SerialLink(Node):
             out = ''
             self.conn.write(str.encode('\r\n'))
             while self.conn.inWaiting() > 0:
-                out += self.conn.read(1).decode()
+                try:
+                    out += self.conn.read(1).decode()
+                except UnicodeDecodeError:
+                    pass
             if out != '':
-                self.get_logger().info(process_input(out))
-                self.get_logger().info(process_input(self.latest_infos, out))
+                msg = String()
+                msg.data = process_input(self.latest_infos, self.get_value())
+                self.publisher_.publish(msg)
             time.sleep(1)
 
 def main(args=None):

@@ -48,24 +48,36 @@ class LeftMotorActionClient(Node):
         return self._action_client.send_goal_async(goal_msg)
 
 
-class MinimalSubscriber(Node):
+class MainTopicSubscriber(Node):
 
     def __init__(self):
-        super().__init__('minimal_subscriber')
+        super().__init__('main_topic_subscriber')
         self.subscription = self.create_subscription(
             String,
             'main_topic',
             self.listener_callback,
             10)
         self.subscription  # prevent unused variable warning
+        self.left_motor = LeftMotorActionClient()
+        self.right_motor = RightMotorActionClient()
+
+    def from_main_to_actions(self, action_list):
+        for action in action_list:
+            if action.split('=')[0] == "motor_left":
+                self.left_motor.send_goal(action.split('=')[1])
+            elif action.split('=')[0] == "motor_right":
+                self.right_motor.send_goal(action.split('=')[1])
+            self.get_logger().info('ACTION: "%s"' % action)
 
     def listener_callback(self, msg):
         self.get_logger().info('I heard: "%s"' % msg.data)
+        # check this has ACTIONS indeed
+        self.from_main_to_actions(msg.data.replace("ACTIONS: ", "").split('|'))
 
 def main(args=None):
     rclpy.init(args=args)
 
-    minimal_subscriber = MinimalSubscriber()
+    minimal_subscriber = MainTopicSubscriber()
 
     rclpy.spin(minimal_subscriber)
 
