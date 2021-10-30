@@ -37,13 +37,13 @@ class LeftMotorActionServer(Node):
 
         if goal_handle.request.move == "Forward":
             feedback_msg.process_feed = "moving Left Motor " + str(goal_handle.request.move)
-            GPIO.output(self.left_in1,GPIO.HIGH)
-            GPIO.output(self.left_in2,GPIO.LOW)
+            GPIO.output(self.left_in1,GPIO.LOW)
+            GPIO.output(self.left_in2,GPIO.HIGH)
             print("forward")
         elif goal_handle.request.move == "Backward":
             feedback_msg.process_feed = "moving Left Motor " + str(goal_handle.request.move)
-            GPIO.output(self.left_in1,GPIO.LOW)
-            GPIO.output(self.left_in2,GPIO.HIGH)
+            GPIO.output(self.left_in1,GPIO.HIGH)
+            GPIO.output(self.left_in2,GPIO.LOW)
         else:
             feedback_msg.process_feed = "NOT moving Left Motor because movement: " + str(goal_handle.request.move)
             GPIO.output(self.left_in1,GPIO.LOW)
