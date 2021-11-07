@@ -46,9 +46,9 @@ class SerialLink(Node):
                     pass
             if out != '':
                 msg = String()
-                msg.data = process_input(self.latest_infos, self.get_value())
+                msg.data = process_input(self.latest_infos, out)
                 self.publisher_.publish(msg)
-            time.sleep(1)
+            time.sleep(0.1)
 
 def main(args=None):
     rclpy.init(args=args)
