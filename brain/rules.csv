@@ -1,7 +1,4 @@
 "distance";"action"
 0;"motor_left=Backward|motor_right=Backward"
-10;"motor_left=Forward|motor_right=Backward"
-20;"motor_left=Forward|motor_right=Backward"
-21;"motor_left=Forward|motor_right=Forward"
+10;"motor_left=Backward|motor_right=Backward"
 30;"motor_left=Forward|motor_right=Forward"
-31;"motor_left=Forward|motor_right=Forward"

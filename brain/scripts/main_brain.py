@@ -2,6 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
+from rclpy.logging import LoggingSeverity
 from rclpy.action import ActionClient
 from std_msgs.msg import Int32
 from std_msgs.msg import String
@@ -52,6 +53,8 @@ class MainTopicSubscriber(Node):
 
     def __init__(self):
         super().__init__('main_topic_subscriber')
+        severity = LoggingSeverity.DEBUG
+        self.get_logger().set_level(severity)
         self.subscription = self.create_subscription(
             String,
             'main_topic',
@@ -67,10 +70,10 @@ class MainTopicSubscriber(Node):
                 self.left_motor.send_goal(action.split('=')[1])
             elif action.split('=')[0] == "motor_right":
                 self.right_motor.send_goal(action.split('=')[1])
-            self.get_logger().info('ACTION: "%s"' % action)
+            self.get_logger().debug('ACTION: "%s"' % action)
 
     def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
+        self.get_logger().debug('I heard: "%s"' % msg.data)
         # check this has ACTIONS indeed
         self.from_main_to_actions(msg.data.replace("ACTIONS: ", "").split('|'))
 

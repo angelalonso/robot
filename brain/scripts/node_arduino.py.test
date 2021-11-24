@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 
-from random import seed
-from random import randint
-import time
-import hashlib
-
 import rclpy
 from rclpy.node import Node
+from rclpy.logging import LoggingSeverity
 from processing import process_input
 from processing import get_test
 from processing import info_entries
 from std_msgs.msg import String
+
+from random import seed
+from random import randint
+import time
+import hashlib
 
 def mock_distance():
     result = randint(1, 999)
@@ -20,6 +21,8 @@ class SerialLink(Node):
 
     def __init__(self):
         super().__init__('arduino_serial_sync_mocked')
+        severity = LoggingSeverity.DEBUG
+        self.get_logger().set_level(severity)
         self.publisher_ = self.create_publisher(String, 'main_topic', 10)
         self.latest_infos = info_entries()
         self.mocked_list = [] 
@@ -37,7 +40,7 @@ class SerialLink(Node):
             value = self.mocked_list[self.mocked_list_ix]
         self.mocked_list_ix += 1
         result = "SENSOR: distance=" + value + "|"
-        self.get_logger().info(result)
+        self.get_logger().debug(result)
         return result
 
     def sync_and_read(self):
