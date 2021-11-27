@@ -5,12 +5,28 @@ function ctrl_c() {
   echo "** Trapped CTRL-C"
 
 }
+
+function build_n_run() {
+  trap ctrl_c INT
+
+  colcon build && \
+    . ./install/setup.bash && \
+    ros2 launch brain brain.launch.py
+}
+
+function just_run() {
+  trap ctrl_c INT
+
+  . ./install/setup.bash && \
+    ros2 launch brain brain.launch.py
+}
+
+
 # Use non-mocked python nodes
 cp scripts/node_arduino.py.prod scripts/node_arduino.py
-
-trap ctrl_c INT
-
-colcon build && \
-  . ./install/setup.bash && \
-  ros2 launch brain brain.launch.py
+if [[ "$1" == "build" ]]; then
+  build_n_run
+else
+  just_run
+fi
 

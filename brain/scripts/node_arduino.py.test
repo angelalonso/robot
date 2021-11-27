@@ -38,7 +38,7 @@ class SerialLink(Node):
             value = self.mocked_list[self.mocked_list_ix]
         self.mocked_list_ix += 1
         result = "SENSOR: distance=" + value + "|"
-        self.get_logger().debug(result)
+        self.get_logger().info(result)
         return result
 
     def sync_and_read(self):

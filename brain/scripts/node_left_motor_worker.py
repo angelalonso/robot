@@ -15,6 +15,7 @@ class LeftMotorActionServer(Node):
         self.left_in1 = 27
         self.left_in2 = 17
         self.left_en = 22
+        self.state = "Stop"
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.left_in1,GPIO.OUT)
         GPIO.setup(self.left_in2,GPIO.OUT)
@@ -49,7 +50,10 @@ class LeftMotorActionServer(Node):
             GPIO.output(self.left_in1,GPIO.LOW)
             GPIO.output(self.left_in2,GPIO.LOW)
 
-        self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
+        if self.state != goal_handle.request.move:
+            self.state = goal_handle.request.move
+            self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
+
         goal_handle.succeed()
         result = Motor.Result()
         return result

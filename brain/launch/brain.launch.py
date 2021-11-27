@@ -9,6 +9,7 @@ def generate_launch_description():
             package='brain',
             namespace='brain',
             executable='node_right_motor_worker.py',
+            arguments=['--ros-args', '--log-level', 'INFO'],
             name='node_right_motor_worker'
         )
 
@@ -16,6 +17,7 @@ def generate_launch_description():
             package='brain',
             namespace='brain',
             executable='node_left_motor_worker.py',
+            arguments=['--ros-args', '--log-level', 'INFO'],
             name='node_left_motor_worker'
         )
 
@@ -24,6 +26,7 @@ def generate_launch_description():
             package='brain',
             namespace='brain',
             executable='node_arduino.py',
+            arguments=['--ros-args', '--log-level', 'INFO'],
             name='node_arduino'
         )
 
@@ -32,6 +35,7 @@ def generate_launch_description():
             package='brain',
             namespace='brain',
             executable='main_brain.py',
+            arguments=['--ros-args', '--log-level', 'INFO'],
             name='main_brain'
         )
 
