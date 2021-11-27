@@ -1,2 +1,5 @@
-- script to run without compiling again
+- Shorter start time on raspberry
+- More precise 
+  - Make sleep variable on node_arduino be read from a config file
+  - Check arduino code itself
 - record inputs and use as test inputs
