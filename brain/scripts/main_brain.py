@@ -7,12 +7,16 @@ from rclpy.action import ActionClient
 from std_msgs.msg import Int32
 from std_msgs.msg import String
 
+import os
+
 import time
 import threading
 
 from brain.action import Motor 
 
 var=None
+
+LOGLEVEL="debug"
 
 #define the display text
 def callback(msg):
@@ -53,8 +57,6 @@ class MainTopicSubscriber(Node):
 
     def __init__(self):
         super().__init__('main_topic_subscriber')
-        severity = LoggingSeverity.DEBUG
-        self.get_logger().set_level(severity)
         self.subscription = self.create_subscription(
             String,
             'main_topic',

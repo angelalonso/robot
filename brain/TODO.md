@@ -1,0 +1,2 @@
+- script to run without compiling again
+- record inputs and use as test inputs

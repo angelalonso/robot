@@ -21,8 +21,6 @@ class SerialLink(Node):
 
     def __init__(self):
         super().__init__('arduino_serial_sync_mocked')
-        severity = LoggingSeverity.DEBUG
-        self.get_logger().set_level(severity)
         self.publisher_ = self.create_publisher(String, 'main_topic', 10)
         self.latest_infos = info_entries()
         self.mocked_list = [] 
