@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 
-import rclpy
+from rclpy import init
+from rclpy import shutdown
+from rclpy import logging
 from rclpy.node import Node
-from rclpy.logging import LoggingSeverity
 from processing import process_input
 from processing import get_test
 from processing import info_entries
 from std_msgs.msg import String
 
-from random import seed
+from dotenv import load_dotenv
+from os import getenv
 from random import randint
-import time
+from random import seed
 import hashlib
+import time
 
 def mock_distance():
     result = randint(1, 999)
@@ -19,8 +22,9 @@ def mock_distance():
 
 class SerialLink(Node):
 
-    def __init__(self):
+    def __init__(self, loglevel):
         super().__init__('arduino_serial_sync_mocked')
+        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.publisher_ = self.create_publisher(String, 'main_topic', 10)
         self.latest_infos = info_entries()
         self.mocked_list = [] 
@@ -50,13 +54,16 @@ class SerialLink(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    load_dotenv()
+    LOGLEVEL = getenv('LOGLEVEL')
 
-    arduino_serial = SerialLink()
+    init(args=args)
+
+    arduino_serial = SerialLink(LOGLEVEL)
 
     arduino_serial.sync_and_read()
 
-    rclpy.shutdown()
+    shutdown()
 
 if __name__ == '__main__':
     main()

@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 
-import rclpy
+from rclpy import init
+from rclpy import spin
+from rclpy import shutdown
+from rclpy import logging
 from rclpy.node import Node
-from rclpy.logging import LoggingSeverity
 from rclpy.action import ActionClient
-from std_msgs.msg import Int32
-from std_msgs.msg import String
-
-import os
-
-import time
-import threading
 
 from brain.action import Motor 
 
-var=None
+from dotenv import load_dotenv
+from os import getenv
+from std_msgs.msg import Int32
+from std_msgs.msg import String
+import threading
+import time
 
-LOGLEVEL="debug"
+var=None
 
 #define the display text
 def callback(msg):
@@ -55,8 +55,9 @@ class LeftMotorActionClient(Node):
 
 class MainTopicSubscriber(Node):
 
-    def __init__(self):
+    def __init__(self, loglevel):
         super().__init__('main_topic_subscriber')
+        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.subscription = self.create_subscription(
             String,
             'main_topic',
@@ -80,14 +81,18 @@ class MainTopicSubscriber(Node):
         self.from_main_to_actions(msg.data.replace("ACTIONS: ", "").split('|'))
 
 def main(args=None):
-    rclpy.init(args=args)
+    load_dotenv()
+    LOGLEVEL = getenv('LOGLEVEL')
 
-    minimal_subscriber = MainTopicSubscriber()
 
-    rclpy.spin(minimal_subscriber)
+    init(args=args)
+
+    minimal_subscriber = MainTopicSubscriber(LOGLEVEL)
+
+    spin(minimal_subscriber)
 
     minimal_subscriber.destroy_node()
-    rclpy.shutdown()
+    shutdown()
 
 if __name__ == '__main__':
     main()

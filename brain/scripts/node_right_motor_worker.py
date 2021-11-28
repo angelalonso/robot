@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-import rclpy
+from rclpy import init
+from rclpy import spin
+from rclpy import shutdown
+from rclpy import logging
 from rclpy.action import ActionServer
 from rclpy.node import Node
 import RPi.GPIO as GPIO
@@ -8,10 +11,14 @@ import RPi.GPIO as GPIO
 
 from brain.action import Motor
 
+from dotenv import load_dotenv
+from os import getenv
+
 class RightMotorActionServer(Node):
 
-    def __init__(self):
+    def __init__(self, loglevel):
         super().__init__('rightmotor_action_server')
+        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.right_in1 = 24
         self.right_in2 = 23
         self.right_en = 25
@@ -59,13 +66,16 @@ class RightMotorActionServer(Node):
         return result
 
 def main(args=None):
-    rclpy.init(args=args)
+    load_dotenv()
+    LOGLEVEL = getenv('LOGLEVEL')
 
-    rightmotor_action_server = RightMotorActionServer()
+    init(args=args)
 
-    rclpy.spin(rightmotor_action_server)
+    rightmotor_action_server = RightMotorActionServer(LOGLEVEL)
 
-    rclpy.shutdown()
+    spin(rightmotor_action_server)
+
+    shutdown()
 
 if __name__ == '__main__':
     main()

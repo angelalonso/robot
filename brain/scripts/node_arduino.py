@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 
-import os
-import serial
-import sys
-import time
-
-import rclpy
+from rclpy import init
+from rclpy import shutdown
+from rclpy import logging
 from rclpy.node import Node
 from processing import process_input
 from processing import info_entries
 from std_msgs.msg import String
 
+from os import getenv
+from os import path
+import serial
+import sys
+import time
+
 class SerialLink(Node):
-    def __init__(self):
+    def __init__(self, loglevel):
         super().__init__('arduino_serial_sync')
+        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.publisher_ = self.create_publisher(String, 'main_topic', 10)
         self.latest_infos = info_entries()
         portfound = False
         for portfile in [ '/dev/ttyACM0', '/dev/ttyACM0']:
-            if (os.path.exists(portfile) and not portfound):
+            if (path.exists(portfile) and not portfound):
                 self.conn = serial.Serial(
                     port=portfile,
                     baudrate=9600,
@@ -45,19 +49,23 @@ class SerialLink(Node):
                 except UnicodeDecodeError:
                     pass
             if out != '':
+                self.get_logger().info(str(out))
                 msg = String()
                 msg.data = process_input(self.latest_infos, out)
                 self.publisher_.publish(msg)
-            time.sleep(0.1)
+            time.sleep(0.08)
 
 def main(args=None):
-    rclpy.init(args=args)
+    load_dotenv()
+    LOGLEVEL = getenv('LOGLEVEL')
 
-    arduino_serial = SerialLink()
+    init(args=args)
+
+    arduino_serial = SerialLink(LOGLEVEL)
 
     arduino_serial.sync_and_read()
 
-    rclpy.shutdown()
+    shutdown()
 
 if __name__ == '__main__':
     main()
