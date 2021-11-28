@@ -2,4 +2,5 @@
 - More precise 
   - Make sleep variable on node_arduino be read from a config file
   - Check arduino code itself
+  - When too close, distance turns to 1000+
 - record inputs and use as test inputs
