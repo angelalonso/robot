@@ -8,6 +8,7 @@ from processing import process_input
 from processing import info_entries
 from std_msgs.msg import String
 
+from dotenv import load_dotenv
 from os import getenv
 from os import path
 import serial

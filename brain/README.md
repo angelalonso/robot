@@ -1,5 +1,6 @@
 # Installation
-python packages
+## python packages 
+pip3 install -U --user python-dotenv
 
 # rules.csv
 
