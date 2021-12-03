@@ -39,7 +39,7 @@ class SerialLink(Node):
         #TODO: need to close the connection somehow
                 #self.conn.close()
 
-    def sync_and_read(self):
+    def sync_and_read(self, read_delay):
         while True:
             out = ''
             self.conn.write(str.encode('\r\n'))
@@ -53,17 +53,18 @@ class SerialLink(Node):
                 msg = String()
                 msg.data = process_input(self.latest_infos, out)
                 self.publisher_.publish(msg)
-            time.sleep(0.08)
+            time.sleep(read_delay)
 
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    ARDUINO_READ_DELAY = float(getenv('ARDUINO_READ_DELAY'))
 
     init(args=args)
 
     arduino_serial = SerialLink(LOGLEVEL)
 
-    arduino_serial.sync_and_read()
+    arduino_serial.sync_and_read(ARDUINO_READ_DELAY)
 
     shutdown()
 

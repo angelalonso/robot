@@ -5,7 +5,6 @@ const int ProximityEchoPin = 2;
 int incomingByte = 0;
 String msg;
 bool sync = false;
-bool news = false;
 int distanceVal;
 int distancePrevVal;
 
@@ -48,20 +47,18 @@ String getDistance(String msg) {
   if ((distanceVal - distancePrevVal) > 500 ) {
     distanceVal = 0;
   }
-  if (distanceVal != distancePrevVal) {
-    news = true;
-    distancePrevVal = distanceVal;
-    msg.concat("distance=");
-    msg.concat(distanceVal);
-    msg.concat("|");
-  };
+
+  distancePrevVal = distanceVal;
+  msg.concat("distance=");
+  msg.concat(distanceVal);
+  msg.concat("|");
+
   return msg;
 }
 
 
 void loop() {
   msg = "SENSOR: ";
-  news = false;
   delay(30);
   if (Serial.available() > 0) {
     // read the incoming byte:
@@ -76,11 +73,11 @@ void loop() {
   if (sync == true) {
     // DISTANCE SENSOR
     msg = getDistance(msg);
-    
-    if (news == true) {
-      Serial.println(msg);
-    }
+
+    Serial.println(msg);
   }
-  //this is only here to avoid several unnecessary reads per call (current calls happen once per second)
-  delay(750);
+  //this is only here to improve sync between arduino and raspberry, avoid unnecessary reads per call, reads that are not complete...and so on.
+  //  Adapt this delay and the one at ARDUINO_READ_DELAY on .env if you need to improve synchronisation.
+  //    (my Hardware may be different than yours and these values may not work so well for you)
+  delay(100);
 }

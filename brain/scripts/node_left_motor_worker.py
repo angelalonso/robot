@@ -16,7 +16,7 @@ from os import getenv
 
 class LeftMotorActionServer(Node):
 
-    def __init__(self, loglevel):
+    def __init__(self, loglevel, power_factor):
         super().__init__('leftmotor_action_server')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.left_in1 = 27
@@ -31,7 +31,7 @@ class LeftMotorActionServer(Node):
         GPIO.output(self.left_in2,GPIO.LOW)
 
         self.p = GPIO.PWM(self.left_en,1000)
-        self.p.start(100)
+        self.p.start(100 * power_factor)
 
         self._action_server = ActionServer(
             self,
@@ -68,10 +68,11 @@ class LeftMotorActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    MOTOR_L_FACTOR = float(getenv('MOTOR_L_FACTOR'))
 
     init(args=args)
 
-    leftmotor_action_server = LeftMotorActionServer(LOGLEVEL)
+    leftmotor_action_server = LeftMotorActionServer(LOGLEVEL, MOTOR_L_FACTOR)
 
     spin(leftmotor_action_server)
 
