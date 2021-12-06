@@ -59,7 +59,6 @@ String getDistance(String msg) {
 
 void loop() {
   msg = "SENSOR: ";
-  delay(30);
   if (Serial.available() > 0) {
     // read the incoming byte:
     incomingByte = Serial.read();

@@ -53,6 +53,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/node_led_main_worker.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/main_brain.py
   DESTINATION lib/${PROJECT_NAME}
 )

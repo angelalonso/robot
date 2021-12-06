@@ -7,7 +7,7 @@ from rclpy import logging
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
-from brain.action import Motor 
+from brain.action import Led, Motor 
 
 from dotenv import load_dotenv
 from os import getenv
@@ -52,6 +52,22 @@ class LeftMotorActionClient(Node):
 
         return self._action_client.send_goal_async(goal_msg)
 
+class LedMainActionClient(Node):
+
+    def __init__(self):
+        super().__init__('led_main_action_client')
+        self._action_client = ActionClient(self, Led, 'LedMain')
+
+    def send_goal(self, shine):
+        goal_msg = Led.Goal()
+        if shine == "On":
+            goal_msg.shine = True
+        else:
+            goal_msg.shine = False 
+
+        self._action_client.wait_for_server()
+
+        return self._action_client.send_goal_async(goal_msg)
 
 class MainTopicSubscriber(Node):
 
@@ -66,6 +82,7 @@ class MainTopicSubscriber(Node):
         self.subscription  # prevent unused variable warning
         self.left_motor = LeftMotorActionClient()
         self.right_motor = RightMotorActionClient()
+        self.led_main = LedMainActionClient()
 
     def from_main_to_actions(self, action_list):
         for action in action_list:
@@ -73,6 +90,8 @@ class MainTopicSubscriber(Node):
                 self.left_motor.send_goal(action.split('=')[1])
             elif action.split('=')[0] == "motor_right":
                 self.right_motor.send_goal(action.split('=')[1])
+            elif action.split('=')[0] == "led_main":
+                self.led_main.send_goal(action.split('=')[1])
             self.get_logger().debug('ACTION: "%s"' % action)
 
     def listener_callback(self, msg):
