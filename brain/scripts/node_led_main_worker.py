@@ -21,6 +21,8 @@ class LEDMainActionServer(Node):
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.pin_id = PinNr
         self.turn_on = False
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.pin_id, GPIO.OUT)
         self._action_server = ActionServer(
             self,
             Led,
@@ -32,7 +34,6 @@ class LEDMainActionServer(Node):
         feedback_msg = Led.Feedback()
         goal_handle.publish_feedback(feedback_msg)
 
-        GPIO.setup(self.pin_id, GPIO.OUT, None)
         if self.turn_on == False:
             feedback_msg.process_feed = "setting PIN " + str(self.pin_id) + " On"
             GPIO.output(self.pin_id, GPIO.HIGH)
@@ -49,7 +50,7 @@ class LEDMainActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
-    LEDMAIN_PIN = getenv('LEDMAIN_PIN')
+    LEDMAIN_PIN = int(getenv('LEDMAIN_PIN'))
 
     init(args=args)
 
