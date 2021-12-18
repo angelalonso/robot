@@ -1,4 +1,4 @@
 "distance";"action"
 0;"motor_left=Backward|motor_right=Backward|led_main=Off"
-10;"motor_left=Backward|motor_right=Backward|led_main=On"
+20;"motor_left=Backward|motor_right=Forward|led_main=On"
 30;"motor_left=Forward|motor_right=Forward|led_main=Off"
