@@ -51,6 +51,10 @@ $ sudo vi /home/$NEWUSER/.ssh/authorized_keys # Here you should paste your publi
 ```
 $ vigr
 ```
+- (This can probably be achieved in some other way) Let you user manage GPIO
+```
+$ sudo adduser $NEWUSER dialout gpio
+```
 ```
 :%s/:ubuntu/:ubuntu,$NEWUSER/g
 ```
