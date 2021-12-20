@@ -1,38 +1,39 @@
 # Robot
 
-A step by step Guide to building and configuring YOUR own robot using MY choice of Hardware and Software.
-
-## TL;DR
-
-This is a guide, not some code you install and run. There is reading involved.
-
-If you cannot live without a step by step, here it goes:
-- Calm down
-- Relax
-- Get to [Features and Examples](README.md#features-and-examples), click and read each one.
+A step by step Guide to building and configuring your own robot using partially my choice of Hardware and Software.
 
 ## Motivation
 
 - I was looking for a project to learn that would have me entertained for longer than a month.
-- As a kid I used to dream of having a Robot at home, like a pet but more advanced.
-
-<p align="center">
-  <img src="https://i.makeagif.com/media/4-27-2020/n_EA_n.gif" alt="Perfect Match!"/>
-</p>
+- As a kid I loved the idea of having a Robot at home one day.
+- That robot had to be configurable with only two limitations: pocket and knowledge 
 
 ## Status
 
-Redoing from scratch, this time around using ROS2 instead of my own Rust-based program. 
-What it does so far: Turn an LED on and off
-Next up: Use some motors to move around
+Redone from scratch, to change two philosophical points:
+- This time around I am using ROS2 instead of my own Rust-based program to make it more scalable and standardized
+- I am building the robot and its documentation as a Project in several phases:
+  - The base project, which just moves two motors based on a predefined set of actions
+  - Additional "plugins" that anyone could add to the base project. E.g.: Inputs such as distance sensor, outputs such as an LED...
 
-## Code Style
+## HOW TO
 
-Using ROS2 with Python mostly, looking for a way to have Rust added to the formula.
+- [x] Base Project: 
+  - [[Buy your Hardware]](docs/000_Base_ShoppingList.md)
+  - [[Set up the Raspberry Pi]](docs/000_Raspberry.md)
+  - [[Connect everything to the Chassis]](docs/000_Chassis.md) (To be reviewed)
+- [x] Plugin: Input distance sensor. TBD
 
 ## Screenshots
 
 To be done
+
+## Code Style
+
+I am using ROS2 with Python mostly (the base project is declared as a C++ one, because some ROS2 stuff would not work for python projects). 
+Before this project, I had never used ROS in my life. and I consider myself a Python middle-range user (I cannot explain why stuf works like they do, but with enough access to Stackoverflow and time I can do anything on Python)
+
+I am also looking for a way to have Rust added to the formula.
 
 ## Built with
 
@@ -43,16 +44,6 @@ To be done
 - [Arduino](https://www.arduino.cc/)
 
 Consider the above also a list of minimum requirements.
-
-## Features and Examples
-
-This Guide will allow you to:
-- [x] Put together some Hardware that you can use for your base Robot. [[1]](docs/000_ShoppingList.md) [[2]](docs/001_Setup.md) [[3]](docs/004_Chassis.md)
-- [x] Configure the Software that makes the communication between all that HW work like a proper Robot (Conditions may apply). [[1]](docs/002_Raspberry.md) 
-
-## API reference
-
-Not everything in life has to be an API, right? at least not yet.
 
 ## Contribute and Credits
 
