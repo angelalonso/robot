@@ -1,0 +1,21 @@
+---
+- name: main
+  starts_at: 0
+  starts_after: 10
+  repeat_nr: always
+  actions:
+    - do: "print|OK"
+      time_secs: 2
+    - do: "print|NOT OK"
+      time_secs: 2
+- name: secondary
+  starts_at: 4
+  starts_after: 0
+  repeat_nr: 6
+  actions:
+    - do: "print|test 1"
+      time_secs: 0.5
+    - do: "print|test 2"
+      time_secs: 0.5
+    - do: "print|test 3"
+      time_secs: 0.5
