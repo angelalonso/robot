@@ -5,12 +5,12 @@
   - L298N as motor controller. Check [L298N.md](L298N.md).
   - 2 motors  
   - 2 wheels
+  - [Battery Holder for 4 AA Batteries](https://www.amazon.com/4-aa-battery-holder/s?k=4+aa+battery+holder)
 - Several Jumper cables Male, female...get from both.
 - Some 3mm nuts and bolts to fix chips to the chassis.
-- Chassis made of Plywood and a plastic Lunchbox
 - [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
-- [Battery Holder for 4 AA Batteries](https://www.amazon.com/4-aa-battery-holder/s?k=4+aa+battery+holder)
 - [4 AA Rechargeable Batteries, with charger](https://www.amazon.com/s?k=4+aa+batteries+rechargeable&crid=2STSMJD1H4YUX&sprefix=4+aa+batteries+rechargeable%2Caps%2C193&ref=nb_sb_noss)
+- Chassis made of 2 A4 Plywood sheets and a plastic Lunchbox (feel free to do your own thing here)
 
 ## A different kind of Shopping list: your laptop
 - I use ubuntu LTS
