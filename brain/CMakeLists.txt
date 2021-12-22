@@ -38,8 +38,30 @@ DESTINATION lib/${PROJECT_NAME}
 
 # Install python scripts - MODULES et al.
 install(PROGRAMS
+  scripts/fake_rpi.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/node_motor_right_worker.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/node_motor_left_worker.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/main_brain.py
   DESTINATION lib/${PROJECT_NAME}
+)
+
+find_package(rosidl_default_generators REQUIRED)
+
+set(action_files
+  "action/Motor.action"
+  )
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  ${action_files}
 )
 
 # Install launch files.

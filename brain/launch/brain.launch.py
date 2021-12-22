@@ -4,7 +4,22 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # start a motors_manager in the brain namespace
+    # start motor_workers in the brain namespace
+    motor_right_worker_node = Node(
+            package='brain',
+            namespace='brain',
+            executable='node_motor_right_worker.py',
+            name='node_motor_right_worker'
+        )
+
+    motor_left_worker_node = Node(
+            package='brain',
+            namespace='brain',
+            executable='node_motor_left_worker.py',
+            name='node_motor_left_worker'
+        )
+        
+    # start the main brain manager in the brain namespace
     main_brain = Node(
             package='brain',
             namespace='brain',
@@ -14,4 +29,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         main_brain,
+        motor_right_worker_node,
+        motor_left_worker_node,
     ])
