@@ -1,4 +1,4 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 
 function ctrl_c() {
   # once the launch run is stopped with CTRL-C we want to clean up
@@ -25,17 +25,17 @@ function adapt() {
 function build_n_run() {
   trap ctrl_c INT
 
-  source /home/angel.alonso/Downloads/ros2_foxy/ros2-linux/local_setup.zsh
+  source /home/angel.alonso/Downloads/ros2_foxy/ros2-linux/local_setup.bash
   colcon build && \
-    . ./install/setup.zsh && \
+    . ./install/setup.bash && \
     ros2 launch brain brain.launch.py
 }
 
 function just_run() {
   trap ctrl_c INT
 
-  source /home/angel.alonso/Downloads/ros2_foxy/ros2-linux/local_setup.zsh
-  . ./install/setup.zsh && \
+  source /home/angel.alonso/Downloads/ros2_foxy/ros2-linux/local_setup.bash
+  . ./install/setup.bash && \
     ros2 launch brain brain.launch.py
 }
 

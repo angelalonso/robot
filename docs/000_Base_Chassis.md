@@ -13,11 +13,15 @@ For the time being, you can put together a useful structure if you keep the foll
 
 I reused the old plastic lunch box approach (see My First Build) and cut it in two halves, to be able to separate the wheels to the width of the A4 layer.
 
-For the rest of the chassis I used to plywood A4 sheets. 
+![Lunchbox cut with motor attached](../img/chassis_lunchbox_cut.jpg)
+
+For the rest of the chassis I used 2 plywood A4 sheets. 
 
 Batteries, motors and the Motor controller go on the bottom layer.
+![Lowerlayer](../img/chassisply_layer_bottom.jpg)
 
-aspberry, a breadboard, the future Arduino, as well as any new inputs and outputs will probably need to fit on the upper layer.
+Raspberry, a breadboard, the future Arduino, as well as any new inputs and outputs will probably need to fit on the upper layer.
+![Upper layer](../img/chassisply_layer_top.jpg)
 
 ## Obsolete now: My first build
 

@@ -6,10 +6,13 @@
   - 2 motors  
   - 2 wheels
   - [Battery Holder for 4 AA Batteries](https://www.amazon.com/4-aa-battery-holder/s?k=4+aa+battery+holder)
+    - I actually use 6x AA Batteries, after adding a 2xAA battery holder from an old toy.
+    - See [this one](https://www.amazon.de/-/en/AA-Battery-Holder-Black/dp/B06XYLMD7K/ref=psdc_3578331_t1_B00A9C852E) for an example of something to buy instead
 - Several Jumper cables Male, female...get from both.
 - Some 3mm nuts and bolts to fix chips to the chassis.
 - [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
-- [4 AA Rechargeable Batteries, with charger](https://www.amazon.com/s?k=4+aa+batteries+rechargeable&crid=2STSMJD1H4YUX&sprefix=4+aa+batteries+rechargeable%2Caps%2C193&ref=nb_sb_noss)
+- [6 AA Rechargeable Batteries, with charger](https://www.amazon.com/s?k=4+aa+batteries+rechargeable&crid=2STSMJD1H4YUX&sprefix=4+aa+batteries+rechargeable%2Caps%2C193&ref=nb_sb_noss)
+- Like I said above: a Battery Holder for 2x AA Batteries from some old toy
 - Chassis made of 2 A4 Plywood sheets and a plastic Lunchbox (feel free to do your own thing here)
 
 ## A different kind of Shopping list: your laptop
