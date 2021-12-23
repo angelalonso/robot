@@ -1,0 +1,55 @@
+Summary: 1 package finished [6.08s]
+[INFO] [launch]: All log files can be found below /home/robotadm/.ros/log/2021-11-27-17-28-09-716823-ubuntu-5222
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [node_right_motor_worker.py-1]: process started with pid [5224]
+[INFO] [node_left_motor_worker.py-2]: process started with pid [5226]
+[INFO] [node_arduino.py-3]: process started with pid [5228]
+[INFO] [main_brain.py-4]: process started with pid [5230]
+[node_arduino.py-3] [INFO] [1638034093.771741623] [brain.node_arduino]: SENSOR: distance=38|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034093.976256830] [brain.node_arduino]: SENSOR: 
+[node_arduino.py-3] [INFO] [1638034094.011567730] [brain.node_arduino]: distance=38|
+[node_arduino.py-3] 
+[main_brain.py-4] [WARN] [1638034095.405624685] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[main_brain.py-4] [WARN] [1638034095.478174378] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[node_arduino.py-3] [INFO] [1638034102.097683425] [brain.node_arduino]: SENSOR: di
+[node_arduino.py-3] [INFO] [1638034102.114380719] [brain.node_arduino]: stance=7|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034102.910308699] [brain.node_arduino]: SENSOR: di
+[node_arduino.py-3] [INFO] [1638034102.927426352] [brain.node_arduino]: stance=10|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034103.712884730] [brain.node_arduino]: SE
+[node_arduino.py-3] [INFO] [1638034103.731105804] [brain.node_arduino]: NSOR: distance=5|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034104.527753462] [brain.node_arduino]: SENSO
+[node_arduino.py-3] [INFO] [1638034104.545267464] [brain.node_arduino]: R: distance=38|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034105.341675567] [brain.node_arduino]: SENSOR: d
+[node_arduino.py-3] [INFO] [1638034105.358556506] [brain.node_arduino]: istance=5|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034106.155035310] [brain.node_arduino]: SENSOR: d
+[node_arduino.py-3] [INFO] [1638034106.171874948] [brain.node_arduino]: istance=3|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034106.970213957] [brain.node_arduino]: SENSOR: dis
+[node_arduino.py-3] [INFO] [1638034106.987439163] [brain.node_arduino]: tance=41|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034107.773982185] [brain.node_arduino]: S
+[node_arduino.py-3] [INFO] [1638034107.798468635] [brain.node_arduino]: ENSOR: distance=39|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034111.031501936] [brain.node_arduino]: SENSOR: dis
+[node_arduino.py-3] [INFO] [1638034111.048609803] [brain.node_arduino]: tance=38|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034113.467987688] [brain.node_arduino]: SENSOR: di
+[node_arduino.py-3] [INFO] [1638034113.484576762] [brain.node_arduino]: stance=34|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034114.272001738] [brain.node_arduino]: SE
+[node_arduino.py-3] [INFO] [1638034114.289645120] [brain.node_arduino]: NSOR: distance=17|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034115.906039213] [brain.node_arduino]: SENSOR: dis
+[node_arduino.py-3] [INFO] [1638034115.923384684] [brain.node_arduino]: tance=44|
+[node_arduino.py-3] 
+[node_arduino.py-3] [INFO] [1638034116.706449854] [brain.node_arduino]: S
+[node_arduino.py-3] [INFO] [1638034116.724226725] [brain.node_arduino]: ENSOR: distance=
+[node_arduino.py-3] [INFO] [1638034116.740430964] [brain.node_arduino]: 48|
+[node_arduino.py-3] 
+^C[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)

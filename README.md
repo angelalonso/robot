@@ -1,66 +1,50 @@
 # Robot
 
-A step by step Guide to building and configuring YOUR own robot using MY choice of Rust-based logic.
-
-## TL;DR
-
-This is a guide, not some code you install and run. There is reading involved.
-
-If you cannot live without a step by step, here it goes:
-- Calm down
-- Relax
-- Get to [Features and Examples](README.md#features-and-examples), click and read each one.
+A step by step Guide to building and configuring your own robot using partially my choice of Hardware and Software.
 
 ## Motivation
 
-- I was looking for a project to learn Rust that would have me entertained for longer than a month.
-- As a kid I used to dream of having a Robot at home, like a pet but more advanced.
-
-<p align="center">
-  <img src="https://i.makeagif.com/media/4-27-2020/n_EA_n.gif" alt="Perfect Match!"/>
-</p>
+- I was looking for a project to learn that would have me entertained for longer than a month.
+- As a kid I loved the idea of having a Robot at home one day.
+- That robot had to be configurable with only two limitations: pocket and knowledge 
 
 ## Status
 
-Working but not stable enough to leave your robot around kids or pets.
+Redone from scratch, to change two philosophical points:
+- This time around I am using ROS2 instead of my own Rust-based program to make it more scalable and standardized
+- I am building the robot and its documentation as a Project in several phases:
+  - The base project, which just moves two motors based on a predefined set of actions
+  - Additional "plugins" that anyone could add to the base project. E.g.: Inputs such as distance sensor, outputs such as an LED...
 
-## Code Style
+## HOW TO
 
-Terrible
+- [x] Base Project: 
+  - [[Buy your Hardware]](docs/000_Base_ShoppingList.md)
+  - [[Connect everything to the Chassis]](docs/000_Base_Chassis.md) (To be reviewed)
+  - [[Set up the Raspberry Pi]](docs/000_Base_Raspberry.md) (To be reviewed)
+  - [[Configure and start it up]](docs/000_Base_Software.md) (To be reviewed)
+- [x] Plugin: Input distance sensor. TBD
 
 ## Screenshots
 
 To be done
 
+## Code Style
+
+I am using ROS2 with Python mostly (the base project is declared as a C++ one, because some ROS2 stuff would not work for python projects). 
+Before this project, I had never used ROS in my life. and I consider myself a Python middle-range user (I cannot explain why stuf works like they do, but with enough access to Stackoverflow and time I can do anything on Python)
+
+I am also looking for a way to have Rust added to the formula.
+
 ## Built with
 
-- [Rust](https://www.rust-lang.org/)
-  - [Cross](https://github.com/rust-embedded/cross)
-  - [Rustup](https://rustup.rs/)
+- [ROS2](https://docs.ros.org/en/foxy/index.html)
 - [Bash](https://tiswww.case.edu/php/chet/bash/bashtop.html)
   - [Bash autocompletion](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html)
 - [Raspberry Pi](https://www.raspberrypi.org/)
 - [Arduino](https://www.arduino.cc/)
 
 Consider the above also a list of minimum requirements.
-
-## Features and Examples
-
-This Guide will allow you to:
-- [x] Put together some Hardware that you can use for your base Robot. [[1]](docs/000_ShoppingList.md) [[2]](docs/001_Setup.md) [[3]](docs/004_Chassis.md)
-- [x] Configure the Software that makes the communication between all that HW work like a proper Robot (Conditions may apply). [[1]](docs/002_Raspberry.md) [[2]](docs/003_Arduino.md)
-- [x] Create a set of rules to "make your Robot do things" and deploy them to the Robot. [[1]](docs/005_FirstExample.md) [[2]](docs/006_MovingExample.md)
-- [x] Test those rules with mocked sensors. [[1]](docs/007_TestingExample.md) [[2]](docs/007_TestingExample.md)
-- [x] Use Robot's real data as mocks on tests. [[1]](docs/008_TestingWithRealMocks.md)
-- [ ] Attach a Camera to the Robot. [[1]](docs/009_AttachingCamera.md)
-- [ ] Have the Robot launch on boot
-- [ ] Add and callibrate position sensors
-- [ ] Set the rules "on the go" with Reinforcement Learning instead of a rules YAML.
-- [ ] Make the Robot compatible with [ROS](https://www.ros.org/)
-
-## API reference
-
-Not everything in life has to be an API, right? at least not yet.
 
 ## Contribute and Credits
 

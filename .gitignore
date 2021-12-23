@@ -1,5 +1,8 @@
 **/target
-tests/**/build
+**/log
+**/build
+**/install
+**/scripts/__pycache__
 **/.env
 **/*.swp
 **/*.swo
