@@ -23,7 +23,7 @@ The 4xAA Battery pack is followed by the 2xAA Battery pack (in serial), and then
 
 The Anker Powercore will power Raspberry on the top layer with its USB cable.
 
-For now, just connect the Motors to each side of the L298N (I honestly am not sure which one is which, just try).
+- For now, just connect the Motors to each side of the L298N (I honestly am not sure which one is which, just don't tighten too much and be ready to switch them if needed).
 
 ![Lowerlayer](../img/chassisply_layer_bottom.jpg)
 
@@ -31,7 +31,8 @@ Raspberry, a breadboard, the future Arduino, as well as any new inputs and outpu
 
 ![Upper layer](../img/chassisply_layer_top.jpg)
 
-Now use six cables to connect the L298N to GPIO Pins at the Raspberry Pi as follows:
+- Now use six cables to connect the L298N to GPIO Pins at the Raspberry Pi as follows:
+
 ```
                |_                       _|
 MotorA, out 1--|O|                     |O|--MotorB, out 1
@@ -76,7 +77,7 @@ FYI, this is the GPIO map of the Raspberry:
 (_ means Ground)
 ```
 
-Finally connect the Raspberry to the Anker Powerpack to start the system, configure it...and so on, and you can also connect the 6xAA Battery Pack to the L298N once you are ready to have the motors move.
+- Finally connect the Raspberry to the Anker Powerpack to start the system, configure it...and so on, and you can also connect the 6xAA Battery Pack to the L298N once you are ready to have the motors move.
  
  
 ## Obsolete now: My first build
