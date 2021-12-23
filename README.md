@@ -22,6 +22,7 @@ Redone from scratch, to change two philosophical points:
   - [[Buy your Hardware]](docs/000_Base_ShoppingList.md)
   - [[Connect everything to the Chassis]](docs/000_Base_Chassis.md) (To be reviewed)
   - [[Set up the Raspberry Pi]](docs/000_Base_Raspberry.md) (To be reviewed)
+  - [[Configure and start it up]](docs/000_Base_Software.md) (To be reviewed)
 - [x] Plugin: Input distance sensor. TBD
 
 ## Screenshots

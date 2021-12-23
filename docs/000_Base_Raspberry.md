@@ -137,31 +137,7 @@ $ sudo raspi-config
 \> Localisation Options > Change Wi-fi Country > Choose yours  
 \> Network Options > Wi-Fi > add the name of the WiFi network and the pass  
 
-# Clone this repo
-```
-$ git clone https://github.com/angelalonso/robot
-```
-
 # Install ROS2
-TBD
 
-# Configure the robot
-```
-$ cd brain
-$ cp env.template .env
-```
-, and modify .env accordingly
+Follow the Official Guide at https://docs.ros.org/en/galactic/Installation.html
 
-Also open brain/actionsets/actionset.yaml and modify to your liking.
- 
-
-# Start the robot
-
-```
-$ cd brain
-$ ./run.sh build
-```
-, where build will only be needed on the first run. From then on just run:
-```
-$ ./run.sh
-```
