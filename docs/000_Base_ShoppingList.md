@@ -9,7 +9,9 @@
     - I actually use 6x AA Batteries, after adding a 2xAA battery holder from an old toy.
     - See [this one](https://www.amazon.de/-/en/AA-Battery-Holder-Black/dp/B06XYLMD7K/ref=psdc_3578331_t1_B00A9C852E) for an example of something to buy instead
 - Several Jumper cables Male, female...get from both.
-- Some 3mm nuts and bolts to fix chips to the chassis.
+- A lot of 3mm nuts and bolts to fix chips to the chassis. 
+  - I use a couple of these [boxes](https://thepihut.com/products/white-nylon-screw-and-stand-off-set-m2-5-thread?variant=12364072779838&currency=GBP&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic), but I am not completely happy with them
+  - Smaller metallic ones for attaching sensors are definitely a good thing to have around, but I got mine from old toys.
 - [Anker Powercore 20100](https://www.amazon.com/Anker-PowerCore-Powerbank-Kapazit%C3%A4t-Technologie-Schwarz/dp/B00VJT3IUA). There is a newer model and I guess it will also work.
 - [6 AA Rechargeable Batteries, with charger](https://www.amazon.com/s?k=4+aa+batteries+rechargeable&crid=2STSMJD1H4YUX&sprefix=4+aa+batteries+rechargeable%2Caps%2C193&ref=nb_sb_noss)
 - Like I said above: a Battery Holder for 2x AA Batteries from some old toy

@@ -17,6 +17,8 @@ I reused the old plastic lunch box approach (see My First Build) and cut it in t
 
 For the rest of the chassis I used 2 plywood A4 sheets. 
 
+- Attach the two motors at the front and the dummy wheel at the back, centered.
+
 Batteries, motors and the Motor controller go on the bottom layer.
 
 The 4xAA Battery pack is followed by the 2xAA Battery pack (in serial), and then connected to the L298N, which is itself connected to both motors and to the Raspberry Pi on the top layer.
