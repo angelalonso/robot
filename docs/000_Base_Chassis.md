@@ -28,10 +28,15 @@ The Anker Powercore will power Raspberry on the top layer with its USB cable.
 - For now, just connect the Motors to each side of the L298N (I honestly am not sure which one is which, just don't tighten too much and be ready to switch them if needed).
 
 ![Lowerlayer](../img/chassisply_layer_bottom.jpg)
+Notes:
+- The red thing on the left is a switch I added to the battery line.
+- The extra black cable coming out of the Ground Pin at the L298N will be used in our second phase to have a join Ground with the Arduino.
 
 Raspberry, a breadboard, the future Arduino, as well as any new inputs and outputs will probably need to fit on the upper layer.
 
 ![Upper layer](../img/chassisply_layer_top.jpg)
+Notes:
+- The image shows an Arduino, breadboard and Sensor that are not needed in this phase. Just ignore them (or leave them disconnected)
 
 - Now use six cables to connect the L298N to GPIO Pins at the Raspberry Pi as follows:
 
