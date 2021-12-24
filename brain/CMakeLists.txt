@@ -42,6 +42,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/status.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/node_motor_right_worker.py
   DESTINATION lib/${PROJECT_NAME}
 )

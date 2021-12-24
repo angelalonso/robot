@@ -30,27 +30,43 @@ $ ./run.sh
 
 # The Actionset
 
-The file brain/actionsets/actionset.yaml contains a list of actionsets. 
+The file brain/goalsets/main.yaml contains a list of goalsets.
 
-Each one stores a set of actions that will get done by the robot in the order they are defined.
+Whether a Goalset is run or not depends on two factors:
+- a list of conditions under conditions_or
+  - We store status on self.status['element_name'], the condition definition should use that
+    - E.g.: you can have one condition like "self.status['distance'] >= 35"
+  - As the name suggest, we just need one of them to be True
+    - If you need to use ANDs, put them in one condition, Python-style
+    - E.g.: "(self.status['distance'] >= 35 and self.status['motor_left'] == 'Stop')"
+  - If we just want the Goalset to run without conditions, we need just one condition defined as "True"
+- starts_at
+  - This defines the time at which the Goalset is going to be triggered.
+  - You can think about it as an "AND self.status['time'] >= X" added to each condition on conditions_or
+  - I still have not removed starts_at in favor of self.status['time'] because it is used in some other formulas and I'd need to search for the exact String in your condition, which is a source for issues.
+    - Sorry about that, I know it's lame.
 
-Each Actionset can be repeated as a group, it can be run at a specific point in time, and it can have a delay added to that.
+Each one stores a set of goals or actions that will get done by the robot in the order they are defined.
 
-Each action can itself define several actions that happen at the same time, separated by '|'. The definition of each single action follows the patter <element>=<goal>.
+Each Goalset can be repeated as a group, it can be run at a specific point in time, and it can have a delay added to that.
+
+Each goal can itself define several actions that happen at the same time, separated by '|'. The definition of each single action follows the patter <element>=<goal>.
 
 Example:
 ```
 - name: main
+  conditions_or:
+    - "True"
   starts_at: 2
-  start_delay: 0.5 
-  repeat_nr: 1
-  actions:
+  start_delay: 0.5
+  repeat_nr: -1
+  goals:
     - do: "motorleft=Forward|motorright=Forward"
       time_secs: 0.5 
     - do: "motorleft=Backward|motorright=Backward"
-      time_secs: 1 
+      time_secs: 0.5 
     - do: "motorleft=Stop|motorright=Stop"
-      time_secs: 2.5 
+      time_secs: 0.5 
 ```
 The above will, in this order:
 - wait 2 seconds after the robot starts (starts_at) 

@@ -5,6 +5,7 @@ from rclpy.node import Node
 from rclpy.action import ActionClient
 
 from brain.action import Motor 
+from status import Status
 
 from datetime import datetime
 import yaml
@@ -39,89 +40,104 @@ class MotorRightActionClient(Node):
 
         return self._action_client.send_goal_async(goal_msg)
 
-# --- Actionsets controller
+# --- Goalsets controller
 
-class Action():
-    def __init__(self, parent, parent_repeats, actions_left, launchtime, duration, do):
+class Goal():
+    def __init__(self, parent, parent_repeats, goals_left, launchtime, duration, do):
         self.parent = parent
         self.parent_repeats = parent_repeats
         self.launchtime = launchtime
-        self.actions_left = actions_left
+        self.goals_left = goals_left
         self.duration = duration
         self.do = do
-        self.running = False # means it is waiting to run (True means it's running, and when it's done, the action itself should be deleted)
+        self.running = False # means it is waiting to run (True means it's running, and when it's done, the goal itself should be deleted)
 
     def set_running(self):
         self.running = True
 
 
-class TimedActions(Node):
+class TimedGoals(Node):
 
     def __init__(self):
-        super().__init__('timed_actions')
+        super().__init__('timed_goals')
+        self.status = Status()
         self.starttime = datetime.now()
-        self.actions = []
-        # load set of actions' definitions
-        self.load_actionsets()
+        self.goals = []
+        # load set of goals' definitions
+        self.load_goalsets()
         # load action clients
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
 
-    def load_actionsets(self):
-        self.loaded_actionsets = yaml.load(open('actionsets/actionset.yaml'))
-        for actionset in self.loaded_actionsets:
-            actionset['started'] = False # means the actions have NOT yet been loaded to self.actions
-            self.add_actions(actionset['name'], 0)
+    def load_goalsets(self):
+        self.loaded_goalsets = yaml.load(open('goalsets/main.yaml'))
+        for goalset in self.loaded_goalsets:
+            goalset['started'] = False # means the goals have NOT yet been loaded to self.goals
+            ###self.add_goals(goalset['name'], 0)
 
-    def get_actionset(self, name):
-        for actset in self.loaded_actionsets:
+    def get_goalset(self, name):
+        for actset in self.loaded_goalsets:
             if actset['name'] == name:
                 return actset
 
-    def add_actions(self, actionset_name, current):
-        actionset = self.get_actionset(actionset_name)
-        actions_amount = len(actionset['actions'])
-        action_order = 0
-        action_order_delay = 0
-        if actionset['started']:
-            action_start = actionset['start_delay'] + action_order_delay + current
+    def add_goals(self, goalset_name, current):
+        goalset = self.get_goalset(goalset_name)
+        goals_amount = len(goalset['goals'])
+        goal_order = 0
+        goal_order_delay = 0
+        if goalset['started']:
+            goal_start = goalset['start_delay'] + goal_order_delay + current
         else:
-            action_start = actionset['starts_at'] + actionset['start_delay'] + action_order_delay + current
-        for act in actionset['actions']:
-            action_order += 1
-            action = Action(
-                    actionset['name'],
-                    actionset['repeat_nr'],
-                    actions_amount - action_order, 
-                    action_start + action_order_delay,
+            goal_start = goalset['starts_at'] + goalset['start_delay'] + goal_order_delay + current
+        for act in goalset['goals']:
+            goal_order += 1
+            goal = Goal(
+                    goalset['name'],
+                    goalset['repeat_nr'],
+                    goals_amount - goal_order, 
+                    goal_start + goal_order_delay,
                     act['time_secs'],
                     act['do']
                     )
-            action_order_delay += act['time_secs']
-            self.actions.append(action)
-        if actionset['repeat_nr'] > 0:
-            actionset['repeat_nr'] -= 1
-        actionset['started'] = True
+            goal_order_delay += act['time_secs']
+            self.goals.append(goal)
+        if goalset['repeat_nr'] > 0:
+            goalset['repeat_nr'] -= 1
+        goalset['started'] = True
 
-    def trigger_timed_actions(self):
-        # todo: distinguish between triggered and untriggered ones
+    def trigger_goalsets(self):
+        # this one should substitute trigger_timed_goals
         while True:
             current_raw = datetime.now() - self.starttime
-            current = current_raw.seconds + (current_raw.microseconds / 1000000)
-            for act in self.actions:
-                if act.running:
-                    if (act.launchtime + act.duration) <= current:
-                        self.actions.remove(act)
-                        if (act.actions_left == 0 and (act.parent_repeats > 0 or act.parent_repeats == -1)): 
-                            self.add_actions(act.parent, current)
+            self.status.set_status('time', current_raw.seconds + (current_raw.microseconds / 1000000))
+            # This part handles goalsets
+            for goalset in self.loaded_goalsets:
+                if goalset['started'] == False:
+                    for condition in goalset['conditions_or']:
+                        try:
+                            if eval(condition):
+                                self.add_goals(goalset['name'], self.status['time'])
+                                break # we just need one of the conditions to be true
+                        except KeyError:
+                            self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
+                        except NameError:
+                            self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
 
+            # This part handles goals
+            for go in self.goals:
+                # different logic if its already running:
+                if go.running:
+                    if (go.launchtime + go.duration) <= self.status['time']:
+                        self.goals.remove(go)
+                        if (go.goals_left == 0 and (go.parent_repeats > 0 or go.parent_repeats == -1)): 
+                            self.add_goals(go.parent, self.status['time'])
                 else:
-                    if act.launchtime <= current:
-                        self.get_logger().info('doing {} from {} at {}'.format(act.do, act.parent, current))
-                        act.set_running()
-                        self.apply_action(act.do)
+                    if go.launchtime <= self.status['time']:
+                        self.get_logger().info('doing {} from {} at {}'.format(go.do, go.parent, self.status['time']))
+                        go.set_running()
+                        self.apply_goal(go.do)
 
-    def apply_action(self, raw_data):
+    def apply_goal(self, raw_data):
         descriptions = raw_data.split('|')
         for description_raw in descriptions:
             description = description_raw.split('=')
@@ -139,13 +155,13 @@ class TimedActions(Node):
 def main(args=None):
     init(args=args)
 
-    timed_actions_node = TimedActions()
+    timed_goals_node = TimedGoals()
 
-    timed_actions_node.trigger_timed_actions()
+    timed_goals_node.trigger_goalsets()
 
-    spin(timed_actions_node)
+    spin(timed_goals_node)
 
-    timed_actions_node.destroy_node()
+    timed_goals_node.destroy_node()
     shutdown()
 
 
