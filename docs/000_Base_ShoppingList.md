@@ -19,4 +19,4 @@
 
 ## A different kind of Shopping list: your laptop
 - I use ubuntu LTS
-
+- Install the arduino IDE https://www.arduino.cc/en/software

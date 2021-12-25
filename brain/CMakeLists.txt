@@ -54,6 +54,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/node_arduino.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/main_brain.py
   DESTINATION lib/${PROJECT_NAME}
 )

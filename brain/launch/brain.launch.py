@@ -19,6 +19,14 @@ def generate_launch_description():
             name='node_motor_left_worker'
         )
         
+    # Read from the Serial Link that connects to the Arduino
+    node_arduino = Node(
+            package='brain',
+            namespace='brain',
+            executable='node_arduino.py',
+            name='node_arduino'
+        )
+
     # start the main brain manager in the brain namespace
     main_brain = Node(
             package='brain',
@@ -29,6 +37,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         main_brain,
+        node_arduino,
         motor_right_worker_node,
         motor_left_worker_node,
     ])
