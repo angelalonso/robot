@@ -51,8 +51,7 @@ class SerialLink(Node):
                         )
                         self.conn.isOpen()
                         portfound = True
-                except (FileNotFoundError, TypeError):
-                    pass
+                except (FileNotFoundError, TypeError): pass
             if not portfound:
                 self.get_logger().warn("ATTENTION: Could not connect to any USB-ACM ports")
                 sys.exit(2)
@@ -71,7 +70,9 @@ class SerialLink(Node):
             for sensor_raw in sensors:
                 if sensor_raw != '':
                     sensor = sensor_raw.split('=')
-                    result[sensor[0]] = sensor[1]
+                    try:
+                        result[sensor[0]] = sensor[1]
+                    except IndexError: pass
         return result
 
     def send_from_sanitized(self, text):
