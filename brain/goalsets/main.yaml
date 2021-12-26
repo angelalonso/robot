@@ -1,5 +1,5 @@
 ---
-- name: stop_n_turn_when_too_close 
+- name: stop_n_back_when_too_close 
   conditions_or:
     - "(int(self.send_getstatuskey('distance')) <= 15)"
       #- "True"
@@ -9,8 +9,10 @@
   goals:
     - do: "motorleft=Stop|motorright=Stop"
       time_secs: 0.5 
+    - do: "motorleft=Backward|motorright=Backward"
+      time_secs: 0.5 
     - do: "motorleft=Forward|motorright=Backward"
-      time_secs: 0 
+      time_secs: 0.5 
 - name: move_when_free
   conditions_or:
     - "(int(self.send_getstatuskey('distance')) >= 35)"
