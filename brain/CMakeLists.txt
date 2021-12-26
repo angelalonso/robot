@@ -38,7 +38,7 @@ DESTINATION lib/${PROJECT_NAME}
 
 # Install python scripts - MODULES et al.
 install(PROGRAMS
-  scripts/service_member_function.py
+  scripts/service_status.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS

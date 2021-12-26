@@ -2,14 +2,25 @@
 
 from interfaces.srv import GetStatus, GetStatusKey, SetStatus
 
-from status import Status
-
 import rclpy
 import flatdict
 from rclpy.node import Node
 
-# TODO: rename this whole thing
-class MinimalService(Node):
+class Status(object):
+    def __init__(self):
+        super().__init__()
+        self.current = {}
+
+    def __getitem__(self, item):
+         return self.current[item]
+
+    def set_status(self, element, value):
+        self.current[element] = value
+
+    def get_status(self):
+        return str(flatdict.FlatDict(self.current, delimiter='.'))
+
+class StatusService(Node):
 
     def __init__(self):
         super().__init__('minimal_service')
@@ -41,9 +52,9 @@ class MinimalService(Node):
 def main(args=None):
     rclpy.init(args=args)
 
-    minimal_service = MinimalService()
+    service_status = StatusService()
 
-    rclpy.spin(minimal_service)
+    rclpy.spin(service_status)
 
     rclpy.shutdown()
 

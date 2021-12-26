@@ -9,20 +9,6 @@ from os import getenv
 from std_msgs.msg import String
 import flatdict
 
-# we probably want to remove or merge this with the status service
-class Status(object):
-    def __init__(self):
-        super().__init__()
-        self.current = {}
-
-    def __getitem__(self, item):
-         return self.current[item]
-
-    def set_status(self, element, value):
-        self.current[element] = value
-
-    def get_status(self):
-        return str(flatdict.FlatDict(self.current, delimiter='.'))
 
 class TopicStatusSubscriber(Node):
     def __init__(self, loglevel):

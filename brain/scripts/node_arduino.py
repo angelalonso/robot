@@ -53,7 +53,6 @@ class SerialLink(Node):
             if not portfound:
                 self.get_logger().warn("ATTENTION: Could not connect to any USB-ACM ports")
                 sys.exit(2)
-
             #TODO: need to close the connection somehow
                     #self.conn.close()
 
@@ -62,29 +61,33 @@ class SerialLink(Node):
         self.setstatus_req.value = value 
         self.future = self.setstatus_cli.call_async(self.setstatus_req)
 
-    def sanitize_n_send(self, text):
-        # TODO: move sanitize to its own function
+    def sanitize(self, text):
+        result = {}
         if text[0:8] == 'SENSOR: ':
             sensors = text.replace('\n', '').replace('SENSOR: ', '').split('|')
             for sensor_raw in sensors:
                 if sensor_raw != '':
                     sensor = sensor_raw.split('=')
+                    result[sensor[0]] = sensor[1]
+        return result
+
+    def send_from_sanitized(self, text):
+        keyvals = self.sanitize(text)
+        for key in keyvals:
+            self.send_setstatus_req(key, keyvals[key])
+            while ok():
+                spin_once(self)
+                if self.future.done():
                     try:
-                        self.send_setstatus_req(sensor[0], sensor[1])
-                        while ok():
-                            spin_once(self)
-                            if self.future.done():
-                                try:
-                                    response = self.future.result()
-                                except Exception as e:
-                                    self.get_logger().info(
-                                        'Service call failed %r' % (e,))
-                                else:
-                                    self.get_logger().info(
-                                        'Result = %s' %
-                                        (response.current_status))
-                                break
-                    except IndexError: pass
+                        response = self.future.result()
+                    except Exception as e:
+                        self.get_logger().info(
+                            'Service call failed %r' % (e,))
+                    else:
+                        self.get_logger().info(
+                            'Result = %s' %
+                            (response.current_status))
+                    break
 
     def sync_and_read(self, read_delay):
         # On Mock Mode we will use our local file instead
@@ -96,7 +99,7 @@ class SerialLink(Node):
                 msg.data = str(out)
 
                 self.publisher_.publish(msg)
-                self.sanitize_n_send(msg.data)
+                self.send_from_sanitized(msg.data)
 
                 time.sleep(read_delay)
         else:
@@ -115,7 +118,7 @@ class SerialLink(Node):
                     if self.mode == "record":
                         self.mockfile.write(str(msg.data))
                     self.publisher_.publish(msg)
-                    self.sanitize_n_send(msg.data)
+                    self.send_from_sanitized(msg.data)
                 time.sleep(read_delay)
 
 def main(args=None):

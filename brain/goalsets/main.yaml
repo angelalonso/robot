@@ -9,7 +9,5 @@
   goals:
     - do: "motorleft=Forward|motorright=Forward"
       time_secs: 0.5 
-    - do: "motorleft=Backward|motorright=Backward"
-      time_secs: 0.5 
     - do: "motorleft=Stop|motorright=Stop"
       time_secs: 0.5 

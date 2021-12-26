@@ -7,7 +7,7 @@ from rclpy.node import Node
 from rclpy.action import ActionClient
 
 from brain.action import Motor 
-from status import Status
+from service_status import Status
 
 from datetime import datetime
 from dotenv import load_dotenv
@@ -78,7 +78,6 @@ class TimedGoals(Node):
             self.get_logger().info('service not available, waiting again...')
         self.getstatuskey_req = GetStatusKey.Request()
 
-        self.status = Status()
         self.starttime = datetime.now()
         self.goals = []
         # load set of goals' definitions
@@ -167,18 +166,15 @@ class TimedGoals(Node):
         # this one should substitute trigger_timed_goals
         while True:
             current_raw = datetime.now() - self.starttime
-            self.status.set_status('time', current_raw.seconds + (current_raw.microseconds / 1000000))
-            self.send_setstatus('time', current_raw.seconds + (current_raw.microseconds / 1000000))
+            curr_time = current_raw.seconds + (current_raw.microseconds / 1000000)
+            self.send_setstatus('time', curr_time)
             # This part handles goalsets
-            aux_dist = self.send_getstatuskey('distance')
-            self.get_logger().debug('    TEST {}'.format(aux_dist))
-            self.status.set_status('distance', aux_dist)
             for goalset in self.loaded_goalsets:
                 if goalset['started'] == False:
                     for condition in goalset['conditions_or']:
                         try:
                             if eval(condition):
-                                self.add_goals(goalset['name'], self.status['time'])
+                                self.add_goals(goalset['name'], curr_time)
                                 break # we just need one of the conditions to be true
                         except ValueError:
                             self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
@@ -191,13 +187,13 @@ class TimedGoals(Node):
             for go in self.goals:
                 # different logic if its already running:
                 if go.running:
-                    if (go.launchtime + go.duration) <= self.status['time']:
+                    if (go.launchtime + go.duration) <= curr_time:
                         self.goals.remove(go)
                         if (go.goals_left == 0 and (go.parent_repeats > 0 or go.parent_repeats == -1)): 
-                            self.add_goals(go.parent, self.status['time'])
+                            self.add_goals(go.parent, curr_time)
                 else:
-                    if go.launchtime <= self.status['time']:
-                        self.get_logger().info('doing {} from {} at {}'.format(go.do, go.parent, self.status['time']))
+                    if go.launchtime <= curr_time:
+                        self.get_logger().info('doing {} from {} at {}'.format(go.do, go.parent, curr_time))
                         go.set_running()
                         self.apply_goal(go.do)
 
