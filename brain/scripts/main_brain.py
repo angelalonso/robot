@@ -137,6 +137,11 @@ class TimedGoals(Node):
             if actset['name'] == name:
                 return actset
 
+    def set_goalset_done(self, name):
+        for actset in self.loaded_goalsets:
+            if actset['name'] == name:
+                actset['started'] = False
+
     def add_goals(self, goalset_name, current):
         goalset = self.get_goalset(goalset_name)
         goals_amount = len(goalset['goals'])
@@ -189,8 +194,14 @@ class TimedGoals(Node):
                 if go.running:
                     if (go.launchtime + go.duration) <= curr_time:
                         self.goals.remove(go)
-                        if (go.goals_left == 0 and (go.parent_repeats > 0 or go.parent_repeats == -1)): 
-                            self.add_goals(go.parent, curr_time)
+                        #if (go.goals_left == 0 and (go.parent_repeats > 0 or go.parent_repeats == -1)): 
+                        #    self.add_goals(go.parent, curr_time)
+                        if go.goals_left == 0:
+                            if (go.parent_repeats > 0 or go.parent_repeats == -1): 
+                                self.add_goals(go.parent, curr_time)
+                            else:
+                                self.set_goalset_done(go.parent)
+
                 else:
                     if go.launchtime <= curr_time:
                         self.get_logger().info('doing {} from {} at {}'.format(go.do, go.parent, curr_time))
