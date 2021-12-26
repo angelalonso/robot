@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-from rclpy import init
-from rclpy import shutdown
-from rclpy import logging
+from interfaces.srv import SetStatus
+
+from rclpy import init, logging, shutdown, ok, spin_once
 from rclpy.node import Node
 
-from std_msgs.msg import String
 from dotenv import load_dotenv
 from os import getenv
 from os import path
+from std_msgs.msg import String
 import serial
 import sys
 import time
@@ -16,6 +16,12 @@ import time
 class SerialLink(Node):
     def __init__(self, loglevel, mode, mockfile, usb_dev):
         super().__init__('arduino_serial_sync')
+
+        self.setstatus_cli = self.create_client(SetStatus, 'setstatus')
+        while not self.setstatus_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.setstatus_req = SetStatus.Request()
+
         self.mode = mode
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.publisher_ = self.create_publisher(String, 'main_topic', 10)
@@ -51,6 +57,35 @@ class SerialLink(Node):
             #TODO: need to close the connection somehow
                     #self.conn.close()
 
+    def send_setstatus_req(self, key, value):
+        self.setstatus_req.key = key
+        self.setstatus_req.value = value 
+        self.future = self.setstatus_cli.call_async(self.setstatus_req)
+
+    def sanitize_n_send(self, text):
+        # TODO: move sanitize to its own function
+        if text[0:8] == 'SENSOR: ':
+            sensors = text.replace('\n', '').replace('SENSOR: ', '').split('|')
+            for sensor_raw in sensors:
+                if sensor_raw != '':
+                    sensor = sensor_raw.split('=')
+                    try:
+                        self.send_setstatus_req(sensor[0], sensor[1])
+                        while ok():
+                            spin_once(self)
+                            if self.future.done():
+                                try:
+                                    response = self.future.result()
+                                except Exception as e:
+                                    self.get_logger().info(
+                                        'Service call failed %r' % (e,))
+                                else:
+                                    self.get_logger().info(
+                                        'Result = %s' %
+                                        (response.current_status))
+                                break
+                    except IndexError: pass
+
     def sync_and_read(self, read_delay):
         # On Mock Mode we will use our local file instead
         if self.mode == "mock":
@@ -59,7 +94,10 @@ class SerialLink(Node):
                 self.get_logger().info(str(out))
                 msg = String()
                 msg.data = str(out)
+
                 self.publisher_.publish(msg)
+                self.sanitize_n_send(msg.data)
+
                 time.sleep(read_delay)
         else:
             while True:
@@ -77,6 +115,7 @@ class SerialLink(Node):
                     if self.mode == "record":
                         self.mockfile.write(str(msg.data))
                     self.publisher_.publish(msg)
+                    self.sanitize_n_send(msg.data)
                 time.sleep(read_delay)
 
 def main(args=None):

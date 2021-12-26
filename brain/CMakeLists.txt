@@ -38,6 +38,10 @@ DESTINATION lib/${PROJECT_NAME}
 
 # Install python scripts - MODULES et al.
 install(PROGRAMS
+  scripts/service_member_function.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/fake_rpi.py
   DESTINATION lib/${PROJECT_NAME}
 )

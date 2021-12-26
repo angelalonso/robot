@@ -1,9 +1,10 @@
 ---
 - name: main
   conditions_or:
-    - "True"
-  starts_at: 2 # Time at which it should start. This is not used on repeats. Think of this as an "AND self.status['time'] >= X" to each condition
-  start_delay: 0.5 # Start delay, added to starts_at
+    - "(int(self.send_getstatuskey('distance')) >= 61)"
+      #- "True"
+  starts_at: 0 # Time at which it should start. This is not used on repeats. Think of this as an "AND self.status['time'] >= X" to each condition
+  start_delay: 0 # Start delay, added to starts_at
   repeat_nr: -1 # number of repetitions after first run. -1 means repeat forever
   goals:
     - do: "motorleft=Forward|motorright=Forward"

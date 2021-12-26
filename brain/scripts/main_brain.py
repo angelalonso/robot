@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-from rclpy import init, logging, spin, shutdown
+from interfaces.srv import GetStatus, GetStatusKey, SetStatus
+
+from rclpy import init, logging, spin, spin_once, shutdown, ok
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
@@ -8,7 +10,11 @@ from brain.action import Motor
 from status import Status
 
 from datetime import datetime
+from dotenv import load_dotenv
+from os import getenv
+from std_msgs.msg import String
 import yaml
+import time
 
 # --- Action Clients
 
@@ -58,8 +64,20 @@ class Goal():
 
 class TimedGoals(Node):
 
-    def __init__(self):
+    def __init__(self, loglevel):
         super().__init__('timed_goals')
+        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+
+        self.setstatus_cli = self.create_client(SetStatus, 'setstatus')
+        while not self.setstatus_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.setstatus_req = SetStatus.Request()
+
+        self.getstatuskey_cli = self.create_client(GetStatusKey, 'getstatuskey')
+        while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.getstatuskey_req = GetStatusKey.Request()
+
         self.status = Status()
         self.starttime = datetime.now()
         self.goals = []
@@ -68,6 +86,46 @@ class TimedGoals(Node):
         # load action clients
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
+
+    def send_getstatuskey_req(self, key):
+        self.getstatuskey_req.key = key
+        self.future = self.getstatuskey_cli.call_async(self.getstatuskey_req)
+
+    def send_getstatuskey(self, key):
+        self.send_getstatuskey_req(key)
+        while ok():
+            spin_once(self)
+            if self.future.done():
+                try:
+                    response = self.future.result()
+                except Exception as e:
+                    self.get_logger().debug(
+                        'Service call failed %r' % (e,))
+                else:
+                    result = response.current_status
+                break
+        return result
+
+    def send_setstatus_req(self, key, value):
+        self.setstatus_req.key = key
+        self.setstatus_req.value = value 
+        self.future = self.setstatus_cli.call_async(self.setstatus_req)
+
+    def send_setstatus(self, key, value):
+        result = ""
+        self.send_setstatus_req(key, str(value))
+        while ok():
+            spin_once(self)
+            if self.future.done():
+                try:
+                    response = self.future.result()
+                except Exception as e:
+                    self.get_logger().debug(
+                        'Service call failed %r' % (e,))
+                else:
+                    result = response.current_status
+                break
+        return result
 
     def load_goalsets(self):
         self.loaded_goalsets = yaml.load(open('goalsets/main.yaml'))
@@ -110,7 +168,11 @@ class TimedGoals(Node):
         while True:
             current_raw = datetime.now() - self.starttime
             self.status.set_status('time', current_raw.seconds + (current_raw.microseconds / 1000000))
+            self.send_setstatus('time', current_raw.seconds + (current_raw.microseconds / 1000000))
             # This part handles goalsets
+            aux_dist = self.send_getstatuskey('distance')
+            self.get_logger().debug('    TEST {}'.format(aux_dist))
+            self.status.set_status('distance', aux_dist)
             for goalset in self.loaded_goalsets:
                 if goalset['started'] == False:
                     for condition in goalset['conditions_or']:
@@ -118,6 +180,8 @@ class TimedGoals(Node):
                             if eval(condition):
                                 self.add_goals(goalset['name'], self.status['time'])
                                 break # we just need one of the conditions to be true
+                        except ValueError:
+                            self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
                         except KeyError:
                             self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
                         except NameError:
@@ -153,9 +217,12 @@ class TimedGoals(Node):
 
 
 def main(args=None):
+    load_dotenv()
+    LOGLEVEL = getenv('LOGLEVEL')
+
     init(args=args)
 
-    timed_goals_node = TimedGoals()
+    timed_goals_node = TimedGoals(LOGLEVEL)
 
     timed_goals_node.trigger_goalsets()
 

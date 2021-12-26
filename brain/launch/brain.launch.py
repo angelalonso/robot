@@ -27,6 +27,14 @@ def generate_launch_description():
             name='node_arduino'
         )
 
+    # Manage Status
+    node_status = Node(
+            package='brain',
+            namespace='brain',
+            executable='status.py',
+            name='node_status'
+        )
+
     # start the main brain manager in the brain namespace
     main_brain = Node(
             package='brain',
@@ -35,8 +43,17 @@ def generate_launch_description():
             name='main_brain'
         )
 
+    service_member_function = Node(
+            package='brain',
+            namespace='brain',
+            executable='service_member_function.py',
+            name='service_member_function'
+        )
+
     return LaunchDescription([
+        service_member_function,
         main_brain,
+        node_status,
         node_arduino,
         motor_right_worker_node,
         motor_left_worker_node,
