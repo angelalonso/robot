@@ -168,7 +168,12 @@ class TimedGoals(Node):
         goalset['started'] = True
 
     def trigger_goalsets(self):
-        # this one should substitute trigger_timed_goals
+        # TODO:
+        # goalsets need a variable if they overwrite or add
+        #  if the goalset is added, we check that variable
+        # motors need to update status too
+        #  if the status is the same as the next goal, dont do it
+        # We need a way to avoid repetitive actions
         while True:
             current_raw = datetime.now() - self.starttime
             curr_time = current_raw.seconds + (current_raw.microseconds / 1000000)
@@ -181,11 +186,7 @@ class TimedGoals(Node):
                             if eval(condition):
                                 self.add_goals(goalset['name'], curr_time)
                                 break # we just need one of the conditions to be true
-                        except ValueError:
-                            self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
-                        except KeyError:
-                            self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
-                        except NameError:
+                        except (ValueError, KeyError, NameError):
                             self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
 
             # This part handles goals
