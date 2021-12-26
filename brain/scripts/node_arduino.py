@@ -40,16 +40,19 @@ class SerialLink(Node):
                     self.mockfile = open("mock.log", "w+") 
             portfound = False
             for portfile in [usb_dev, '/dev/ttyUSB0', '/dev/ttyACM0']:
-                if (path.exists(portfile) and not portfound):
-                    self.conn = serial.Serial(
-                        port=portfile,
-                        baudrate=9600,
-                        parity=serial.PARITY_ODD,
-                        stopbits=serial.STOPBITS_TWO,
-                        bytesize=serial.SEVENBITS
-                    )
-                    self.conn.isOpen()
-                    portfound = True
+                try:
+                    if (path.exists(portfile) and not portfound):
+                        self.conn = serial.Serial(
+                            port=portfile,
+                            baudrate=9600,
+                            parity=serial.PARITY_ODD,
+                            stopbits=serial.STOPBITS_TWO,
+                            bytesize=serial.SEVENBITS
+                        )
+                        self.conn.isOpen()
+                        portfound = True
+                except (FileNotFoundError, TypeError):
+                    pass
             if not portfound:
                 self.get_logger().warn("ATTENTION: Could not connect to any USB-ACM ports")
                 sys.exit(2)

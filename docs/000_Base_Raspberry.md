@@ -77,6 +77,7 @@ $ sudo deluser -remove-home ubuntu
 ```
 $ sudo apt-get update  
 $ sudo apt-get upgrade  
+$ pip install flatdict
 ```
   
 ## Strengthen SSH
