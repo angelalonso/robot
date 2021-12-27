@@ -88,7 +88,7 @@ class SerialLink(Node):
                         self.get_logger().info(
                             'Service call failed %r' % (e,))
                     else:
-                        self.get_logger().info(
+                        self.get_logger().debug(
                             'Result = %s' %
                             (response.current_status))
                     break

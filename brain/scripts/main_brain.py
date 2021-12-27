@@ -98,8 +98,7 @@ class TimedGoals(Node):
                 try:
                     response = self.future.result()
                 except Exception as e:
-                    self.get_logger().debug(
-                        'Service call failed %r' % (e,))
+                    self.get_logger().debug('Service call failed %r' % (e,))
                 else:
                     result = response.current_status
                 break
@@ -137,10 +136,24 @@ class TimedGoals(Node):
             if actset['name'] == name:
                 return actset
 
+    def set_goalset_active(self, name, curr_time):
+        # When one goalset goes active, the others go inactive
+        self.clear_goals()
+        self.add_goals(name, curr_time)
+        for actset in self.loaded_goalsets:
+            if actset['name'] == name:
+                actset['started'] = True
+            else:
+                actset['started'] = False
+
     def set_goalset_done(self, name):
         for actset in self.loaded_goalsets:
             if actset['name'] == name:
                 actset['started'] = False
+
+    def clear_goals(self):
+        for ix in range(len(self.goals)):
+            self.goals.remove(self.goals[0])
 
     def add_goals(self, goalset_name, current):
         goalset = self.get_goalset(goalset_name)
@@ -165,15 +178,8 @@ class TimedGoals(Node):
             self.goals.append(goal)
         if goalset['repeat_nr'] > 0:
             goalset['repeat_nr'] -= 1
-        goalset['started'] = True
 
     def trigger_goalsets(self):
-        # TODO:
-        # goalsets need a variable if they overwrite or add
-        #  if the goalset is added, we check that variable
-        # motors need to update status too
-        #  if the status is the same as the next goal, dont do it
-        # We need a way to avoid repetitive actions
         while True:
             current_raw = datetime.now() - self.starttime
             curr_time = current_raw.seconds + (current_raw.microseconds / 1000000)
@@ -184,7 +190,7 @@ class TimedGoals(Node):
                     for condition in goalset['conditions_or']:
                         try:
                             if eval(condition):
-                                self.add_goals(goalset['name'], curr_time)
+                                self.set_goalset_active(goalset['name'], curr_time)
                                 break # we just need one of the conditions to be true
                         except (ValueError, KeyError, NameError):
                             self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
@@ -193,15 +199,16 @@ class TimedGoals(Node):
             for go in self.goals:
                 # different logic if its already running:
                 if go.running:
-                    if (go.launchtime + go.duration) <= curr_time:
-                        self.goals.remove(go)
-                        #if (go.goals_left == 0 and (go.parent_repeats > 0 or go.parent_repeats == -1)): 
-                        #    self.add_goals(go.parent, curr_time)
-                        if go.goals_left == 0:
-                            if (go.parent_repeats > 0 or go.parent_repeats == -1): 
+                    if go.duration != -1:
+                        if (go.launchtime + go.duration) <= curr_time:
+                            self.goals.remove(go)
+                            if (go.goals_left == 0 and (go.parent_repeats > 0 or go.parent_repeats == -1)): 
                                 self.add_goals(go.parent, curr_time)
-                            else:
-                                self.set_goalset_done(go.parent)
+                            if go.goals_left == 0:
+                                if (go.parent_repeats > 0 or go.parent_repeats == -1): 
+                                    self.add_goals(go.parent, curr_time)
+                                else:
+                                    self.set_goalset_done(go.parent)
 
                 else:
                     if go.launchtime <= curr_time:

@@ -30,7 +30,6 @@ class TopicStatusSubscriber(Node):
                     try:
                         self.main_status.set_status(sensor[0], sensor[1])
                     except IndexError: pass
-                    # TODO: if it's a SENSORS message, update Status
 
 def main(args=None):
     load_dotenv()
