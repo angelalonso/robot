@@ -38,6 +38,10 @@ DESTINATION lib/${PROJECT_NAME}
 
 # Install python scripts - MODULES et al.
 install(PROGRAMS
+  scripts/node_api.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/service_status.py
   DESTINATION lib/${PROJECT_NAME}
 )

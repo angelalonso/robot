@@ -43,6 +43,14 @@ def generate_launch_description():
             name='service_status'
         )
 
+    # API for remote control
+    node_api = Node(
+            package='brain',
+            namespace='brain',
+            executable='node_api.py',
+            name='node_api'
+        )
+
     # start the main brain manager in the brain namespace
     main_brain = Node(
             package='brain',
@@ -53,6 +61,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         main_brain,
+        node_api,
         service_status,
         node_status,
         node_arduino,
