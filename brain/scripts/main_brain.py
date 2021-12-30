@@ -118,8 +118,7 @@ class TimedGoals(Node):
                 try:
                     response = self.future.result()
                 except Exception as e:
-                    self.get_logger().debug(
-                        'Service call failed %r' % (e,))
+                    self.get_logger().debug('Service call failed %r' % (e,))
                 else:
                     result = response.current_status
                 break
@@ -127,9 +126,12 @@ class TimedGoals(Node):
 
     def load_goalsets(self):
         self.loaded_goalsets = yaml.load(open('goalsets/main.yaml'))
-        for goalset in self.loaded_goalsets:
-            goalset['started'] = False # means the goals have NOT yet been loaded to self.goals
-            ###self.add_goals(goalset['name'], 0)
+        try:
+            for goalset in self.loaded_goalsets:
+                goalset['started'] = False # means the goals have NOT yet been loaded to self.goals
+                ###self.add_goals(goalset['name'], 0)
+        except TypeError:
+            self.get_logger().debug('No Goalsets available')
 
     def get_goalset(self, name):
         for actset in self.loaded_goalsets:
@@ -185,15 +187,18 @@ class TimedGoals(Node):
             curr_time = current_raw.seconds + (current_raw.microseconds / 1000000)
             self.send_setstatus('time', curr_time)
             # This part handles goalsets
-            for goalset in self.loaded_goalsets:
-                if goalset['started'] == False:
-                    for condition in goalset['conditions_or']:
-                        try:
-                            if eval(condition):
-                                self.set_goalset_active(goalset['name'], curr_time)
-                                break # we just need one of the conditions to be true
-                        except (ValueError, KeyError, NameError):
-                            self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
+            try:
+                for goalset in self.loaded_goalsets:
+                    if goalset['started'] == False:
+                        for condition in goalset['conditions_or']:
+                            try:
+                                if eval(condition):
+                                    self.set_goalset_active(goalset['name'], curr_time)
+                                    break # we just need one of the conditions to be true
+                            except (ValueError, KeyError, NameError):
+                                self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
+            except TypeError:
+                self.get_logger().debug('No Goalsets available')
 
             # This part handles goals
             for go in self.goals:
