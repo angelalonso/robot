@@ -57,13 +57,13 @@ class ApiWrapper(Node):
 
     def action_right(self):
         self.get_logger().info('      RIGHT')
-        future = self.motorleft.send_goal('Backward')
-        future = self.motorright.send_goal('Forward')
+        future = self.motorleft.send_goal('Forward')
+        future = self.motorright.send_goal('Backward')
 
     def action_left(self):
         self.get_logger().info('      LEFT')
-        future = self.motorleft.send_goal('Forward')
-        future = self.motorright.send_goal('Backward')
+        future = self.motorleft.send_goal('Backward')
+        future = self.motorright.send_goal('Forward')
 
 def main(args=None):
     load_dotenv()
