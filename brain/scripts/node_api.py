@@ -3,6 +3,8 @@
 from rclpy import init, logging, shutdown
 from rclpy.node import Node
 
+from main_brain import MotorLeftActionClient, MotorRightActionClient
+
 from flask import Flask, Response
 from dotenv import load_dotenv
 from os import getenv
@@ -24,32 +26,44 @@ class ApiWrapper(Node):
     def __init__(self, loglevel, name):
         super().__init__('api')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        # load action clients
+        # TODO: we probably want to join this with mainbrain
+        self.motorleft = MotorLeftActionClient()
+        self.motorright = MotorRightActionClient()
+
         self.app = Flask(name)
 
     def run(self):
         self.app.run(host="0.0.0.0")
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None):
-        self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(handler))
+        self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(handler), methods=['POST'])
 
 
-# TODO: 
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:19] "POST /do/motor_l=100,motor_r=100 HTTP/1.1" 404 -
-#[main_brain.py-1] [INFO] [1640791340.460078960] [brain.main_brain]: doing motorleft=Forward|motorright=Backward from stop_n_back_when_too_close at 10.740808
-#[node_motor_left_worker.py-7] [INFO] [1640791340.461802892] [brain.node_motor_left_worker]: Feedback: moving Left Motor Forward
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:20] "POST /do/motor_l=0,motor_r=0 HTTP/1.1" 404 -
-#[main_brain.py-1] [INFO] [1640791340.999987046] [brain.main_brain]: doing motorleft=Forward|motorright=Forward from move_when_free at 11.280517
-#[node_motor_right_worker.py-6] [INFO] [1640791341.001800740] [brain.node_motor_right_worker]: Feedback: moving Right Motor Forward
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:23] "POST /do/motor_l=100,motor_r=-100 HTTP/1.1" 404 -
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:24] "POST /do/motor_l=0,motor_r=0 HTTP/1.1" 404 -
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:27] "POST /do/motor_l=-100,motor_r=100 HTTP/1.1" 404 -
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:27] "POST /do/motor_l=0,motor_r=0 HTTP/1.1" 404 -
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:32] "POST /do/motor_l=-100,motor_r=-100 HTTP/1.1" 404 -
-#[node_api.py-2] 192.168.1.2 - - [29/Dec/2021 16:22:33] "POST /do/motor_l=0,motor_r=0 HTTP/1.1" 404 -
+    def action_stop(self):
+        self.get_logger().info('      STOP')
+        future = self.motorleft.send_goal('Stop')
+        future = self.motorright.send_goal('Stop')
 
-    def action(self):
-        self.get_logger().info('service not available, waiting again...')
+    def action_fwd(self):
+        self.get_logger().info('      FORWARD')
+        future = self.motorleft.send_goal('Forward')
+        future = self.motorright.send_goal('Forward')
 
+    def action_back(self):
+        self.get_logger().info('      BACKWARD')
+        future = self.motorleft.send_goal('Backward')
+        future = self.motorright.send_goal('Backward')
+
+    def action_right(self):
+        self.get_logger().info('      RIGHT')
+        future = self.motorleft.send_goal('Backward')
+        future = self.motorright.send_goal('Forward')
+
+    def action_left(self):
+        self.get_logger().info('      LEFT')
+        future = self.motorleft.send_goal('Forward')
+        future = self.motorright.send_goal('Backward')
 
 def main(args=None):
     load_dotenv()
@@ -58,7 +72,11 @@ def main(args=None):
     init(args=args)
 
     api = ApiWrapper(LOGLEVEL, 'robotapi')
-    api.add_endpoint(endpoint='/ad', endpoint_name='ad', handler=api.action)
+    api.add_endpoint(endpoint='/do/motor_l=0,motor_r=0', endpoint_name='do_stop', handler=api.action_stop)
+    api.add_endpoint(endpoint='/do/motor_l=100,motor_r=100', endpoint_name='do_fwd', handler=api.action_fwd)
+    api.add_endpoint(endpoint='/do/motor_l=-100,motor_r=-100', endpoint_name='do_back', handler=api.action_back)
+    api.add_endpoint(endpoint='/do/motor_l=-100,motor_r=100', endpoint_name='do_right', handler=api.action_right)
+    api.add_endpoint(endpoint='/do/motor_l=100,motor_r=-100', endpoint_name='do_left', handler=api.action_left)
 
     api.run()
 
