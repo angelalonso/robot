@@ -47,6 +47,8 @@ class ServoLaserActionServer(Node):
         if self.state != goal_handle.request.rotation:
             self.state = goal_handle.request.rotation
             self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
+        self.pwm.stop()
+        #GPIO.cleanup()
 
         goal_handle.succeed()
         result = Servo.Result()
