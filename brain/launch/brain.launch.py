@@ -19,6 +19,14 @@ def generate_launch_description():
             name='node_motor_left_worker'
         )
         
+    # start servo_worker for the laser  in the brain namespace
+    node_servo_laser = Node(
+            package='brain',
+            namespace='brain',
+            executable='node_servo_laser.py',
+            name='node_servo_laser'
+        )
+
     # Read from the Serial Link that connects to the Arduino
     node_arduino = Node(
             package='brain',
@@ -65,6 +73,7 @@ def generate_launch_description():
         service_status,
         node_status,
         node_arduino,
+        node_servo_laser,
         motor_right_worker_node,
         motor_left_worker_node,
     ])

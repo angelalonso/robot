@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-from rclpy import init
-from rclpy import spin
-from rclpy import shutdown
-from rclpy import logging
+from rclpy import init, logging, shutdown, spin
 from rclpy.action import ActionServer
 from rclpy.node import Node
 try:
@@ -49,7 +46,6 @@ class MotorLeftActionServer(Node):
             feedback_msg.process_feed = "moving Left Motor " + str(goal_handle.request.move)
             GPIO.output(self.left_in1,GPIO.LOW)
             GPIO.output(self.left_in2,GPIO.HIGH)
-            print("forward")
         elif goal_handle.request.move == "Backward":
             feedback_msg.process_feed = "moving Left Motor " + str(goal_handle.request.move)
             GPIO.output(self.left_in1,GPIO.HIGH)

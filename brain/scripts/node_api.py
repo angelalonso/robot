@@ -3,7 +3,7 @@
 from rclpy import init, logging, shutdown
 from rclpy.node import Node
 
-from main_brain import MotorLeftActionClient, MotorRightActionClient
+from main_brain import MotorLeftActionClient, MotorRightActionClient, ServoLaserActionClient
 
 from flask import Flask, Response
 from dotenv import load_dotenv
@@ -27,9 +27,10 @@ class ApiWrapper(Node):
         super().__init__('api')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         # load action clients
-        # TODO: we probably want to join this with mainbrain
+        # TODO: we probably want to join this with mainbrain or define it separately
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
+        self.servolaser = ServoLaserActionClient()
 
         self.app = Flask(name)
 
@@ -50,10 +51,14 @@ class ApiWrapper(Node):
         future = self.motorleft.send_goal('Forward')
         future = self.motorright.send_goal('Forward')
 
+# we will use this one to test stuff for now
     def action_back(self):
-        self.get_logger().info('      BACKWARD')
-        future = self.motorleft.send_goal('Backward')
-        future = self.motorright.send_goal('Backward')
+        #self.get_logger().info('      BACKWARD')
+        #future = self.motorleft.send_goal('Backward')
+        #future = self.motorright.send_goal('Backward')
+        self.get_logger().info('      TESTING')
+        #TODO: add Codes for actions on higher numbers, create some IFs at the other side
+        future = self.servolaser.send_goal(4)
 
     def action_right(self):
         self.get_logger().info('      RIGHT')

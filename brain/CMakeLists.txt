@@ -62,6 +62,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/node_servo_laser.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/node_arduino.py
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -74,6 +78,7 @@ find_package(rosidl_default_generators REQUIRED)
 
 set(action_files
   "action/Motor.action"
+  "action/Servo.action"
   )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
