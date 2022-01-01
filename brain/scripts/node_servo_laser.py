@@ -28,6 +28,9 @@ class ServoLaserActionServer(Node):
             self.correction = -1.25
             self.state = 2.5 + self.correction
             self.pwm.start(self.state) # Initialization
+            self.pwm.ChangeDutyCycle(self.state)
+            self.pwm.stop()
+            #GPIO.cleanup()
 
             self._action_server = ActionServer(
                 self,
@@ -38,9 +41,11 @@ class ServoLaserActionServer(Node):
             self.get_logger().info('SERVO FOR LASER DISABLED')
 
     def execute_callback(self, goal_handle):
+        self.pwm.start(self.state) # Initialization
         feedback_msg = Servo.Feedback()
         goal_handle.publish_feedback(feedback_msg)
-
+ 
+        self.get_logger().info('TEST: {}'.format(goal_handle.request.rotation))
         feedback_msg.process_feed = "moving Servo for Laser " + str(goal_handle.request.rotation)
         self.pwm.ChangeDutyCycle(goal_handle.request.rotation + self.correction)
 
@@ -92,3 +97,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+

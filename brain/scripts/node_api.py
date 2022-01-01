@@ -30,7 +30,7 @@ class ApiWrapper(Node):
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
         self.servolaser = ServoLaserActionClient()
-        self.test = 0
+        self.test = 1.25
 
         self.app = Flask(name)
 
@@ -39,7 +39,6 @@ class ApiWrapper(Node):
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None):
         self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(handler), methods=['POST'])
-
 
     def action_stop(self):
         self.get_logger().info('      STOP')
@@ -58,7 +57,7 @@ class ApiWrapper(Node):
         #future = self.motorright.send_goal('Backward')
         self.get_logger().info('      TESTING')
         #TODO: add Codes for actions on higher numbers, create some IFs at the other side
-        self.test += 0.25 
+        self.test += 0.25
         future = self.servolaser.send_goal(self.test)
 
     def action_right(self):
@@ -90,3 +89,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
