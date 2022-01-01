@@ -3,7 +3,7 @@
 from rclpy import init, logging, shutdown
 from rclpy.node import Node
 
-from main_brain import MotorLeftActionClient, MotorRightActionClient, ServoLaserActionClient
+from action_clients import MotorLeftActionClient, MotorRightActionClient, ServoLaserActionClient
 
 from flask import Flask, Response
 from dotenv import load_dotenv
@@ -27,7 +27,6 @@ class ApiWrapper(Node):
         super().__init__('api')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         # load action clients
-        # TODO: we probably want to join this with mainbrain or define it separately
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
         self.servolaser = ServoLaserActionClient()

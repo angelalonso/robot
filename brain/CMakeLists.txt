@@ -42,6 +42,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/action_clients.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/service_status.py
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -54,11 +58,11 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/node_motor_right_worker.py
+  scripts/node_motor_right.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/node_motor_left_worker.py
+  scripts/node_motor_left.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS

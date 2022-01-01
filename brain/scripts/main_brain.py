@@ -4,10 +4,9 @@ from interfaces.srv import GetStatus, GetStatusKey, SetStatus
 
 from rclpy import init, logging, spin, spin_once, shutdown, ok
 from rclpy.node import Node
-from rclpy.action import ActionClient
 
-from brain.action import Motor, Servo
 from service_status import Status
+from action_clients import MotorLeftActionClient, MotorRightActionClient
 
 from datetime import datetime
 from dotenv import load_dotenv
@@ -15,50 +14,6 @@ from os import getenv
 from std_msgs.msg import String
 import yaml
 import time
-
-# --- Action Clients
-
-class MotorLeftActionClient(Node):
-
-    def __init__(self):
-        super().__init__('motor_left_action_client')
-        self._action_client = ActionClient(self, Motor, 'MotorLeft')
-
-    def send_goal(self, move):
-        goal_msg = Motor.Goal()
-        goal_msg.move = move
-
-        self._action_client.wait_for_server()
-
-        return self._action_client.send_goal_async(goal_msg)
-
-class MotorRightActionClient(Node):
-
-    def __init__(self):
-        super().__init__('motor_right_action_client')
-        self._action_client = ActionClient(self, Motor, 'MotorRight')
-
-    def send_goal(self, move):
-        goal_msg = Motor.Goal()
-        goal_msg.move = move
-
-        self._action_client.wait_for_server()
-
-        return self._action_client.send_goal_async(goal_msg)
-
-class ServoLaserActionClient(Node):
-
-    def __init__(self):
-        super().__init__('servo_laser_action_client')
-        self._action_client = ActionClient(self, Servo, 'ServoLaser')
-
-    def send_goal(self, rotation):
-        goal_msg = Servo.Goal()
-        goal_msg.rotation = float(rotation)
-
-        self._action_client.wait_for_server()
-
-        return self._action_client.send_goal_async(goal_msg)
 
 # --- Goalsets controller
 
