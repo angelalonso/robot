@@ -30,6 +30,7 @@ class ApiWrapper(Node):
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
         self.servolaser = ServoLaserActionClient()
+        self.test = 0
 
         self.app = Flask(name)
 
@@ -57,7 +58,8 @@ class ApiWrapper(Node):
         #future = self.motorright.send_goal('Backward')
         self.get_logger().info('      TESTING')
         #TODO: add Codes for actions on higher numbers, create some IFs at the other side
-        future = self.servolaser.send_goal(4)
+        self.test += 0.25 
+        future = self.servolaser.send_goal(self.test)
 
     def action_right(self):
         self.get_logger().info('      RIGHT')
