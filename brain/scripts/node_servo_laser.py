@@ -25,8 +25,8 @@ class ServoLaserActionServer(Node):
             GPIO.setup(self.pin, GPIO.OUT)
 
             self.pwm = GPIO.PWM(self.pin, 50) # GPIO 18 for PWM with 50Hz
-            self.correction = -1.25
-            self.state = 2.5 + self.correction
+            self.correction = 0 # needed?
+            self.state = 40 + self.correction
             self.pwm.start(self.state) # Initialization
             self.pwm.ChangeDutyCycle(self.state)
             self.pwm.stop()
@@ -46,6 +46,8 @@ class ServoLaserActionServer(Node):
         goal_handle.publish_feedback(feedback_msg)
  
         self.get_logger().info('TEST: {}'.format(goal_handle.request.rotation))
+        if goal_handle.request.rotation < 0:
+l
         feedback_msg.process_feed = "moving Servo for Laser " + str(goal_handle.request.rotation)
         self.pwm.ChangeDutyCycle(goal_handle.request.rotation + self.correction)
 
@@ -60,23 +62,21 @@ class ServoLaserActionServer(Node):
         return result
 
     def scan_loop(self):
-        while True:
-            self.pwm.ChangeDutyCycle(5 + self.correction)
-            time.sleep(0.5)
-            self.pwm.ChangeDutyCycle(7.5 + self.correction)
-            time.sleep(0.5)
-            self.pwm.ChangeDutyCycle(10 + self.correction)
-            time.sleep(0.5)
-            self.pwm.ChangeDutyCycle(12.5 + self.correction)
-            time.sleep(0.5)
-            self.pwm.ChangeDutyCycle(10 + self.correction)
-            time.sleep(0.5)
-            self.pwm.ChangeDutyCycle(7.5 + self.correction)
-            time.sleep(0.5)
-            self.pwm.ChangeDutyCycle(5 + self.correction)
-            time.sleep(0.5)
-            self.pwm.ChangeDutyCycle(2.5 + self.correction)
-            time.sleep(0.5)
+        try:
+          while True:
+              print("first")
+              for dc in range(40, 101, 5):
+                  p.ChangeDutyCycle(dc)
+                  time.sleep(0.5)
+              print("second")
+              for dc in range(100, 35, -5):
+                  p.ChangeDutyCycle(dc)
+                  time.sleep(0.5)
+        except KeyboardInterrupt:
+          pass
+        print("cleaned")
+        p.stop()
+        GPIO.cleanup()
 
     def stop(self):
         self.pwm.stop()

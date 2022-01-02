@@ -4,18 +4,20 @@ import time
 servoPIN = 18
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(servoPIN, GPIO.OUT)
- 
+
 p = GPIO.PWM(servoPIN, 500) # GPIO 17 for PWM with 50Hz
-p.start(0) # Initialization
+p.start(2.5) # Initialization
 try:
   while True:
       print("first")
-      for dc in range(0, 101, 5):
-          p.ChangeDutyCycle(dc)
+      for dc in range(400, 1010, 50):
+          print(dc/10)
+          p.ChangeDutyCycle(dc/10)
           time.sleep(0.5)
       print("second")
-      for dc in range(100, 5, -5):
-          p.ChangeDutyCycle(dc)
+      for dc in range(1000, 350, -50):
+          print(dc/10)
+          p.ChangeDutyCycle(dc/10)
           time.sleep(0.5)
 except KeyboardInterrupt:
   pass
