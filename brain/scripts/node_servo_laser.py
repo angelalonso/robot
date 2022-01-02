@@ -46,10 +46,12 @@ class ServoLaserActionServer(Node):
         goal_handle.publish_feedback(feedback_msg)
  
         self.get_logger().info('TEST: {}'.format(goal_handle.request.rotation))
-#        if goal_handle.request.rotation < 0:
-
-        feedback_msg.process_feed = "moving Servo for Laser " + str(goal_handle.request.rotation)
-        self.pwm.ChangeDutyCycle(goal_handle.request.rotation + self.correction)
+        if goal_handle.request.rotation < 0:
+            feedback_msg.process_feed = "moving Servo for Laser SCAN"
+            self.scan_loop()
+        else:
+            feedback_msg.process_feed = "moving Servo for Laser " + str(goal_handle.request.rotation)
+            self.pwm.ChangeDutyCycle(goal_handle.request.rotation + self.correction)
 
         if self.state != goal_handle.request.rotation:
             self.state = goal_handle.request.rotation
@@ -63,17 +65,16 @@ class ServoLaserActionServer(Node):
 
     def scan_loop(self):
         try:
-          while True:
-              print("first")
-              for dc in range(40, 101, 5):
-                  p.ChangeDutyCycle(dc)
-                  time.sleep(0.5)
-              print("second")
-              for dc in range(100, 35, -5):
-                  p.ChangeDutyCycle(dc)
-                  time.sleep(0.5)
+            print("first")
+            for dc in range(40, 101, 5):
+                self.pwm.ChangeDutyCycle(dc)
+                time.sleep(0.5)
+            print("second")
+            for dc in range(100, 35, -5):
+                self.pwm.ChangeDutyCycle(dc)
+                time.sleep(0.5)
         except KeyboardInterrupt:
-          pass
+            pass
         print("cleaned")
         p.stop()
         GPIO.cleanup()
