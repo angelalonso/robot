@@ -4,10 +4,6 @@ from rclpy import init, logging, shutdown, spin
 from rclpy.action import ActionServer
 from rclpy.node import Node
 try:
-    import RPi.GPIO as GPIO
-except ModuleNotFoundError:
-    from fake_rpi import fake_rpi as GPIO
-try:
     import pigpio
 except ModuleNotFoundError:
     from fake_rpi import fake_pigpio as pigpio
@@ -25,16 +21,12 @@ class ServoLaserActionServer(Node):
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         if enable:
             self.pin = 18
-            GPIO.setmode(GPIO.BCM)
-            GPIO.setup(self.pin, GPIO.OUT)
+            self.pwm = pigpio.pi() 
+            self.pwm.set_mode(self.pin, pigpio.OUTPUT)
 
-            self.pwm = GPIO.PWM(self.pin, 500) # GPIO 18 for PWM with 50Hz
-            self.correction = 0 # needed?
-            self.state = 0
-            self.pwm.start(0) # Initialization
-            #self.pwm.ChangeDutyCycle(30)
-            #self.pwm.stop()
-            #GPIO.cleanup()
+            self.pwm.set_PWM_frequency(self.pin, 50) # GPIO 18 for PWM with 50Hz
+            self.state = 1500
+            self.pwm.set_servo_pulsewidth(self.pin, self.state)
 
             self._action_server = ActionServer(
                 self,
@@ -45,7 +37,6 @@ class ServoLaserActionServer(Node):
             self.get_logger().info('SERVO FOR LASER DISABLED')
 
     def execute_callback(self, goal_handle):
-        self.pwm.start(self.state) # Initialization
         feedback_msg = Servo.Feedback()
         goal_handle.publish_feedback(feedback_msg)
  
@@ -55,13 +46,12 @@ class ServoLaserActionServer(Node):
             self.scan_loop()
         else:
             feedback_msg.process_feed = "moving Servo for Laser " + str(goal_handle.request.rotation)
-            self.pwm.ChangeDutyCycle(goal_handle.request.rotation + self.correction)
+            self.state = goal_handle.request.rotation
+            self.pwm.set_servo_pulsewidth(self.pin, self.state)
 
         if self.state != goal_handle.request.rotation:
             self.state = goal_handle.request.rotation
             self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
-        #self.pwm.stop()
-        #GPIO.cleanup()
 
         goal_handle.succeed()
         result = Servo.Result()
@@ -69,23 +59,22 @@ class ServoLaserActionServer(Node):
 
     def scan_loop(self):
         try:
-            print("first")
-            for dc in range(40, 101, 5):
-                self.pwm.ChangeDutyCycle(dc)
+            for dc in range(500, 2501, 100):
+                self.state = dc
+                self.pwm.set_servo_pulsewidth(self.pin, self.state)
                 time.sleep(0.5)
-            print("second")
-            for dc in range(100, 35, -5):
-                self.pwm.ChangeDutyCycle(dc)
+            for dc in range(2500, 499, -100):
+                self.state = dc
+                self.pwm.set_servo_pulsewidth(self.pin, self.state)
                 time.sleep(0.5)
         except KeyboardInterrupt:
             pass
         print("cleaned")
-        self.pwp.stop()
-        GPIO.cleanup()
+        self.stop()
 
     def stop(self):
-        self.pwm.stop()
-        GPIO.cleanup()
+        self.pwm.set_PWM_dutycycle(self.pin, 0)
+        self.pwm.set_PWM_frequency(self.pin, 0)
 
 def main(args=None):
     load_dotenv()

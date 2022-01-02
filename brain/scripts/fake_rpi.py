@@ -64,6 +64,7 @@ class fake_rpi(object):
             return ""
 
 class PWM_object:
+    #reusing for fake_rpi and fake_pigpio
     def __init__(self):
         pass
 
@@ -72,6 +73,26 @@ class PWM_object:
 
     def ChangeDutyCycle(self, state):
         pass
+
+    def set_mode(self, servo, mode):
+        pass
+
+    def set_PWM_frequency(self, pin, frequency):
+        pass
+
+    def set_servo_pulsewidth(self, pin, state):
+        pass
+
+class fake_pigpio(object):
+    def __init__(self):
+        super().__init__('fake pigpio')
+
+    def pi():
+        p = PWM_object()
+        return p
+
+    def OUTPUT():
+        return ""
 
 import sys
 sys.modules["package.module"] = fake_rpi
