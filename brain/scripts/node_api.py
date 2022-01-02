@@ -57,8 +57,7 @@ class ApiWrapper(Node):
         #future = self.motorright.send_goal('Backward')
         self.get_logger().info('      TESTING')
         #TODO: add Codes for actions on higher numbers, create some IFs at the other side
-        self.test = ((self.test + 5.0) % 100)
-        #self.test = -10.0
+        self.test = (30 + (self.test - 20.0)) % 100
         future = self.servolaser.send_goal(self.test)
 
     def action_right(self):
