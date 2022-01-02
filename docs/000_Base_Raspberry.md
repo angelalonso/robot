@@ -125,7 +125,7 @@ $ sudo ufw enable
 
 ```
 $ sudo apt-get update  
-$ sudo apt-get install vim git rpi.gpio-common # we'll need them later
+$ sudo apt-get install vim git rpi.gpio-common python3-pigpio pigpio-tools # we'll need them later
 $ sudo reboot
 ```
 
@@ -137,6 +137,14 @@ $ sudo raspi-config
 ```
 \> Localisation Options > Change Wi-fi Country > Choose yours  
 \> Network Options > Wi-Fi > add the name of the WiFi network and the pass  
+
+# Make pigpio daemon run at boot
+- Copy files/pigpiod.service to /etc/systemd/system/
+```
+$ sudo systemctl enable pigpiod
+$ sudo systemctl start pigpiod
+```
+- 
 
 # Install ROS2
 
