@@ -44,9 +44,9 @@ String getDistance(String msg) {
   long duration = pulseIn(ProximityEchoPin, HIGH);
   distanceVal = duration*0.034/2;
   // This one is here because sensor throws 1000+ value when too close
-  if ((distanceVal - distancePrevVal) > 500 ) {
-    distanceVal = 0;
-  }
+  //if ((distanceVal - distancePrevVal) > 500 ) {
+  //  distanceVal = 0;
+  //}
 
   distancePrevVal = distanceVal;
   msg.concat("distance=");
@@ -79,7 +79,7 @@ void loop() {
   
   delay(30);
   if (sync == true) {
-    // DISTANCE SENSOR
+    // LASER SENSOR
     msg = getLaser(msg);  
     // DISTANCE SENSOR
     msg = getDistance(msg);

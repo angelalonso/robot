@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# importing Rust libraries
+import importlib.util
+spec = importlib.util.spec_from_file_location("rust_brain_libs", "./scripts/rust_brain_libs/target/release/librust_brain_libs.so")
+rust_brain = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(rust_brain)
+
 from interfaces.srv import SetStatus
 
 from rclpy import init, logging, shutdown, ok, spin_once
@@ -99,6 +105,7 @@ class SerialLink(Node):
             while True:
                 out = self.mockfile.readline()
                 self.get_logger().info(str(out))
+                self.get_logger().info("TEST IS " + str(rust_brain.return_sum(2, 6)))
                 msg = String()
                 msg.data = str(out)
 

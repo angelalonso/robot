@@ -43,6 +43,7 @@ I am also looking for a way to have Rust added to the formula.
   - [Bash autocompletion](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html)
 - [Raspberry Pi](https://www.raspberrypi.org/)
 - [Arduino](https://www.arduino.cc/)
+- [Rust](https://www.rust-lang.org/)
 
 Consider the above also a list of minimum requirements.
 

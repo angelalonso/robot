@@ -25,7 +25,12 @@ function adapt() {
 function build_n_run() {
   trap ctrl_c INT
 
-  source /opt/ros/rolling/local_setup.sh &&
+  cwd=$(pwd)
+  cd scripts/rust_brain_libs && \
+  cargo build --release &&
+  cd $cwd
+
+  source /opt/ros/rolling/local_setup.sh
   . ./interfaces/install/setup.bash && \
   colcon build && \
     . ./install/setup.bash && \

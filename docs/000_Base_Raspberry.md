@@ -150,3 +150,5 @@ $ sudo systemctl start pigpiod
 
 Follow the Official Guide at https://docs.ros.org/en/galactic/Installation.html
 
+# Install Rust
+Follow the Official Guide at https://www.rust-lang.org/tools/install
