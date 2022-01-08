@@ -125,6 +125,19 @@ class MainActivity : AppCompatActivity() {
                 return v?.onTouchEvent(event) ?: true
             }
         })
+        val buttonScan = findViewById<Button>(R.id.button_scan)
+        buttonScan.setOnTouchListener(object: View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        val apiReturn = Globals().move("scan");
+                        Toast.makeText(this@MainActivity,apiReturn, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
 
     }
 

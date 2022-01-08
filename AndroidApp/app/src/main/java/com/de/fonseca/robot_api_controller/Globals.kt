@@ -98,15 +98,17 @@ class Globals : Application() {
     fun move(move: String): String {
         var resp = "";
         if (move == "fwd") {
-            resp = apiPostCall("/do/motor_l=100,motor_r=100")
+            resp = apiPostCall("/do/fwd")
         } else if (move == "bwd") {
-            resp = apiPostCall("/do/motor_l=-100,motor_r=-100")
+            resp = apiPostCall("/do/bwd")
         } else if (move == "right") {
-            resp = apiPostCall("/do/motor_l=100,motor_r=-100")
+            resp = apiPostCall("/do/right")
         } else if (move == "left") {
-            resp = apiPostCall("/do/motor_l=-100,motor_r=100")
+            resp = apiPostCall("/do/left")
         } else if (move == "stop") {
-            resp = apiPostCall("/do/motor_l=0,motor_r=0")
+            resp = apiPostCall("/do/stop")
+        } else if (move == "scan") {
+            resp = apiPostCall("/do/scan")
         } else {
             resp = apiPostCall("")
         }

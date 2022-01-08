@@ -98,11 +98,10 @@
                 android:layout_weight="1" />
 
             <Button
-                android:id="@+id/button_stop"
+                android:id="@+id/button_scan"
                 android:layout_width="80dp"
                 android:layout_height="80dp"
-                android:text="STOP"
-                android:visibility="invisible"
+                android:text="SCAN"
                 android:layout_weight="1" />
 
             <Button

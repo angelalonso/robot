@@ -51,14 +51,10 @@ class ApiWrapper(Node):
         future = self.motorright.send_goal('Forward')
 
 # we will use this one to test stuff for now
-    def action_back(self):
-        #self.get_logger().info('      BACKWARD')
-        #future = self.motorleft.send_goal('Backward')
-        #future = self.motorright.send_goal('Backward')
-        self.get_logger().info('      TESTING')
-        #self.test = (30 + (self.test - 20.0)) % 100
-        self.test = -10.0
-        future = self.servolaser.send_goal(self.test)
+    def action_bwd(self):
+        self.get_logger().info('      BACKWARD')
+        future = self.motorleft.send_goal('Backward')
+        future = self.motorright.send_goal('Backward')
 
     def action_right(self):
         self.get_logger().info('      RIGHT')
@@ -70,6 +66,11 @@ class ApiWrapper(Node):
         future = self.motorleft.send_goal('Backward')
         future = self.motorright.send_goal('Forward')
 
+    def action_scan(self):
+        self.get_logger().info('      SCAN')
+        self.test = -10.0
+        future = self.servolaser.send_goal(self.test)
+
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
@@ -77,11 +78,12 @@ def main(args=None):
     init(args=args)
 
     api = ApiWrapper(LOGLEVEL, 'robotapi')
-    api.add_endpoint(endpoint='/do/motor_l=0,motor_r=0', endpoint_name='do_stop', handler=api.action_stop)
-    api.add_endpoint(endpoint='/do/motor_l=100,motor_r=100', endpoint_name='do_fwd', handler=api.action_fwd)
-    api.add_endpoint(endpoint='/do/motor_l=-100,motor_r=-100', endpoint_name='do_back', handler=api.action_back)
-    api.add_endpoint(endpoint='/do/motor_l=-100,motor_r=100', endpoint_name='do_right', handler=api.action_right)
-    api.add_endpoint(endpoint='/do/motor_l=100,motor_r=-100', endpoint_name='do_left', handler=api.action_left)
+    api.add_endpoint(endpoint='/do/stop', endpoint_name='do_stop', handler=api.action_stop)
+    api.add_endpoint(endpoint='/do/fwd', endpoint_name='do_fwd', handler=api.action_fwd)
+    api.add_endpoint(endpoint='/do/bwd', endpoint_name='do_bwd', handler=api.action_bwd)
+    api.add_endpoint(endpoint='/do/right', endpoint_name='do_right', handler=api.action_right)
+    api.add_endpoint(endpoint='/do/left', endpoint_name='do_left', handler=api.action_left)
+    api.add_endpoint(endpoint='/do/scan', endpoint_name='do_scan', handler=api.action_scan)
 
     api.run()
 
