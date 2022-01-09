@@ -40,10 +40,10 @@ class ServoLaserActionServer(Node):
         feedback_msg = Servo.Feedback()
         goal_handle.publish_feedback(feedback_msg)
  
-        self.get_logger().info('TEST: {}'.format(goal_handle.request.rotation))
+        self.get_logger().info('LASER SERVO: {}'.format(goal_handle.request.rotation))
         if goal_handle.request.rotation < 0:
             feedback_msg.process_feed = "moving Servo for Laser SCAN"
-            self.scan_loop()
+            self.scan_front()
         else:
             feedback_msg.process_feed = "moving Servo for Laser " + str(goal_handle.request.rotation)
             self.state = goal_handle.request.rotation
@@ -56,6 +56,21 @@ class ServoLaserActionServer(Node):
         goal_handle.succeed()
         result = Servo.Result()
         return result
+
+    def scan_front(self):
+        # TODO: 
+        # get laser measure after every move
+        # put it somewhere
+        self.state = 1400
+        self.pwm.set_servo_pulsewidth(self.pin, self.state)
+        time.sleep(0.5)
+        self.state = 1600
+        self.pwm.set_servo_pulsewidth(self.pin, self.state)
+        time.sleep(0.5)
+        self.state = 1500
+        self.pwm.set_servo_pulsewidth(self.pin, self.state)
+        print("cleaned")
+        self.stop()
 
     def scan_loop(self):
         try:
