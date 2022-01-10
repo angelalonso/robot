@@ -104,8 +104,7 @@ class SerialLink(Node):
         if self.mode == "mock":
             while True:
                 out = self.mockfile.readline()
-                self.get_logger().info(str(out))
-                self.get_logger().info("TEST IS " + str(rust_brain.return_sum(2, 6)))
+                self.get_logger().debug(str(out))
                 msg = String()
                 msg.data = str(out)
 
@@ -123,7 +122,7 @@ class SerialLink(Node):
                     except UnicodeDecodeError:
                         pass
                 if out != '':
-                    self.get_logger().info(str(out))
+                    self.get_logger().debug(str(out))
                     msg = String()
                     msg.data = str(out)
                     if self.mode == "record":

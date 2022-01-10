@@ -80,6 +80,9 @@ class PWM_object:
     def set_PWM_frequency(self, pin, frequency):
         pass
 
+    def set_PWM_dutycycle(self, pin, cycle):
+        pass
+
     def set_servo_pulsewidth(self, pin, state):
         pass
 

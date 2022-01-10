@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from rclpy import init, logging, shutdown, spin
+from rclpy import init, logging, shutdown, spin, spin_once, ok
 from rclpy.action import ActionServer
 from rclpy.node import Node
 try:
@@ -8,6 +8,7 @@ try:
 except ModuleNotFoundError:
     from fake_rpi import fake_pigpio as pigpio
 
+from interfaces.srv import GetStatusKey
 from brain.action import Servo
 
 from dotenv import load_dotenv
@@ -19,6 +20,12 @@ class ServoLaserActionServer(Node):
     def __init__(self, loglevel, enable):
         super().__init__('servolaser_action_server')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+
+        self.getstatuskey_cli = self.create_client(GetStatusKey, 'getstatuskey')
+        while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+        self.getstatuskey_req = GetStatusKey.Request()
+
         if enable:
             self.pin = 18
             self.pwm = pigpio.pi() 
@@ -57,17 +64,40 @@ class ServoLaserActionServer(Node):
         result = Servo.Result()
         return result
 
+    def send_getstatuslaser_req(self):
+        key = 'laser'
+        self.getstatuskey_req.key = key
+        self.future = self.getstatuskey_cli.call_async(self.getstatuskey_req)
+
+    def send_getstatuslaser(self):
+        key = 'laser'
+        self.send_getstatuslaser_req()
+        while ok():
+            spin_once(self)
+            if self.future.done():
+                try:
+                    response = self.future.result()
+                except Exception as e:
+                    self.get_logger().debug('Service call failed %r' % (e,))
+                else:
+                    result = response.current_status
+                break
+        return result
+
     def scan_front(self):
         # TODO: 
         # get laser measure after every move
         # put it somewhere
         self.state = 1400
         self.pwm.set_servo_pulsewidth(self.pin, self.state)
+        self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         time.sleep(0.5)
         self.state = 1600
         self.pwm.set_servo_pulsewidth(self.pin, self.state)
+        self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         time.sleep(0.5)
         self.state = 1500
+        self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         self.pwm.set_servo_pulsewidth(self.pin, self.state)
         print("cleaned")
         self.stop()

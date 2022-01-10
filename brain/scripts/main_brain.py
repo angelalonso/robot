@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from interfaces.srv import GetStatus, GetStatusKey, SetStatus
 
 from rclpy import init, logging, spin, spin_once, shutdown, ok
 from rclpy.node import Node
 
+from interfaces.srv import GetStatus, GetStatusKey, SetStatus
 from service_status import Status
 from action_clients import MotorLeftActionClient, MotorRightActionClient
 
