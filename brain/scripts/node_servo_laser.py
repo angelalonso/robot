@@ -99,8 +99,8 @@ class ServoLaserActionServer(Node):
         self.state = 1500
         self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         self.pwm.set_servo_pulsewidth(self.pin, self.state)
-        print("cleaned")
-        self.stop()
+        #print("cleaned")
+        #self.stop()
 
     def scan_loop(self):
         try:
@@ -114,8 +114,8 @@ class ServoLaserActionServer(Node):
                 time.sleep(0.5)
         except KeyboardInterrupt:
             pass
-        print("cleaned")
-        self.stop()
+        #print("cleaned")
+        #self.stop()
 
     def stop(self):
         self.pwm.set_PWM_dutycycle(self.pin, 0)
