@@ -9,7 +9,7 @@ except ModuleNotFoundError:
     from fake_rpi import fake_pigpio as pigpio
 
 from interfaces.srv import GetStatusKey
-from brain.action import Servo
+from brain.action import Servo, Getstatus
 
 from dotenv import load_dotenv
 from os import getenv
@@ -25,6 +25,7 @@ class ServoLaserActionServer(Node):
         while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
         self.getstatuskey_req = GetStatusKey.Request()
+        self.client_futures = []
 
         if enable:
             self.pin = 18
@@ -48,14 +49,11 @@ class ServoLaserActionServer(Node):
         goal_handle.publish_feedback(feedback_msg)
  
         self.get_logger().info('LASER SERVO: {}'.format(goal_handle.request.rotation))
-        if goal_handle.request.rotation < 0:
-            feedback_msg.process_feed = "moving Servo for Laser SCAN"
+        # my own standard: 0 means we do a scan
+        if goal_handle.request.rotation == 0:
             self.scan_front()
         else:
-            feedback_msg.process_feed = "moving Servo for Laser " + str(goal_handle.request.rotation)
-            self.state = goal_handle.request.rotation
-            self.pwm.set_servo_pulsewidth(self.pin, self.state)
-
+            self.do_rotate(goal_handle.request.rotation)
         if self.state != goal_handle.request.rotation:
             self.state = goal_handle.request.rotation
             self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
@@ -84,21 +82,27 @@ class ServoLaserActionServer(Node):
                 break
         return result
 
+    def do_rotate(self, rotation):
+        self.state = rotation
+        self.pwm.set_servo_pulsewidth(self.pin, self.state)
+
     def scan_front(self):
-        # TODO: 
-        # get laser measure after every move
-        # put it somewhere
         self.state = 1400
         self.pwm.set_servo_pulsewidth(self.pin, self.state)
-        self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
-        time.sleep(0.5)
-        self.state = 1600
-        self.pwm.set_servo_pulsewidth(self.pin, self.state)
-        self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
-        time.sleep(0.5)
-        self.state = 1500
-        self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
-        self.pwm.set_servo_pulsewidth(self.pin, self.state)
+        # TODO: 
+        # once this is run, we cannot trigger it again
+        # https://gist.github.com/driftregion/14f6da05a71a57ef0804b68e17b06de5
+        aux = self.send_getstatuslaser()
+        self.get_logger().info('LASER VALUE: {}'.format(aux))
+        #self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
+        #time.sleep(0.5)
+        #self.state = 1600
+        #self.pwm.set_servo_pulsewidth(self.pin, self.state)
+        #self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
+        #time.sleep(0.5)
+        #self.state = 1500
+        #self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
+        #self.pwm.set_servo_pulsewidth(self.pin, self.state)
         #print("cleaned")
         #self.stop()
 

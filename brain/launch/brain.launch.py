@@ -35,14 +35,22 @@ def generate_launch_description():
             name='node_arduino'
         )
 
-    # Manage Status
+    # Manage Status new
     node_status = Node(
             package='brain',
             namespace='brain',
-            executable='status.py',
+            executable='node_status.py',
             name='node_status'
         )
 
+#    # Manage Status OLD??? TODO
+#    aux_status = Node(
+#            package='brain',
+#            namespace='brain',
+#            executable='status.py',
+#            name='aux_status'
+#        )
+#
     # Manage Status using a Service
     service_status = Node(
             package='brain',

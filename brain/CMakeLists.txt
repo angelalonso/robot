@@ -46,6 +46,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/node_status.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/service_status.py
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -53,10 +57,10 @@ install(PROGRAMS
   scripts/fake_rpi.py
   DESTINATION lib/${PROJECT_NAME}
 )
-install(PROGRAMS
-  scripts/status.py
-  DESTINATION lib/${PROJECT_NAME}
-)
+#install(PROGRAMS
+#  scripts/status.py
+#  DESTINATION lib/${PROJECT_NAME}
+#)
 install(PROGRAMS
   scripts/node_motor_right.py
   DESTINATION lib/${PROJECT_NAME}
@@ -83,6 +87,7 @@ find_package(rosidl_default_generators REQUIRED)
 set(action_files
   "action/Motor.action"
   "action/Servo.action"
+  "action/Getstatus.action"
   )
 
 rosidl_generate_interfaces(${PROJECT_NAME}

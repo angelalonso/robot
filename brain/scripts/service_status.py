@@ -2,9 +2,19 @@
 
 from interfaces.srv import GetStatus, GetStatusKey, SetStatus
 
-import rclpy
+from rclpy import init, logging, spin, shutdown
 import flatdict
 from rclpy.node import Node
+
+from brain.action import Getstatus
+
+from dotenv import load_dotenv
+from os import getenv
+
+#------
+from rclpy import executors, ok
+import threading
+#------
 
 class Status(object):
     def __init__(self):
@@ -20,10 +30,34 @@ class Status(object):
     def get_status(self):
         return str(flatdict.FlatDict(self.current, delimiter='.'))
 
+class StatusActionServer(Node):
+    def __init__(self, loglevel):
+        super().__init__('status_action_server')
+        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        self.status = Status()
+
+        self._action_server = ActionServer(
+            self,
+            Getstatus,
+            'GetStatusServo',
+            self.execute_callback)
+
+    def execute_callback(self, goal_handle):
+        feedback_msg = Motor.Feedback()
+        goal_handle.publish_feedback(feedback_msg)
+
+        goal_handle.request.key
+
+        goal_handle.succeed()
+        result = Getstatus.Result()
+        return result
+
+
 class StatusService(Node):
 
-    def __init__(self):
+    def __init__(self, loglevel):
         super().__init__('minimal_service')
+        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.status = Status()
         self.getstatus_srv = self.create_service(GetStatus, 'getstatus', self.getstatus_callback)
         self.getstatuskey_srv = self.create_service(GetStatusKey, 'getstatuskey', self.getstatuskey_callback)
@@ -35,11 +69,11 @@ class StatusService(Node):
         return response
 
     def getstatuskey_callback(self, request, response):
-        self.get_logger().debug('Incoming request - key: %s' % (request.key))
+        self.get_logger().info('Incoming request - key: %s' % (request.key))
         try:
             response.current_status = self.status[request.key]
         except KeyError:
-            pass
+            response.current_status = ''
         return response
 
     def setstatus_callback(self, request, response):
@@ -50,14 +84,16 @@ class StatusService(Node):
 
 
 def main(args=None):
-    rclpy.init(args=args)
+    load_dotenv()
+    LOGLEVEL = getenv('LOGLEVEL')
 
-    service_status = StatusService()
+    init(args=args)
 
-    rclpy.spin(service_status)
+    service_status = StatusService(LOGLEVEL)
 
-    rclpy.shutdown()
+    spin(service_status)
 
+    shutdown()
 
 if __name__ == '__main__':
     main()
