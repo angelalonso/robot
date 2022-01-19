@@ -11,10 +11,6 @@ from brain.action import Getstatus
 from dotenv import load_dotenv
 from os import getenv
 
-#------
-from rclpy import executors, ok
-import threading
-#------
 
 class Status(object):
     def __init__(self):

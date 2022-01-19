@@ -3,7 +3,8 @@
 from rclpy import init, logging, shutdown, spin_once, ok
 from rclpy.node import Node
 
-from action_clients import MotorLeftActionClient, MotorRightActionClient, ServoLaserActionClient, GetStatusKeyActionClient
+from action_clients import MotorLeftActionClient, MotorRightActionClient, ServoLaserActionClient
+from service_clients import GetStatusKeyServiceClient
 
 import time
 from flask import Flask, Response
@@ -32,7 +33,7 @@ class ApiWrapper(Node):
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
         self.servolaser = ServoLaserActionClient()
-        self.statuslaser = GetStatusKeyActionClient()
+        self.statuslaser = GetStatusKeyServiceClient()
         self.test = -10.0
 
         self.app = Flask(name)
@@ -72,7 +73,7 @@ class ApiWrapper(Node):
     def action_scan(self):
         self.get_logger().info('      SCAN')
 
-        for i in range(500, 2501, 100):
+        for i in range(500, 2501, 500):
             self.get_logger().info('  - rotating: %d' % (i))
             self.servolaser.send_goal(i)
             self.statuslaser.send_getstatuskey('laser')
@@ -87,6 +88,22 @@ class ApiWrapper(Node):
                         self.get_logger().info('  - Laser distance: %s' % (response.current_status))
                     break
             time.sleep(0.5)
+        for i in range(2500, 499, -500):
+            self.get_logger().info('  - rotating: %d' % (i))
+            self.servolaser.send_goal(i)
+            self.statuslaser.send_getstatuskey('laser')
+            while ok():
+                spin_once(self.statuslaser)
+                if self.statuslaser.future.done():
+                    try:
+                        response = self.statuslaser.future.result()
+                    except Exception as e:
+                        self.get_logger().info('Service call failed %r' % (e,))
+                    else:
+                        self.get_logger().info('  - Laser distance: %s' % (response.current_status))
+                    break
+            time.sleep(0.5)
+        self.servolaser.send_goal(1500)
 
 
 def main(args=None):

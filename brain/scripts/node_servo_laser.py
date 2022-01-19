@@ -6,7 +6,7 @@ from rclpy.node import Node
 try:
     import pigpio
 except ModuleNotFoundError:
-    from fake_rpi import fake_pigpio as pigpio
+    from lib_fake_rpi import fake_pigpio as pigpio
 
 from interfaces.srv import GetStatusKey
 from brain.action import Servo, Getstatus

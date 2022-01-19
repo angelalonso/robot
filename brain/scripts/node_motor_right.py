@@ -9,7 +9,7 @@ from rclpy.node import Node
 try:
     import RPi.GPIO as GPIO
 except ModuleNotFoundError:
-    from fake_rpi import fake_rpi as GPIO
+    from lib_fake_rpi import fake_rpi as GPIO
 
 from brain.action import Motor
 

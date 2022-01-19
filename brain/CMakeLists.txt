@@ -36,9 +36,11 @@ install(TARGETS
 DESTINATION lib/${PROJECT_NAME}
 )
 
+
 # Install python scripts - MODULES et al.
+# Auxiliar libraries
 install(PROGRAMS
-  scripts/node_api.py
+  scripts/lib_fake_rpi.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
@@ -46,21 +48,22 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/node_status.py
+  scripts/service_clients.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
   scripts/service_status.py
   DESTINATION lib/${PROJECT_NAME}
 )
+# Nodes
 install(PROGRAMS
-  scripts/fake_rpi.py
+  scripts/node_api.py
   DESTINATION lib/${PROJECT_NAME}
 )
-#install(PROGRAMS
-#  scripts/status.py
-#  DESTINATION lib/${PROJECT_NAME}
-#)
+install(PROGRAMS
+  scripts/node_status.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 install(PROGRAMS
   scripts/node_motor_right.py
   DESTINATION lib/${PROJECT_NAME}
@@ -77,6 +80,7 @@ install(PROGRAMS
   scripts/node_arduino.py
   DESTINATION lib/${PROJECT_NAME}
 )
+# The main brain
 install(PROGRAMS
   scripts/main_brain.py
   DESTINATION lib/${PROJECT_NAME}
