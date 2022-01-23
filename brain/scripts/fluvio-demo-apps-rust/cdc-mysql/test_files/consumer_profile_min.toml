@@ -1,0 +1,7 @@
+[data]
+base_path = "/tmp/data"
+last_offset_file = "consumer2.offset"
+
+[database]
+ip_or_host = "localhost"
+user = "root"

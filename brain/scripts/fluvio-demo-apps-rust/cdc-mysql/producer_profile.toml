@@ -1,0 +1,40 @@
+##
+# CDC Producer Profile
+##
+
+##
+# Universal Resource Name - urn - used to construct URI: flv://<urn>/<database>/<table>
+##
+mysql_resource_name = "mysql-srv1"
+
+##
+# Data Path (mysql container mapped to local drive)
+#
+# binlog_index_file: name of binlog indes file
+# resume_offset_file: producers resumes from here after restart
+# local_store_file: table column headers are accumulated here
+##
+[data]
+base_path = "~/mysql-cdc/mysql-producer"
+binlog_index_file = "binlog.index"
+resume_offset_file = "producer.offset"
+local_store_file = "producer.store"
+
+##
+# Container configuration (used by ./docker scripts)
+##
+[container]
+name = "mysql-producer"
+host_port = 3080
+
+##
+# Filters to include or exclude databases
+##
+[filters]
+include_dbs = ["flvDb", "flvDb2"]
+
+##
+# Fluvio streaming settings (defaults):
+## 
+[fluvio]
+topic ="rust-mysql-cdc"

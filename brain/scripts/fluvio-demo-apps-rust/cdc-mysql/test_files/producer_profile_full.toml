@@ -1,0 +1,14 @@
+mysql_resource_name = "mysql-docker-80"
+
+[data]
+base_path = "~/data"
+binlog_index_file = "binlog.index"
+resume_offset_file = "producer.offset"
+local_store_file = "producer.store"
+
+[filters]
+include_dbs = [ "flvTest" ]
+
+[fluvio]
+topic = "rust-mysql-cdc"
+replicas = 2

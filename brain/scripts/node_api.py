@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# importing Rust libraries
+import importlib.util
+test_spec = importlib.util.spec_from_file_location("my_python_lib", "./scripts/fluvio-demo-apps-rust/my-python-lib-blog-post/my_python_lib.cpython-38-x86_64-linux-gnu.so")
+rust_test = importlib.util.module_from_spec(test_spec)
+test_spec.loader.exec_module(rust_test)
+
 from rclpy import init, logging, shutdown, spin_once, ok
 from rclpy.node import Node
 
@@ -72,6 +78,8 @@ class ApiWrapper(Node):
 
     def action_scan(self):
         self.get_logger().info('      SCAN')
+        foo = rust_test.Foo(2)
+        self.get_logger().info('-------------------- %d' % foo.val())
 
         for i in range(500, 2501, 500):
             self.get_logger().info('  - rotating: %d' % (i))
@@ -104,6 +112,8 @@ class ApiWrapper(Node):
                     break
             time.sleep(0.5)
         self.servolaser.send_goal(1500)
+        foo.set_field(45)
+        self.get_logger().info('-------------------- %d' % foo.val())
 
 
 def main(args=None):
