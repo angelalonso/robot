@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 
-# importing Rust libraries
-import importlib.util
-brain_spec = importlib.util.spec_from_file_location("rust_brain_libs", "./scripts/rust_brain_libs/target/release/librust_brain_libs.so")
-rust_brain = importlib.util.module_from_spec(brain_spec)
-brain_spec.loader.exec_module(rust_brain)
-
 from interfaces.srv import SetStatus
 
 from rclpy import init, logging, shutdown, ok, spin_once

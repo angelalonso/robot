@@ -2,9 +2,10 @@
 
 # importing Rust libraries
 import importlib.util
-test_spec = importlib.util.spec_from_file_location("my_python_lib", "./scripts/fluvio-demo-apps-rust/my-python-lib-blog-post/my_python_lib.cpython-38-x86_64-linux-gnu.so")
-rust_test = importlib.util.module_from_spec(test_spec)
-test_spec.loader.exec_module(rust_test)
+rustbrain_spec = importlib.util.spec_from_file_location("rustbrain", 
+        "./scripts/rustbrain/.env/lib/python3.8/site-packages/rustbrain/rustbrain.cpython-38-x86_64-linux-gnu.so")
+rustbrain = importlib.util.module_from_spec(rustbrain_spec)
+rustbrain_spec.loader.exec_module(rustbrain)
 
 from rclpy import init, logging, shutdown, spin_once, ok
 from rclpy.node import Node
@@ -35,6 +36,8 @@ class ApiWrapper(Node):
     def __init__(self, loglevel, name):
         super().__init__('api')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        # Temporarily creating this here
+        self.radar = rustbrain.Dataset(500, 2500, 500)
         # load action clients
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
@@ -78,8 +81,10 @@ class ApiWrapper(Node):
 
     def action_scan(self):
         self.get_logger().info('      SCAN')
-        foo = rust_test.Foo(2)
-        self.get_logger().info('-------------------- %d' % foo.val())
+        adddp = rustbrain.Datapoint(6, 4, True)
+        self.radar.add(adddp)
+        for line in reversed(self.radar.show()):
+            self.get_logger().info('| %s |' % line)
 
         for i in range(500, 2501, 500):
             self.get_logger().info('  - rotating: %d' % (i))
@@ -112,8 +117,10 @@ class ApiWrapper(Node):
                     break
             time.sleep(0.5)
         self.servolaser.send_goal(1500)
-        foo.set_field(45)
-        self.get_logger().info('-------------------- %d' % foo.val())
+        adddp = rustbrain.Datapoint(5, 3, True)
+        self.radar.add(adddp)
+        for line in reversed(self.radar.show()):
+            self.get_logger().info('| %s |' % line)
 
 
 def main(args=None):

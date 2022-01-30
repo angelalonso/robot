@@ -25,10 +25,11 @@ function adapt() {
 function build_n_run() {
   trap ctrl_c INT
 
-  cwd=$(pwd)
-  cd scripts/rust_brain_libs && \
-  cargo build --release &&
-  cd $cwd
+  # TODO: use maturin maybe
+  #cwd=$(pwd)
+  #cd scripts/rustbrain && \
+  #cargo build --release &&
+  #cd $cwd
 
   source /opt/ros/rolling/local_setup.sh
   . ./interfaces/install/setup.bash && \

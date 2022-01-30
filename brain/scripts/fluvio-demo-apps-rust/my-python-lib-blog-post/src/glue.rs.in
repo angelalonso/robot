@@ -1,22 +1,25 @@
-pub struct Foo {
+struct Bar {
     val: i32
 }
+pub struct Foo {
+    val: Vec<Bar>
+}
 impl Foo {
-    pub fn new(val: i32) -> Self {
+    pub fn new(val: Vec<Bar>) -> Self {
         Self {
             val
         }
     }
-    pub fn set_field(&mut self, new_val: i32) {
+    pub fn set_field(&mut self, new_val: Vec<Bar>) {
         self.val = new_val;
     }
-    pub fn val(&self) -> i32 {
+    pub fn val(&self) -> Vec<Bar> {
         self.val
     }
 }
 foreign_class!(class Foo {
     self_type Foo;
-    constructor Foo::new(_: i32) -> Foo;
-    fn Foo::set_field(&mut self, _: i32);
-    fn Foo::val(&self) -> i32;
+    constructor Foo::new(_: Vec<i32>) -> Foo;
+    fn Foo::set_field(&mut self, _: Vec<i32>);
+    fn Foo::val(&self) -> Vec<i32>;
 });
