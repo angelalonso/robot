@@ -37,7 +37,7 @@ class ApiWrapper(Node):
         super().__init__('api')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         # Temporarily creating this here
-        self.radar = rustbrain.Dataset(500, 2500, 500)
+        self.radar = rustbrain.Dataset(500, 2500, 500, 10)
         # load action clients
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
@@ -99,6 +99,7 @@ class ApiWrapper(Node):
                         self.get_logger().info('Service call failed %r' % (e,))
                     else:
                         self.get_logger().info('  - Laser distance: %s' % (response.current_status))
+                        self.get_logger().info('                        ANGLE \| %d |' % self.radar.add_ping(i, int(response.current_status)))
                     break
             time.sleep(0.5)
         for i in range(2500, 499, -500):
@@ -114,6 +115,7 @@ class ApiWrapper(Node):
                         self.get_logger().info('Service call failed %r' % (e,))
                     else:
                         self.get_logger().info('  - Laser distance: %s' % (response.current_status))
+                        self.get_logger().info('                        ANGLE \| %d |' % self.radar.add_ping(i, int(response.current_status)))
                     break
             time.sleep(0.5)
         self.servolaser.send_goal(1500)
