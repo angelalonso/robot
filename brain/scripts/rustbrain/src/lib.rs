@@ -58,9 +58,9 @@ impl Dataset {
 
     pub fn show(&self) -> Vec<String> {
         let mut result = Vec::new();
-        for x in 1..11 {
+        for x in 1..(self.max_distance_graphic + 1) {
             let mut line = "".to_owned();
-            for y in 1..21 {
+            for y in 1..((2 * self.max_distance_graphic) + 1) {
                 let mut object = false;
                 for dp in self.set.clone() {
                     if dp.x == x && dp.y == y && dp.solid {
@@ -77,6 +77,58 @@ impl Dataset {
         }
         result
     }
+
+    pub fn build_map(&self) {
+        let side = self.max_distance / self.max_distance_graphic;
+        let square = [
+            [0, 0],
+            [0, side],
+            [side, 0],
+            [side, side]
+        ];
+        // Positive x
+        for x in 0..self.max_distance_graphic {
+            for y in 0..self.max_distance_graphic {
+                let sq = [
+                    [(side * x), (side * y)],
+                    [(side * x), (side * y) + side -1],
+                    [(side * x) + side -1, side * y],
+                    [(side * x) + side -1, (side * y) + side -1]
+                ];
+                println!("{:?}", sq)
+            }
+        }
+        // Negative x
+        for x in 0..self.max_distance_graphic {
+            for y in 0..self.max_distance_graphic {
+                let sq = [
+                    [-1 - (side * x), side * y],
+                    [-1 - (side * x), (side * y) + side -1],
+                    [-1 - ((side * x) + side -1), side * y],
+                    [-1 - ((side * x) + side -1), (side * y) + side -1]
+                ];
+                println!("{:?}", sq)
+            }
+        }
+
+        /*
+        "[[-1, 0], [-225, 0], [-225, 224], [-1, 224]]", 
+        "[[-226, 0], [-450, 0], [-450, 224], [-226, 224]]", 
+        "[[-1, 225], [-225, 225], [-225, 449], [-1, 449]]", 
+        "[[-226, 225], [-450, 225], [-450, 449], [-226, 449]]", 
+        "[[0, 0], [225, 0], [225, 225], [0, 225]]", 
+        "[[226, 0], [450, 0], [450, 225], [226, 225]]", 
+        "[[0, 226], [225, 226], [225, 450], [0, 450]]", 
+        "[[226, 226], [450, 226], [450, 450], [226, 450]]"
+         */
+        println!("{:?}", square)
+
+    }
+
+    pub fn show_map(&self) -> Vec<String> {
+        let mut result = Vec::new();
+        result
+    }
 }
 
 /// A Python module implemented in Rust.
@@ -85,4 +137,41 @@ fn rustbrain(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Datapoint>()?;
     m.add_class::<Dataset>()?;
     Ok(())
+}
+
+
+#[test]
+fn test_data() {
+    let test_something = Dataset::new(500, 2500, 450, 2);
+    test_something.build_map();
+    /*
+    let mut expected = [
+        "....................", 
+        "....................", 
+        "....................", 
+        "....................", 
+        "....................", 
+        "....................", 
+        "....................", 
+        "....................", 
+        "....................", 
+        "...................."
+    ]; 
+    */
+    let expected = [
+        "....", 
+        "...."
+    ]; 
+    assert_eq!(test_something.show(), expected);
+    let map_expected = [
+        "[[-1, 0], [-225, 0], [-225, 224], [-1, 224]]", 
+        "[[-226, 0], [-450, 0], [-450, 224], [-226, 224]]", 
+        "[[-1, 225], [-225, 225], [-225, 449], [-1, 449]]", 
+        "[[-226, 225], [-450, 225], [-450, 449], [-226, 449]]", 
+        "[[0, 0], [225, 0], [225, 225], [0, 225]]", 
+        "[[226, 0], [450, 0], [450, 225], [226, 225]]", 
+        "[[0, 226], [225, 226], [225, 450], [0, 450]]", 
+        "[[226, 226], [450, 226], [450, 450], [226, 450]]"
+    ]; 
+    assert_eq!(test_something.show_map(), map_expected);
 }
