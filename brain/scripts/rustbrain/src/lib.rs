@@ -92,6 +92,8 @@ impl Dataset {
     //         generate a set of points in straight line, all solid=false but the one at the given
     //         distance
     pub fn add_ping(&mut self, angle_raw: i32, _distance: i32) -> i32 {
+        // TODO: actually check on which quadrant it hits, and have related quadrants "air"
+        // modified
         // transform angle to degrees (-90 to 90)
         let angle = ((angle_raw - self.min_angle) * 180 / (self.max_angle - self.min_angle)) - 90;
         // find quadrants on that angle
@@ -125,26 +127,27 @@ impl Dataset {
         }
     }
 
-    pub fn show_objects(&self) -> Vec<String> {
+    pub fn show(&self) -> Vec<String> {
         let mut result = Vec::new();
-        // TODO: iterate through all boxes on our set and show if solid
-        for x in 0..self.max_distance_graphic * 2 {
-            for y in 0..self.max_distance_graphic {
+        for y in 0..self.max_distance_graphic {
+            let mut x_string = "".to_string();
+            for x in 0..self.max_distance_graphic * 2 {
                 for entry in self.mapxy.clone() {
                     if entry.x_pos == x && entry.y_pos == y {
                         if entry.air {
-                            result.push(".".to_owned());
+                            x_string.push_str("."); 
                         } else {
-                            result.push(".".to_owned());
+                            x_string.push_str("#"); 
                         }
                     }
                 }
             }
+            result.push(x_string);
         }
         result
     }
 
-    pub fn show(&self) -> Vec<String> {
+    pub fn old_show(&self) -> Vec<String> {
         let mut result = Vec::new();
         for x in 1..(self.max_distance_graphic + 1) {
             let mut line = "".to_owned();
@@ -313,14 +316,8 @@ fn test_ping() {
     test_something.build_map();
     test_something.add_ping(500, 225);
     let expected = [
-        ".", 
-        ".", 
-        ".", 
-        ".", 
-        ".", 
-        ".", 
-        ".", 
-        ".", 
+        "....", 
+        "....", 
     ];
-    assert_eq!(test_something.show_objects(), expected);
+    assert_eq!(test_something.show(), expected);
 }
