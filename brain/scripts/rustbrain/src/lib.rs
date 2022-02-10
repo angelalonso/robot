@@ -1,14 +1,50 @@
 #![feature(macro_attributes_in_derive_output)]
 use pyo3::prelude::*;
 
-
 #[derive(Debug, Clone)]
 #[pyclass]
-pub struct Datapoint {
+pub struct Coord {
     #[pyo3(get, set)]
     pub x: i32,
     #[pyo3(get, set)]
     pub y: i32,
+}
+#[pymethods]
+impl Coord {
+    #[new]
+    pub fn new(x: i32, y: i32) -> Coord {
+        Coord { x, y }
+    }
+}
+#[derive(Debug, Clone)]
+#[pyclass]
+pub struct Area {
+    pub x_pos: i32,
+    pub y_pos: i32,
+    #[pyo3(get, set)]
+    pub nw: Coord,
+    #[pyo3(get, set)]
+    pub ne: Coord,
+    #[pyo3(get, set)]
+    pub sw: Coord,
+    #[pyo3(get, set)]
+    pub se: Coord,
+    #[pyo3(get, set)]
+    pub air: bool,
+}
+#[pymethods]
+impl Area {
+    #[new]
+    pub fn new(x_pos: i32, y_pos: i32, nw: Coord, ne: Coord, sw: Coord, se: Coord, air: bool) -> Area {
+        Area { x_pos, y_pos, nw, ne, sw, se, air }
+    }
+}
+
+
+#[derive(Debug, Clone)]
+#[pyclass]
+pub struct Datapoint {
+    pub pos: Coord,
     #[pyo3(get, set)]
     pub solid: bool,
 }
@@ -16,7 +52,11 @@ pub struct Datapoint {
 impl Datapoint {
     #[new]
     pub fn new(x: i32, y: i32, solid: bool) -> Datapoint {
-        Datapoint { x, y, solid }
+        let pos = Coord {
+            x,
+            y
+        };
+        Datapoint { pos, solid }
     }
 }
 #[derive(Debug, Clone)]
@@ -24,6 +64,7 @@ impl Datapoint {
 pub struct Dataset {
     #[pyo3(get, set)]
     pub set: Vec<Datapoint>,
+    pub mapxy: Vec<Area>,
     pub min_angle: i32,
     pub max_angle: i32,
     pub max_distance: i32,
@@ -36,6 +77,7 @@ impl Dataset {
     pub fn new(min_angle: i32, max_angle: i32, max_distance: i32, max_distance_graphic: i32) -> Dataset {
         Dataset { 
             set: [].to_vec(),
+            mapxy: [].to_vec(),
             min_angle: min_angle,
             max_angle: max_angle,
             max_distance: max_distance,
@@ -45,6 +87,7 @@ impl Dataset {
     pub fn add(&mut self, dp: Datapoint) {
         self.set.append(&mut [dp].to_vec())
     }
+
     // TODO: given angle and distance,
     //         generate a set of points in straight line, all solid=false but the one at the given
     //         distance
@@ -56,6 +99,51 @@ impl Dataset {
         angle
     }
 
+    pub fn cross(&mut self, a1: Coord, a2: Coord, b1: Coord, b2: Coord) -> bool {
+        let r1 = a2.y - a1.y;
+        let s1 = a1.x - a2.x;
+        let t1 = r1 * a1.x + s1 * a1.y;
+ 
+        let r2 = b2.y - b1.y;
+        let s2 = b1.x - b2.x;
+        let t2 = r2 * b1.x + s2 * b1.y;
+ 
+        let delta = (r1 * s2 - r2 * s1) as f32;
+ 
+        if delta == 0.0 {
+            return false;
+        }
+ 
+        let result = Some(Coord {
+            x: ((s2 * t1 - s1 * t2) as f32 / delta) as i32,
+            y: ((r1 * t2 - r2 * t1) as f32 / delta) as i32,
+        });
+        if result.is_none() {
+            false
+        } else {
+            true
+        }
+    }
+
+    pub fn show_objects(&self) -> Vec<String> {
+        let mut result = Vec::new();
+        // TODO: iterate through all boxes on our set and show if solid
+        for x in 0..self.max_distance_graphic * 2 {
+            for y in 0..self.max_distance_graphic {
+                for entry in self.mapxy.clone() {
+                    if entry.x_pos == x && entry.y_pos == y {
+                        if entry.air {
+                            result.push(".".to_owned());
+                        } else {
+                            result.push(".".to_owned());
+                        }
+                    }
+                }
+            }
+        }
+        result
+    }
+
     pub fn show(&self) -> Vec<String> {
         let mut result = Vec::new();
         for x in 1..(self.max_distance_graphic + 1) {
@@ -63,7 +151,7 @@ impl Dataset {
             for y in 1..((2 * self.max_distance_graphic) + 1) {
                 let mut object = false;
                 for dp in self.set.clone() {
-                    if dp.x == x && dp.y == y && dp.solid {
+                    if dp.pos.x == x && dp.pos.y == y && dp.solid {
                         object = true;
                     }
                 }
@@ -78,55 +166,79 @@ impl Dataset {
         result
     }
 
-    pub fn build_map(&self) {
+    pub fn build_map(&mut self) {
         let side = self.max_distance / self.max_distance_graphic;
-        let square = [
-            [0, 0],
-            [0, side],
-            [side, 0],
-            [side, side]
-        ];
         // Positive x
         for x in 0..self.max_distance_graphic {
             for y in 0..self.max_distance_graphic {
-                let sq = [
-                    [(side * x), (side * y)],
-                    [(side * x), (side * y) + side -1],
-                    [(side * x) + side -1, side * y],
-                    [(side * x) + side -1, (side * y) + side -1]
-                ];
-                println!("{:?}", sq)
+                let new_sw = Coord {
+                    x: (side * x), 
+                    y: (side * y), 
+                }; 
+                let new_se = Coord {
+                    x: (side * x), 
+                    y: (side * y) + side -1,
+                };
+                let new_nw = Coord {
+                    x: (side * x) + side -1, 
+                    y: side * y,
+                };
+                let new_ne = Coord {
+                    x: (side * x) + side -1, 
+                    y: (side * y) + side -1
+                };
+                let sq = Area {
+                    x_pos: x + self.max_distance_graphic,
+                    y_pos: y,
+                    sw: new_sw,
+                    se: new_se,
+                    nw: new_nw,
+                    ne: new_ne,
+                    air: true,
+                };
+                self.mapxy.push(sq.clone());
             }
         }
         // Negative x
         for x in 0..self.max_distance_graphic {
             for y in 0..self.max_distance_graphic {
-                let sq = [
-                    [-1 - (side * x), side * y],
-                    [-1 - (side * x), (side * y) + side -1],
-                    [-1 - ((side * x) + side -1), side * y],
-                    [-1 - ((side * x) + side -1), (side * y) + side -1]
-                ];
-                println!("{:?}", sq)
+                let new_sw = Coord {
+                    x: (-1 - side * x), 
+                    y: (side * y), 
+                }; 
+                let new_se = Coord {
+                    x: (-1 - side * x), 
+                    y: (side * y) + side -1,
+                };
+                let new_nw = Coord {
+                    x: -1 - ((side * x) + side -1), 
+                    y: side * y,
+                };
+                let new_ne = Coord {
+                    x: -1 - ((side * x) + side -1), 
+                    y: (side * y) + side -1
+                };
+                let sq = Area {
+                    x_pos: x,
+                    y_pos: y,
+                    sw: new_sw,
+                    se: new_se,
+                    nw: new_nw,
+                    ne: new_ne,
+                    air: true,
+                };
+                self.mapxy.push(sq.clone());
             }
         }
 
-        /*
-        "[[-1, 0], [-225, 0], [-225, 224], [-1, 224]]", 
-        "[[-226, 0], [-450, 0], [-450, 224], [-226, 224]]", 
-        "[[-1, 225], [-225, 225], [-225, 449], [-1, 449]]", 
-        "[[-226, 225], [-450, 225], [-450, 449], [-226, 449]]", 
-        "[[0, 0], [225, 0], [225, 225], [0, 225]]", 
-        "[[226, 0], [450, 0], [450, 225], [226, 225]]", 
-        "[[0, 226], [225, 226], [225, 450], [0, 450]]", 
-        "[[226, 226], [450, 226], [450, 450], [226, 450]]"
-         */
-        println!("{:?}", square)
-
     }
 
-    pub fn show_map(&self) -> Vec<String> {
-        let mut result = Vec::new();
+    pub fn show_map_as_str(&self) -> Vec<String> {
+        let mut result = [].to_vec();
+        for line in self.mapxy.to_owned() {
+            let mut linestring = [format!("{:?}", line).to_owned()].to_vec();
+            result.append(&mut linestring);
+        }
         result
     }
 }
@@ -134,6 +246,8 @@ impl Dataset {
 /// A Python module implemented in Rust.
 #[pymodule]
 fn rustbrain(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<Coord>()?;
+    m.add_class::<Area>()?;
     m.add_class::<Datapoint>()?;
     m.add_class::<Dataset>()?;
     Ok(())
@@ -142,36 +256,71 @@ fn rustbrain(_py: Python, m: &PyModule) -> PyResult<()> {
 
 #[test]
 fn test_data() {
-    let test_something = Dataset::new(500, 2500, 450, 2);
+    let mut test_something = Dataset::new(500, 2500, 450, 2);
     test_something.build_map();
-    /*
-    let mut expected = [
-        "....................", 
-        "....................", 
-        "....................", 
-        "....................", 
-        "....................", 
-        "....................", 
-        "....................", 
-        "....................", 
-        "....................", 
-        "...................."
-    ]; 
-    */
-    let expected = [
-        "....", 
-        "...."
-    ]; 
-    assert_eq!(test_something.show(), expected);
     let map_expected = [
-        "[[-1, 0], [-225, 0], [-225, 224], [-1, 224]]", 
-        "[[-226, 0], [-450, 0], [-450, 224], [-226, 224]]", 
-        "[[-1, 225], [-225, 225], [-225, 449], [-1, 449]]", 
-        "[[-226, 225], [-450, 225], [-450, 449], [-226, 449]]", 
-        "[[0, 0], [225, 0], [225, 225], [0, 225]]", 
-        "[[226, 0], [450, 0], [450, 225], [226, 225]]", 
-        "[[0, 226], [225, 226], [225, 450], [0, 450]]", 
-        "[[226, 226], [450, 226], [450, 450], [226, 450]]"
-    ]; 
-    assert_eq!(test_something.show_map(), map_expected);
+"Area { x_pos: 2, y_pos: 0, nw: Coord { x: 224, y: 0 }, ne: Coord { x: 224, y: 224 }, sw: Coord { x: 0, y: 0 }, se: Coord { x: 0, y: 224 }, air: true }", "Area { x_pos: 2, y_pos: 1, nw: Coord { x: 224, y: 225 }, ne: Coord { x: 224, y: 449 }, sw: Coord { x: 0, y: 225 }, se: Coord { x: 0, y: 449 }, air: true }", "Area { x_pos: 3, y_pos: 0, nw: Coord { x: 449, y: 0 }, ne: Coord { x: 449, y: 224 }, sw: Coord { x: 225, y: 0 }, se: Coord { x: 225, y: 224 }, air: true }", "Area { x_pos: 3, y_pos: 1, nw: Coord { x: 449, y: 225 }, ne: Coord { x: 449, y: 449 }, sw: Coord { x: 225, y: 225 }, se: Coord { x: 225, y: 449 }, air: true }", "Area { x_pos: 0, y_pos: 0, nw: Coord { x: -225, y: 0 }, ne: Coord { x: -225, y: 224 }, sw: Coord { x: -1, y: 0 }, se: Coord { x: -1, y: 224 }, air: true }", "Area { x_pos: 0, y_pos: 1, nw: Coord { x: -225, y: 225 }, ne: Coord { x: -225, y: 449 }, sw: Coord { x: -1, y: 225 }, se: Coord { x: -1, y: 449 }, air: true }", "Area { x_pos: 1, y_pos: 0, nw: Coord { x: -450, y: 0 }, ne: Coord { x: -450, y: 224 }, sw: Coord { x: -226, y: 0 }, se: Coord { x: -226, y: 224 }, air: true }", "Area { x_pos: 1, y_pos: 1, nw: Coord { x: -450, y: 225 }, ne: Coord { x: -450, y: 449 }, sw: Coord { x: -226, y: 225 }, se: Coord { x: -226, y: 449 }, air: true }"
+    ];
+
+    assert_eq!(test_something.show_map_as_str(), map_expected);
+}
+#[test]
+fn test_coords() {
+    let mut test_something = Dataset::new(500, 2500, 450, 2);
+    test_something.build_map();
+    assert_eq!(test_something.add_ping(500, 225), -90);
+    assert_eq!(test_something.add_ping(1500, 225), 0);
+    assert_eq!(test_something.add_ping(2500, 225), 90);
+}
+#[test]
+fn test_intersect() {
+    let mut test_something = Dataset::new(500, 2500, 450, 2);
+    test_something.build_map();
+    let p1 = Coord {
+        x: 0,
+        y: 0
+    };
+    let p2 = Coord {
+        x: 10,
+        y: 0
+    };
+    let q1 = Coord {
+        x: 10,
+        y: 10
+    };
+    let q2 = Coord {
+        x: 0,
+        y: 0
+    };
+    let o2 = Coord {
+        x: 2,
+        y: 0
+    };
+    let o1 = Coord {
+        x: 12,
+        y: 0
+    };
+    println!("- cross, crossed lines");
+    assert_eq!(test_something.cross(p1.clone(), p2.clone(), q1.clone(), q2.clone()), true);
+    println!("- cross, crossed lines2");
+    assert_eq!(test_something.cross(o1.clone(), o2.clone(), q1.clone(), q2.clone()), true);
+    println!("- cross, crossed lines3");
+    assert_eq!(test_something.cross(o1.clone(), o2.clone(), p1.clone(), p2.clone()), false);
+}
+#[test]
+fn test_ping() {
+    let mut test_something = Dataset::new(500, 2500, 450, 2);
+    test_something.build_map();
+    test_something.add_ping(500, 225);
+    let expected = [
+        ".", 
+        ".", 
+        ".", 
+        ".", 
+        ".", 
+        ".", 
+        ".", 
+        ".", 
+    ];
+    assert_eq!(test_something.show_objects(), expected);
 }
