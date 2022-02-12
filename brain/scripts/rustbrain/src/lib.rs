@@ -108,10 +108,10 @@ impl Dataset {
                 for entry in self.mapxy.clone() {
                     if entry.x_pos == x && entry.y_pos == y {
                         // TODO: troubleshoot this, add prints on each comparison
-                        if (self.cross(origin.clone(), hit.clone(), entry.sw.clone(), entry.se.clone())) ||
-                           (self.cross(origin.clone(), hit.clone(), entry.se.clone(), entry.ne.clone())) ||
-                           (self.cross(origin.clone(), hit.clone(), entry.ne.clone(), entry.nw.clone())) ||
-                           (self.cross(origin.clone(), hit.clone(), entry.nw.clone(), entry.sw.clone())) {
+                        if (self.newcross(origin.clone(), hit.clone(), entry.sw.clone(), entry.se.clone())) ||
+                           (self.newcross(origin.clone(), hit.clone(), entry.se.clone(), entry.ne.clone())) ||
+                           (self.newcross(origin.clone(), hit.clone(), entry.ne.clone(), entry.nw.clone())) ||
+                           (self.newcross(origin.clone(), hit.clone(), entry.nw.clone(), entry.sw.clone())) {
                                self.set_air(x, y, false);
                         }
                     }
@@ -131,6 +131,71 @@ impl Dataset {
             }
         }
     }
+    /* -------------- test ---------------------------*/
+    pub fn substract(&mut self, a: Coord, b: Coord) -> Coord {
+        let result = Coord {
+            x: a.x - b.x,
+            y: a.y - b.y,
+        };
+        result
+    }
+    pub fn cross_product(&mut self, a: Coord, b: Coord) -> i32 {
+        return a.x * b.y - b.x * a.y
+    }
+
+    pub fn direction(&mut self, a: Coord, b: Coord, c: Coord) -> i32 {
+        let s1 = self.substract(c, a.clone());
+        let s2 = self.substract(b, a.clone());
+        let result = self.cross_product(s1, s2);
+        return result
+    }
+
+    pub fn on_segment(&mut self, a: Coord, b: Coord, c: Coord) -> bool {
+        return std::cmp::min(a.x, b.x) <= c.x && c.x <= std::cmp::max(a.x, b.x) && std::cmp::min(a.y, b.y) <= c.y && c.y <= std::cmp::max(a.y, b.y)
+
+    }
+    pub fn newcross(&mut self, a: Coord, b: Coord, c: Coord, d: Coord) -> bool {
+        let d1 = self.direction(c.clone(), d.clone(), a.clone());
+        let d2 = self.direction(c.clone(), d.clone(), b.clone());
+        let d3 = self.direction(a.clone(), b.clone(), c.clone());
+        let d4 = self.direction(a.clone(), b.clone(), d.clone());
+        if ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0)) {
+                return true
+            } else if d1 == 0 && self.on_segment(c.clone(), d.clone(), a.clone()) {
+                return true
+            } else if d2 == 0 && self.on_segment(c.clone(), d.clone(), b.clone()) {
+                return true
+            } else if d3 == 0 && self.on_segment(a.clone(), b.clone(), c) {
+                return true
+            } else if d4 == 0 && self.on_segment(a, b, d) {
+                return true
+            } else {
+                return false
+            }
+    }
+    /*
+def intersect(p1, p2, p3, p4):
+        d1 = direction(p3, p4, p1)
+    d2 = direction(p3, p4, p2)
+    d3 = direction(p1, p2, p3)
+    d4 = direction(p1, p2, p4)
+
+    if ((d1 > 0 and d2 < 0) or (d1 < 0 and d2 > 0)) and \
+        ((d3 > 0 and d4 < 0) or (d3 < 0 and d4 > 0)):
+        return True
+
+    elif d1 == 0 and on_segment(p3, p4, p1):
+        return True
+    elif d2 == 0 and on_segment(p3, p4, p2):
+        return True
+    elif d3 == 0 and on_segment(p1, p2, p3):
+        return True
+    elif d4 == 0 and on_segment(p1, p2, p4):
+        return True
+    else:
+        return False
+    */
+    /* -------------- test ---------------------------*/
 
     pub fn cross(&mut self, a1: Coord, a2: Coord, b1: Coord, b2: Coord) -> bool {
         let r1 = a2.y - a1.y;
@@ -154,6 +219,7 @@ impl Dataset {
         if result.is_none() {
             false
         } else {
+            println!("--------------- HIT AT {:?},{:?} vs {:?},{:?}", a1, a2, b1, b2);
             true
         }
     }
