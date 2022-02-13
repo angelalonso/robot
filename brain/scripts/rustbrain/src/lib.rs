@@ -84,6 +84,7 @@ impl Dataset {
             max_distance_graphic: max_distance_graphic,
         }
     }
+    // TODO: clean up whole library, use it on ROS
     pub fn add(&mut self, dp: Datapoint) {
         self.set.append(&mut [dp].to_vec())
     }
