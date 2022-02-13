@@ -112,16 +112,17 @@ impl Dataset {
                            (self.newcross(origin.clone(), hit.clone(), entry.se.clone(), entry.ne.clone())) ||
                            (self.newcross(origin.clone(), hit.clone(), entry.ne.clone(), entry.nw.clone())) ||
                            (self.newcross(origin.clone(), hit.clone(), entry.nw.clone(), entry.sw.clone())) {
-                               self.set_air(x, y, false);
-                               println!("HIT found between {:?} - {:?} and {:?} ", origin, hit, entry)
+                               self.set_air(x, y, true);
+                               //println!("HIT found between {:?} - {:?} and {:?} ", origin, hit, entry)
                         }
                     }
                 }
             }
         }
-
+        self.gethit(hit.clone());
         // find quadrants on that angle
         // mark all quadrants as solid=False but the one on distance=distance
+        println!("-----------------     {:?}", hit);
         hit
     }
 
@@ -132,7 +133,24 @@ impl Dataset {
             }
         }
     }
-    /* -------------- test ---------------------------*/
+    /* -------------- ping aux functions ---------------------------*/
+    pub fn gethit(&mut self, a: Coord) {
+        for mut entry in &mut self.mapxy {
+            let mut x_in = false;
+            let mut y_in = false;
+            let x_nesw = entry.ne.x..entry.sw.x;
+            let x_swne = entry.sw.x..entry.ne.x;
+            let y_nesw = entry.ne.y..entry.sw.y;
+            let y_swne = entry.sw.y..entry.ne.y;
+            if (x_nesw.contains(&a.x)) || (x_swne.contains(&a.x)) { x_in = true; };
+            if (y_nesw.contains(&a.y)) || (y_swne.contains(&a.y)) { y_in = true; };
+            if x_in && y_in {
+                println!("HIT found AT {:?} - {:?} ", entry, a);
+                entry.air = false
+            };
+        };
+    }
+
     pub fn substract(&mut self, a: Coord, b: Coord) -> Coord {
         let result = Coord {
             x: a.x - b.x,
@@ -300,69 +318,6 @@ def intersect(p1, p2, p3, p4):
                 self.mapxy.push(sq.clone());
             }
         }
-//        // Positive x
-//        for x in 0..self.max_distance_graphic {
-//            for y in 0..self.max_distance_graphic {
-//                let new_sw = Coord {
-//                    x: (side * x), 
-//                    y: (side * y), 
-//                }; 
-//                let new_se = Coord {
-//                    x: (side * x), 
-//                    y: (side * y) + side -1,
-//                };
-//                let new_nw = Coord {
-//                    x: (side * x) + side -1, 
-//                    y: side * y,
-//                };
-//                let new_ne = Coord {
-//                    x: (side * x) + side -1, 
-//                    y: (side * y) + side -1
-//                };
-//                let sq = Area {
-//                    x_pos: x + self.max_distance_graphic,
-//                    y_pos: y,
-//                    sw: new_sw,
-//                    se: new_se,
-//                    nw: new_nw,
-//                    ne: new_ne,
-//                    air: true,
-//                };
-//                self.mapxy.push(sq.clone());
-//            }
-//        }
-//        // Negative x
-//        for x in 0..self.max_distance_graphic {
-//            for y in 0..self.max_distance_graphic {
-//                let new_sw = Coord {
-//                    x: (-1 - side * x), 
-//                    y: (side * y), 
-//                }; 
-//                let new_se = Coord {
-//                    x: (-1 - side * x), 
-//                    y: (side * y) + side -1,
-//                };
-//                let new_nw = Coord {
-//                    x: -1 - ((side * x) + side -1), 
-//                    y: side * y,
-//                };
-//                let new_ne = Coord {
-//                    x: -1 - ((side * x) + side -1), 
-//                    y: (side * y) + side -1
-//                };
-//                let sq = Area {
-//                    x_pos: x,
-//                    y_pos: y,
-//                    sw: new_sw,
-//                    se: new_se,
-//                    nw: new_nw,
-//                    ne: new_ne,
-//                    air: true,
-//                };
-//                self.mapxy.push(sq.clone());
-//            }
-//        }
-
     }
 
     pub fn show_map_as_str(&self) -> Vec<String> {
@@ -468,38 +423,112 @@ fn test_coords() {
 */
 #[test]
 fn test_shot() {
-    // TODO: correct these mappings
-    let mut test_something = Dataset::new(500, 2500, 450, 10);
+    let mut test_something = Dataset::new(500, 2500, 450, 20);
     test_something.build_map();
-    test_something.add_ping(500, 1900);
+    println!("-------------------------------------------------");
+    test_something.add_ping(1500, 50);
     let mut gotshow = test_something.show();
     for i in gotshow.clone() {
         println!("|{:?}|", i);
     }
     println!("-------------------------------------------------");
-    test_something.build_map();
-    test_something.add_ping(1000, 1900);
+    test_something.add_ping(1500, 75);
     gotshow = test_something.show();
     for i in gotshow.clone() {
         println!("|{:?}|", i);
     }
     println!("-------------------------------------------------");
-    test_something.build_map();
-    test_something.add_ping(1500, 1900);
+    test_something.add_ping(1500, 100);
     gotshow = test_something.show();
     for i in gotshow.clone() {
         println!("|{:?}|", i);
     }
     println!("-------------------------------------------------");
-    test_something.build_map();
-    test_something.add_ping(2000, 1900);
+    test_something.add_ping(500, 190);
     gotshow = test_something.show();
     for i in gotshow.clone() {
         println!("|{:?}|", i);
     }
     println!("-------------------------------------------------");
-    test_something.build_map();
-    test_something.add_ping(2500, 1900);
+    test_something.add_ping(1000, 190);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(1350, 190);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(1500, 190);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(1650, 190);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 190);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2150, 190);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2500, 190);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 225);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 275);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 325);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 375);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 425);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 475);
+    gotshow = test_something.show();
+    for i in gotshow.clone() {
+        println!("|{:?}|", i);
+    }
+    println!("-------------------------------------------------");
+    test_something.add_ping(2000, 525);
     gotshow = test_something.show();
     for i in gotshow.clone() {
         println!("|{:?}|", i);
