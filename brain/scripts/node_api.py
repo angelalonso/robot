@@ -38,6 +38,7 @@ class ApiWrapper(Node):
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         # Temporarily creating this here
         self.radar = rustbrain.Dataset(500, 2500, 500, 10)
+        self.radar.build_map()
         # load action clients
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
@@ -81,10 +82,6 @@ class ApiWrapper(Node):
 
     def action_scan(self):
         self.get_logger().info('      SCAN')
-        adddp = rustbrain.Datapoint(6, 4, True)
-        self.radar.add(adddp)
-        for line in reversed(self.radar.show()):
-            self.get_logger().info('| %s |' % line)
 
         for i in range(500, 2501, 500):
             self.get_logger().info('  - rotating: %d' % (i))
@@ -99,7 +96,10 @@ class ApiWrapper(Node):
                         self.get_logger().info('Service call failed %r' % (e,))
                     else:
                         self.get_logger().info('  - Laser distance: %s' % (response.current_status))
-                        self.get_logger().info('                        ANGLE \| %d |' % self.radar.add_ping(i, int(response.current_status)))
+                        self.radar.add_ping(i, int(response.current_status))
+                        mapping = self.radar.show()
+                        for line in mapping:
+                            self.get_logger().info(line)
                     break
             time.sleep(0.5)
         for i in range(2500, 499, -500):
@@ -115,14 +115,14 @@ class ApiWrapper(Node):
                         self.get_logger().info('Service call failed %r' % (e,))
                     else:
                         self.get_logger().info('  - Laser distance: %s' % (response.current_status))
-                        self.get_logger().info('                        ANGLE \| %d |' % self.radar.add_ping(i, int(response.current_status)))
+                        self.radar.add_ping(i, int(response.current_status))
+                        mapping = self.radar.show()
+                        for line in mapping:
+                            self.get_logger().info(line)
                     break
             time.sleep(0.5)
         self.servolaser.send_goal(1500)
         adddp = rustbrain.Datapoint(5, 3, True)
-        self.radar.add(adddp)
-        for line in reversed(self.radar.show()):
-            self.get_logger().info('| %s |' % line)
 
 
 def main(args=None):
