@@ -8,14 +8,14 @@ def generate_launch_description():
     motor_right_worker_node = Node(
             package='brain',
             namespace='brain',
-            executable='node_motor_right_worker.py',
+            executable='node_motor_right.py',
             name='node_motor_right_worker'
         )
 
     motor_left_worker_node = Node(
             package='brain',
             namespace='brain',
-            executable='node_motor_left_worker.py',
+            executable='node_motor_left.py',
             name='node_motor_left_worker'
         )
         
