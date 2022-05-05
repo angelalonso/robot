@@ -15,20 +15,20 @@ from std_msgs.msg import String
 import yaml
 import time
 
-# --- Goalsets controller
+# TODO: not needed?
 
-class Goal():
-    def __init__(self, parent, parent_repeats, goals_left, launchtime, duration, do):
-        self.parent = parent
-        self.parent_repeats = parent_repeats
-        self.launchtime = launchtime
-        self.goals_left = goals_left
-        self.duration = duration
-        self.do = do
-        self.running = False # means it is waiting to run (True means it's running, and when it's done, the goal itself should be deleted)
-
-    def set_running(self):
-        self.running = True
+#class Goal():
+#    def __init__(self, parent, parent_repeats, goals_left, launchtime, duration, do):
+#        self.parent = parent
+#        self.parent_repeats = parent_repeats
+#        self.launchtime = launchtime
+#        self.goals_left = goals_left
+#        self.duration = duration
+#        self.do = do
+#        self.running = False # means it is waiting to run (True means it's running, and when it's done, the goal itself should be deleted)
+#
+#    def set_running(self):
+#        self.running = True
 
 
 class TimedGoals(Node):
@@ -168,7 +168,6 @@ class TimedGoals(Node):
                                 self.get_logger().debug('tried checking a variable that does not exist at {}'.format(condition))
             except TypeError:
                 self.get_logger().debug('No Goalsets available')
-
             # This part handles goals
             for go in self.goals:
                 # different logic if its already running:
@@ -183,7 +182,6 @@ class TimedGoals(Node):
                                     self.add_goals(go.parent, curr_time)
                                 else:
                                     self.set_goalset_done(go.parent)
-
                 else:
                     if go.launchtime <= curr_time:
                         self.get_logger().info('doing {} from {} at {}'.format(go.do, go.parent, curr_time))
@@ -199,10 +197,6 @@ class TimedGoals(Node):
                 #spin_until_future_complete(self.motorleft, future) # Needed??
             elif description[0] == 'motorright':
                 future = self.motorright.send_goal(description[1])
-
-
-
-
 
 
 def main(args=None):

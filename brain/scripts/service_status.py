@@ -6,7 +6,7 @@ from rclpy import init, logging, spin, shutdown
 import flatdict
 from rclpy.node import Node
 
-from brain.action import Getstatus
+from brain.action import Getstatus, Whatstatus
 
 from dotenv import load_dotenv
 from os import getenv
@@ -57,6 +57,7 @@ class StatusService(Node):
         self.status = Status()
         self.getstatus_srv = self.create_service(GetStatus, 'getstatus', self.getstatus_callback)
         self.getstatuskey_srv = self.create_service(GetStatusKey, 'getstatuskey', self.getstatuskey_callback)
+        # TODO: this is the bottleneck
         self.setstatus_srv = self.create_service(SetStatus, 'setstatus', self.setstatus_callback)
 
     def getstatus_callback(self, request, response):
@@ -75,6 +76,7 @@ class StatusService(Node):
     def setstatus_callback(self, request, response):
         self.get_logger().debug('Incoming request - key: %s value: %s' % (request.key, request.value))
         self.status.set_status(request.key, request.value)
+        # TODO: this is the bottleneck - 2
         response.current_status = self.status.get_status()
         return response
 

@@ -8,6 +8,8 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_components REQUIRED)
 
 find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
@@ -92,6 +94,7 @@ set(action_files
   "action/Motor.action"
   "action/Servo.action"
   "action/Getstatus.action"
+  "action/Whatstatus.action"
   )
 
 rosidl_generate_interfaces(${PROJECT_NAME}
