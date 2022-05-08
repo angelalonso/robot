@@ -24,7 +24,7 @@ class Status(object):
         try:
             return self.current[item]
         except KeyError:
-            return "ERROR: " + item + "NOT FOUND"
+            raise
 
     def set_status(self, element, value):
         self.current[element] = value
@@ -41,8 +41,6 @@ class PublisherStatus(Node):
         self.status = Status()
         self.radar = rustbrain.Dataset(500, 2500, 500, 10)
         self.radar.build_map()
-        # Publish status on `status` topic
-        self.status_publisher_ = self.create_publisher(String, 'status', 10)
         # Listen to `get_status` (to send status after that)
         self.getstatus_subscription = self.create_subscription(
             String,
@@ -68,7 +66,7 @@ class PublisherStatus(Node):
                 if keyval[0] == 'laser':
                     try:
                         self.radar.add_ping(int(self.status['servolaser']), int(keyval[1]))
-                    except ValueError:
+                    except (ValueError, KeyError):
                         pass
                 self.get_logger().debug('I heard SET: ' + keyval[0] + ' to ' + keyval[1])
             except IndexError:
@@ -76,12 +74,16 @@ class PublisherStatus(Node):
 
     def listener_callback_get(self, msg):
         self.get_logger().info('I heard GET: "%s"' % msg.data)
-        status_msg = String()
-        status_msg.data = self.status[msg.data]
-        self.status_publisher_.publish(status_msg)
-        mapping = self.radar.show()
-        for line in mapping:
-            self.get_logger().info(line)
+        if msg.data == 'radar':
+            mapping = self.radar.show()
+            for line in mapping:
+                self.get_logger().info(line)
+        else:
+            try:
+                self.get_logger().info(self.status[msg.data])
+            except KeyError:
+                self.get_logger().info("NOOOOOOOOOOOOOONE")
+
 
 
 def main(args=None):

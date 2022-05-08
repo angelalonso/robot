@@ -35,22 +35,7 @@ def generate_launch_description():
             name='node_arduino'
         )
 
-    # Manage Status new
-    node_status = Node(
-            package='brain',
-            namespace='brain',
-            executable='node_status.py',
-            name='node_status'
-        )
-
-    # Manage Status using a Service
-##    service_status = Node(
-##            package='brain',
-##            namespace='brain',
-##            executable='service_status.py',
-##            name='service_status'
-##        )
-    # Manage Status using a Topic
+    # Manage Status using a Topic ## REMEMBER a Service is CPUllshit!
     publisher_status = Node(
             package='brain',
             namespace='brain',
@@ -78,8 +63,6 @@ def generate_launch_description():
         main_brain,
         node_api,
         publisher_status,
-##        service_status,
-        node_status,
         node_arduino,
         node_servo_laser,
         motor_right_worker_node,

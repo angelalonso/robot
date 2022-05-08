@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-# importing Rust libraries
-import importlib.util
-rustbrain_spec = importlib.util.spec_from_file_location("rustbrain", 
-        "./scripts/rustbrain/.env/lib/python3.8/site-packages/rustbrain/rustbrain.cpython-38-x86_64-linux-gnu.so")
-rustbrain = importlib.util.module_from_spec(rustbrain_spec)
-rustbrain_spec.loader.exec_module(rustbrain)
-
 from rclpy import init, logging, shutdown, spin_once, ok
 from rclpy.node import Node
 
@@ -38,19 +31,12 @@ class ApiWrapper(Node):
     def __init__(self, loglevel, name):
         super().__init__('api')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
-        # Temporarily creating this here
-        self.radar = rustbrain.Dataset(500, 2500, 500, 10)
-        self.radar.build_map()
         # load action clients
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
         self.servolaser = ServoLaserActionClient()
-        #self.statuslaser = GetStatusKeyServiceClient()
         self.set_status_publisher_ = self.create_publisher(String, 'set_status', 10)
         self.get_status_publisher_ = self.create_publisher(String, 'get_status', 10)
-        # TODO: this is not actually running
-        #self.status_subscription = self.create_subscription(String, 'status', self.status_listener_callback, 10)
-        #self.status_subscription 
         self.test = -10.0
 
         self.app = Flask(name)
@@ -100,61 +86,24 @@ class ApiWrapper(Node):
         for i in range(500, 2501, 500):
             self.get_logger().info('  - rotating: %d' % (i))
             self.servolaser.send_goal(i)
-            # TODO: make this the new send_getstatuskey
-            #   Meaning we need to return the status
             set_status_msg = String()
             set_status_msg.data = 'servolaser=' + str(i)
             self.set_status_publisher_.publish(set_status_msg)
             get_status_msg = String()
-            get_status_msg.data = 'laser'
+            get_status_msg.data = 'trash'
             self.get_status_publisher_.publish(get_status_msg)
-            # TODO: substitute below with above
-            #self.statuslaser.send_getstatuskey('laser')
-            #while ok():
-            #    spin_once(self.statuslaser)
-            #    if self.statuslaser.future.done():
-            #        try:
-            #            response = self.statuslaser.future.result()
-            #        except Exception as e:
-            #            self.get_logger().info('Service call failed %r' % (e,))
-            #        else:
-            #            self.get_logger().info('  - Laser distance: %s' % (response.current_status))
-            #            self.radar.add_ping(i, int(response.current_status))
-            #            mapping = self.radar.show()
-            #            for line in mapping:
-            #                self.get_logger().info(line)
-            #        break
             time.sleep(0.5)
         for i in range(2500, 499, -500):
             self.get_logger().info('  - rotating: %d' % (i))
             self.servolaser.send_goal(i)
-            # TODO: make this the new send_getstatuskey
-            #   Meaning we need to return the status
             set_status_msg = String()
             set_status_msg.data = 'servolaser=' + str(i)
             self.set_status_publisher_.publish(set_status_msg)
             get_status_msg = String()
-            get_status_msg.data = 'laser'
+            get_status_msg.data = 'radar'
             self.get_status_publisher_.publish(get_status_msg)
-            # TODO: substitute below with above
-            #self.statuslaser.send_getstatuskey('laser')
-            #while ok():
-            #    spin_once(self.statuslaser)
-            #    if self.statuslaser.future.done():
-            #        try:
-            #            response = self.statuslaser.future.result()
-            #        except Exception as e:
-            #            self.get_logger().info('Service call failed %r' % (e,))
-            #        else:
-            #            self.get_logger().info('  - Laser distance: %s' % (response.current_status))
-            #            self.radar.add_ping(i, int(response.current_status))
-            #            mapping = self.radar.show()
-            #            for line in mapping:
-            #                self.get_logger().info(line)
-            #        break
             time.sleep(0.5)
         self.servolaser.send_goal(1500)
-        adddp = rustbrain.Datapoint(5, 3, True)
 
 
 def main(args=None):

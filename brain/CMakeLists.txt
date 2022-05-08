@@ -50,24 +50,12 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/service_clients.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-install(PROGRAMS
-  scripts/service_status.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-install(PROGRAMS
   scripts/publisher_status.py
   DESTINATION lib/${PROJECT_NAME}
 )
 # Nodes
 install(PROGRAMS
   scripts/node_api.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-install(PROGRAMS
-  scripts/node_status.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
