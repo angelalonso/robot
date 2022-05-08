@@ -24,6 +24,7 @@ class Status(object):
         self.current[element] = value
 
     def get_status(self):
+        # TODO: this is NOT the bottleneck
         return str(flatdict.FlatDict(self.current, delimiter='.'))
 
 class StatusActionServer(Node):

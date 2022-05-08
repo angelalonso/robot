@@ -21,10 +21,11 @@ class ServoLaserActionServer(Node):
         super().__init__('servolaser_action_server')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
 
-        self.getstatuskey_cli = self.create_client(GetStatusKey, 'getstatuskey')
-        while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        self.getstatuskey_req = GetStatusKey.Request()
+        ## TODO: use topics instead ?
+        ##self.getstatuskey_cli = self.create_client(GetStatusKey, 'getstatuskey')
+        ##while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
+        ##    self.get_logger().info('service not available, waiting again...')
+        ##self.getstatuskey_req = GetStatusKey.Request()
         self.client_futures = []
 
         if enable:
@@ -62,25 +63,25 @@ class ServoLaserActionServer(Node):
         result = Servo.Result()
         return result
 
-    def send_getstatuslaser_req(self):
-        key = 'laser'
-        self.getstatuskey_req.key = key
-        self.future = self.getstatuskey_cli.call_async(self.getstatuskey_req)
+    ##def send_getstatuslaser_req(self):
+    ##    key = 'laser'
+    ##    self.getstatuskey_req.key = key
+    ##    self.future = self.getstatuskey_cli.call_async(self.getstatuskey_req)
 
-    def send_getstatuslaser(self):
-        key = 'laser'
-        self.send_getstatuslaser_req()
-        while ok():
-            spin_once(self)
-            if self.future.done():
-                try:
-                    response = self.future.result()
-                except Exception as e:
-                    self.get_logger().debug('Service call failed %r' % (e,))
-                else:
-                    result = response.current_status
-                break
-        return result
+    ##def send_getstatuslaser(self):
+    ##    key = 'laser'
+    ##    self.send_getstatuslaser_req()
+    ##    while ok():
+    ##        spin_once(self)
+    ##        if self.future.done():
+    ##            try:
+    ##                response = self.future.result()
+    ##            except Exception as e:
+    ##                self.get_logger().debug('Service call failed %r' % (e,))
+    ##            else:
+    ##                result = response.current_status
+    ##            break
+    ##    return result
 
     def do_rotate(self, rotation):
         self.state = rotation
@@ -92,8 +93,8 @@ class ServoLaserActionServer(Node):
         # TODO: 
         # once this is run, we cannot trigger it again
         # https://gist.github.com/driftregion/14f6da05a71a57ef0804b68e17b06de5
-        aux = self.send_getstatuslaser()
-        self.get_logger().info('LASER VALUE: {}'.format(aux))
+        ##aux = self.send_getstatuslaser()
+        ##self.get_logger().info('LASER VALUE: {}'.format(aux))
         #self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         #time.sleep(0.5)
         #self.state = 1600

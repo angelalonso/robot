@@ -17,13 +17,15 @@ class SerialLink(Node):
     def __init__(self, loglevel, mode, mockfile, usb_dev):
         super().__init__('arduino_serial_sync')
 
-        self.setstatus_cli = self.create_client(SetStatus, 'setstatus')
-        while not self.setstatus_cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        self.setstatus_req = SetStatus.Request()
+        ##self.setstatus_cli = self.create_client(SetStatus, 'setstatus')
+        ##while not self.setstatus_cli.wait_for_service(timeout_sec=1.0):
+        ##    self.get_logger().info('service not available, waiting again...')
+        ##self.setstatus_req = SetStatus.Request()
 
         self.mode = mode
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        self.set_status_publisher_ = self.create_publisher(String, 'set_status', 10)
+        # TODO: clean this up when no longer needed
         self.publisher_ = self.create_publisher(String, 'main_topic', 10)
         # On Mock Mode we will use a local file as input
         if self.mode == "mock":
@@ -58,10 +60,10 @@ class SerialLink(Node):
             #TODO: need to close the connection somehow
                     #self.conn.close()
 
-    def send_setstatus_req(self, key, value):
-        self.setstatus_req.key = key
-        self.setstatus_req.value = value 
-        self.future = self.setstatus_cli.call_async(self.setstatus_req)
+    ##def send_setstatus_req(self, key, value):
+    ##    self.setstatus_req.key = key
+    ##    self.setstatus_req.value = value 
+    ##    self.future = self.setstatus_cli.call_async(self.setstatus_req)
 
     def sanitize(self, text):
         result = {}
@@ -75,23 +77,23 @@ class SerialLink(Node):
                     except IndexError: pass
         return result
 
-    def send_from_sanitized(self, text):
-        keyvals = self.sanitize(text)
-        for key in keyvals:
-            self.send_setstatus_req(key, keyvals[key])
-            while ok():
-                spin_once(self)
-                if self.future.done():
-                    try:
-                        response = self.future.result()
-                    except Exception as e:
-                        self.get_logger().info(
-                            'Service call failed %r' % (e,))
-                    else:
-                        self.get_logger().debug(
-                            'Result = %s' %
-                            (response.current_status))
-                    break
+    ##def send_from_sanitized(self, text):
+    ##    keyvals = self.sanitize(text)
+    ##    for key in keyvals:
+    ##        self.send_setstatus_req(key, keyvals[key])
+    ##        while ok():
+    ##            spin_once(self)
+    ##            if self.future.done():
+    ##                try:
+    ##                    response = self.future.result()
+    ##                except Exception as e:
+    ##                    self.get_logger().info(
+    ##                        'Service call failed %r' % (e,))
+    ##                else:
+    ##                    self.get_logger().debug(
+    ##                        'Result = %s' %
+    ##                        (response.current_status))
+    ##                break
 
     def sync_and_read(self, read_delay):
         # On Mock Mode we will use our local file instead
@@ -102,8 +104,10 @@ class SerialLink(Node):
                 msg = String()
                 msg.data = str(out)
 
+                self.set_status_publisher_.publish(msg)
+        # TODO: clean this up when no longer needed
                 self.publisher_.publish(msg)
-                self.send_from_sanitized(msg.data)
+                ##self.send_from_sanitized(msg.data)
 
                 time.sleep(read_delay)
         else:
@@ -121,8 +125,11 @@ class SerialLink(Node):
                     msg.data = str(out)
                     if self.mode == "record":
                         self.mockfile.write(str(msg.data))
+
+                    self.set_status_publisher_.publish(msg)
+        # TODO: clean this up when no longer needed
                     self.publisher_.publish(msg)
-                    self.send_from_sanitized(msg.data)
+                    ##self.send_from_sanitized(msg.data)
                 time.sleep(read_delay)
 
 def main(args=None):

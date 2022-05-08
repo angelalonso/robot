@@ -7,6 +7,7 @@ from rclpy.node import Node
 from interfaces.srv import GetStatus, GetStatusKey, SetStatus
 from service_status import Status
 from action_clients import MotorLeftActionClient, MotorRightActionClient
+from service_clients import GetStatusKeyServiceClient
 
 from datetime import datetime
 from dotenv import load_dotenv
@@ -37,15 +38,16 @@ class TimedGoals(Node):
         super().__init__('timed_goals')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
 
-        self.setstatus_cli = self.create_client(SetStatus, 'setstatus')
-        while not self.setstatus_cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        self.setstatus_req = SetStatus.Request()
+        ##self.setstatus_cli = self.create_client(SetStatus, 'setstatus')
+        ##while not self.setstatus_cli.wait_for_service(timeout_sec=1.0):
+        ##    self.get_logger().info('service not available, waiting again...')
+        ##self.setstatus_req = SetStatus.Request()
 
-        self.getstatuskey_cli = self.create_client(GetStatusKey, 'getstatuskey')
-        while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('service not available, waiting again...')
-        self.getstatuskey_req = GetStatusKey.Request()
+        #self.getstatuskey_cli = self.create_client(GetStatusKey, 'getstatuskey')
+        #while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
+        #    self.get_logger().info('service not available, waiting again...')
+        #self.getstatuskey_req = GetStatusKey.Request()
+        self.getstatuskey_cli = GetStatusKeyServiceClient()
 
         self.starttime = datetime.now()
         self.goals = []
@@ -73,25 +75,25 @@ class TimedGoals(Node):
                 break
         return result
 
-    def send_setstatus_req(self, key, value):
-        self.setstatus_req.key = key
-        self.setstatus_req.value = value 
-        self.future = self.setstatus_cli.call_async(self.setstatus_req)
+    ##def send_setstatus_req(self, key, value):
+    ##    self.setstatus_req.key = key
+    ##    self.setstatus_req.value = value 
+    ##    self.future = self.setstatus_cli.call_async(self.setstatus_req)
 
-    def send_setstatus(self, key, value):
-        result = ""
-        self.send_setstatus_req(key, str(value))
-        while ok():
-            spin_once(self)
-            if self.future.done():
-                try:
-                    response = self.future.result()
-                except Exception as e:
-                    self.get_logger().debug('Service call failed %r' % (e,))
-                else:
-                    result = response.current_status
-                break
-        return result
+    ##def send_setstatus(self, key, value):
+    ##    result = ""
+    ##    self.send_setstatus_req(key, str(value))
+    ##    while ok():
+    ##        spin_once(self)
+    ##        if self.future.done():
+    ##            try:
+    ##                response = self.future.result()
+    ##            except Exception as e:
+    ##                self.get_logger().debug('Service call failed %r' % (e,))
+    ##            else:
+    ##                result = response.current_status
+    ##            break
+    ##    return result
 
     def load_goalsets(self):
         self.loaded_goalsets = yaml.load(open('goalsets/main.yaml'))
@@ -154,7 +156,7 @@ class TimedGoals(Node):
         while True:
             current_raw = datetime.now() - self.starttime
             curr_time = current_raw.seconds + (current_raw.microseconds / 1000000)
-            self.send_setstatus('time', curr_time)
+            ##self.send_setstatus('time', curr_time)
             # This part handles goalsets
             try:
                 for goalset in self.loaded_goalsets:
