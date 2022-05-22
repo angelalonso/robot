@@ -1,0 +1,7 @@
+--- 
+- action: "move"
+  condition: "1.0"
+  name: "move"
+- action: "scan"
+  condition: "2.0"
+  name: "scan"
