@@ -201,18 +201,26 @@ impl<'a> Logic<'a> {
     }
 
     #[allow(dead_code)]
-    fn test_conditions(&mut self, conds: &str) -> bool {
-        // TODO: recognize variables in use from text
-        // return a Result instead
+    fn test_conditions(&mut self, conds: &'a str) -> bool {
+        let mut conds_copy = String::from(conds);
+        println!("- divide {}", conds);
         let re = regex::Regex::new(r"!|=|<|>|&|\|").unwrap();
         for part in re.split(conds) {
-            println!(">{}<", part);
+            let getval = match self.get_state(part) {
+                Ok(v)  => { v }
+                Err(_) => { "" }
+            };
+            if part.clone() != "" && getval != "" {
+                conds_copy = conds_copy.replace(part, getval);
+            }
         }
+        println!("{:?}", conds_copy);
+        // TODO:
         // Create Hashmap out of it
         // use conds4comps::get_result
         //let result = conds4comps::testingstuff(text.to_string());
 
-        return false
+        return true
     }
 }
 
