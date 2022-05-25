@@ -52,18 +52,7 @@ fn check_testcomparison() {
 #[test]
 fn check_testconditions() {
     let mut test = Logic::new("actionset.yaml");
-    test.set_state("time", "1.0");
-    test.set_state("distance", "10.0");
-    assert_eq!(true, test.test_conditions("time!=1.01&&distance==10.0"));
-//    assert_eq!(false, test.test_condition("time!=1.0&&distance==11.0").unwrap());
-//
-//    assert_eq!(true, test.test_condition("time!=1.0||distance==10.0").unwrap());
-//    assert_eq!(true, test.test_condition("time==1.0||distance==10.0").unwrap());
-//    assert_eq!(false, test.test_condition("time!=1.0||distance==11.0").unwrap());
-//    assert_eq!(true, test.test_condition("time!=1.0||distance==10.0").unwrap());
-//    // TODO:
-//    // test several ands, ors
-//    // test grouping on ()
-//    test.set_state("test", "0.0");
-//    assert_eq!(2, test.get_grouping("(time!=1.0||distance==10.0)&&test==0.0").unwrap());
+    test.set_state("time", "1");
+    test.set_state("distance", "10");
+    assert_eq!(false, test.test_conditions("time!=2&distance=10"));
 }
