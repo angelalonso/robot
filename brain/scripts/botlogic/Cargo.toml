@@ -9,3 +9,5 @@ edition = "2018"
 serde = { version = "1.0.137", features = ["derive"] }
 serde_yaml = "0.8.24"
 thiserror = "1.0.31"
+rustlogic = "0.2.0"
+regex = "1.5.6"

@@ -1,9 +1,11 @@
-use std::collections::HashMap;
+mod conds4comps;
+
+use regex;
 use serde::{Deserialize};
+use std::collections::HashMap;
 use thiserror::Error;
 
 // TODO:
-//   - Handle conditions better, maybe divide into conditions and interpret
 //   - Move things outside of here
 //
 
@@ -185,6 +187,32 @@ impl<'a> Logic<'a> {
             };
         };
         return Ok(false)
+    }
+
+    #[allow(dead_code)]
+    fn get_grouping(&mut self, g: &'a str) -> Result<u8, BrainDeadError> {
+        let mut groups: u8 = 1;
+        for c in g.chars() {
+            if c == ')' { 
+                groups += 1; 
+            }
+        }
+        Ok(groups)
+    }
+
+    #[allow(dead_code)]
+    fn test_conditions(&mut self, conds: &str) -> bool {
+        // TODO: recognize variables in use from text
+        // return a Result instead
+        let re = regex::Regex::new(r"!|=|<|>|&|\|").unwrap();
+        for part in re.split(conds) {
+            println!(">{}<", part);
+        }
+        // Create Hashmap out of it
+        // use conds4comps::get_result
+        //let result = conds4comps::testingstuff(text.to_string());
+
+        return false
     }
 }
 
