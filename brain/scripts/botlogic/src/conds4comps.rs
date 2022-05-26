@@ -66,7 +66,7 @@ fn get_comps(s: &str, vars: HashMap<String, i32>) -> String {
     for c in cleaned_r.chars() {
         match c {
             // possible delimiter
-            '(' | ')' | ' ' | '&' | '|' | '!' | '#' => {
+            '(' | ')' | ' ' | '&' | '|' |  '#' => {
                 if prev_char == "var2" {
                     for ch in do_comps(&expr, vars.clone()).to_string().chars() {
                         result.push(ch);
@@ -77,7 +77,7 @@ fn get_comps(s: &str, vars: HashMap<String, i32>) -> String {
                 prev_char = "limit".to_string();
             }
             // anything else should be part of a variable name
-            '=' | '>' | '<' => {
+            '!' |'=' | '>' | '<' => {
                 expr.push(c);
                 prev_char = "comp".to_string();
             }
@@ -126,12 +126,15 @@ fn parse_to_rustlogic(s: &str) -> LogicDict {
 
 }
 
-fn get_result(v: &str, vars: HashMap<String, i32>) -> bool {
+pub fn get_result(v: &str, vars: HashMap<String, i32>) -> bool {
     let comps = get_comps(v, vars);
     let logicvars = parse_to_rustlogic(&comps); 
 
     let formula =
-        rustlogic::parse(&logicvars.formula).expect("OH OHHHH...");
+        match rustlogic::parse(&logicvars.formula) {
+            Ok(p) => { p }
+            Err(e) => { panic!("ERROR PARSING! {:?}", e) }
+        };
     
     let mut variable_map = HashMap::new();
 
@@ -143,23 +146,3 @@ fn get_result(v: &str, vars: HashMap<String, i32>) -> bool {
 
     formula.get_value_from_variables(&variable_map).unwrap()
 }
-
-pub fn testingstuff(text: String) -> String {
-    return text
-}
-
-//fn main() {
-//    let mut vars = HashMap::new();
-//    vars.insert("a".to_string(), 5);
-//    vars.insert("b".to_string(), 5);
-//    vars.insert("c".to_string(), 5);
-//    vars.insert("d".to_string(), 5);
-//    vars.insert("e".to_string(), 5);
-//    vars.insert("f".to_string(), 5);
-//    vars.insert("g".to_string(), 5);
-//    vars.insert("h".to_string(), 5);
-//    let v = "(a<=b||c>=d)&&e>f";
-//    println!("{:?}", get_result(v, vars));
-//
-//}
-

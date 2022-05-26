@@ -4,6 +4,7 @@ use regex;
 use serde::{Deserialize};
 use std::collections::HashMap;
 use thiserror::Error;
+use std::str::FromStr;
 
 // TODO:
 //   - Move things outside of here
@@ -23,6 +24,7 @@ pub enum BrainDeadError {
 
 }
 
+#[derive(Clone, Debug)]
 pub struct State<'a> {
     data: HashMap<&'a str, &'a str>
 }
@@ -49,6 +51,7 @@ impl<'a> State<'a> {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 struct Config {
     name: String,
     condition: String,
@@ -56,6 +59,7 @@ struct Config {
 }
 
 
+#[derive(Clone, Debug)]
 pub struct Logic<'a> {
     state: State<'a>,
     config: Vec<Config>
@@ -92,10 +96,14 @@ impl<'a> Logic<'a> {
     }
 
     #[allow(dead_code)]
+    fn get_states(&mut self) -> Result<HashMap<&str, &str>, BrainDeadError> {
+        return Ok(self.state.data.clone())
+    }
+
+    #[allow(dead_code)]
     fn get_action(&mut self) -> Result<String, BrainDeadError> {
         let mut result: String = String::new();
         for v in self.config.clone().iter() {
-            //println!("{:?}", self.test_conditions(v.condition.clone()).unwrap());
             if v.condition.clone() == self.get_state("time").unwrap() {
                 result = v.action.clone()
             }
@@ -141,14 +149,12 @@ impl<'a> Logic<'a> {
         // >= and > must be exclusive to each other to avoid misunderstandings
         let vec_cmp_ne: Vec<&str> = cmp.split("!=").collect();
         if vec_cmp_ne.len() == 2 {
-            println!("{:?} != {:?}", self.get_state(vec_cmp_ne[0]).unwrap(), vec_cmp_ne[1]);
             if self.get_state(vec_cmp_ne[0]).unwrap() != vec_cmp_ne[1] {
                 return Ok(true)
             };
         } else {
             let vec_cmp_eq: Vec<&str> = cmp.split("==").collect();
             if vec_cmp_eq.len() == 2 {
-                println!("{:?} == {:?}", self.get_state(vec_cmp_eq[0]).unwrap(), vec_cmp_eq[1]);
                 if self.get_state(vec_cmp_eq[0]).unwrap() == vec_cmp_eq[1] {
                     return Ok(true)
                 };
@@ -157,14 +163,12 @@ impl<'a> Logic<'a> {
         // >= and > must be exclusive to each other to avoid misunderstandings
         let vec_cmp_ge: Vec<&str> = cmp.split(">=").collect();
         if vec_cmp_ge.len() == 2 {
-            println!("{:?} >= {:?}", self.get_state(vec_cmp_ge[0]).unwrap(), vec_cmp_ge[1]);
             if self.get_state(vec_cmp_ge[0]).unwrap().parse::<f32>().unwrap() >= vec_cmp_ge[1].parse::<f32>().unwrap() {
                 return Ok(true)
             };
         } else {
             let vec_cmp_gt: Vec<&str> = cmp.split(">").collect();
             if vec_cmp_gt.len() == 2 {
-                println!("{:?} > {:?}", self.get_state(vec_cmp_gt[0]).unwrap(), vec_cmp_gt[1]);
                 if self.get_state(vec_cmp_gt[0]).unwrap().parse::<f32>().unwrap() > vec_cmp_gt[1].parse::<f32>().unwrap() {
                     return Ok(true)
                 };
@@ -173,14 +177,12 @@ impl<'a> Logic<'a> {
         // <= and < must be exclusive to each other to avoid misunderstandings
         let vec_cmp_le: Vec<&str> = cmp.split("<=").collect();
         if vec_cmp_le.len() == 2 {
-            println!("{:?} <= {:?}", self.get_state(vec_cmp_le[0]).unwrap(), vec_cmp_le[1]);
             if self.get_state(vec_cmp_le[0]).unwrap().parse::<f32>().unwrap() <= vec_cmp_le[1].parse::<f32>().unwrap() {
                 return Ok(true)
             };
         } else {
             let vec_cmp_lt: Vec<&str> = cmp.split("<").collect();
             if vec_cmp_lt.len() == 2 {
-                println!("{:?} < {:?}", self.get_state(vec_cmp_lt[0]).unwrap(), vec_cmp_lt[1]);
                 if self.get_state(vec_cmp_lt[0]).unwrap().parse::<f32>().unwrap() < vec_cmp_lt[1].parse::<f32>().unwrap() {
                     return Ok(true)
                 };
@@ -201,26 +203,22 @@ impl<'a> Logic<'a> {
     }
 
     #[allow(dead_code)]
-    fn test_conditions(&mut self, conds: &'a str) -> bool {
-        let mut conds_copy = String::from(conds);
-        println!("- divide {}", conds);
+    fn test_conditions(&mut self, s: &'a str) -> bool {
+        // we cant use them directly from get_state at &self in a loop...
+        let curr_states = self.get_states().unwrap();
+        let mut vars = HashMap::new();
         let re = regex::Regex::new(r"!|=|<|>|&|\|").unwrap();
-        for part in re.split(conds) {
-            let getval = match self.get_state(part) {
-                Ok(v)  => { v }
-                Err(_) => { "" }
+        for k in re.split(s) {
+            if k.clone() != "" {
+                if curr_states.contains_key(k) {
+                    let value: i32 = FromStr::from_str(curr_states[k]).unwrap();
+                    vars.insert(k.to_string(), value);
+                };
             };
-            if part.clone() != "" && getval != "" {
-                conds_copy = conds_copy.replace(part, getval);
-            }
         }
-        println!("{:?}", conds_copy);
-        // TODO:
-        // Create Hashmap out of it
-        // use conds4comps::get_result
-        //let result = conds4comps::testingstuff(text.to_string());
+        let result = conds4comps::get_result(s, vars);
 
-        return true
+        return result
     }
 }
 
