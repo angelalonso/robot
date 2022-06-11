@@ -1,45 +1,51 @@
+#![deny(missing_docs)]
+//#![deny(missing_doc_code_examples)]
+//! Manages the logic to take actions based on a set of variables/states
 mod conds4comps;
+use conds4comps::get_result;
 
-use regex;
+use regex::Regex;
 use serde::{Deserialize};
 use std::collections::HashMap;
 use thiserror::Error;
 use std::str::FromStr;
 
-// TODO:
-//   - Move things outside of here
-//
-
+/// We create a set of typical errors BotLogic may find
 #[derive(Error, Debug)]
 pub enum BrainDeadError {
     /// This is just the most basic I dont care Error
     #[error("Source contains no data")]
     EmptyError,
 
+    /// Error used when we cannot find a key
     #[error("Key does not exist")]
     KeyNotFoundError,
 
+    /// Error used when we cannot find an action matching the conditions
     #[error("No action found for the conditions")]
     ActionNotFoundError,
 
 }
 
+/// State is a HashMap of variables and their current status
 #[derive(Clone, Debug)]
 pub struct State<'a> {
     data: HashMap<&'a str, &'a str>
 }
 
+/// It can only be created empty
 impl<'a> State<'a> {
     #[allow(dead_code)]
     fn new() -> State<'a> {
         State {data: HashMap::new()}
     }
 
+/// Set creates a new pair of variable (e.g.: temperature) and its state
     #[allow(dead_code)]
     fn set(&mut self, key: &'a str, val: &'a str) {
         self.data.insert(&key, &val);
     }
-
+/// TODO: docs
     #[allow(dead_code)]
     fn get(&mut self, key: &'a str) -> Result<&str, BrainDeadError> {
         if self.data.contains_key(&key) {
@@ -50,6 +56,11 @@ impl<'a> State<'a> {
     }
 }
 
+/// Data struct for a single Conditions -> Action pair.  
+/// It stores:
+/// - A name for the config, useful to keep track (so far unused)  
+/// - A condition(s) String  
+/// - An action(s) String  
 #[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 struct Config {
@@ -58,16 +69,21 @@ struct Config {
     action: String,
 }
 
-
+/// Data struct with the current states and all [Config]s defined at the moment
+/// It stores:
+/// - current state
+/// - config with actions to take depending on state
 #[derive(Clone, Debug)]
 pub struct Logic<'a> {
     state: State<'a>,
     config: Vec<Config>
 }
 
+/// Manages the relation between [Config]s and current [State]s.
 impl<'a> Logic<'a> {
+    /// The config Vec gets loaded from a Yaml file
     #[allow(dead_code)]
-    fn new(configfile: &str) -> Logic<'a> {
+    pub fn new(configfile: &str) -> Logic<'a> {
         let f = match std::fs::File::open(configfile) {
             Ok(file) => file,
             Err(error) => panic!("Problem opening the file: {:?}", error),
@@ -85,28 +101,33 @@ impl<'a> Logic<'a> {
         }
     }
 
+    /// Sets a value for the state of a given key (key being time, distance, amount of light...) 
     #[allow(dead_code)]
-    fn set_state(&mut self, key: &'a str, val: &'a str) {
+    pub fn set_state(&mut self, key: &'a str, val: &'a str) {
         self.state.set(&key, &val);
     }
 
+    /// Gets the value for the state of a given key (key being time, distance, amount of light...) 
     #[allow(dead_code)]
-    fn get_state(&mut self, key: &'a str) -> Result<&str, BrainDeadError> {
+    pub fn get_state(&mut self, key: &'a str) -> Result<&str, BrainDeadError> {
         return self.state.get(&key)
     }
 
+    /// Returns a copy of the state's data
     #[allow(dead_code)]
     fn get_states(&mut self) -> Result<HashMap<&str, &str>, BrainDeadError> {
         return Ok(self.state.data.clone())
     }
 
+    /// Returns the action that matches the current set of [State]s
+    /// TO BE IMPROVED
     #[allow(dead_code)]
-    fn get_action(&mut self) -> Result<String, BrainDeadError> {
+    pub fn get_action(&mut self) -> Result<String, BrainDeadError> {
         let mut result: String = String::new();
         for v in self.config.clone().iter() {
-            if v.condition.clone() == self.get_state("time").unwrap() {
-                result = v.action.clone()
-            }
+            if get_result(&v.condition, &self.state.data) {
+                result = v.action.clone();
+            };
         };
         if result.is_empty() {
             return Err(BrainDeadError::ActionNotFoundError)
@@ -115,6 +136,7 @@ impl<'a> Logic<'a> {
         }
     }
 
+/// TODO: remove?
         // TODO: split by separator ,
         //   then by && and || --> this requires also getting which operator was catched
         //     then by ==, <, >, <=, >= --> this requires also getting which operator was catched
@@ -144,6 +166,7 @@ impl<'a> Logic<'a> {
         Ok(result)
     }
 
+/// TODO: remove?
     #[allow(dead_code)]
     fn test_comparison(&mut self, cmp: &'a str) -> Result<bool, BrainDeadError> {
         // >= and > must be exclusive to each other to avoid misunderstandings
@@ -191,6 +214,7 @@ impl<'a> Logic<'a> {
         return Ok(false)
     }
 
+/// TODO: remove?
     #[allow(dead_code)]
     fn get_grouping(&mut self, g: &'a str) -> Result<u8, BrainDeadError> {
         let mut groups: u8 = 1;
@@ -201,26 +225,6 @@ impl<'a> Logic<'a> {
         }
         Ok(groups)
     }
-
-    #[allow(dead_code)]
-    fn test_conditions(&mut self, s: &'a str) -> bool {
-        // we cant use them directly from get_state at &self in a loop...
-        let curr_states = self.get_states().unwrap();
-        let mut vars = HashMap::new();
-        let re = regex::Regex::new(r"!|=|<|>|&|\|").unwrap();
-        for k in re.split(s) {
-            if k.clone() != "" {
-                if curr_states.contains_key(k) {
-                    let value: i32 = FromStr::from_str(curr_states[k]).unwrap();
-                    vars.insert(k.to_string(), value);
-                };
-            };
-        }
-        let result = conds4comps::get_result(s, vars);
-
-        return result
-    }
 }
 
-#[cfg(test)]
 mod test;

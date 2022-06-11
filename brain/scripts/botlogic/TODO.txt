@@ -1,2 +1,4 @@
+- Clean and document one by one
+- Sort by importance, remove unused code
 - Make values not just i32 but any number
   - "real" page 36: fn add<T: Add<Output = T>>(i: T, j: T) -> T 
