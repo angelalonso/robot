@@ -11,5 +11,13 @@ fn integration_tests() {
     // set state 
     integration.set_state("distance", "20.0");
     // get action 
-    assert_eq!(integration.get_action().unwrap(), "that action");
+    assert_eq!(integration.get_action().unwrap(), "move");
+    // set state 
+    integration.set_state("distance", "9.0");
+    // get action 
+    assert_eq!(integration.get_action().unwrap(), "stop");
+    // set state 
+    integration.set_state("distance", "10");
+    // get action 
+    assert_eq!(integration.get_action().unwrap(), "stop");
 }

@@ -4,11 +4,9 @@
 mod conds4comps;
 use conds4comps::get_result;
 
-use regex::Regex;
 use serde::{Deserialize};
 use std::collections::HashMap;
 use thiserror::Error;
-use std::str::FromStr;
 
 /// We create a set of typical errors BotLogic may find
 #[derive(Error, Debug)]
@@ -104,6 +102,7 @@ impl<'a> Logic<'a> {
     /// Sets a value for the state of a given key (key being time, distance, amount of light...) 
     #[allow(dead_code)]
     pub fn set_state(&mut self, key: &'a str, val: &'a str) {
+        // TODO control what is received here
         self.state.set(&key, &val);
     }
 

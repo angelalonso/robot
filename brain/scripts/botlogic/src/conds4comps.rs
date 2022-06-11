@@ -23,17 +23,24 @@ pub fn get_result(v: &str, vars_raw: &HashMap<&str, &str>) -> bool {
     let mut vars = HashMap::<String, i32>::new();
     for (key, value) in &*vars_raw {
         // TODO: modify this to not depend on it being a number ...move parse to another function?
-        let val_i32 = match value.parse::<f32>() {
+        match value.parse::<f32>() {
             Ok(vi) => { 
                 vars.insert(key.to_string(), vi as i32);
             }
-            Err(e) => { () }
+            Err(_) => { 
+                match value.parse::<i32>() {
+                    Ok(vi) => { 
+                        vars.insert(key.to_string(), vi);
+                    }
+                    Err(_) => { }
+                };
+
+            }
         };
     }
     let comps = get_comps_done(v, vars);
     let logicvars = parse_to_rustlogic(&comps); 
 
-    println!("----{}", &logicvars.formula);
 
     // TODO: prepare for when there is not formula
     let formula =match rustlogic::parse(&logicvars.formula) {
@@ -132,13 +139,47 @@ fn do_comps(s: &str, vars: HashMap<String, i32>) -> bool {
             }
         }
     }
+    let v1 = match vars.get(&var1) {
+        Some(d) => { *d }
+        None => {
+            match var1.parse::<f32>() {
+                Ok(vi) => { vi as i32 }
+                Err(_) => { 
+                    match var1.parse::<i32>() {
+                        Ok(vi) => { vi }
+                        // TODO: better errors
+                        //   also define what to do if the variable is not of the format we need,
+                        //   OR it doesnt exist (yet?)
+                        Err(e) => { panic!("ERROR: {} . Nothing to see here...", e)}
+                    }
+                }
+            }
+        }
+    };
+    let v2 = match vars.get(&var2) {
+        Some(d) => { *d }
+        None => {
+            match var2.parse::<f32>() {
+                Ok(vi) => { vi as i32 }
+                Err(_) => { 
+                    match var2.parse::<i32>() {
+                        Ok(vi) => { vi }
+                        // TODO: better errors
+                        //   also define what to do if the variable is not of the format we need,
+                        //   OR it doesnt exist (yet?)
+                        Err(e) => { panic!("ERROR: {} . Nothing to see here...", e)}
+                    }
+                }
+            }
+        }
+    };
     match oper.as_str() {
         "=" | "==" => { vars.get(&var1) == vars.get(&var2) }
-        ">" => { vars.get(&var1) > vars.get(&var2) }
-        "<" => { vars.get(&var1) < vars.get(&var2) }
-        ">=" => { vars.get(&var1) >= vars.get(&var2) }
-        "<=" => { vars.get(&var1) <= vars.get(&var2) }
-        "!=" => { vars.get(&var1) != vars.get(&var2) }
+        ">" => { v1 > v2 }
+        "<" => { v1 < v2 }
+        ">=" => { v1 >= v2 }
+        "<=" => { v1 <= v2 }
+        "!=" => { v1 != v2 }
         _  => { false }
     }
 }

@@ -1,7 +1,8 @@
 #![cfg(test)]
 
-use super::*;
 /*
+use super::*;
+
 #[test]
 fn state_basics() {
     let mut test = State::new();
