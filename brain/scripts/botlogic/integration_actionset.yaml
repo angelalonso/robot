@@ -1,7 +1,7 @@
 --- 
 - action: "move"
-  condition: "distance>10&&time=0"
+  condition: "distance>10.0&&time>0.0"
   name: "move"
 - action: "stop"
-  condition: "distance<=10"
+  condition: "distance<=10.0"
   name: "stop"

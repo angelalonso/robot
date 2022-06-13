@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use thiserror::Error;
 
 /// We create a set of typical errors BotLogic may find
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum BrainDeadError {
     /// This is just the most basic I dont care Error
     #[error("Source contains no data")]
@@ -23,6 +23,9 @@ pub enum BrainDeadError {
     #[error("No action found for the conditions")]
     ActionNotFoundError,
 
+    /// Error used when we cannot find an action matching the conditions
+    #[error("The Format of a variable is not what it should be")]
+    UnexpectedFormatError,
 }
 
 /// State is a HashMap of variables and their current status
@@ -38,12 +41,12 @@ impl<'a> State<'a> {
         State {data: HashMap::new()}
     }
 
-/// Set creates a new pair of variable (e.g.: temperature) and its state
+/// Creates a new pair of variable (e.g.: temperature) and its state
     #[allow(dead_code)]
     fn set(&mut self, key: &'a str, val: &'a str) {
         self.data.insert(&key, &val);
     }
-/// TODO: docs
+
     #[allow(dead_code)]
     fn get(&mut self, key: &'a str) -> Result<&str, BrainDeadError> {
         if self.data.contains_key(&key) {
@@ -133,96 +136,6 @@ impl<'a> Logic<'a> {
         } else {
             return Ok(result)
         }
-    }
-
-/// TODO: remove?
-        // TODO: split by separator ,
-        //   then by && and || --> this requires also getting which operator was catched
-        //     then by ==, <, >, <=, >= --> this requires also getting which operator was catched
-    #[allow(dead_code)]
-    fn test_condition(&mut self, c: &'a str) -> Result<bool, BrainDeadError> {
-        let mut result: bool = true;
-        let vec_c_and: Vec<&str> = c.split("&&").collect();
-        if vec_c_and.len() == 2 {
-            let mut and_true: bool = true;
-            for c_and in vec_c_and {
-                if !self.test_comparison(c_and).unwrap() {
-                    and_true = false;
-                }
-            }
-            result = and_true;
-        }
-        let vec_c_or: Vec<&str> = c.split("||").collect();
-        if vec_c_or.len() == 2 {
-            let mut or_true: bool = false;
-            for c_or in vec_c_or {
-                if self.test_comparison(c_or).unwrap() {
-                    or_true = true;
-                }
-            }
-            result = or_true;
-        }
-        Ok(result)
-    }
-
-/// TODO: remove?
-    #[allow(dead_code)]
-    fn test_comparison(&mut self, cmp: &'a str) -> Result<bool, BrainDeadError> {
-        // >= and > must be exclusive to each other to avoid misunderstandings
-        let vec_cmp_ne: Vec<&str> = cmp.split("!=").collect();
-        if vec_cmp_ne.len() == 2 {
-            if self.get_state(vec_cmp_ne[0]).unwrap() != vec_cmp_ne[1] {
-                return Ok(true)
-            };
-        } else {
-            let vec_cmp_eq: Vec<&str> = cmp.split("==").collect();
-            if vec_cmp_eq.len() == 2 {
-                if self.get_state(vec_cmp_eq[0]).unwrap() == vec_cmp_eq[1] {
-                    return Ok(true)
-                };
-            };
-        };
-        // >= and > must be exclusive to each other to avoid misunderstandings
-        let vec_cmp_ge: Vec<&str> = cmp.split(">=").collect();
-        if vec_cmp_ge.len() == 2 {
-            if self.get_state(vec_cmp_ge[0]).unwrap().parse::<f32>().unwrap() >= vec_cmp_ge[1].parse::<f32>().unwrap() {
-                return Ok(true)
-            };
-        } else {
-            let vec_cmp_gt: Vec<&str> = cmp.split(">").collect();
-            if vec_cmp_gt.len() == 2 {
-                if self.get_state(vec_cmp_gt[0]).unwrap().parse::<f32>().unwrap() > vec_cmp_gt[1].parse::<f32>().unwrap() {
-                    return Ok(true)
-                };
-            };
-        };
-        // <= and < must be exclusive to each other to avoid misunderstandings
-        let vec_cmp_le: Vec<&str> = cmp.split("<=").collect();
-        if vec_cmp_le.len() == 2 {
-            if self.get_state(vec_cmp_le[0]).unwrap().parse::<f32>().unwrap() <= vec_cmp_le[1].parse::<f32>().unwrap() {
-                return Ok(true)
-            };
-        } else {
-            let vec_cmp_lt: Vec<&str> = cmp.split("<").collect();
-            if vec_cmp_lt.len() == 2 {
-                if self.get_state(vec_cmp_lt[0]).unwrap().parse::<f32>().unwrap() < vec_cmp_lt[1].parse::<f32>().unwrap() {
-                    return Ok(true)
-                };
-            };
-        };
-        return Ok(false)
-    }
-
-/// TODO: remove?
-    #[allow(dead_code)]
-    fn get_grouping(&mut self, g: &'a str) -> Result<u8, BrainDeadError> {
-        let mut groups: u8 = 1;
-        for c in g.chars() {
-            if c == ')' { 
-                groups += 1; 
-            }
-        }
-        Ok(groups)
     }
 }
 

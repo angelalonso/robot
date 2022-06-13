@@ -20,8 +20,10 @@ struct LogicDict {
 ///  if the conditions came as code instead of a String.  
 ///    
 pub fn get_result(v: &str, vars_raw: &HashMap<&str, &str>) -> bool {
-    let mut vars = HashMap::<String, i32>::new();
+    let mut vars = HashMap::<String, String>::new();
     for (key, value) in &*vars_raw {
+        vars.insert(key.to_string(), value.to_string());
+        /*
         // TODO: modify this to not depend on it being a number ...move parse to another function?
         match value.parse::<f32>() {
             Ok(vi) => { 
@@ -37,6 +39,7 @@ pub fn get_result(v: &str, vars_raw: &HashMap<&str, &str>) -> bool {
 
             }
         };
+        */
     }
     let comps = get_comps_done(v, vars);
     let logicvars = parse_to_rustlogic(&comps); 
@@ -65,7 +68,7 @@ pub fn get_result(v: &str, vars_raw: &HashMap<&str, &str>) -> bool {
 ///   where the comparisons inside the list of conditions   
 ///   have been translated to their boolean results  
 ///  e.g.: "(false)&true"
-fn get_comps_done(s: &str, vars: HashMap<String, i32>) -> String {
+fn get_comps_done(s: &str, vars: HashMap<String, String>) -> String {
     let mut result = String::new();
     let mut r = s.clone().to_string();
     // need this to trigger one last run of do_comps
@@ -80,7 +83,8 @@ fn get_comps_done(s: &str, vars: HashMap<String, i32>) -> String {
         match c {
             '(' | ')' | ' ' | '&' | '|' |  '#' => {
                 if prev_char == "var2" {
-                    for ch in do_comps(&expr, vars.clone()).to_string().chars() {
+                    //for ch in do_comps(&expr, vars.clone()).to_string().chars() {
+                    for ch in do_compare(&expr, vars.clone()).to_string().chars() {
                         result.push(ch);
                     }
                     expr.clear();
@@ -105,11 +109,11 @@ fn get_comps_done(s: &str, vars: HashMap<String, i32>) -> String {
 }
 
 /// Receives a &str containing -JUST- a comparison, 
-///  as well as and a Hashmap with the value for those variables involved.
+///  as well as a Hashmap with the value for those variables involved.
 ///  e.g.: "temperature>20" ["temperature": 14]   
 ///
 /// Then returns the boolean result of that comparison (e.g.: false)  
-fn do_comps(s: &str, vars: HashMap<String, i32>) -> bool {
+fn do_compare(s: &str, vars: HashMap<String, String>) -> bool {
     let mut prev_char: String = String::new();
     let mut var1: String = String::new();
     let mut oper: String = String::new();
@@ -139,48 +143,59 @@ fn do_comps(s: &str, vars: HashMap<String, i32>) -> bool {
             }
         }
     }
-    let v1 = match vars.get(&var1) {
-        Some(d) => { *d }
-        None => {
-            match var1.parse::<f32>() {
-                Ok(vi) => { vi as i32 }
-                Err(_) => { 
-                    match var1.parse::<i32>() {
-                        Ok(vi) => { vi }
-                        // TODO: better errors
-                        //   also define what to do if the variable is not of the format we need,
-                        //   OR it doesnt exist (yet?)
-                        Err(e) => { panic!("ERROR: {} . Nothing to see here...", e)}
-                    }
-                }
-            }
+    // TODO: check contents of vars and act accordingly
+    //   look for values in vars -> if not found, use varname as value
+    //   both usize/int/float? -> turn both to float and use oper as usual
+    //   one/both are String? -> treat them as strings
+    //      - only == and != will be tested
+    //      - the rest will be taken as FALSE with a message that comparison is wrong
+
+    // Check if we are talking about a known variable
+    // If the virst variable is not among ours, we throw a message and return false
+    let val1_st = match vars.get(&var1) {
+        Some(v) => { v.to_string() }
+        None => { 
+            // Control logging maybe and add this as a WARN
+            println!("WARNING! {} is not defined (yet?). Returning TRUE...", var1);
+            return true
         }
     };
-    let v2 = match vars.get(&var2) {
-        Some(d) => { *d }
-        None => {
-            match var2.parse::<f32>() {
-                Ok(vi) => { vi as i32 }
-                Err(_) => { 
-                    match var2.parse::<i32>() {
-                        Ok(vi) => { vi }
-                        // TODO: better errors
-                        //   also define what to do if the variable is not of the format we need,
-                        //   OR it doesnt exist (yet?)
-                        Err(e) => { panic!("ERROR: {} . Nothing to see here...", e)}
-                    }
-                }
-            }
-        }
+    let val2_st = match vars.get(&var2) {
+        Some(v) => { v.to_string() }
+        None => { var2 }
     };
-    match oper.as_str() {
-        "=" | "==" => { vars.get(&var1) == vars.get(&var2) }
-        ">" => { v1 > v2 }
-        "<" => { v1 < v2 }
-        ">=" => { v1 >= v2 }
-        "<=" => { v1 <= v2 }
-        "!=" => { v1 != v2 }
-        _  => { false }
+    // Check if those variables are numbers
+    let val1_fl = match val1_st.parse::<f32>() {
+        Ok(vi) => { Some(vi) }
+        Err(_) => { None }
+    };
+    let val2_fl = match val2_st.parse::<f32>() {
+        Ok(vi) => { Some(vi) }
+        Err(_) => { None }
+    };
+    //   both usize/int/float? -> use oper as usual with their floats
+    if ! val1_fl.is_none() && ! val2_fl.is_none() {
+        match oper.as_str() {
+            "=" | "==" => { return val1_fl == val2_fl; }
+            ">" => { return val1_fl > val2_fl; }
+            "<" => { return val1_fl < val2_fl; }
+            ">=" => { return val1_fl >= val2_fl; }
+            "<=" => { return val1_fl <= val2_fl; }
+            "!=" => { return val1_fl != val2_fl; }
+            _  => { return false; }
+        }
+    //   one/both are String? -> treat them as strings
+    //      - only == and != will be tested
+    //      - the rest will be taken as FALSE with a message that comparison is wrong
+    } else {
+        match oper.as_str() {
+            "=" | "==" => { return val1_st.eq(&val2_st); }
+            "!=" => { return val1_st.ne(&val2_st); }
+            _  => { 
+                // Control logging maybe and add this as a WARN
+                println!("WARNING! wrong comparison on {} {} {}, Returning FALSE...", val1_st, oper, val2_st);
+                return false; }
+        }
     }
 }
 
