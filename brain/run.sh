@@ -30,6 +30,14 @@ function build_n_run() {
   #cd scripts/rustbrain && \
   #cargo build --release &&
   #cd $cwd
+  
+  # compile rust lib with maturin
+  CWD=$(pwd)
+  cd scripts/robotlogic
+  source env/bin/activate
+  maturin develop
+  deactivate
+  cd ${CWD}
 
   source /opt/ros/rolling/local_setup.sh
   . ./interfaces/install/setup.bash && \

@@ -1,12 +1,13 @@
+use pyo3::pymodule;
+use pyo3::PyResult;
 use pyo3::prelude::*;
-#[pymodule]
-
-mod conds4comps;
-use conds4comps::get_result;
 
 use serde::{Deserialize};
 use std::collections::HashMap;
 use thiserror::Error;
+
+mod conds4comps;
+use conds4comps::get_result;
 
 /// We create a set of typical errors BotLogic may find
 #[derive(Error, Debug, PartialEq)]
@@ -29,7 +30,6 @@ pub enum BrainDeadError {
 }
 
 /// State is a HashMap of variables and their current status
-#[pyclass]
 #[derive(Clone, Debug)]
 pub struct State {
     data: HashMap<String, String>
@@ -63,7 +63,6 @@ impl State {
 /// - A name for the config, useful to keep track (so far unused)  
 /// - A condition(s) String  
 /// - An action(s) String  
-#[pyclass]
 #[derive(Debug, Clone, Deserialize)]
 #[allow(dead_code)]
 struct Config {
@@ -78,16 +77,16 @@ struct Config {
 /// - config with actions to take depending on state
 #[pyclass]
 #[derive(Clone, Debug)]
-pub struct Botlogic {
+pub struct Logic {
     state: State,
     config: Vec<Config>
 }
 
 /// Manages the relation between [Config]s and current [State]s.
-impl Botlogic {
+impl Logic {
     /// The config Vec gets loaded from a Yaml file
     #[allow(dead_code)]
-    pub fn new(configfile: &str) -> Botlogic {
+    pub fn new(configfile: &str) -> Logic {
         let f = match std::fs::File::open(configfile) {
             Ok(file) => file,
             Err(error) => panic!("Problem opening the file: {:?}", error),
@@ -99,7 +98,7 @@ impl Botlogic {
         };
         let mut logic_state = State::new();
         logic_state.set("mode".to_string(), "mapping".to_string());
-        Botlogic {
+        Logic {
             state: logic_state,
             config: c,
         }
@@ -142,4 +141,13 @@ impl Botlogic {
     }
 }
 
-mod test;
+#[pymodule]
+fn robotlogic(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add_class::<Logic>()?;
+    /*
+    m.add_wrapped(wrap_pyfunction!(from_pid))?;
+    m.add_wrapped(wrap_pyfunction!(from_path))?;
+    m.add_wrapped(wrap_pyfunction!(from_str))?;
+*/
+    Ok(())
+}

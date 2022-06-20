@@ -1,8 +1,33 @@
 #![cfg(test)]
 
-/*
 use super::*;
 
+#[test]
+fn integration_tests() {
+    //let mut integration = botlogic::Logic::new("integration_actionset.yaml");
+    let mut integration = Botlogic::new("integration_actionset.yaml");
+    // set state 
+    integration.set_state("distance".to_string(), "11".to_string());
+    // get action 
+    assert_eq!(integration.get_action().unwrap(), "move");
+    // set state 
+    integration.set_state("time".to_string(), "0.0".to_string());
+    integration.set_state("distance".to_string(), "9.0".to_string());
+    // get action 
+    assert_eq!(integration.get_action().unwrap(), "stop");
+    // set state 
+    integration.set_state("time".to_string(), "1.0".to_string());
+    integration.set_state("distance".to_string(), "9.0".to_string());
+    // get action 
+    assert_eq!(integration.get_action().unwrap(), "stop");
+    integration.set_state("time".to_string(), "0.0".to_string());
+    integration.set_state("distance".to_string(), "11".to_string());
+    // get action expecting an error
+    let expected_err = Err(BrainDeadError::ActionNotFoundError);
+    assert_eq!(integration.get_action(), expected_err);
+}
+
+/*
 #[test]
 fn state_basics() {
     let mut test = State::new();

@@ -19,7 +19,7 @@ struct LogicDict {
 /// Returns the boolean result we'd get 
 ///  if the conditions came as code instead of a String.  
 ///    
-pub fn get_result(v: &str, vars_raw: &HashMap<&str, &str>) -> bool {
+pub fn get_result(v: &str, vars_raw: &HashMap<String, String>) -> bool {
     let mut vars = HashMap::<String, String>::new();
     for (key, value) in &*vars_raw {
         vars.insert(key.to_string(), value.to_string());

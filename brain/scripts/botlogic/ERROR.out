@@ -1,0 +1,30 @@
+./run.sh build
+🔗 Found pyo3 bindings
+🐍 Found CPython 3.8 at /home/aaf/Software/Dev/robot/brain/scripts/botlogic/env/bin/python
+    Finished dev [unoptimized + debuginfo] target(s) in 0.05s
+⚠️  Warning: Couldn't find the symbol `PyInit_botlogic` in the native library. Python will fail to import this module. If you're using pyo3, check that `#[pymodule]` uses `botlogic` as module name
+📦 Built wheel for CPython 3.8 to /tmp/.tmpk6s6jm/botlogic-0.1.0-cp38-cp38-linux_x86_64.whl
+🛠  Installed botlogic-0.1.0
+Starting >>> brain   
+Finished <<< brain [0.82s]                     
+
+Summary: 1 package finished [1.05s]
+[INFO] [launch]: All log files can be found below /home/aaf/.ros/log/2022-06-18-09-33-12-299452-aafhome-5407
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [main_brain.py-1]: process started with pid [5409]
+[INFO] [node_api.py-2]: process started with pid [5411]
+[INFO] [publisher_status.py-3]: process started with pid [5413]
+[INFO] [node_arduino.py-4]: process started with pid [5415]
+[INFO] [node_servo_laser.py-5]: process started with pid [5417]
+[INFO] [node_motor_right.py-6]: process started with pid [5419]
+[INFO] [node_motor_left.py-7]: process started with pid [5421]
+[publisher_status.py-3] Traceback (most recent call last):
+[publisher_status.py-3]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/publisher_status.py", line 12, in <module>
+[publisher_status.py-3]     botlogic = importlib.util.module_from_spec(botlogic_spec)
+[publisher_status.py-3]   File "<frozen importlib._bootstrap>", line 556, in module_from_spec
+[publisher_status.py-3]   File "<frozen importlib._bootstrap_external>", line 1166, in create_module
+[publisher_status.py-3]   File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+[publisher_status.py-3] ImportError: dynamic module does not define module export function (PyInit_botlogic)
+[ERROR] [publisher_status.py-3]: process has died [pid 5413, exit code 1, cmd '/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/publisher_status.py --ros-args -r __node:=publisher_status -r __ns:=/brain'].
+[main_brain.py-1] [WARN] [1655537593.212476905] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+
