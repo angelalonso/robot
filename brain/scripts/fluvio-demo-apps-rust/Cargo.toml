@@ -1,6 +1,0 @@
-[workspace]
-members = [
-    "cdc-mysql",
-    "my-python-lib-blog-post",
-    "my-java-lib-blog-post",
-]
