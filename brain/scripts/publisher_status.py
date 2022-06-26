@@ -2,10 +2,10 @@
 
 # importing Rust libraries
 import importlib.util
-rustbrain_spec = importlib.util.spec_from_file_location("rustbrain", 
-        "./scripts/rustbrain/.env/lib/python3.8/site-packages/rustbrain/rustbrain.cpython-38-x86_64-linux-gnu.so")
-rustbrain = importlib.util.module_from_spec(rustbrain_spec)
-rustbrain_spec.loader.exec_module(rustbrain)
+##rustbrain_spec = importlib.util.spec_from_file_location("rustbrain", 
+##        "./scripts/rustbrain/.env/lib/python3.8/site-packages/rustbrain/rustbrain.cpython-38-x86_64-linux-gnu.so")
+##rustbrain = importlib.util.module_from_spec(rustbrain_spec)
+##rustbrain_spec.loader.exec_module(rustbrain)
 
 robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
         "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-x86_64-linux-gnu.so")
@@ -44,8 +44,11 @@ class PublisherStatus(Node):
         super().__init__('status_publisher')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.status = Status()
-        self.radar = rustbrain.Dataset(500, 2500, 500, 10)
-        self.radar.build_map()
+        # TODO: continue this:
+        self.logic = robotlogic.Logic("integration_actionset.yaml", 500, 2500, 500, 10)
+        ##self.radar = rustbrain.Dataset(500, 2500, 500, 10)
+        self.logic.radar_init()
+        ##self.radar.build_map()
         # Listen to `get_status` (to send status after that)
         self.getstatus_subscription = self.create_subscription(
             String,
@@ -70,7 +73,8 @@ class PublisherStatus(Node):
                 self.status.set_status(keyval[0], keyval[1])
                 if keyval[0] == 'laser':
                     try:
-                        self.radar.add_ping(int(self.status['servolaser']), int(keyval[1]))
+                        ##self.radar.add_ping(int(self.status['servolaser']), int(keyval[1]))
+                        self.logic.add_object(int(self.status['servolaser']), int(keyval[1]))
                     except (ValueError, KeyError):
                         pass
                 self.get_logger().debug('I heard SET: ' + keyval[0] + ' to ' + keyval[1])
@@ -80,7 +84,10 @@ class PublisherStatus(Node):
     def listener_callback_get(self, msg):
         self.get_logger().info('I heard GET: "%s"' % msg.data)
         if msg.data == 'radar':
-            mapping = self.radar.show()
+            ##mapping = self.radar.show()
+            mapping = self.logic.get_radar()
+            ##for line in mapping:
+            ##    self.get_logger().info(line)
             for line in mapping:
                 self.get_logger().info(line)
         else:

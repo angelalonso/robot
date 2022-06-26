@@ -7,6 +7,8 @@ use serde::{Deserialize};
 use std::collections::HashMap;
 use thiserror::Error;
 
+mod radar;
+use radar::Dataset;
 mod conds4comps;
 use conds4comps::get_result;
 
@@ -80,6 +82,7 @@ struct Config {
 #[derive(Clone, Debug)]
 pub struct Logic {
     state: State,
+    radar: Dataset,
     config: Vec<Config>
 }
 
@@ -89,7 +92,7 @@ impl Logic {
     /// The config Vec gets loaded from a Yaml file
     #[allow(dead_code)]
     #[new]
-    pub fn new(configfile: &str) -> Logic {
+    pub fn new(configfile: &str, min_angle: i32, max_angle: i32, max_distance: i32, max_distance_graphic: i32) -> Logic {
         let f = match std::fs::File::open(configfile) {
             Ok(file) => file,
             Err(error) => panic!("Problem opening the file: {:?}", error),
@@ -101,11 +104,41 @@ impl Logic {
         };
         let mut logic_state = State::new();
         logic_state.set("mode".to_string(), "mapping".to_string());
+        let r = Dataset {
+            set: [].to_vec(),
+            mapxy: [].to_vec(),
+            min_angle: min_angle,
+            max_angle: max_angle,
+            max_distance: max_distance,
+            max_distance_graphic: max_distance_graphic,
+        };
         Logic {
             state: logic_state,
+            radar: r,
             config: c,
         }
     }
+
+    /// Initializes the radar
+    #[allow(dead_code)]
+    pub fn radar_init(&mut self) {
+        self.radar.build_map();
+    }
+
+    /// Adds a detected collision to an object
+    #[allow(dead_code)]
+    pub fn add_object(&mut self, angle_raw: i32, distance: i32) -> (i32, i32) {
+        let res = self.radar.add_ping(angle_raw, distance);
+        return (res.x, res.y)
+    }
+
+    /// Shows current values of radar
+    #[allow(dead_code)]
+    pub fn get_radar(&mut self) -> Vec<String> {
+        let res = self.radar.show();
+        return res
+    }
+
 
     /// Sets a value for the state of a given key (key being time, distance, amount of light...) 
     #[allow(dead_code)]

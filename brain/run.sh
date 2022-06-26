@@ -34,6 +34,7 @@ function build_n_run() {
   # compile rust lib with maturin
   CWD=$(pwd)
   cd scripts/robotlogic
+  python3 -m venv env
   source env/bin/activate
   maturin develop
   deactivate

@@ -5,7 +5,7 @@ use super::*;
 #[test]
 fn integration_tests() {
     //let mut integration = botlogic::Logic::new("integration_actionset.yaml");
-    let mut integration = Botlogic::new("integration_actionset.yaml");
+    let mut integration = Robotlogic::new("integration_actionset.yaml");
     // set state 
     integration.set_state("distance".to_string(), "11".to_string());
     // get action 

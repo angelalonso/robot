@@ -15,7 +15,7 @@ classifier = [
 ]
 
 [dependencies]
-pyo3 = { version = "0.15.1", features = ["extension-module"] }
+pyo3 = { version = "0.16.5", features = ["extension-module"] }
 serde = { version = "1.0.137", features = ["derive"] }
 serde_yaml = "0.8.24"
 thiserror = "1.0.31"
