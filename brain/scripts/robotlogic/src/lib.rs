@@ -1,5 +1,6 @@
 use pyo3::pymodule;
 use pyo3::PyResult;
+use pyo3::exceptions::PyKeyError;
 use pyo3::prelude::*;
 
 use serde::{Deserialize};
@@ -49,11 +50,11 @@ impl State {
     }
 
     #[allow(dead_code)]
-    fn get(&mut self, key: &str) -> Result<&str, BrainDeadError> {
+    fn get(&mut self, key: &str) -> PyResult<&str> {
         if self.data.contains_key(key) {
             return Ok(&self.data[key])
         } else {
-            return Err(BrainDeadError::KeyNotFoundError)
+            return Err(PyKeyError::new_err("BrainDeadError::KeyNotFoundError"))
         }
     }
 }
@@ -83,9 +84,11 @@ pub struct Logic {
 }
 
 /// Manages the relation between [Config]s and current [State]s.
+#[pymethods]
 impl Logic {
     /// The config Vec gets loaded from a Yaml file
     #[allow(dead_code)]
+    #[new]
     pub fn new(configfile: &str) -> Logic {
         let f = match std::fs::File::open(configfile) {
             Ok(file) => file,
@@ -113,20 +116,20 @@ impl Logic {
 
     /// Gets the value for the state of a given key (key being time, distance, amount of light...) 
     #[allow(dead_code)]
-    pub fn get_state(&mut self, key: &str) -> Result<&str, BrainDeadError> {
+    pub fn get_state(&mut self, key: &str) -> PyResult<&str> {
         return self.state.get(&key)
     }
 
     /// Returns a copy of the state's data
     #[allow(dead_code)]
-    fn get_states(&mut self) -> Result<HashMap<String, String>, BrainDeadError> {
+    fn get_states(&mut self) -> PyResult<HashMap<String, String>> {
         return Ok(self.state.data.clone())
     }
 
     /// Returns the action that matches the current set of [State]s
     /// TO BE IMPROVED
     #[allow(dead_code)]
-    pub fn get_action(&mut self) -> Result<String, BrainDeadError> {
+    pub fn get_action(&mut self) -> PyResult<String> {
         let mut result: String = String::new();
         for v in self.config.clone().iter() {
             if get_result(&v.condition, &self.state.data) {
@@ -134,7 +137,7 @@ impl Logic {
             };
         };
         if result.is_empty() {
-            return Err(BrainDeadError::ActionNotFoundError)
+            return Err(PyKeyError::new_err("BrainDeadError::ActionNotFoundError"))
         } else {
             return Ok(result)
         }
