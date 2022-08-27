@@ -18,8 +18,8 @@ A minimal example of a ROS library was created as a PoC that Rust Libraries woul
 
 Now the next goal is to make everything come together. 
 
-| :zap:        Currently I am working on making averything come together on another branch |
-|------------------------------------------------------------------------------------------|
+| :zap:        Current WIP is making averything come together, see thirdphase branch |
+|------------------------------------------------------------------------------------|
 
 | :exclamation:  Consider everything from here on as a Work in Progress |
 |-----------------------------------------------------------------------|
