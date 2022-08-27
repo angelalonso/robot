@@ -8,6 +8,8 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(rclcpp_components REQUIRED)
 
 find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
@@ -36,23 +38,43 @@ install(TARGETS
 DESTINATION lib/${PROJECT_NAME}
 )
 
+
 # Install python scripts - MODULES et al.
+# Auxiliar libraries
 install(PROGRAMS
-  scripts/fake_rpi.py
+  scripts/lib_fake_rpi.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/status.py
+  scripts/action_clients.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/node_motor_right_worker.py
+  scripts/publisher_status.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+# Nodes
+install(PROGRAMS
+  scripts/node_api.py
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
-  scripts/node_motor_left_worker.py
+  scripts/node_motor_right.py
   DESTINATION lib/${PROJECT_NAME}
 )
+install(PROGRAMS
+  scripts/node_motor_left.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/node_servo_laser.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/node_arduino.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+# The main brain
 install(PROGRAMS
   scripts/main_brain.py
   DESTINATION lib/${PROJECT_NAME}
@@ -62,6 +84,9 @@ find_package(rosidl_default_generators REQUIRED)
 
 set(action_files
   "action/Motor.action"
+  "action/Servo.action"
+  "action/Getstatus.action"
+  "action/Whatstatus.action"
   )
 
 rosidl_generate_interfaces(${PROJECT_NAME}

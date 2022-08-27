@@ -10,11 +10,19 @@ A step by step Guide to building and configuring your own robot using partially 
 
 ## Status
 
-Redone from scratch, to change two philosophical points:
-- This time around I am using ROS2 instead of my own Rust-based program to make it more scalable and standardized
-- I am building the robot and its documentation as a Project in several phases:
-  - The base project, which just moves two motors based on a predefined set of actions
-  - Additional "plugins" that anyone could add to the base project. E.g.: Inputs such as distance sensor, outputs such as an LED...
+It does not work "as is"
+
+There used to be a working thing written completely on Rust but it didn't scale well.
+It was redone from scratch, to use ROS2 instead, but somehow interfaces on python were too CPU-intensive.
+A minimal example of a ROS library was created as a PoC that Rust Libraries would work ok
+
+Now the next goal is to make everything come together. 
+
+| :zap:        Current WIP is making averything come together, see thirdphase branch |
+|------------------------------------------------------------------------------------|
+
+| :exclamation:  Consider everything from here on as a Work in Progress |
+|-----------------------------------------------------------------------|
 
 ## HOW TO
 
@@ -43,6 +51,7 @@ I am also looking for a way to have Rust added to the formula.
   - [Bash autocompletion](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html)
 - [Raspberry Pi](https://www.raspberrypi.org/)
 - [Arduino](https://www.arduino.cc/)
+- [Rust](https://www.rust-lang.org/)
 
 Consider the above also a list of minimum requirements.
 

@@ -77,6 +77,7 @@ $ sudo deluser -remove-home ubuntu
 ```
 $ sudo apt-get update  
 $ sudo apt-get upgrade  
+$ pip install flatdict flask
 ```
   
 ## Strengthen SSH
@@ -124,7 +125,7 @@ $ sudo ufw enable
 
 ```
 $ sudo apt-get update  
-$ sudo apt-get install vim git rpi.gpio-common # we'll need them later
+$ sudo apt-get install vim git rpi.gpio-common python3-pigpio pigpio-tools # we'll need them later
 $ sudo reboot
 ```
 
@@ -137,7 +138,17 @@ $ sudo raspi-config
 \> Localisation Options > Change Wi-fi Country > Choose yours  
 \> Network Options > Wi-Fi > add the name of the WiFi network and the pass  
 
+# Make pigpio daemon run at boot
+- Copy files/pigpiod.service to /etc/systemd/system/
+```
+$ sudo systemctl enable pigpiod
+$ sudo systemctl start pigpiod
+```
+- 
+
 # Install ROS2
 
 Follow the Official Guide at https://docs.ros.org/en/galactic/Installation.html
 
+# Install Rust
+Follow the Official Guide at https://www.rust-lang.org/tools/install

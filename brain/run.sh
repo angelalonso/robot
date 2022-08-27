@@ -25,7 +25,23 @@ function adapt() {
 function build_n_run() {
   trap ctrl_c INT
 
-  source /home/angel.alonso/Downloads/ros2_foxy/ros2-linux/local_setup.bash
+  # TODO: use maturin maybe
+  #cwd=$(pwd)
+  #cd scripts/rustbrain && \
+  #cargo build --release &&
+  #cd $cwd
+  
+  # compile rust lib with maturin
+  CWD=$(pwd)
+  cd scripts/robotlogic
+  python3 -m venv env
+  source env/bin/activate
+  maturin develop
+  deactivate
+  cd ${CWD}
+
+  source /opt/ros/rolling/local_setup.sh
+  . ./interfaces/install/setup.bash && \
   colcon build && \
     . ./install/setup.bash && \
     ros2 launch brain brain.launch.py
@@ -34,7 +50,8 @@ function build_n_run() {
 function just_run() {
   trap ctrl_c INT
 
-  source /home/angel.alonso/Downloads/ros2_foxy/ros2-linux/local_setup.bash
+  source /opt/ros/rolling/local_setup.sh
+  . ./interfaces/install/setup.bash && \
   . ./install/setup.bash && \
     ros2 launch brain brain.launch.py
 }
