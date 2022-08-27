@@ -4,6 +4,14 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
+    # start led in the brain namespace
+    main_brain = Node(
+            package='brain',
+            namespace='brain',
+            executable='node_led.py',
+            name='node_led'
+        )
+
     # start motor_workers in the brain namespace
     motor_right_worker_node = Node(
             package='brain',

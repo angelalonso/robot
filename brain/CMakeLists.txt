@@ -59,6 +59,10 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 install(PROGRAMS
+  scripts/node_led.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(PROGRAMS
   scripts/node_motor_right.py
   DESTINATION lib/${PROJECT_NAME}
 )
@@ -83,6 +87,7 @@ install(PROGRAMS
 find_package(rosidl_default_generators REQUIRED)
 
 set(action_files
+  "action/Led.action"
   "action/Motor.action"
   "action/Servo.action"
   "action/Getstatus.action"

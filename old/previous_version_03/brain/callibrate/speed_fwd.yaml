@@ -1,0 +1,8 @@
+---
+- name: speed_fwd
+  actions:
+    - "get scan into scan_1"
+    - "move forward"
+    - "wait 1 second"
+    - "get scan into scan_2"
+    - "get difference_scans from scan_1 and scan_2 into speed_fwd"
