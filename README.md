@@ -10,13 +10,31 @@ A step by step Guide to building and configuring your own robot using partially 
 
 ## Status
 
-It does not work "as is"
+Right now, It does not work 
 
 There used to be a working thing written completely on Rust but it didn't scale well.
 It was redone from scratch, to use ROS2 instead, but somehow interfaces on python were too CPU-intensive.
 A minimal example of a ROS library was created as a PoC that Rust Libraries would work ok
 
-Now the next goal is to make everything come together. 
+Now the next goal is to make everything come together as follows:
+- :wrench: Auto boot
+  - :bulb: Install an LED
+  - :bulb: Show status through this LED
+  - :bulb: Get a working API 
+    - :bulb: Make sure this uses SSL and a Device ID to only allow calls from a set of given devices.
+    - :bulb: The list of devices must go in a protected file
+    - :bulb: Automate as much as possible this process
+  - :bulb: Show status through a call to this API
+- :bulb: Mode
+  - :bulb: Available modes:
+    - :bulb: RC - actions can be controlled from an Android App that uses the API
+    - :bulb: Callibrating - goes through a set of tests to "learn from itself" (e.g.: how much power and time it needs on each wheel to turn 30 degrees clockwise)
+    - :bulb: Mapping - Moves around a space to build a map of the surroundings
+    - :bulb: Auto - uses mapping to move around among other actions
+      - :bulb: This mode can also override actions if API says so
+  - :bulb: The default mode is set on a file
+  - :bulb: The mode itself can be overridden on the go via API
+
 
 | :zap:        Current WIP is making averything come together, see thirdphase branch |
 |------------------------------------------------------------------------------------|
