@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-from rclpy import init, logging, shutdown, spin_once, ok
+from rclpy import init, logging, shutdown
 from rclpy.node import Node
 
 from action_clients import MotorLeftActionClient, MotorRightActionClient, ServoLaserActionClient
-from service_clients import GetStatusKeyServiceClient
 
 from std_msgs.msg import String
 

@@ -18,7 +18,10 @@ A minimal example of a ROS library was created as a PoC that Rust Libraries woul
 
 Now the next goal is to make everything come together as follows:
 - :wrench: Auto boot
-  - :bulb: Install an LED
+  - :wrench: Install an LED
+    - :+1: Make LED work on test computer
+    - :question: Install an LED physically
+    - :bulb: Make LED work on Robot
   - :bulb: Show status through this LED
   - :bulb: Get a working API 
     - :bulb: Make sure this uses SSL and a Device ID to only allow calls from a set of given devices.

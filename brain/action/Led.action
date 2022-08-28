@@ -1,4 +1,4 @@
-float32 state
+bool turn_on
 ---
 string confirmed
 ---

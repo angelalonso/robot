@@ -13,11 +13,11 @@ class LedActionClient(Node):
     def __init__(self):
         super().__init__('led_action_client')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, 'INFO'))
-        self._action_client = ActionClient(self, Servo, 'Led')
+        self._action_client = ActionClient(self, Led, 'LedMain')
 
-    def send_goal(self, state):
+    def send_goal(self, turn_on):
         goal_msg = Led.Goal()
-        goal_msg.state = float(state)
+        goal_msg.turn_on = turn_on
 
         self._action_client.wait_for_server()
 
@@ -52,6 +52,7 @@ class LedActionClient(Node):
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
         self.get_logger().debug('Received feedback: {0}'.format(feedback.partial_sequence))
+
 
 class MotorLeftActionClient(Node):
 
