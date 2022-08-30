@@ -73,11 +73,12 @@ $ ssh -i <PATH TO YOUR SSH KEY> $NEWUSER@<IP>
 $ sudo deluser -remove-home ubuntu
 ```
   
-## Update, upgrade, install the basics
+## Update, upgrade, install python 3.8 and the basics
 ```
 $ sudo apt-get update  
 $ sudo apt-get upgrade  
-$ pip install flatdict flask
+$ wget -O - https://raw.githubusercontent.com/tvdsluijs/raspberry-pi-python-sh-installer/main//python3.9.7.sh | sudo bash
+$ pip3 --trusted-host pypi.org --trusted-host files.pythonhosted.org  install flatdict flask maturin 
 ```
   
 ## Strengthen SSH

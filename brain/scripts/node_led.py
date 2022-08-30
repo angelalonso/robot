@@ -28,7 +28,6 @@ class LEDMainActionServer(Node):
             Led,
             'LedMain',
             self.execute_callback)
-        self.get_logger().warn("--------------------------HERE")
 
     def execute_callback(self, goal_handle):
         feedback_msg = Led.Feedback()

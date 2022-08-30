@@ -18,6 +18,19 @@ A minimal example of a ROS library was created as a PoC that Rust Libraries woul
 
 Now the next goal is to make everything come together as follows:
 - :wrench: Auto boot
+  - :+1: python3.9
+  - :bulb: env/bin/activate: No such file or directory
+  - :bulb: maturin 
+```
+⚠️  Warning: the following metadata fields in `package.metadata.maturin` section of Cargo.toml are deprecated and will be removed in future versions: classifiers, please set them in pyproject.toml as PEP 621 specifies.
+💥 maturin failed
+  Caused by: Cargo metadata failed. Does your crate compile with `cargo build`?
+  Caused by: `cargo metadata` exited with an error:     Updating crates.io index
+ Downloading crates ...
+error: failed to download from `https://crates.io/api/v1/crates/autocfg/1.1.0/download`
+```
+  - :bulb: Automate latest from master
+  - :bulb: configure raspberry automatically
   - :wrench: Install an LED
     - :+1: Make LED work on test computer
     - :question: Install an LED physically
