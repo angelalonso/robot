@@ -29,12 +29,16 @@ Now the next goal is to make everything come together as follows:
  Downloading crates ...
 error: failed to download from `https://crates.io/api/v1/crates/autocfg/1.1.0/download`
 ```
-  - :bulb: Automate latest from master
   - :bulb: configure raspberry automatically
+    - :bulb: Install raspbian, then document what file to copy and where
+    - :bulb: LED shows Step the run is in, and another pattern when ready
+  - :bulb: Automate latest from master
+    - :wrench: Use Rust library found at standard path - find generated file and link to it?
+    - :wrench: Create buildmin mode that does not build Rust parts
   - :wrench: Install an LED
     - :+1: Make LED work on test computer
-    - :question: Install an LED physically
-    - :bulb: Make LED work on Robot
+    - :+1: Install an LED physically
+    - :+1: Make LED work on Robot
   - :bulb: Show status through this LED
   - :bulb: Get a working API 
     - :bulb: Make sure this uses SSL and a Device ID to only allow calls from a set of given devices.

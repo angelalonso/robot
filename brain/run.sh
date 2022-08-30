@@ -25,11 +25,10 @@ function adapt() {
 function build_n_run() {
   trap ctrl_c INT
 
-  # TODO: use maturin maybe
-  #cwd=$(pwd)
-  #cd scripts/rustbrain && \
-  #cargo build --release &&
-  #cd $cwd
+  cwd=$(pwd)
+  cd scripts/robotlogic && \
+  cargo build --release &&
+  cd $cwd
   
   # compile rust lib with maturin
   CWD=$(pwd)

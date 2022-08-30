@@ -9,6 +9,7 @@ import importlib.util
 
 robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
         "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-x86_64-linux-gnu.so")
+#        "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-aarch64-linux-gnu.so")
 robotlogic = importlib.util.module_from_spec(robotlogic_spec)
 robotlogic_spec.loader.exec_module(robotlogic)
 
