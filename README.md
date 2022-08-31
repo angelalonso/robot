@@ -30,7 +30,9 @@ Now the next goal is to make everything come together as follows:
 error: failed to download from `https://crates.io/api/v1/crates/autocfg/1.1.0/download`
 ```
   - :bulb: configure raspberry automatically
-    - :bulb: Install raspbian, then document what file to copy and where
+    - :+1: Install raspbian, then document what file to copy and where
+    - :wrench: Automate the previous process and change docs
+    - :+1: Create a Script to configure the Raspberry automatically
     - :bulb: LED shows Step the run is in, and another pattern when ready
   - :bulb: Automate latest from master
     - :wrench: Use Rust library found at standard path - find generated file and link to it?
