@@ -9,36 +9,24 @@
 - Connect the MicroSD card to your Computer, and burn the OS image you just downloaded
 For this I use https://www.balena.io/etcher/
 
-## Enable SSH to the bootloader and boot it - TODO: automate this too
-- Mount the MicroSD partition called "boot" (using nautilus, maybe?)
-- In ubuntu:  
+## Run the preloading Script
+From the /files folder on this repo:
+- Copy env.template to .env
 ```
-touch /media/$USER/boot/ssh  
+cp env.template .env
 ```
-
-## Modify and copy over autoconfig file, user and pass... make it work - TODO: automate this too
+- Modify it to your liking
+- IMPORTANT: You MUST change at least USER and PASS
+- Run the preloading script
 ```
-cp ../files/rc.local /media/$USER/rootfs/etc/rc.local 
-chmod +x /media/$USER/rootfs/etc/rc.local 
-cp ../files/autosetup.sh /media/$USER/rootfs/home/pi/
-chmod +x /media/$USER/rootfs/home/pi/autosetup.sh
-cp ../files/userconf /media/$USER/boot/
+./preloading.sh
 ```
-- user is tempuser and pass is This_Is_The_First_Password
-
-
-- ...and safely remove the MicroSD from your computer.
+... and follow instructions
 
 ## Boot the Raspberry
+- Safely remove the MicroSD from your computer.
 - Mount the microSD into the Raspberry
 - Connect the Raspberry to your Router with an RJ45 cable
 - Power up the Raspberry
-- Find your Raspberry (is 192.168.1.0/24 also your network's IP Range?)
-```
-nmap -sP 192.168.1.0/24
-```
-- SSH into it
-```
-ssh tempuser@182.168.1.42 # pass is This_Is_The_First_Password
-```
-# TODO: Modify this default user and pass from a script
+- You should see the LED blinking in intervals
+- When it's finished, it will blick as follows --- 

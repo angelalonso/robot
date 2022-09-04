@@ -4,8 +4,10 @@
 **/install
 **/scripts/__pycache__
 **/.env
+**/.env.bck
 **/*.swp
 **/*.swo
+**/userconf
 brain/Cargo.lock
 brain/records
 test_svc
