@@ -17,6 +17,7 @@ cp env.template .env
 ```
 - Modify it to your liking
 - IMPORTANT: You MUST change at least USER and PASS
+- Mount the two /rootfs and /boot partitions from the MicroSD (e.g.: click on them on nautilus)
 - Run the preloading script
 ```
 ./preloading.sh

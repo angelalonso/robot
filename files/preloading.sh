@@ -7,10 +7,9 @@ CONFIGFILE=".env"
 ## -------------- Step Functions
 
 function enable_ssh {
-  show_log info " - Enabling SSH"
   BOOTPATH="$MICROSD_PATH/boot"
   if [ -d $BOOTPATH ]; then
-    show_log info " - Enable SSH"
+    show_log info " - Enabling SSH"
     touch $BOOTPATH/ssh  
   else
     show_log err "$BOOTPATH not mounted, check MICROSD_PATH on $CONFIGFILE matches the actual mountpoint for both (e.g.: /media/user for both /media/user/rootfs and /media/user/boot)"
@@ -42,9 +41,17 @@ function copy_files {
     sudo chmod +x $ROOTPATH/etc/rc.local 
     sudo mkdir -p $ROOTPATH/autosetup
     sudo cp ../files/autosetup.sh $ROOTPATH/autosetup/
-    sudo cp ../files/.env $ROOTPATH/
     sudo chmod +x $ROOTPATH/autosetup/autosetup.sh
+    sudo cp ../files/blink.sh $ROOTPATH/autosetup/
+    sudo chmod +x $ROOTPATH/autosetup/blink.sh
+    sudo cp ../files/.env $ROOTPATH/
     sudo cp ../files/userconf $BOOTPATH/
+    if [ -f $SSHPUBPATH ]; then
+      sudo cp $SSHPUBPATH $ROOTPATH/autosetup/sshpubkey
+    else
+      show_log err "$SSHPUBPATH public key not found!, check SSHPUBPATH on $CONFIGFILE"
+    fi
+    sudo cp ../files/sshd_config $ROOTPATH/autosetup/
   else
     show_log err "$BOOTPATH OR $ROOTPATH not mounted, check MICROSD_PATH on $CONFIGFILE matches the actual mountpoint for both (e.g.: /media/user for both /media/user/rootfs and /media/user/boot)"
   fi
