@@ -7,9 +7,13 @@ import importlib.util
 ##rustbrain = importlib.util.module_from_spec(rustbrain_spec)
 ##rustbrain_spec.loader.exec_module(rustbrain)
 
-robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
-        "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-x86_64-linux-gnu.so")
+try:
+    robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
+        "./scripts/robotlogic/env/lib/python3.10/site-packages/robotlogic/robotlogic.cpython-310-aarch64-linux-gnu.so") # Modify this if your path at the raspberry is different
 #        "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-aarch64-linux-gnu.so")
+except ImportError:
+    robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
+        "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-x86_64-linux-gnu.so") # Modify this if your path at your local machine is different
 robotlogic = importlib.util.module_from_spec(robotlogic_spec)
 robotlogic_spec.loader.exec_module(robotlogic)
 
