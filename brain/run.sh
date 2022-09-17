@@ -56,6 +56,16 @@ function just_run() {
     ros2 launch brain brain.launch.py
 }
 
+function check_dotenv {
+  if [ -f ".env" ]; then
+    echo "ERROR! .env file not found!"
+    echo "  REMEMBER you can copy env.template to .env and adapt it!"
+    echo "Exiting..."
+    exit 2
+  fi
+}
+
+check_dotenv
 
 #adapt
 if [[ "$1" == "build" ]]; then
