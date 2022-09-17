@@ -41,7 +41,7 @@ function build_n_run() {
   cd ${CWD}
 
   source /opt/ros/rolling/local_setup.sh
-  . ./interfaces/install/setup.bash && \
+#  . ./interfaces/install/setup.bash && \
   colcon build && \
     . ./install/setup.bash && \
     ros2 launch brain brain.launch.py
@@ -51,7 +51,7 @@ function just_run() {
   trap ctrl_c INT
 
   source /opt/ros/rolling/local_setup.sh
-  . ./interfaces/install/setup.bash && \
+#  . ./interfaces/install/setup.bash && \
   . ./install/setup.bash && \
     ros2 launch brain brain.launch.py
 }

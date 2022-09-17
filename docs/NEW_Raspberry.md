@@ -1,9 +1,7 @@
 # Installation
 
-## Download the latest Raspberry Pi OS Lite 
-```wget https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz
-```
-, or check the latest at https://www.raspberrypi.com/software/operating-systems/
+## Download the latest Ubuntu for Raspi
+Get it from https://ubuntu.com/download/raspberry-pi (64 bits)
 
 ## Burn the image to the microSD
 - Connect the MicroSD card to your Computer, and burn the OS image you just downloaded
@@ -17,7 +15,15 @@ cp env.template .env
 ```
 - Modify it to your liking
 - IMPORTANT: You MUST change at least USER and PASS
-- Mount the two /rootfs and /boot partitions from the MicroSD (e.g.: click on them on nautilus)
+- Mount the two /system-boot and /writable partitions from the MicroSD (e.g.: click on them on nautilus)
+- Install whois to make use of mkpasswd
+```
+sudo apt-get install whois
+```
+# TODO: modify this to use user-data file (among others, check ubuntu docs)
+#  First identify steps that can go there (user, pass, ssh key...)
+#  Then put the rest on a different side 
+#  TODO: how exactly can I run a script on first boot only?
 - Run the preloading script
 ```
 ./preloading.sh
@@ -30,4 +36,4 @@ cp env.template .env
 - Connect the Raspberry to your Router with an RJ45 cable
 - Power up the Raspberry
 - You should see the LED blinking in intervals
-- When it's finished, it will blick as follows --- 
+- When it's finished, it will blink as follows --- 

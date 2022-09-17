@@ -1,0 +1,15 @@
+less /var/log/cloud-init.log
+
+sudo vim /etc/cloud/cloud.cfg
+vim /usr/share/doc/cloud-init/examples/seed/user-data
+sudo vim /boot/firmware/user-data
+sudo vim /var/lib/cloud/instance/user-data.txt
+sudo vim /var/lib/cloud/instance/user-data.txt.i 
+sudo rm /var/lib/cloud/instances/nocloud/sem/config_scripts_user
+
+
+sudo cloud-init init --local
+sudo cloud-init init
+sudo cloud-init schema --system
+sudo cloud-init modules --mode=config
+sudo cloud-init modules --mode=final

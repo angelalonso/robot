@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from interfaces.srv import SetStatus
+#from interfaces.srv import SetStatus
 
 from rclpy import init, logging, shutdown, ok, spin_once
 from rclpy.node import Node

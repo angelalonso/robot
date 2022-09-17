@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# TODO: this is already....obsolete! use file user-data  on system-boot instead
 
 ## -------------- Vars
 
@@ -6,9 +7,30 @@ CONFIGFILE=".env"
 
 ## -------------- Step Functions
 
-function modify_files {
-  cp sshd_config sshd_config.orig
-  sed -i -e "s/#Port 22/Port ${SSHPORT}/g" sshd_config
+function enable_ssh {
+  BOOTPATH="$MICROSD_PATH/boot"
+  if [ -d $BOOTPATH ]; then
+    show_log info " - Enabling SSH"
+    touch $BOOTPATH/ssh  
+  else
+    show_log err "$BOOTPATH not mounted, check MICROSD_PATH on $CONFIGFILE matches the actual mountpoint for both (e.g.: /media/user for both /media/user/rootfs and /media/user/boot)"
+  fi
+}
+
+function configure_user {
+  show_log info " - Configuring user and password hash"
+  if [[ -z "$USER" ]] || [[ -z "$PASS" ]]; then
+    show_log err "Either USER or PASS variables are empty! Check both variables on $CONFIGFILE"
+  else
+    if [ $(grep "^USER=" env.template ) == $(grep "^USER=" $CONFIGFILE) ] ||
+       [ $(grep "^PASS=" env.template ) == $(grep "^PASS=" $CONFIGFILE) ]; then
+      show_log err "USER or PASS are the same as in env.template! Check both variables on $CONFIGFILE and choose different values!"
+    else
+      PASSHASH=$(echo "$PASS" | openssl passwd -6 -stdin)
+      echo $USER:$PASSHASH > ../files/userconf
+    fi
+  fi
+
 }
 
 function copy_files {
@@ -17,11 +39,14 @@ function copy_files {
   if [ -d $BOOTPATH ] && [ -d $ROOTPATH ]; then
     show_log info " - Copying files to the MicroSD"
     sudo mkdir -p $ROOTPATH/autosetup
+    sudo cp ../files/rc.local $ROOTPATH/etc/rc.local 
     sudo cp ../files/autosetup.sh $ROOTPATH/autosetup/
     sudo cp ../files/blink.sh $ROOTPATH/autosetup/
+    sudo cp ../files/pigpiod.service $ROOTPATH/autosetup/
     sudo cp ../files/.env $ROOTPATH/
+    sudo cp ../files/userconf $BOOTPATH/
     sudo cp ../files/sshd_config $ROOTPATH/autosetup/
-    sudo cp ../files/sshd_config.orig ../files/sshd_config # retore original
+    sudo chmod +x $ROOTPATH/etc/rc.local 
     sudo chmod +x $ROOTPATH/autosetup/autosetup.sh
     sudo chmod +x $ROOTPATH/autosetup/blink.sh
     if [ -f $SSHPUBPATH ]; then
@@ -75,6 +100,7 @@ function remove_dotenv {
   echo "IMPORTANT: HAVE YOU SAVED THE PASSWORD SOMEWHERE? If not, do it now!"
   echo ""
   read -n 1 -s -r -p "Press any key to continue"
+#  sed -i '/^USER=/d' $CONFIGFILE
   sed -i '/^PASS=/d' $CONFIGFILE
   echo ""
 }

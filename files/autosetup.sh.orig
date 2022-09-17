@@ -1,15 +1,67 @@
 #!/usr/bin/bash
+## TODO:
+# Goddammit, this is already obsolete!
+# Check before running each step (is not installed? install!)
 
 ## -------------- Vars
 
-CONFIGFILE="/.env"
+CONFIGFILE=".env"
 
 ## -------------- Step Functions
 
+function change_hostname {
+  /autosetup/blink.sh 9 &
+  PID="$!"
+
+  sudo hostname $HOSTNAME
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error setting up hostname"
+  fi
+  sudo sed -i -e "s/raspberrypi/${HOSTNAME}/g" /etc/hosts
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error writing to /etc/hosts"
+  fi
+  sudo sed -i -e "s/raspberrypi/${HOSTNAME}/g" /etc/hostname
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error writing to /etc/hostname"
+  fi
+  show_log info "hostname change done"
+
+  kill $PID
+  /autosetup/blink.sh 0
+}
+
+function change_locale {
+  show_log info "locales TBD"
+  # locale -a
+  # locale-gen en_US.utf8
+  # locale-gen de_DE.utf8
+  # /etc/default/locale
+  # update-locale LANG=en_US.utf8
+}
+## - tweak raspbian  
+## ```
+## $ sudo raspi-config  
+## ```
+## - \> Localisation Options > Change Locale > choose the Locales you need, hit OK  
+## - \> Exit > Reboot  
+## 
 function config_user {
   /autosetup/blink.sh 8 &
   PID="$!"
 
+  mkdir -p /home/$USER/.ssh  
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error creating /home/$USER/.ssh"
+  fi
   cat /autosetup/sshpubkey | tee /home/$USER/.ssh/authorized_keys
   if [ $? -ne 0 ]; then
     kill $PID
@@ -64,6 +116,43 @@ function secure_ssh {
   /autosetup/blink.sh 0
 }
 
+function update_upgrade {
+  /autosetup/blink.sh 6 &
+  PID="$!"
+
+  sudo apt-get update  
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error updating packages"
+  fi
+  sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade  
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error upgrading packages"
+  fi
+  show_log info "updated and upgraded packages"
+
+  kill $PID
+  /autosetup/blink.sh 0
+}
+
+function install_packages {
+  /autosetup/blink.sh 5 &
+  PID="$!"
+
+  sudo apt-get install -y vim git rpi.gpio-common python3-pigpio pigpio-tools
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error installing the base packages"
+  fi
+  show_log info "installed base packages"
+
+  kill $PID
+  /autosetup/blink.sh 0
+}
 
 function pigpio_at_boot {
   /autosetup/blink.sh 4 &
@@ -93,24 +182,47 @@ function pigpio_at_boot {
   /autosetup/blink.sh 0
 }
 
-function config_python {
+function install_python {
   /autosetup/blink.sh 3 &
   PID="$!"
 
+#  wget -O - https://raw.githubusercontent.com/tvdsluijs/raspberry-pi-python-sh-installer/main//python3.9.7.sh | sudo bash
+#  if [ $? -ne 0 ]; then
+#    show_log err "There was an error compiling python"
+#  fi
+  apt-get install python3 python3-distutils
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error installing python"
+  fi
+  curl -O https://bootstrap.pypa.io/get-pip.py
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error downloading get-pip"
+  fi
+  python get-pip.py pip==20.3.4
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error installing pip"
+  fi
+#  rm -rf /usr/bin/lsb_release
 
-  python3 -m pip install --upgrade pip
+  python -m pip install --upgrade pip
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error upgrading pip"
   fi
-  pip install flatdict maturin python-dotenv
+  python -m pip install flatdict maturin 
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error installing stuff with pip"
   fi
-  show_log info "installed pip and some packages"
+  show_log info "installed python and some packages"
 
   kill $PID
   /autosetup/blink.sh 0
@@ -120,6 +232,12 @@ function install_fail2ban {
   /autosetup/blink.sh 2 &
   PID="$!"
 
+  apt-get install -y fail2ban  
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error installing fail2ban"
+  fi
   cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local  
   if [ $? -ne 0 ]; then
     kill $PID
@@ -142,6 +260,13 @@ function install_firewall {
   /autosetup/blink.sh 1 &
   PID="$!"
 
+  echo
+  sudo apt-get update && sudo apt-get install -y ufw  
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error installing ufw"
+  fi
   ufw default deny incoming  
   if [ $? -ne 0 ]; then
     kill $PID
@@ -173,63 +298,23 @@ function install_firewall {
 }
 
 function install_ros2 {
-  /autosetup/blink.sh 1 &
-  PID="$!"
+  echo
+  sudo apt-key adv --fetch-keys https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
 
-  sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error downloading rosdistro key"
-  fi
-  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error setting up apt sources for ros"
-  fi
-  sudo apt-get update && sudo apt-get install -y ros-rolling-ros-base
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error installing ros rolling base"
-  fi
-  show_log info "installed and configured ros2 rolling base"
+  #sudo apt-add-repository http://packages.ros.org/ros2/ubuntu # Better copy to sources.list
 
-  kill $PID
-  /autosetup/blink.sh 0
+sudo apt install ros-base
+
+source /opt/ros/foxy/setup.bash
+
 }
+## # Install ROS2
+## 
+## Follow the Official Guide at https://docs.ros.org/en/galactic/Installation.html
+## 
 
 function install_rust {
-  /autosetup/blink.sh 1 &
-  PID="$!"
-
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error installing rust"
-  fi
-
-#  sudo sh -c 'echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
-#  curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
-
-  curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.deb.sh | sudo bash
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error configuring colcon installation"
-  fi
-  sudo apt-get install -y python3-colcon-common-extensions
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error installing colcon"
-  fi
-
-  show_log info "installed and configured rust"
-  kill $PID
-  /autosetup/blink.sh 0
+  echo
 }
 
 function clone_repo {
@@ -299,11 +384,11 @@ function run {
   update_upgrade
   install_packages
   pigpio_at_boot
-  config_python
+  install_python
   install_fail2ban
   install_firewall
-  install_ros2
-  install_rust 
+  #install_ros2
+  #install_rust 
   clone_repo
   #connect_wifilan
 }

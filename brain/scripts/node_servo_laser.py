@@ -8,7 +8,7 @@ try:
 except ModuleNotFoundError:
     from lib_fake_rpi import fake_pigpio as pigpio
 
-from interfaces.srv import GetStatusKey
+#from interfaces.srv import GetStatusKey
 from brain.action import Servo, Getstatus
 
 from dotenv import load_dotenv
