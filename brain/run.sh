@@ -57,7 +57,7 @@ function just_run() {
 }
 
 function check_dotenv {
-  if [ -f ".env" ]; then
+  if [ ! -f ".env" ]; then
     echo "ERROR! .env file not found!"
     echo "  REMEMBER you can copy env.template to .env and adapt it!"
     echo "Exiting..."
