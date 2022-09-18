@@ -17,23 +17,34 @@ function config_user {
   mkdir -p /home/$NEWUSER/.ssh
   touch /home/$NEWUSER/.ssh/authorized_keys
   chown -R $NEWUSER /home/$NEWUSER
+
   cat /autosetup/sshpubkey | tee /home/$NEWUSER/.ssh/authorized_keys
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error adding pubkey"
   fi
+
   sudo chmod 600 /home/$NEWUSER/.ssh/authorized_keys  
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error changing access to authorized_keys"
   fi
+
   sudo chown -R $NEWUSER:$NEWUSER /home/$NEWUSER 
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error changing owner to /home/$NEWUSER"
+  fi
+
+  # TODO: this wasnt tested
+  sudo usermod -aG kmem,dialout $NEWUSER
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error adding $NEWUSER to kmem group"
   fi
   show_log info "adding SSH key done"
 
@@ -185,11 +196,15 @@ function install_rust {
   /autosetup/blink.sh 2 &
   PID="$!"
 
+  # TODO: this wasnt tested
+  show_log info "Installing rust for user $NEWUSER"
+  sudo -i -u $NEWUSER bash << EOF
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+EOF
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
-    show_log err "There was an error installing rust"
+    show_log err "There was an error installing rust for user $NEWUSER"
   fi
 
   curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.deb.sh | sudo bash
@@ -221,6 +236,13 @@ function clone_repo {
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error cloning the robot repository"
+  fi
+
+  chown $NEWUSER:$NEWUSER -R /home/$NEWUSER/robot
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error making $NEWUSER owner of the cloned repository folder"
   fi
   show_log info "cloned robot repository"
   kill $PID
