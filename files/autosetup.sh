@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+# TODO:
+# - remove ubuntu user after everything went ok
+# - auto connect to wifi
+
 ## -------------- Vars
 
 CONFIGFILE="/.env"
@@ -32,12 +36,11 @@ function config_user {
     show_log err "There was an error changing owner to /home/$NEWUSER"
   fi
   show_log info "adding SSH key done"
-  # sudo adduser $NEWUSER dialout gpio
-  #echo "adding USER to dialout and gpio key done"
 
   kill $PID
   /autosetup/blink.sh 0
 }
+
 
 function secure_ssh {
   /autosetup/blink.sh 7 &
@@ -67,10 +70,10 @@ function secure_ssh {
   /autosetup/blink.sh 0
 }
 
+
 function config_python {
   /autosetup/blink.sh 6 &
   PID="$!"
-
 
   python3 -m pip install --upgrade pip
   if [ $? -ne 0 ]; then
@@ -89,6 +92,7 @@ function config_python {
   kill $PID
   /autosetup/blink.sh 0
 }
+
 
 function install_fail2ban {
   /autosetup/blink.sh 5 &
@@ -111,6 +115,7 @@ function install_fail2ban {
   kill $PID
   /autosetup/blink.sh 0
 }
+
 
 function install_firewall {
   /autosetup/blink.sh 4 &
@@ -146,6 +151,7 @@ function install_firewall {
   /autosetup/blink.sh 0
 }
 
+
 function install_ros2 {
   /autosetup/blink.sh 3 &
   PID="$!"
@@ -174,6 +180,7 @@ function install_ros2 {
   /autosetup/blink.sh 0
 }
 
+
 function install_rust {
   /autosetup/blink.sh 2 &
   PID="$!"
@@ -184,9 +191,6 @@ function install_rust {
     /autosetup/blink.sh 0
     show_log err "There was an error installing rust"
   fi
-
-#  sudo sh -c 'echo "deb [arch=amd64,arm64] http://repo.ros2.org/ubuntu/main `lsb_release -cs` main" > /etc/apt/sources.list.d/ros2-latest.list'
-#  curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
 
   curl -s https://packagecloud.io/install/repositories/dirk-thomas/colcon/script.deb.sh | sudo bash
   if [ $? -ne 0 ]; then
@@ -206,10 +210,12 @@ function install_rust {
   /autosetup/blink.sh 0
 }
 
+
 function clone_repo {
   /autosetup/blink.sh 1 &
   PID="$!"
 
+  git config --global protocol.version 1
   git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot
   if [ $? -ne 0 ]; then
     kill $PID
@@ -220,12 +226,11 @@ function clone_repo {
   kill $PID
   /autosetup/blink.sh 0
 }
-## # Install Rust
-## Follow the Official Guide at https://www.rust-lang.org/tools/install
+
+
 function connect_wifilan {
   echo
 }
-
 ## # Make Raspberry connect to LAN through Wi-Fi
 ## Connect your Wifi dongle.  
 ## Read https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md  
