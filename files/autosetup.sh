@@ -10,26 +10,29 @@ function config_user {
   /autosetup/blink.sh 8 &
   PID="$!"
 
-  cat /autosetup/sshpubkey | tee /home/$USER/.ssh/authorized_keys
+  mkdir -p /home/$NEWUSER/.ssh
+  touch /home/$NEWUSER/.ssh/authorized_keys
+  chown -R $NEWUSER /home/$NEWUSER
+  cat /autosetup/sshpubkey | tee /home/$NEWUSER/.ssh/authorized_keys
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error adding pubkey"
   fi
-  sudo chmod 600 /home/$USER/.ssh/authorized_keys  
+  sudo chmod 600 /home/$NEWUSER/.ssh/authorized_keys  
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error changing access to authorized_keys"
   fi
-  sudo chown -R $USER:$USER /home/$USER 
+  sudo chown -R $NEWUSER:$NEWUSER /home/$NEWUSER 
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
-    show_log err "There was an error changing owner to /home/$USER"
+    show_log err "There was an error changing owner to /home/$NEWUSER"
   fi
   show_log info "adding SSH key done"
-  # sudo adduser $USER dialout gpio
+  # sudo adduser $NEWUSER dialout gpio
   #echo "adding USER to dialout and gpio key done"
 
   kill $PID
@@ -64,37 +67,8 @@ function secure_ssh {
   /autosetup/blink.sh 0
 }
 
-
-function pigpio_at_boot {
-  /autosetup/blink.sh 4 &
-  PID="$!"
-
-  sudo cp /autosetup/pigpiod.service /etc/systemd/system/
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error copying pigpiod service file to systemd"
-  fi
-  sudo systemctl enable pigpiod
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error enabling pigpiod"
-  fi
-  sudo systemctl start pigpiod
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error starting pigpiod"
-  fi
-  show_log info "enabled pigpiod at boot"
-
-  kill $PID
-  /autosetup/blink.sh 0
-}
-
 function config_python {
-  /autosetup/blink.sh 3 &
+  /autosetup/blink.sh 6 &
   PID="$!"
 
 
@@ -117,7 +91,7 @@ function config_python {
 }
 
 function install_fail2ban {
-  /autosetup/blink.sh 2 &
+  /autosetup/blink.sh 5 &
   PID="$!"
 
   cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local  
@@ -139,7 +113,7 @@ function install_fail2ban {
 }
 
 function install_firewall {
-  /autosetup/blink.sh 1 &
+  /autosetup/blink.sh 4 &
   PID="$!"
 
   ufw default deny incoming  
@@ -154,13 +128,13 @@ function install_firewall {
     /autosetup/blink.sh 0
     show_log err "There was an error allowing outgoing traffic"
   fi
-  ufw allow ${SSH_PORT}  
+  ufw allow ${SSHPORT}  
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error allowing SSH Port"
   fi
-  ufw enable  
+  ufw --force enable  
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
@@ -173,7 +147,7 @@ function install_firewall {
 }
 
 function install_ros2 {
-  /autosetup/blink.sh 1 &
+  /autosetup/blink.sh 3 &
   PID="$!"
 
   sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
@@ -188,7 +162,7 @@ function install_ros2 {
     /autosetup/blink.sh 0
     show_log err "There was an error setting up apt sources for ros"
   fi
-  sudo apt-get update && sudo apt-get install -y ros-rolling-ros-base
+  sudo apt-get  -o DPkg::Lock::Timeout=300 update && sudo apt-get install -y ros-rolling-ros-base
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
@@ -201,7 +175,7 @@ function install_ros2 {
 }
 
 function install_rust {
-  /autosetup/blink.sh 1 &
+  /autosetup/blink.sh 2 &
   PID="$!"
 
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
@@ -220,7 +194,7 @@ function install_rust {
     /autosetup/blink.sh 0
     show_log err "There was an error configuring colcon installation"
   fi
-  sudo apt-get install -y python3-colcon-common-extensions
+  sudo apt-get -o DPkg::Lock::Timeout=300 install -y python3-colcon-common-extensions
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
@@ -233,13 +207,18 @@ function install_rust {
 }
 
 function clone_repo {
-  git clone -b thirdphase https://github.com/angelalonso/robot /home/$USER/
+  /autosetup/blink.sh 1 &
+  PID="$!"
+
+  git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error cloning the robot repository"
   fi
   show_log info "cloned robot repository"
+  kill $PID
+  /autosetup/blink.sh 0
 }
 ## # Install Rust
 ## Follow the Official Guide at https://www.rust-lang.org/tools/install
@@ -292,13 +271,8 @@ function load_dotenv {
 
 function run {
   load_dotenv
-  change_hostname
-  #change_locale
   config_user
   secure_ssh
-  update_upgrade
-  install_packages
-  pigpio_at_boot
   config_python
   install_fail2ban
   install_firewall
