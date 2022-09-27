@@ -4,13 +4,13 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
 
-    # start the main brain manager in the brain namespace
-    main_brain = Node(
-            package='brain',
-            namespace='brain',
-            executable='main_brain.py',
-            name='main_brain'
-        )
+#    # start the main brain manager in the brain namespace
+#    main_brain = Node(
+#            package='brain',
+#            namespace='brain',
+#            executable='main_brain.py',
+#            name='main_brain'
+#        )
 
     # API for remote control
     node_api = Node(
@@ -20,12 +20,12 @@ def generate_launch_description():
             name='node_api'
         )
 
-    # Manage Status using a Topic ## REMEMBER a Service is CPUllshit!
-    publisher_status = Node(
+    # Manage Status using a Rust program ## REMEMBER a Service is CPUllshit!
+    node_status = Node(
             package='brain',
             namespace='brain',
-            executable='publisher_status.py',
-            name='publisher_status'
+            executable='node_status.py',
+            name='node_status'
         )
 
     # Read from the Serial Link that connects to the Arduino
@@ -68,9 +68,9 @@ def generate_launch_description():
         )
 
     return LaunchDescription([
-        main_brain,
+#        main_brain,
         node_api,
-        publisher_status,
+        node_status,
         node_arduino,
         node_led,
         node_servo_laser,

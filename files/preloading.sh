@@ -20,21 +20,13 @@ function load_dotenv {
   fi
 }
 
-function remove_PASS_from_dotenv {
-  # Avoid having the passwords around
-  echo ""
-  echo "Next we will be removing your user and password from the .env file, for security reasons..."
-  echo ""
-  echo "IMPORTANT: HAVE YOU SAVED THE PASSWORD SOMEWHERE? If not, do it now!"
-  echo ""
-  read -n 1 -s -r -p "Press any key to continue"
-  sed -i '/^PASS=/d' $CONFIGFILE
-  echo ""
-}
-
 function modify_files {
   cp sshd_config sshd_config.orig
   sed -i -e "s/#Port 22/Port ${SSHPORT}/g" sshd_config
+
+  cp wpa_supplicant.conf wpa_supplicant.conf.orig
+  sed -i -e "s/ssid=\"\"/ssid=\"${WIFI_SSID}\"/g" wpa_supplicant.conf
+  sed -i -e "s/psk=\"\"/psk=\"${WIFI_PASS}\"/g" wpa_supplicant.conf
 }
 
 function copy_files {
@@ -48,6 +40,7 @@ function copy_files {
     sudo cp .env $ROOTPATH/
     sudo cp user-data $BOOTPATH/
     sudo cp sshd_config $ROOTPATH/autosetup/
+    sudo cp wpa_supplicant.conf $ROOTPATH/etc/wpa_supplicant/wpa_supplicant.conf
     sudo mv sshd_config.orig sshd_config # restore original
     sudo chmod +x $ROOTPATH/autosetup/autosetup.sh
     sudo chmod +x $ROOTPATH/autosetup/blink.sh
@@ -64,6 +57,18 @@ function copy_files {
   else
     show_log err "$BOOTPATH OR $ROOTPATH not mounted, check MICROSD_PATH on $CONFIGFILE matches the actual mountpoint for both (e.g.: /media/user for both /media/user/rootfs and /media/user/boot)"
   fi
+}
+
+function remove_PASS_from_dotenv {
+  # Avoid having the passwords around
+  echo ""
+  echo "Next we will be removing your user's password from the .env file, for security reasons..."
+  echo ""
+  echo "IMPORTANT: HAVE YOU SAVED THE PASSWORD SOMEWHERE? If not, do it now!"
+  echo ""
+  read -n 1 -s -r -p "Press any key to continue"
+  sed -i '/^PASS=/d' $CONFIGFILE
+  echo ""
 }
 
 ## -------------- Aux Functions
@@ -93,12 +98,12 @@ function show_log {
 
 function run {
   load_dotenv
-  remove_PASS_from_dotenv
   modify_files
-  copy_files
-
-  sudo umount $BOOTPATH
-  sudo umount $ROOTPATH
+#  copy_files
+#  remove_PASS_from_dotenv
+#
+#  sudo umount $BOOTPATH
+#  sudo umount $ROOTPATH
 
   show_log info " - MicroSD READY! Now please do as follows:""insert the MicroSD on your Raspberry Pi and boot it up!"
   show_log info "  * Insert the MicroSD on your Raspberry Pi and boot it up"

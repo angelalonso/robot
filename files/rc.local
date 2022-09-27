@@ -19,4 +19,7 @@ fi
 
 /autosetup/autosetup.sh > /autosetup/autosetup.log 2>&1 &
 
+service wpa_supplicant stop
+wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+
 exit 0

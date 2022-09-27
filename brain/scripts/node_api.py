@@ -104,6 +104,12 @@ class ApiWrapper(Node):
             time.sleep(0.5)
         self.servolaser.send_goal(1500)
 
+    def get_mode(self):
+        self.get_logger().info('  Getting current Mode')
+        get_status_msg = String()
+        get_status_msg.data = 'mode'
+        self.get_status_publisher_.publish(get_status_msg)
+
 
 def main(args=None):
     load_dotenv()
@@ -118,6 +124,7 @@ def main(args=None):
     api.add_endpoint(endpoint='/do/right', endpoint_name='do_right', handler=api.action_right)
     api.add_endpoint(endpoint='/do/left', endpoint_name='do_left', handler=api.action_left)
     api.add_endpoint(endpoint='/do/scan', endpoint_name='do_scan', handler=api.action_scan)
+    api.add_endpoint(endpoint='/get/mode', endpoint_name='get_mode', handler=api.get_mode)
 
     api.run()
 

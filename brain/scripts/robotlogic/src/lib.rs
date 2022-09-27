@@ -1,9 +1,9 @@
-use pyo3::pymodule;
-use pyo3::PyResult;
 use pyo3::exceptions::PyKeyError;
 use pyo3::prelude::*;
+use pyo3::pymodule;
+use pyo3::PyResult;
 
-use serde::{Deserialize};
+use serde::Deserialize;
 use std::collections::HashMap;
 use thiserror::Error;
 
@@ -35,17 +35,19 @@ pub enum BrainDeadError {
 /// State is a HashMap of variables and their current status
 #[derive(Clone, Debug)]
 pub struct State {
-    data: HashMap<String, String>
+    data: HashMap<String, String>,
 }
 
 /// It can only be created empty
 impl State {
     #[allow(dead_code)]
     fn new() -> State {
-        State {data: HashMap::new()}
+        State {
+            data: HashMap::new(),
+        }
     }
 
-/// Creates a new pair of variable (e.g.: temperature) and its state
+    /// Creates a new pair of variable (e.g.: temperature) and its state
     #[allow(dead_code)]
     fn set(&mut self, key: String, val: String) {
         self.data.insert(key.to_string(), val.to_string());
@@ -54,9 +56,9 @@ impl State {
     #[allow(dead_code)]
     fn get(&mut self, key: &str) -> PyResult<&str> {
         if self.data.contains_key(key) {
-            return Ok(&self.data[key])
+            return Ok(&self.data[key]);
         } else {
-            return Err(PyKeyError::new_err("BrainDeadError::KeyNotFoundError"))
+            return Err(PyKeyError::new_err("BrainDeadError::KeyNotFoundError"));
         }
     }
 }
@@ -83,7 +85,7 @@ struct Config {
 pub struct Logic {
     state: State,
     radar: Dataset,
-    config: Vec<Config>
+    config: Vec<Config>,
 }
 
 /// Manages the relation between [Config]s and current [State]s.
@@ -92,13 +94,19 @@ impl Logic {
     /// The config Vec gets loaded from a Yaml file
     #[allow(dead_code)]
     #[new]
-    pub fn new(configfile: &str, min_angle: i32, max_angle: i32, max_distance: i32, max_distance_graphic: i32) -> Logic {
+    pub fn new(
+        configfile: &str,
+        min_angle: i32,
+        max_angle: i32,
+        max_distance: i32,
+        max_distance_graphic: i32,
+    ) -> Logic {
         let f = match std::fs::File::open(configfile) {
             Ok(file) => file,
             Err(error) => panic!("Problem opening the file: {:?}", error),
         };
         let mut c: Vec<Config> = [].to_vec();
-        c = match serde_yaml::from_reader(f) { 
+        c = match serde_yaml::from_reader(f) {
             Ok(cfg) => cfg,
             Err(_err) => c,
         };
@@ -129,34 +137,33 @@ impl Logic {
     #[allow(dead_code)]
     pub fn add_object(&mut self, angle_raw: i32, distance: i32) -> (i32, i32) {
         let res = self.radar.add_ping(angle_raw, distance);
-        return (res.x, res.y)
+        return (res.x, res.y);
     }
 
     /// Shows current values of radar
     #[allow(dead_code)]
     pub fn get_radar(&mut self) -> Vec<String> {
         let res = self.radar.show();
-        return res
+        return res;
     }
 
-
-    /// Sets a value for the state of a given key (key being time, distance, amount of light...) 
+    /// Sets a value for the state of a given key (key being time, distance, amount of light...)
     #[allow(dead_code)]
     pub fn set_state(&mut self, key: String, val: String) {
         // TODO control what is received here
         self.state.set(key, val);
     }
 
-    /// Gets the value for the state of a given key (key being time, distance, amount of light...) 
+    /// Gets the value for the state of a given key (key being time, distance, amount of light...)
     #[allow(dead_code)]
     pub fn get_state(&mut self, key: &str) -> PyResult<&str> {
-        return self.state.get(&key)
+        return self.state.get(&key);
     }
 
     /// Returns a copy of the state's data
     #[allow(dead_code)]
     fn get_states(&mut self) -> PyResult<HashMap<String, String>> {
-        return Ok(self.state.data.clone())
+        return Ok(self.state.data.clone());
     }
 
     /// Returns the action that matches the current set of [State]s
@@ -168,11 +175,11 @@ impl Logic {
             if get_result(&v.condition, &self.state.data) {
                 result = v.action.clone();
             };
-        };
+        }
         if result.is_empty() {
-            return Err(PyKeyError::new_err("BrainDeadError::ActionNotFoundError"))
+            return Err(PyKeyError::new_err("BrainDeadError::ActionNotFoundError"));
         } else {
-            return Ok(result)
+            return Ok(result);
         }
     }
 }
@@ -181,9 +188,9 @@ impl Logic {
 fn robotlogic(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Logic>()?;
     /*
-    m.add_wrapped(wrap_pyfunction!(from_pid))?;
-    m.add_wrapped(wrap_pyfunction!(from_path))?;
-    m.add_wrapped(wrap_pyfunction!(from_str))?;
-*/
+        m.add_wrapped(wrap_pyfunction!(from_pid))?;
+        m.add_wrapped(wrap_pyfunction!(from_path))?;
+        m.add_wrapped(wrap_pyfunction!(from_str))?;
+    */
     Ok(())
 }

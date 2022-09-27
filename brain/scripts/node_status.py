@@ -2,18 +2,11 @@
 
 # importing Rust libraries
 import importlib.util
-##rustbrain_spec = importlib.util.spec_from_file_location("rustbrain", 
-##        "./scripts/rustbrain/.env/lib/python3.8/site-packages/rustbrain/rustbrain.cpython-38-x86_64-linux-gnu.so")
-##rustbrain = importlib.util.module_from_spec(rustbrain_spec)
-##rustbrain_spec.loader.exec_module(rustbrain)
 
-try:
-    robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
-        "./scripts/robotlogic/env/lib/python3.10/site-packages/robotlogic/robotlogic.cpython-310-aarch64-linux-gnu.so") # Modify this if your path at the raspberry is different
-#        "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-aarch64-linux-gnu.so")
-except ImportError:
-    robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
-        "./scripts/robotlogic/env/lib/python3.8/site-packages/robotlogic/robotlogic.cpython-38-x86_64-linux-gnu.so") # Modify this if your path at your local machine is different
+from os.path import exists
+built_lib = "./scripts/robotlogic/robotlogic.so"
+robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
+    built_lib)
 robotlogic = importlib.util.module_from_spec(robotlogic_spec)
 robotlogic_spec.loader.exec_module(robotlogic)
 
@@ -29,6 +22,7 @@ class Status(object):
     def __init__(self):
         super().__init__()
         self.current = {}
+        
 
     def __getitem__(self, item):
         try:
@@ -43,17 +37,17 @@ class Status(object):
         return str(flatdict.FlatDict(self.current, delimiter='.'))
 
 
-class PublisherStatus(Node):
+class StatusManager(Node):
 
-    def __init__(self, loglevel):
+    def __init__(self, loglevel, mode):
         super().__init__('status_publisher')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.status = Status()
+        self.status.set_status("mode", mode)
+
         # TODO: continue this:
         self.logic = robotlogic.Logic("integration_actionset.yaml", 500, 2500, 500, 10)
-        ##self.radar = rustbrain.Dataset(500, 2500, 500, 10)
         self.logic.radar_init()
-        ##self.radar.build_map()
         # Listen to `get_status` (to send status after that)
         self.getstatus_subscription = self.create_subscription(
             String,
@@ -106,14 +100,15 @@ class PublisherStatus(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    MODE = getenv('MODE')
 
     init(args=args)
 
-    publisher_status = PublisherStatus(LOGLEVEL)
+    status_manager = StatusManager(LOGLEVEL, MODE)
 
-    spin(publisher_status)
+    spin(status_manager)
 
-    publisher_status.destroy_node()
+    status_manager.destroy_node()
     shutdown()
 
 

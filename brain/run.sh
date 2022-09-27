@@ -38,6 +38,9 @@ function build_n_run() {
   source env/bin/activate
   maturin develop
   deactivate
+  rm robotlogic.so || true
+  BUILT=$(ls ./env/lib/python*/site-packages/robotlogic/*.so)
+  cp $BUILT robotlogic.so
   cd ${CWD}
 
   source /opt/ros/rolling/local_setup.sh

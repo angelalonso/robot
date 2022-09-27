@@ -17,3 +17,4 @@ development
 **/callgrind*
 **/app/release/*
 **/esp32*
+scripts/robotlogic/robotlogic.so
