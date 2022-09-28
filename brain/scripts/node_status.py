@@ -15,6 +15,7 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 
+import flatdict
 from dotenv import load_dotenv
 from os import getenv
 
@@ -72,7 +73,6 @@ class StatusManager(Node):
                 self.status.set_status(keyval[0], keyval[1])
                 if keyval[0] == 'laser':
                     try:
-                        ##self.radar.add_ping(int(self.status['servolaser']), int(keyval[1]))
                         self.logic.add_object(int(self.status['servolaser']), int(keyval[1]))
                     except (ValueError, KeyError):
                         pass
