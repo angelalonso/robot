@@ -3,7 +3,6 @@
 # importing Rust libraries
 import importlib.util
 
-from os.path import exists
 built_lib = "./scripts/robotlogic/robotlogic.so"
 robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
     built_lib)
@@ -62,7 +61,24 @@ class StatusManager(Node):
             'set_status',
             self.listener_callback_set,
             10)
+        # TODO: is this 0.01 the right amount?
+        # TODO: set it as a variable on .env
+        self.timer = self.create_timer(0.01, self.logic_callback)
         self.setstatus_subscription  # prevent unused variable warning        
+
+    def logic_callback(self):
+        # TODO: logic has a specific function to check what to do on this specific call, by checking statuses, mainly time 
+        self.logic.do_next_action()
+        try:
+            login_return_msg = self.logic.get_state("logic_log_msg")
+        except KeyError:
+            login_return_msg = ""
+        if login_return_msg != "":
+            self.get_logger().info('-- Logic says: ' + login_return_msg)
+            self.logic.set_empty_state("logic_log_msg")
+
+        
+
 
     def listener_callback_set(self, msg):
         # TODO: improve on this (avoid using SENSOR if not necessary?)

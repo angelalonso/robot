@@ -112,14 +112,16 @@ impl Logic {
         };
         let mut logic_state = State::new();
         logic_state.set("mode".to_string(), "mapping".to_string());
+
         let r = Dataset {
             set: [].to_vec(),
             mapxy: [].to_vec(),
-            min_angle: min_angle,
-            max_angle: max_angle,
-            max_distance: max_distance,
-            max_distance_graphic: max_distance_graphic,
+            min_angle,
+            max_angle,
+            max_distance,
+            max_distance_graphic,
         };
+
         Logic {
             state: logic_state,
             radar: r,
@@ -154,6 +156,13 @@ impl Logic {
         self.state.set(key, val);
     }
 
+    /// Sets an empty value for the state of a given key (key being time, distance, amount of light...)
+    #[allow(dead_code)]
+    pub fn set_empty_state(&mut self, key: String) {
+        // TODO control what is received here
+        self.state.set(key, "".to_string());
+    }
+
     /// Gets the value for the state of a given key (key being time, distance, amount of light...)
     #[allow(dead_code)]
     pub fn get_state(&mut self, key: &str) -> PyResult<&str> {
@@ -181,6 +190,13 @@ impl Logic {
         } else {
             return Ok(result);
         }
+    }
+
+    /// Finds the next action to take
+    /// TO BE IMPROVED
+    #[allow(dead_code)]
+    pub fn do_next_action(&mut self) {
+        self.set_state("logic_log_msg".to_string(), "This is a Test".to_string());
     }
 }
 
