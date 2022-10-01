@@ -95,6 +95,7 @@ impl Logic {
     #[allow(dead_code)]
     #[new]
     pub fn new(
+        mode: &str,
         configfile: &str,
         min_angle: i32,
         max_angle: i32,
@@ -111,7 +112,7 @@ impl Logic {
             Err(_err) => c,
         };
         let mut logic_state = State::new();
-        logic_state.set("mode".to_string(), "mapping".to_string());
+        logic_state.set("mode".to_string(), mode.to_string());
 
         let r = Dataset {
             set: [].to_vec(),
@@ -196,7 +197,14 @@ impl Logic {
     /// TO BE IMPROVED
     #[allow(dead_code)]
     pub fn do_next_action(&mut self) {
-        self.set_state("logic_log_msg".to_string(), "This is a Test".to_string());
+        let mut result: String = "".to_owned();
+        for v in self.state.data.clone().iter() {
+            result.push_str(&v.0);
+            result.push_str(":");
+            result.push_str(&v.1);
+            result.push_str("|");
+        }
+        self.set_state("logic_log_msg".to_string(), result);
     }
 }
 

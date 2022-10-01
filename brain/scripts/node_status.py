@@ -14,6 +14,8 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 
+from datetime import datetime as dt
+import time
 import flatdict
 from dotenv import load_dotenv
 from os import getenv
@@ -39,14 +41,16 @@ class Status(object):
 
 class StatusManager(Node):
 
-    def __init__(self, loglevel, mode):
+    def __init__(self, loglevel, mode, refresh_secs):
         super().__init__('status_publisher')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.status = Status()
         self.status.set_status("mode", mode)
 
+        self.start = time.time()
+
         # TODO: continue this:
-        self.logic = robotlogic.Logic("integration_actionset.yaml", 500, 2500, 500, 10)
+        self.logic = robotlogic.Logic(mode, "integration_actionset.yaml", 500, 2500, 500, 10)
         self.logic.radar_init()
         # Listen to `get_status` (to send status after that)
         self.getstatus_subscription = self.create_subscription(
@@ -61,13 +65,18 @@ class StatusManager(Node):
             'set_status',
             self.listener_callback_set,
             10)
-        # TODO: is this 0.01 the right amount?
-        # TODO: set it as a variable on .env
-        self.timer = self.create_timer(0.01, self.logic_callback)
+        try:
+            rate = float(refresh_secs)
+        except:
+            self.get_logger().warn('REFRESH_SECS env variable is not defined as a proper float value')
+            rate = 2 # too high a default value, to make it noticeable that we re using the default
+        self.timer = self.create_timer(rate, self.logic_callback)
         self.setstatus_subscription  # prevent unused variable warning        
 
     def logic_callback(self):
         # TODO: logic has a specific function to check what to do on this specific call, by checking statuses, mainly time 
+        now = time.time()
+        self.logic.set_state("time", dt.strftime(dt.fromtimestamp(now - self.start - 3600), '%H:%M:%S.%f')) # TODO: why do I need to remove an hour here???
         self.logic.do_next_action()
         try:
             login_return_msg = self.logic.get_state("logic_log_msg")
@@ -117,10 +126,11 @@ def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
     MODE = getenv('MODE')
+    REFRESH_SECS = getenv('REFRESH_SECS')
 
     init(args=args)
 
-    status_manager = StatusManager(LOGLEVEL, MODE)
+    status_manager = StatusManager(LOGLEVEL, MODE, REFRESH_SECS)
 
     spin(status_manager)
 
