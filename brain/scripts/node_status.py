@@ -12,9 +12,11 @@ robotlogic_spec.loader.exec_module(robotlogic)
 from rclpy import init, logging, spin, shutdown
 from rclpy.node import Node
 
+from action_clients import LedActionClient, MotorLeftActionClient, MotorRightActionClient
+
 from std_msgs.msg import String
 
-from datetime import datetime as dt
+#from datetime import datetime as dt
 from dotenv import load_dotenv
 from os import getenv
 from os.path import exists
@@ -67,6 +69,12 @@ class StatusManager(Node):
             'get_status',
             self.listener_callback_get,
             10)
+
+        # load action clients
+        self.led= LedActionClient()
+        self.motor_l= MotorLeftActionClient()
+        self.motor_r= MotorRightActionClient()
+
         self.getstatus_subscription  # prevent unused variable warning        
         # Listen to `set_status` (to change the value of a status after that)
         self.setstatus_subscription = self.create_subscription(
@@ -83,12 +91,31 @@ class StatusManager(Node):
         self.setstatus_subscription  # prevent unused variable warning        
 
     def logic_callback(self):
-        # TODO: logic has a specific function to check what to do on this specific call, by checking statuses, mainly time 
         now = time.time()
-        self.logic.set_state("time", dt.strftime(dt.fromtimestamp(now - self.start - 3600), '%H:%M:%S.%f')) # TODO: why do I need to remove an hour here???
+        self.logic.set_state("time", str(now - self.start))
         result = self.logic.get_action()
         self.get_logger().info('-- Logic says: ' + result)
-
+        for action in result.split(", "):
+            try:
+                key, value = action.split("=")
+            except ValueError:
+                pass
+            else:
+                try:
+                    self.status.set_status(key, value)
+                    #self.logic.add_object(key, int(value)) # TODO: do we need this? then solve issue
+                    if (key == "led"):
+                        self.led.send_goal(value)
+                    elif (key == "motor_l"):
+                        self.motor_l.send_goal(value)
+                        self.get_logger().info('---- ' + key + ' -> ' + value)
+                    elif (key == "motor_r"):
+                        self.motor_r.send_goal(value)
+                        self.get_logger().info('---- ' + key + ' -> ' + value)
+                    else:
+                        pass
+                except Exception as e:
+                    self.get_logger().info('-- PROBLEM SPLITTING ' + result + '--' + str(e))
         #self.logic.do_next_action()
         #try:
         #    login_return_msg = self.logic.get_state("logic_log_msg")
@@ -97,9 +124,6 @@ class StatusManager(Node):
         #if login_return_msg != "":
         #    self.get_logger().info('-- Logic says: ' + login_return_msg)
         #    self.logic.set_empty_state("logic_log_msg")
-
-        
-
 
     def listener_callback_set(self, msg):
         # TODO: improve on this (avoid using SENSOR if not necessary?)
@@ -120,10 +144,7 @@ class StatusManager(Node):
     def listener_callback_get(self, msg):
         self.get_logger().info('I heard GET: "%s"' % msg.data)
         if msg.data == 'radar':
-            ##mapping = self.radar.show()
             mapping = self.logic.get_radar()
-            ##for line in mapping:
-            ##    self.get_logger().info(line)
             for line in mapping:
                 self.get_logger().info(line)
         else:

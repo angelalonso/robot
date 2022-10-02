@@ -187,7 +187,7 @@ impl Logic {
             };
         }
         if result.is_empty() {
-            return Err(PyKeyError::new_err("BrainDeadError::ActionNotFoundError"));
+            return Ok("".to_string());
         } else {
             return Ok(result);
         }
