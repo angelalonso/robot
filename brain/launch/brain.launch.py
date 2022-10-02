@@ -1,9 +1,12 @@
 from launch import LaunchDescription
+from launch.actions import LogInfo
+from launch.actions import Shutdown
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
 
+    emit_shutdown_action = Shutdown(reason='launch is shutting down')
 #    # start the main brain manager in the brain namespace
 #    main_brain = Node(
 #            package='brain',
@@ -25,7 +28,9 @@ def generate_launch_description():
             package='brain',
             namespace='brain',
             executable='node_status.py',
-            name='node_status'
+            name='node_status',
+            on_exit=[LogInfo(msg=["STATUS Node 2 stopped. Stopping everything..."]),
+                     emit_shutdown_action],
         )
 
     # Read from the Serial Link that connects to the Arduino

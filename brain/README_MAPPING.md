@@ -1,4 +1,4 @@
-# How it works
+[#](#) How it works
 
 - Move until something is found in radar   <------
 - Get action(s) (e.g.: save value and move)       |
