@@ -99,11 +99,11 @@ function show_log {
 function run {
   load_dotenv
   modify_files
-#  copy_files
-#  remove_PASS_from_dotenv
+  copy_files
+  remove_PASS_from_dotenv
 #
-#  sudo umount $BOOTPATH
-#  sudo umount $ROOTPATH
+  sudo umount $BOOTPATH
+  sudo umount $ROOTPATH
 
   show_log info " - MicroSD READY! Now please do as follows:""insert the MicroSD on your Raspberry Pi and boot it up!"
   show_log info "  * Insert the MicroSD on your Raspberry Pi and boot it up"
