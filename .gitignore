@@ -8,8 +8,6 @@
 **/*.swp
 **/*.swo
 **/userconf
-brain/Cargo.lock
-brain/records
 test_svc
 development
 **/.criterion
@@ -17,4 +15,8 @@ development
 **/callgrind*
 **/app/release/*
 **/esp32*
+
+brain/Cargo.lock
+brain/records
 brain/scripts/robotlogic/robotlogic.so
+**/files/wpa_supplicant.conf.orig

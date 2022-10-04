@@ -244,6 +244,14 @@ function clone_repo {
     /autosetup/blink.sh 0
     show_log err "There was an error making $NEWUSER owner of the cloned repository folder"
   fi
+
+  cp /.env /home/$NEWUSER/robot/brain/.env
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error copying the .env to the actual program"
+  fi
+
   show_log info "cloned robot repository"
   kill $PID
   /autosetup/blink.sh 0
@@ -251,7 +259,20 @@ function clone_repo {
 
 
 function connect_wifilan {
+  /autosetup/blink.sh 1 &
+  PID="$!"
+
   echo
+  systemctl enable rc-local
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error enabling rc-local"
+  fi
+
+  show_log info "enabled rc-local"
+  kill $PID
+  /autosetup/blink.sh 0
 }
 ## # Make Raspberry connect to LAN through Wi-Fi
 ## Connect your Wifi dongle.  
@@ -306,7 +327,7 @@ function run {
   install_ros2
   install_rust 
   clone_repo
-  #connect_wifilan
+  connect_wifilan
 }
 
 ## -------------- Main

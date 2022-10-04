@@ -1,6 +1,16 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
-# TODO:
+# TODO: why did this not run on its first try?? no output either
+##  Troubleshoot?  as root:
+## sudo cloud-init init --local
+## sudo cloud-init init
+## sudo cloud-init schema --system
+## sudo cloud-init modules --mode=config
+## sudo cloud-init modules --mode=final
+## 
+## rm /var/lib/cloud/instance/sem/* && sudo cloud-init modules --mode=config && sudo cloud-init modules --mode=final
+# TODO: asks to restart plymouth on ros2 and rust install, why?
+
 
 ## -------------- Vars
 
@@ -42,8 +52,11 @@ function copy_files {
     sudo cp sshd_config $ROOTPATH/autosetup/
     sudo cp wpa_supplicant.conf $ROOTPATH/etc/wpa_supplicant/wpa_supplicant.conf
     sudo mv sshd_config.orig sshd_config # restore original
+    sudo cp rc.local $ROOTPATH/etc/rc.local
+    sudo cp rc-local.service $ROOTPATH/lib/systemd/system/rc-local.service
     sudo chmod +x $ROOTPATH/autosetup/autosetup.sh
     sudo chmod +x $ROOTPATH/autosetup/blink.sh
+    sudo chmod +x $ROOTPATH/etc/rc.local
     if [ -f $SSHPUBPATH ]; then
       ssh-keygen -l -f $SSHPUBPATH
       if [ $? -eq 0 ]; then 
@@ -101,7 +114,6 @@ function run {
   modify_files
   copy_files
   remove_PASS_from_dotenv
-#
   sudo umount $BOOTPATH
   sudo umount $ROOTPATH
 

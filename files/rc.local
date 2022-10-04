@@ -17,9 +17,8 @@ if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-/autosetup/autosetup.sh > /autosetup/autosetup.log 2>&1 &
-
 service wpa_supplicant stop
+rm /var/run/wpa_supplicant/wlan0 || true
 wpa_supplicant -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
 
 exit 0

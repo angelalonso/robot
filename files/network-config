@@ -34,8 +34,8 @@ wifis:
     dhcp4: true
     optional: true
     access-points:
-      'FRITZ!Box 1312 Cable':
-        password: "kLTkVANRadS9z8qAzNKWh3CHNacyEwUq"
+      'THisisTheNAmeOfTheWifi':
+        password: "1234567890qwertzuioasdfghjyxcvbn"
 #      myworkwifi:
 #        password: "correct battery horse staple"
 #      workssid:

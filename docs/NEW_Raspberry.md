@@ -20,10 +20,6 @@ cp env.template .env
 ```
 sudo apt-get install whois
 ```
-# TODO: modify this to use user-data file (among others, check ubuntu docs)
-#  First identify steps that can go there (user, pass, ssh key...)
-#  Then put the rest on a different side 
-#  TODO: how exactly can I run a script on first boot only?
 - Run the preloading script
 ```
 ./preloading.sh
