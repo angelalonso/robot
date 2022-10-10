@@ -1,10 +1,10 @@
 --- 
 - name: "movement001_start"
-  action: "motor_l=1, motor_r=1"
+  action: "led=1"
   condition: "time>0.0&&time<0.1"
 - name: "movement001_stop"
-  action: "motor_l=0, motor_r=0"
+  action: "led=0"
   condition: "time>1.0&&time<1.1"
 - name: "default"
-  action: "motor_l=0, motor_r=0"
+  action: "led=0"
   condition: "time>1.1"

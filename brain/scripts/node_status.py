@@ -102,16 +102,18 @@ class StatusManager(Node):
                 pass
             else:
                 try:
-                    self.status.set_status(key, value)
                     #self.logic.add_object(key, int(value)) # TODO: do we need this? then solve issue
                     if (key == "led"):
                         self.led.send_goal(value.lower() in ['true', '1', 't', 'y', 'yes'])
+                        self.status.set_status(key, value.lower() in ['true', '1', 't', 'y', 'yes'])
                     elif (key == "motor_l"):
                         self.motor_l.send_goal(value)
                         self.get_logger().info('---- ' + key + ' -> ' + value)
+                        self.status.set_status(key, value)
                     elif (key == "motor_r"):
                         self.motor_r.send_goal(value)
                         self.get_logger().info('---- ' + key + ' -> ' + value)
+                        self.status.set_status(key, value)
                     else:
                         pass
                 except Exception as e:

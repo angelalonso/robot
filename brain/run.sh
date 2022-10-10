@@ -23,6 +23,8 @@ function adapt() {
 }
 
 function build() {
+  rm -rf log/* build/* install/brain/*
+
   trap ctrl_c INT
 
   cwd=$(pwd)
@@ -42,6 +44,11 @@ function build() {
   BUILT=$(ls ./env/lib/python*/site-packages/robotlogic/*.so)
   cp $BUILT robotlogic.so
   cd ${CWD}
+
+  source /opt/ros/rolling/local_setup.sh
+#  . ./interfaces/install/setup.bash && \
+  colcon build && \
+    . ./install/setup.bash
 }
 
 function just_run() {
