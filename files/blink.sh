@@ -48,7 +48,15 @@ function blink_x_times {
 
 function load_dotenv {
   if [ -f "$CONFIGFILE" ]; then
-    export $(cat ${CONFIGFILE} | grep -v '^#' | xargs) >/dev/null
+    if [ $(grep PASS $CONFIGFILE | wc -l) -eq 0 ]; then
+      show_log err ".env file does not have the PASS variable, please add it! (HINT: are you reusing the file from a previous run?)"
+    else
+      #export $(cat ${CONFIGFILE} | grep -v '^#' | xargs) >/dev/null
+      #export $(cat ${CONFIGFILE} | grep -v '^#' | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g" | xargs) >/dev/null
+      set -o allexport
+      source .env
+      set +o allexport
+    fi
   else 
     show_log err ".env file does not exist. Have you created it from env.template?"
   fi

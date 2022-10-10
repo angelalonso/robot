@@ -3,15 +3,19 @@
 # TODO:
 # - remove ubuntu user after everything went ok
 # - auto connect to wifi
+# - ./run.sh build
+# - problems with password
+# - auto restart
 
 ## -------------- Vars
 
 CONFIGFILE="/.env"
+LOCKFILE="/autosetup/autosetup.lock"
 
 ## -------------- Step Functions
 
 function config_user {
-  /autosetup/blink.sh 8 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   mkdir -p /home/$NEWUSER/.ssh
@@ -52,9 +56,8 @@ function config_user {
   /autosetup/blink.sh 0
 }
 
-
 function secure_ssh {
-  /autosetup/blink.sh 7 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   sudo sed -i -e "s/#Port 22/Port ${SSHPORT}/g" /autosetup/sshd_config
@@ -83,7 +86,7 @@ function secure_ssh {
 
 
 function config_python {
-  /autosetup/blink.sh 6 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   python3 -m pip install --upgrade pip
@@ -106,7 +109,7 @@ function config_python {
 
 
 function install_fail2ban {
-  /autosetup/blink.sh 5 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local  
@@ -129,7 +132,7 @@ function install_fail2ban {
 
 
 function install_firewall {
-  /autosetup/blink.sh 4 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   ufw default deny incoming  
@@ -164,7 +167,7 @@ function install_firewall {
 
 
 function install_ros2 {
-  /autosetup/blink.sh 3 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg
@@ -193,7 +196,7 @@ function install_ros2 {
 
 
 function install_rust {
-  /autosetup/blink.sh 2 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   # TODO: this wasnt tested
@@ -227,7 +230,7 @@ EOF
 
 
 function clone_repo {
-  /autosetup/blink.sh 1 &
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   git config --global protocol.version 1
@@ -252,14 +255,21 @@ function clone_repo {
     show_log err "There was an error copying the .env to the actual program"
   fi
 
-  show_log info "cloned robot repository"
+  cd /home/$NEWUSER/robot/brain && ./run.sh build
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error building the code"
+  fi
+
+  show_log info "cloned robot repository and built it"
   kill $PID
   /autosetup/blink.sh 0
 }
 
 
-function connect_wifilan {
-  /autosetup/blink.sh 1 &
+function prepare_rclocal {
+  /autosetup/blink.sh $1 &
   PID="$!"
 
   echo
@@ -318,16 +328,23 @@ function load_dotenv {
 }
 
 function run {
-  load_dotenv
-  config_user
-  secure_ssh
-  config_python
-  install_fail2ban
-  install_firewall
-  install_ros2
-  install_rust 
-  clone_repo
-  connect_wifilan
+  if [ ! -f ${LOCKFILE} ]; then
+    load_dotenv 10
+    config_user 9
+    secure_ssh 8
+    config_python 7
+    install_fail2ban 6
+    install_firewall 5
+    install_ros2 4
+    install_rust 3
+    clone_repo 2
+    prepare_rclocal 1
+  else
+    echo "Configuration ran properly. Skipping..."
+  fi
+
+  touch ${LOCKFILE}
+
 }
 
 ## -------------- Main

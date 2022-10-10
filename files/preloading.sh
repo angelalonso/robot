@@ -23,7 +23,11 @@ function load_dotenv {
     if [ $(grep PASS $CONFIGFILE | wc -l) -eq 0 ]; then
       show_log err ".env file does not have the PASS variable, please add it! (HINT: are you reusing the file from a previous run?)"
     else
-      export $(cat ${CONFIGFILE} | grep -v '^#' | xargs) >/dev/null
+      #export $(cat ${CONFIGFILE} | grep -v '^#' | xargs) >/dev/null
+      #export $(cat ${CONFIGFILE} | grep -v '^#' | sed -e '/^#/d;/^\s*$/d' -e "s/'/'\\\''/g" -e "s/=\(.*\)/='\1'/g" | xargs) >/dev/null
+      set -o allexport
+      source .env
+      set +o allexport
     fi
   else 
     show_log err ".env file does not exist. Have you created it from env.template?"
@@ -31,12 +35,23 @@ function load_dotenv {
 }
 
 function modify_files {
-  cp sshd_config sshd_config.orig
+  cp user-data.template user-data
+  PASSWD=$(echo '${PASS}' | mkpasswd -m sha-512 -s)
+  sed -i -e "s/    passwd: AAA/    passwd: ${PASSWD//\//\\\/}/g" user-data
+  AUTHKEY=$(cat $SSHPUBPATH)
+  sed -i -e "s/     - SSHAUTHKEY_TOBEREPLACED/     - ${AUTHKEY//\//\\\/}/g" user-data
+
+  cp sshd_config.template sshd_config
   sed -i -e "s/#Port 22/Port ${SSHPORT}/g" sshd_config
 
-  cp wpa_supplicant.conf wpa_supplicant.conf.orig
-  sed -i -e "s/ssid=\"\"/ssid=\"${WIFI_SSID}\"/g" wpa_supplicant.conf
-  sed -i -e "s/psk=\"\"/psk=\"${WIFI_PASS}\"/g" wpa_supplicant.conf
+  cp 50-cloud-init.yaml.template 50-cloud-init.yaml
+  sed -i -e "s/\"WIFISSID\"/\"${WIFI_SSID}\"/g" 50-cloud-init.yaml
+  sed -i -e "s/\"WIFIPASS\"/\"${WIFI_PASS}\"/g" 50-cloud-init.yaml
+
+  # TODO: needed?
+  cp wpa_supplicant.conf.template wpa_supplicant.conf
+  sed -i -e "s/  ssid=\"\"/  ssid=\"${WIFI_SSID}\"/g" wpa_supplicant.conf
+  sed -i -e "s/  psk=\"\"/  psk=\"${WIFI_PASS}\"/g" wpa_supplicant.conf
 }
 
 function copy_files {
@@ -50,13 +65,16 @@ function copy_files {
     sudo cp .env $ROOTPATH/
     sudo cp user-data $BOOTPATH/
     sudo cp sshd_config $ROOTPATH/autosetup/
+    sudo cp 50-cloud-init.yaml $ROOTPATH/etc/netplan/50-cloud-init.yaml
+    sudo cp 99-disable-network-config.cfg $ROOTPATH/etc/cloud/cloud.cfg.d/99-disable-network-config.cfg 
+  # TODO: needed?
     sudo cp wpa_supplicant.conf $ROOTPATH/etc/wpa_supplicant/wpa_supplicant.conf
-    sudo mv sshd_config.orig sshd_config # restore original
     sudo cp rc.local $ROOTPATH/etc/rc.local
     sudo cp rc-local.service $ROOTPATH/lib/systemd/system/rc-local.service
     sudo chmod +x $ROOTPATH/autosetup/autosetup.sh
     sudo chmod +x $ROOTPATH/autosetup/blink.sh
     sudo chmod +x $ROOTPATH/etc/rc.local
+    # TODO: needed?
     if [ -f $SSHPUBPATH ]; then
       ssh-keygen -l -f $SSHPUBPATH
       if [ $? -eq 0 ]; then 
@@ -70,6 +88,13 @@ function copy_files {
   else
     show_log err "$BOOTPATH OR $ROOTPATH not mounted, check MICROSD_PATH on $CONFIGFILE matches the actual mountpoint for both (e.g.: /media/user for both /media/user/rootfs and /media/user/boot)"
   fi
+}
+
+function clean_up {
+  rm user-data
+  rm sshd_config
+  rm 50-cloud-init.yaml
+  rm wpa_supplicant.conf
 }
 
 function remove_PASS_from_dotenv {
@@ -114,6 +139,7 @@ function run {
   modify_files
   copy_files
   remove_PASS_from_dotenv
+  clean_up
   sudo umount $BOOTPATH
   sudo umount $ROOTPATH
 

@@ -29,14 +29,14 @@ chpasswd:
 ## setting the hostname here will not make the machine reachable by this name.
 ## You may also wish to install avahi-daemon (see the "packages:" key below)
 ## to make your machine reachable by the .local domain
-hostname: robot
+#hostname: ubuntu
 
 ## Set up the keyboard layout. See localectl(1), in particular the various
 ## list-x11-* sub-commands, to determine the available models, layouts,
 ## variants, and options
 #keyboard:
 #  model: pc105
-#  layout: de,us
+#  layout: gb
 #  variant:
 #  options: ctrl:nocaps
 
@@ -51,21 +51,35 @@ ssh_pwauth: true
 
 ## Add users and groups to the system, and import keys with the ssh-import-id
 ## utility
-#groups:
-#- robot: [robot]
-#- robotics: [robot]
+groups:
+- users
+- admin
+#- robot: [robotadm]
+#- robotics: [robotadm]
 #- pi
 #
+##users:
+##- default
+##- name: robotadm
+##  gecos: Mr. Robot
+##  primary_group: robot
+##  groups: users
+##  ssh_import_id: foobar
+##  lock_passwd: false
+##  passwd: robotadm
+## openssl passwd -1 -stdin <<< robotadm123
 users:
-#- default
-- name: robotadm
-#  gecos: Mr. Robot
-#  primary_group: robot
-#  groups: users
-#  ssh_import_id: foobar
-#  lock_passwd: false
-  passwd: $1$FL.YvrgY$pHQCreHQ6ggKy3rIabtxq0
-# openssl passwd -1 -stdin <<< test
+  - default
+  - name: robotadm
+    passwd: AAA
+    shell: /bin/bash
+    lock-passwd: false
+    ssh_pwauth: True
+    chpasswd: { expire: False }
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin
+    ssh_authorized_keys:
+     - SSHAUTHKEY_TOBEREPLACED
 
 ## Update apt database and upgrade packages on first boot
 package_update: true
@@ -73,17 +87,20 @@ package_upgrade: true
 
 ## Install additional packages on first boot
 packages:
-#- [python3-serial, 3.5-1]
+- curl 
+- fail2ban
+- gnupg 
+- lsb-release
+- net-tools
+- openssh-server 
+- python3-pip
+- python3-venv
+- wireless-tools
+- wpasupplicant
 #- avahi-daemon
-#- pigpio-tools
-#- python3-distutils
-#- python3-pigpio 
 #- rng-tools
-- git
-- python3 
-- python3-gpiozero
-- ufw
-- vim
+#- python3-gpiozero
+#- [python3-serial, 3.5-1]
 
 ## Write arbitrary files to the file-system (including binaries!)
 #write_files:
@@ -109,7 +126,12 @@ packages:
 #  permissions: '0644'
 
 ## Run arbitrary commands at rc.local like time
-#runcmd:
+runcmd:
+- [ reboot, now ]
+#- [ /autosetup/autosetup.sh ]
+#- |
+#/autosetup/autosetup.sh > /autosetup/autosetup.log 2>&1 &
+#- [/autosetup/autosetup.sh, >, /autosetup/autosetup.log, 2>&1, &]
 #- [ ls, -l, / ]
 #- [ sh, -xc, "echo $(date) ': hello world!'" ]
 #- [ wget, "http://ubuntu.com", -O, /run/mydir/index.html ]

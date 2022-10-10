@@ -19,4 +19,7 @@ development
 brain/Cargo.lock
 brain/records
 brain/scripts/robotlogic/robotlogic.so
-**/files/wpa_supplicant.conf.orig
+**/files/wpa_supplicant.conf
+**/files/user-data
+**/files/sshd_config
+**/files/50-cloud-init.yaml

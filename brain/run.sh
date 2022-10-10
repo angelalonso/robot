@@ -22,7 +22,7 @@ function adapt() {
   cp scripts/node_arduino.py.test scripts/node_arduino.py
 }
 
-function build_n_run() {
+function build() {
   trap ctrl_c INT
 
   cwd=$(pwd)
@@ -42,21 +42,19 @@ function build_n_run() {
   BUILT=$(ls ./env/lib/python*/site-packages/robotlogic/*.so)
   cp $BUILT robotlogic.so
   cd ${CWD}
-
-  source /opt/ros/rolling/local_setup.sh
-#  . ./interfaces/install/setup.bash && \
-  colcon build && \
-    . ./install/setup.bash && \
-    ros2 launch brain brain.launch.py
 }
 
 function just_run() {
   trap ctrl_c INT
 
   source /opt/ros/rolling/local_setup.sh
-#  . ./interfaces/install/setup.bash && \
   . ./install/setup.bash && \
     ros2 launch brain brain.launch.py
+}
+
+function build_n_run() {
+  build
+  just_run
 }
 
 function check_dotenv {
@@ -72,7 +70,16 @@ check_dotenv
 
 #adapt
 if [[ "$1" == "build" ]]; then
+  build
+elif [[ "$1" == "help" ]]; then
+  echo "SYNTAX:"
+  echo "  build    - Build related packages"
+  echo "  buildrun - Build related packages, and then run"
+  echo "  run      - Run whatever was built before"
+elif [[ "$1" == "buildrun" ]]; then
   build_n_run
+elif [[ "$1" == "run" ]]; then
+  just_run
 else
   just_run
 fi
