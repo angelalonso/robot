@@ -95,16 +95,19 @@ class StatusManager(Node):
         self.logic.set_state("time", str(now - self.start))
         result = self.logic.get_action()
         self.get_logger().info('-- Logic says: ' + result)
-        for action in result.split(", "):
+        for action in result.split(","):
+            # TODO: clean up spaces before and after that comma
             try:
                 key, value = action.split("=")
+                # TODO: clean up spaces before and after that equal sign
             except ValueError:
-                pass
+                self.get_logger().debug('ERROR Splitting ---- ' + action)
             else:
                 try:
                     #self.logic.add_object(key, int(value)) # TODO: do we need this? then solve issue
                     if (key == "led"):
                         self.led.send_goal(value.lower() in ['true', '1', 't', 'y', 'yes'])
+                        self.get_logger().info('---- ' + key + ' -> ' + value)
                         self.status.set_status(key, value.lower() in ['true', '1', 't', 'y', 'yes'])
                     elif (key == "motor_l"):
                         self.motor_l.send_goal(value)
