@@ -15,12 +15,17 @@ from os import getenv
 
 class MotorLeftActionServer(Node):
 
-    def __init__(self, loglevel, power_factor):
+    def __init__(self, 
+            loglevel, 
+            pin_in1,
+            pin_in2,
+            pin_ena,
+            power_factor):
         super().__init__('motorleft_action_server')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
-        self.left_in1 = 27
-        self.left_in2 = 17
-        self.left_en = 22
+        self.left_in1 = pin_in1
+        self.left_in2 = pin_in2
+        self.left_en = pin_ena
         self.state = "Stop"
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.left_in1,GPIO.OUT)
@@ -66,12 +71,18 @@ class MotorLeftActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    MOTOR_L_PIN_IN1 = getenv('MOTOR_L_PIN_IN1')
+    MOTOR_L_PIN_IN2 = getenv('MOTOR_L_PIN_IN2')
+    MOTOR_L_PIN_ENA = getenv('MOTOR_L_PIN_ENA')
     MOTOR_L_FACTOR = float(getenv('MOTOR_L_FACTOR'))
-
 
     init(args=args)
 
-    motorleft_action_server = MotorLeftActionServer(LOGLEVEL, MOTOR_L_FACTOR)
+    motorleft_action_server = MotorLeftActionServer(LOGLEVEL, 
+            MOTOR_L_PIN_IN1,
+            MOTOR_L_PIN_IN2,
+            MOTOR_L_PIN_ENA,
+            MOTOR_L_FACTOR)
 
     spin(motorleft_action_server)
 

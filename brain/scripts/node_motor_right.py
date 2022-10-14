@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-from rclpy import init
-from rclpy import spin
-from rclpy import shutdown
-from rclpy import logging
+from rclpy import init, logging, shutdown, spin
 from rclpy.action import ActionServer
 from rclpy.node import Node
 try:
@@ -18,12 +15,17 @@ from os import getenv
 
 class MotorRightActionServer(Node):
 
-    def __init__(self, loglevel, power_factor):
+    def __init__(self, 
+            loglevel, 
+            pin_in1,
+            pin_in2,
+            pin_ena,
+            power_factor):
         super().__init__('motorright_action_server')
         logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
-        self.right_in1 = 24
-        self.right_in2 = 23
-        self.right_en = 25
+        self.right_in1 = pin_in1
+        self.right_in2 = pin_in2
+        self.right_en = pin_ena
         self.state = "Stop"
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.right_in1,GPIO.OUT)
@@ -49,7 +51,6 @@ class MotorRightActionServer(Node):
             feedback_msg.process_feed = "moving Right Motor " + str(goal_handle.request.move)
             GPIO.output(self.right_in1,GPIO.LOW)
             GPIO.output(self.right_in2,GPIO.HIGH)
-            print("forward")
         elif goal_handle.request.move == "Backward":
             feedback_msg.process_feed = "moving Right Motor " + str(goal_handle.request.move)
             GPIO.output(self.right_in1,GPIO.HIGH)
@@ -70,11 +71,18 @@ class MotorRightActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    MOTOR_R_PIN_IN1 = getenv('MOTOR_R_PIN_IN1')
+    MOTOR_R_PIN_IN2 = getenv('MOTOR_R_PIN_IN2')
+    MOTOR_R_PIN_ENA = getenv('MOTOR_R_PIN_ENA')
     MOTOR_R_FACTOR = float(getenv('MOTOR_R_FACTOR'))
 
     init(args=args)
 
-    motorright_action_server = MotorRightActionServer(LOGLEVEL, MOTOR_R_FACTOR)
+    motorright_action_server = MotorRightActionServer(LOGLEVEL, 
+            MOTOR_R_PIN_IN1,
+            MOTOR_R_PIN_IN2,
+            MOTOR_R_PIN_ENA,
+            MOTOR_R_FACTOR)
 
     spin(motorright_action_server)
 
