@@ -13,9 +13,16 @@ from time import sleep
 
 class MainNode(Node):
 
-    def __init__(self, loglevel):
+    def __init__(self, 
+            loglevel, 
+            debugged):
         super().__init__('main')
-        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+
+        self.debugged = debugged 
+        #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        self.logger = logging.get_logger('main')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
 
         self.starttime = datetime.now()
 
@@ -29,20 +36,23 @@ class MainNode(Node):
 
             if led_state == False:
                 led_state = True
-                self.get_logger().info('Turning LED ON')
+                if ('all' in self.debugged) or ('main' in self.debugged):
+                    self.logger.debug('Turning LED ON')
             else:
                 led_state = False
-                self.get_logger().info('Turning LED OFF')
+                if ('all' in self.debugged) or ('main' in self.debugged):
+                    self.logger.debug('Turning LED OFF')
             self.led.send_goal(led_state)
             sleep(1)
 
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    DEBUGGED = getenv('DEBUGGED').split(',')
 
     init(args=args)
 
-    main_node = MainNode(LOGLEVEL)
+    main_node = MainNode(LOGLEVEL, DEBUGGED)
 
     main_node.run()
 

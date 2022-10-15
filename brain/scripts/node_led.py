@@ -15,9 +15,19 @@ from os import getenv
 
 class LEDMainActionServer(Node):
 
-    def __init__(self, PinNr, loglevel):
-        super().__init__('ledmain_action_server')
-        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+    def __init__(self, 
+            name, 
+            loglevel, 
+            debugged, 
+            PinNr):
+        super().__init__(name)
+
+        self.debugged = debugged
+        self.logger = logging.get_logger(name)
+        if ('all' in self.debugged) or ('led' in self.debugged):
+            self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+
         self.pin_id = PinNr
         self.state = False
         GPIO.setmode(GPIO.BCM)
@@ -35,16 +45,19 @@ class LEDMainActionServer(Node):
 
         if goal_handle.request.turn_on == True:
             feedback_msg.process_feed = "setting PIN " + str(self.pin_id) + " On"
-            self.get_logger().info("setting PIN " + str(self.pin_id) + " On")
+            if ('all' in self.debugged) or ('led' in self.debugged):
+                self.logger.debug("setting PIN " + str(self.pin_id) + " On")
             GPIO.output(self.pin_id, GPIO.HIGH)
             self.turn_on = True
         else:
             feedback_msg.process_feed = "setting PIN " + str(self.pin_id) + " Off"
-            self.get_logger().info("setting PIN " + str(self.pin_id) + " Off")
+            if ('all' in self.debugged) or ('led' in self.debugged):
+                self.logger.debug("setting PIN " + str(self.pin_id) + " Off")
             GPIO.output(self.pin_id, GPIO.LOW)
             self.turn_on = False
 
-        self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
+        if ('all' in self.debugged) or ('led' in self.debugged):
+            self.logger.debug('Feedback: {}'.format(feedback_msg.process_feed))
 
         goal_handle.succeed()
         result = Led.Result()
@@ -53,12 +66,13 @@ class LEDMainActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    DEBUGGED = getenv('DEBUGGED').split(',')
     LEDMAIN_PIN = int(getenv('LEDMAIN_PIN'))
 
 
     init(args=args)
 
-    ledmain_action_server = LEDMainActionServer(LEDMAIN_PIN, LOGLEVEL)
+    ledmain_action_server = LEDMainActionServer('led', LOGLEVEL, DEBUGGED, LEDMAIN_PIN)
 
     spin(ledmain_action_server)
 

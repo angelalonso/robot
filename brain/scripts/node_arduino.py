@@ -14,16 +14,27 @@ import sys
 import time
 
 class SerialLink(Node):
-    def __init__(self, loglevel, mode, mockfile, usb_dev):
-        super().__init__('arduino_serial_sync')
+    def __init__(self, 
+            name, 
+            loglevel, 
+            debugged, 
+            mode, 
+            mockfile, 
+            usb_dev):
+        super().__init__(name)
 
         ##self.setstatus_cli = self.create_client(SetStatus, 'setstatus')
         ##while not self.setstatus_cli.wait_for_service(timeout_sec=1.0):
-        ##    self.get_logger().info('service not available, waiting again...')
+        ##    self.logger.debug('service not available, waiting again...')
         ##self.setstatus_req = SetStatus.Request()
 
+        self.debugged = debugged 
+        self.logger = logging.get_logger(name)
+        if ('all' in self.debugged) or ('arduino' in self.debugged):
+            self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+
         self.mode = mode
-        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         self.set_status_publisher_ = self.create_publisher(String, 'set_status', 10)
         # TODO: clean this up when no longer needed
         self.publisher_ = self.create_publisher(String, 'main_topic', 10)
@@ -87,10 +98,10 @@ class SerialLink(Node):
     ##                try:
     ##                    response = self.future.result()
     ##                except Exception as e:
-    ##                    self.get_logger().info(
+    ##                    self.logger.debug(
     ##                        'Service call failed %r' % (e,))
     ##                else:
-    ##                    self.get_logger().debug(
+    ##                    self.logger.debug(
     ##                        'Result = %s' %
     ##                        (response.current_status))
     ##                break
@@ -100,7 +111,8 @@ class SerialLink(Node):
         if self.mode == "mock":
             while True:
                 out = self.mockfile.readline()
-                self.get_logger().debug(str(out))
+                if ('all' in self.debugged) or ('arduino' in self.debugged):
+                    self.logger.debug(str(out))
                 msg = String()
                 msg.data = str(out)
 
@@ -120,7 +132,8 @@ class SerialLink(Node):
                     except UnicodeDecodeError:
                         pass
                 if out != '':
-                    self.get_logger().debug(str(out))
+                    if ('all' in self.debugged) or ('arduino' in self.debugged):
+                        self.logger.debug(str(out))
                     msg = String()
                     msg.data = str(out)
                     if self.mode == "record":
@@ -135,6 +148,7 @@ class SerialLink(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    DEBUGGED = getenv('DEBUGGED').split(',')
     ARDUINO_MODE = getenv('ARDUINO_MODE')
     ARDUINO_MOCK_FILE = getenv('ARDUINO_MOCK_FILE')
     ARDUINO_USB_DEV = getenv('ARDUINO_USB_DEV')
@@ -142,7 +156,9 @@ def main(args=None):
 
     init(args=args)
 
-    arduino_serial = SerialLink(LOGLEVEL, 
+    arduino_serial = SerialLink('arduino_serial_sync',
+            LOGLEVEL, 
+            DEBUGGED,
             ARDUINO_MODE, 
             ARDUINO_MOCK_FILE, 
             ARDUINO_USB_DEV)

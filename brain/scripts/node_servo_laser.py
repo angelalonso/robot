@@ -17,14 +17,23 @@ import time
 
 class ServoLaserActionServer(Node):
 
-    def __init__(self, loglevel, enable):
-        super().__init__('servolaser_action_server')
-        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+    def __init__(self, 
+            name, 
+            loglevel, 
+            debugged, 
+            enable):
+        super().__init__(name)
+
+        self.debugged = debugged 
+        self.logger = logging.get_logger(name)
+        if ('all' in self.debugged) or ('servolaser' in self.debugged) or ('servo_laser' in self.debugged):
+            self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
 
         ## TODO: use topics instead ?
         ##self.getstatuskey_cli = self.create_client(GetStatusKey, 'getstatuskey')
         ##while not self.getstatuskey_cli.wait_for_service(timeout_sec=1.0):
-        ##    self.get_logger().info('service not available, waiting again...')
+        ##    self.logger.debug('service not available, waiting again...')
         ##self.getstatuskey_req = GetStatusKey.Request()
         self.client_futures = []
 
@@ -43,13 +52,15 @@ class ServoLaserActionServer(Node):
                 'ServoLaser',
                 self.execute_callback)
         else:
-            self.get_logger().info('SERVO FOR LASER DISABLED')
+            if ('all' in self.debugged) or ('servolaser' in self.debugged) or ('servo_laser' in self.debugged):
+                self.logger.debug('SERVO FOR LASER DISABLED')
 
     def execute_callback(self, goal_handle):
         feedback_msg = Servo.Feedback()
         goal_handle.publish_feedback(feedback_msg)
  
-        self.get_logger().info('LASER SERVO: {}'.format(goal_handle.request.rotation))
+        if ('all' in self.debugged) or ('servolaser' in self.debugged) or ('servo_laser' in self.debugged):
+            self.logger.debug('LASER SERVO: {}'.format(goal_handle.request.rotation))
         # my own standard: 0 means we do a scan
         if goal_handle.request.rotation == 0:
             self.scan_front()
@@ -57,31 +68,12 @@ class ServoLaserActionServer(Node):
             self.do_rotate(goal_handle.request.rotation)
         if self.state != goal_handle.request.rotation:
             self.state = goal_handle.request.rotation
-            self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
+            if ('all' in self.debugged) or ('servolaser' in self.debugged) or ('servo_laser' in self.debugged):
+                self.logger.debug('Feedback: {}'.format(feedback_msg.process_feed))
 
         goal_handle.succeed()
         result = Servo.Result()
         return result
-
-    ##def send_getstatuslaser_req(self):
-    ##    key = 'laser'
-    ##    self.getstatuskey_req.key = key
-    ##    self.future = self.getstatuskey_cli.call_async(self.getstatuskey_req)
-
-    ##def send_getstatuslaser(self):
-    ##    key = 'laser'
-    ##    self.send_getstatuslaser_req()
-    ##    while ok():
-    ##        spin_once(self)
-    ##        if self.future.done():
-    ##            try:
-    ##                response = self.future.result()
-    ##            except Exception as e:
-    ##                self.get_logger().debug('Service call failed %r' % (e,))
-    ##            else:
-    ##                result = response.current_status
-    ##            break
-    ##    return result
 
     def do_rotate(self, rotation):
         self.state = rotation
@@ -94,15 +86,15 @@ class ServoLaserActionServer(Node):
         # once this is run, we cannot trigger it again
         # https://gist.github.com/driftregion/14f6da05a71a57ef0804b68e17b06de5
         ##aux = self.send_getstatuslaser()
-        ##self.get_logger().info('LASER VALUE: {}'.format(aux))
-        #self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
+        ##self.logger.debug('LASER VALUE: {}'.format(aux))
+        #self.logger.debug('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         #time.sleep(0.5)
         #self.state = 1600
         #self.pwm.set_servo_pulsewidth(self.pin, self.state)
-        #self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
+        #self.logger.debug('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         #time.sleep(0.5)
         #self.state = 1500
-        #self.get_logger().info('LASER VALUE: {}'.format(self.send_getstatuslaser()))
+        #self.logger.debug('LASER VALUE: {}'.format(self.send_getstatuslaser()))
         #self.pwm.set_servo_pulsewidth(self.pin, self.state)
         #print("cleaned")
         #self.stop()
@@ -129,11 +121,12 @@ class ServoLaserActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    DEBUGGED = getenv('DEBUGGED').split(',')
     ENABLE = getenv('ENABLE_SERVO_LASER')
 
     init(args=args)
 
-    servolaser_action_server = ServoLaserActionServer(LOGLEVEL, ENABLE)
+    servolaser_action_server = ServoLaserActionServer('servolaser', LOGLEVEL, DEBUGGED, ENABLE)
 
     spin(servolaser_action_server)
 

@@ -45,9 +45,20 @@ class Status(object):
 
 class StatusManager(Node):
 
-    def __init__(self, loglevel, mode, refresh_secs):
-        super().__init__('status_publisher')
-        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+    def __init__(self, 
+            name, 
+            loglevel, 
+            debugged, 
+            mode, 
+            refresh_secs):
+        super().__init__(name)
+
+        self.debugged = debugged 
+        self.logger = logging.get_logger(name)
+        if ('all' in self.debugged) or ('status' in self.debugged):
+            self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+
         self.status = Status()
         self.status.set_status("mode", mode)
 
@@ -94,40 +105,46 @@ class StatusManager(Node):
         now = time.time()
         self.logic.set_state("time", str(now - self.start))
         result = self.logic.get_action()
-        self.get_logger().info('-- Logic says: ' + result)
+        if ('all' in self.debugged) or ('status' in self.debugged):
+            self.logger.debug('-- Logic says: ' + result)
         for action in result.split(","):
             # TODO: clean up spaces before and after that comma
             try:
                 key, value = action.split("=")
                 # TODO: clean up spaces before and after that equal sign
             except ValueError:
-                self.get_logger().debug('ERROR Splitting ---- ' + action)
+                if ('all' in self.debugged) or ('status' in self.debugged):
+                    self.logger.debug('ERROR Splitting ---- ' + action)
             else:
                 try:
                     #self.logic.add_object(key, int(value)) # TODO: do we need this? then solve issue
                     if (key == "led"):
                         self.led.send_goal(value.lower() in ['true', '1', 't', 'y', 'yes'])
-                        self.get_logger().info('---- ' + key + ' -> ' + value)
+                        if ('all' in self.debugged) or ('status' in self.debugged):
+                            self.logger.debug('---- ' + key + ' -> ' + value)
                         self.status.set_status(key, value.lower() in ['true', '1', 't', 'y', 'yes'])
                     elif (key == "motor_l"):
                         self.motor_l.send_goal(value)
-                        self.get_logger().info('---- ' + key + ' -> ' + value)
+                        if ('all' in self.debugged) or ('status' in self.debugged):
+                            self.logger.debug('---- ' + key + ' -> ' + value)
                         self.status.set_status(key, value)
                     elif (key == "motor_r"):
                         self.motor_r.send_goal(value)
-                        self.get_logger().info('---- ' + key + ' -> ' + value)
+                        if ('all' in self.debugged) or ('status' in self.debugged):
+                            self.logger.debug('---- ' + key + ' -> ' + value)
                         self.status.set_status(key, value)
                     else:
                         pass
                 except Exception as e:
-                    self.get_logger().info('-- PROBLEM SPLITTING ' + result + '--' + str(e))
+                    if ('all' in self.debugged) or ('status' in self.debugged):
+                        self.logger.debug('-- PROBLEM SPLITTING ' + result + '--' + str(e))
         #self.logic.do_next_action()
         #try:
         #    login_return_msg = self.logic.get_state("logic_log_msg")
         #except KeyError:
         #    login_return_msg = ""
         #if login_return_msg != "":
-        #    self.get_logger().info('-- Logic says: ' + login_return_msg)
+        #    self.logger.debug('-- Logic says: ' + login_return_msg)
         #    self.logic.set_empty_state("logic_log_msg")
 
     def listener_callback_set(self, msg):
@@ -142,33 +159,40 @@ class StatusManager(Node):
                         self.logic.add_object(int(self.status['servolaser']), int(keyval[1]))
                     except (ValueError, KeyError):
                         pass
-                self.get_logger().debug('I heard SET: ' + keyval[0] + ' to ' + keyval[1])
+                if ('all' in self.debugged) or ('status' in self.debugged):
+                    self.logger.debug('I heard SET: ' + keyval[0] + ' to ' + keyval[1])
             except IndexError:
-                self.get_logger().debug('ERROR SETTING: ' + keyval_raw + '.')
+                if ('all' in self.debugged) or ('status' in self.debugged):
+                    self.logger.debug('ERROR SETTING: ' + keyval_raw + '.')
 
     def listener_callback_get(self, msg):
-        self.get_logger().info('I heard GET: "%s"' % msg.data)
+        if ('all' in self.debugged) or ('status' in self.debugged):
+            self.logger.debug('I heard GET: "%s"' % msg.data)
         if msg.data == 'radar':
             mapping = self.logic.get_radar()
             for line in mapping:
-                self.get_logger().info(line)
+                if ('all' in self.debugged) or ('status' in self.debugged):
+                    self.logger.debug(line)
         else:
             try:
-                self.get_logger().info(self.status[msg.data])
+                if ('all' in self.debugged) or ('status' in self.debugged):
+                    self.logger.debug(self.status[msg.data])
             except KeyError:
-                self.get_logger().info("NOOOOOOOOOOOOOONE")
+                if ('all' in self.debugged) or ('status' in self.debugged):
+                    self.logger.debug("NOOOOOOOOOOOOOONE")
 
 
 
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    DEBUGGED = getenv('DEBUGGED').split(',')
     MODE = getenv('MODE')
     REFRESH_SECS = getenv('REFRESH_SECS')
 
     init(args=args)
 
-    status_manager = StatusManager(LOGLEVEL, MODE, REFRESH_SECS)
+    status_manager = StatusManager('status_proxy', LOGLEVEL, DEBUGGED, MODE, REFRESH_SECS)
 
     spin(status_manager)
 

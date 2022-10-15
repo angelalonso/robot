@@ -27,9 +27,18 @@ class EndpointAction(object):
 class ApiWrapper(Node):
     app = None
 
-    def __init__(self, loglevel, name):
-        super().__init__('api')
-        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+    def __init__(self, 
+            name, 
+            loglevel, 
+            debugged):
+        super().__init__(name)
+
+        self.debugged = debugged 
+        self.logger = logging.get_logger(name)
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        
         # load action clients
         self.motorleft = MotorLeftActionClient()
         self.motorright = MotorRightActionClient()
@@ -41,11 +50,13 @@ class ApiWrapper(Node):
         self.app = Flask(name)
 
     def status_listener_callback(self, msg):
-        self.get_logger().info('  - Laser distance: %s' % (msg.data))
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('  - Laser distance: %s' % (msg.data))
         self.radar.add_ping(100, int(msg.data))
         mapping = self.radar.show()
-        for line in mapping:
-            self.get_logger().info(line)
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            for line in mapping:
+                self.logger.debug(line)
 
     def run(self):
         self.app.run(host="0.0.0.0")
@@ -54,36 +65,43 @@ class ApiWrapper(Node):
         self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(handler), methods=['POST'])
 
     def action_stop(self):
-        self.get_logger().info('      STOP')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('      STOP')
         future = self.motorleft.send_goal('Stop')
         future = self.motorright.send_goal('Stop')
 
     def action_fwd(self):
-        self.get_logger().info('      FORWARD')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('      FORWARD')
         future = self.motorleft.send_goal('Forward')
         future = self.motorright.send_goal('Forward')
 
 # we will use this one to test stuff for now
     def action_bwd(self):
-        self.get_logger().info('      BACKWARD')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('      BACKWARD')
         future = self.motorleft.send_goal('Backward')
         future = self.motorright.send_goal('Backward')
 
     def action_right(self):
-        self.get_logger().info('      RIGHT')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('      RIGHT')
         future = self.motorleft.send_goal('Forward')
         future = self.motorright.send_goal('Backward')
 
     def action_left(self):
-        self.get_logger().info('      LEFT')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('      LEFT')
         future = self.motorleft.send_goal('Backward')
         future = self.motorright.send_goal('Forward')
 
     def action_scan(self):
-        self.get_logger().info('      SCAN')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('      SCAN')
 
         for i in range(500, 2501, 500):
-            self.get_logger().info('  - rotating: %d' % (i))
+            if ('all' in self.debugged) or ('api' in self.debugged):
+                self.logger.debug('  - rotating: %d' % (i))
             self.servolaser.send_goal(i)
             set_status_msg = String()
             set_status_msg.data = 'servolaser=' + str(i)
@@ -93,7 +111,8 @@ class ApiWrapper(Node):
             self.get_status_publisher_.publish(get_status_msg)
             time.sleep(0.5)
         for i in range(2500, 499, -500):
-            self.get_logger().info('  - rotating: %d' % (i))
+            if ('all' in self.debugged) or ('api' in self.debugged):
+                self.logger.debug('  - rotating: %d' % (i))
             self.servolaser.send_goal(i)
             set_status_msg = String()
             set_status_msg.data = 'servolaser=' + str(i)
@@ -105,7 +124,8 @@ class ApiWrapper(Node):
         self.servolaser.send_goal(1500)
 
     def get_mode(self):
-        self.get_logger().info('  Getting current Mode')
+        if ('all' in self.debugged) or ('api' in self.debugged):
+            self.logger.debug('  Getting current Mode')
         get_status_msg = String()
         get_status_msg.data = 'mode'
         self.get_status_publisher_.publish(get_status_msg)
@@ -114,10 +134,11 @@ class ApiWrapper(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    DEBUGGED = getenv('DEBUGGED').split(',')
 
     init(args=args)
 
-    api = ApiWrapper(LOGLEVEL, 'robotapi')
+    api = ApiWrapper('robotapi', LOGLEVEL, DEBUGGED)
     api.add_endpoint(endpoint='/do/stop', endpoint_name='do_stop', handler=api.action_stop)
     api.add_endpoint(endpoint='/do/fwd', endpoint_name='do_fwd', handler=api.action_fwd)
     api.add_endpoint(endpoint='/do/bwd', endpoint_name='do_bwd', handler=api.action_bwd)

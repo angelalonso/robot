@@ -16,13 +16,21 @@ from os import getenv
 class MotorLeftActionServer(Node):
 
     def __init__(self, 
+            name,
             loglevel, 
+            debugged,
             pin_in1,
             pin_in2,
             pin_ena,
             power_factor):
-        super().__init__('motorleft_action_server')
-        logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        super().__init__(name)
+
+        self.debugged = debugged 
+        self.logger = logging.get_logger(name)
+        if ('all' in self.debugged) or ('motor_l' in self.debugged) or ('motorl' in self.debugged) or ('motor_left' in self.debugged):
+            self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+        #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
+
         self.left_in1 = pin_in1
         self.left_in2 = pin_in2
         self.left_en = pin_ena
@@ -62,7 +70,8 @@ class MotorLeftActionServer(Node):
 
         if self.state != goal_handle.request.move:
             self.state = goal_handle.request.move
-            self.get_logger().info('Feedback: {}'.format(feedback_msg.process_feed))
+            if ('all' in self.debugged) or ('motor_l' in self.debugged) or ('motorl' in self.debugged) or ('motor_left' in self.debugged):
+                self.logger.debug('Feedback: {}'.format(feedback_msg.process_feed))
 
         goal_handle.succeed()
         result = Motor.Result()
@@ -71,6 +80,7 @@ class MotorLeftActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
+    DEBUGGED = getenv('DEBUGGED').split(',')
     MOTOR_L_PIN_IN1 = getenv('MOTOR_L_PIN_IN1')
     MOTOR_L_PIN_IN2 = getenv('MOTOR_L_PIN_IN2')
     MOTOR_L_PIN_ENA = getenv('MOTOR_L_PIN_ENA')
@@ -78,7 +88,9 @@ def main(args=None):
 
     init(args=args)
 
-    motorleft_action_server = MotorLeftActionServer(LOGLEVEL, 
+    motorleft_action_server = MotorLeftActionServer('motor_left', 
+            LOGLEVEL, 
+            DEBUGGED,
             MOTOR_L_PIN_IN1,
             MOTOR_L_PIN_IN2,
             MOTOR_L_PIN_ENA,
