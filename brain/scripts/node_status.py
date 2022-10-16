@@ -55,7 +55,13 @@ class StatusManager(Node):
 
         self.debugged = debugged 
         self.logger = logging.get_logger(name)
-        if ('all' in self.debugged) or ('status' in self.debugged):
+        if ('all' in self.debugged or 
+                'status_logic' in self.debugged or 
+                'status_logic_led' in self.debugged or 
+                'status_logic_motors' in self.debugged or 
+                'status_logic_motor_l' in self.debugged or 
+                'status_logic_motor_r' in self.debugged or 
+                'status' in self.debugged):
             self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
 
@@ -105,7 +111,13 @@ class StatusManager(Node):
         now = time.time()
         self.logic.set_state("time", str(now - self.start))
         result = self.logic.get_action()
-        if ('all' in self.debugged) or ('status' in self.debugged):
+        if ('all' in self.debugged or 
+                'status_logic' in self.debugged or 
+                'status_logic_led' in self.debugged or 
+                'status_logic_motors' in self.debugged or 
+                'status_logic_motor_l' in self.debugged or 
+                'status_logic_motor_r' in self.debugged or 
+                'status' in self.debugged):
             self.logger.debug('-- Logic says: ' + result)
         for action in result.split(","):
             # TODO: clean up spaces before and after that comma
@@ -113,24 +125,38 @@ class StatusManager(Node):
                 key, value = action.split("=")
                 # TODO: clean up spaces before and after that equal sign
             except ValueError:
-                if ('all' in self.debugged) or ('status' in self.debugged):
+                if ('all' in self.debugged or 
+                        'status_logic' in self.debugged or 
+                        'status_logic_led' in self.debugged or 
+                        'status_logic_motors' in self.debugged or 
+                        'status_logic_motor_l' in self.debugged or 
+                        'status_logic_motor_r' in self.debugged or 
+                        'status' in self.debugged):
                     self.logger.debug('ERROR Splitting ---- ' + action)
             else:
                 try:
                     #self.logic.add_object(key, int(value)) # TODO: do we need this? then solve issue
                     if (key == "led"):
                         self.led.send_goal(value.lower() in ['true', '1', 't', 'y', 'yes'])
-                        if ('all' in self.debugged) or ('status' in self.debugged):
+                        if ('all' in self.debugged or 
+                                'status' in self.debugged or 
+                                'status_logic_led' in self.debugged):
                             self.logger.debug('---- ' + key + ' -> ' + value)
                         self.status.set_status(key, value.lower() in ['true', '1', 't', 'y', 'yes'])
                     elif (key == "motor_l"):
                         self.motor_l.send_goal(value)
-                        if ('all' in self.debugged) or ('status' in self.debugged):
+                        if ('all' in self.debugged or 
+                                'status' in self.debugged or 
+                                'status_logic_motors' in self.debugged or 
+                                'status_logic_motor_l' in self.debugged):
                             self.logger.debug('---- ' + key + ' -> ' + value)
                         self.status.set_status(key, value)
                     elif (key == "motor_r"):
                         self.motor_r.send_goal(value)
-                        if ('all' in self.debugged) or ('status' in self.debugged):
+                        if ('all' in self.debugged or 
+                                'status' in self.debugged or 
+                                'status_logic_motors' in self.debugged or 
+                                'status_logic_motor_r' in self.debugged):
                             self.logger.debug('---- ' + key + ' -> ' + value)
                         self.status.set_status(key, value)
                     else:
@@ -159,26 +185,33 @@ class StatusManager(Node):
                         self.logic.add_object(int(self.status['servolaser']), int(keyval[1]))
                     except (ValueError, KeyError):
                         pass
-                if ('all' in self.debugged) or ('status' in self.debugged):
+                if ('all' in self.debugged or 
+                        'status_no_logic' in self.debugged or
+                        'status' in self.debugged):
                     self.logger.debug('I heard SET: ' + keyval[0] + ' to ' + keyval[1])
             except IndexError:
-                if ('all' in self.debugged) or ('status' in self.debugged):
+                if ('all' in self.debugged or 
+                        'status' in self.debugged):
                     self.logger.debug('ERROR SETTING: ' + keyval_raw + '.')
 
     def listener_callback_get(self, msg):
-        if ('all' in self.debugged) or ('status' in self.debugged):
+        if ('all' in self.debugged or 
+                'status' in self.debugged):
             self.logger.debug('I heard GET: "%s"' % msg.data)
         if msg.data == 'radar':
             mapping = self.logic.get_radar()
             for line in mapping:
-                if ('all' in self.debugged) or ('status' in self.debugged):
+                if ('all' in self.debugged or 
+                        'status' in self.debugged):
                     self.logger.debug(line)
         else:
             try:
-                if ('all' in self.debugged) or ('status' in self.debugged):
+                if ('all' in self.debugged or 
+                        'status' in self.debugged):
                     self.logger.debug(self.status[msg.data])
             except KeyError:
-                if ('all' in self.debugged) or ('status' in self.debugged):
+                if ('all' in self.debugged or 
+                        'status' in self.debugged):
                     self.logger.debug("NOOOOOOOOOOOOOONE")
 
 
