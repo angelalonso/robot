@@ -5,8 +5,9 @@ After=systemd-user-sessions.service
 After=network-online.target
 
 [Service]
-WorkingDirectory=/home/robotadm/robot/brain
-ExecStart=/home/robotadm/robot/brain/run.sh
+User=NEWUSER
+WorkingDirectory=/home/NEWUSER/robot/brain
+ExecStart=/home/NEWUSER/robot/brain/run.sh
 Type=forking
 PIDFile=/var/run/robot.pid
 

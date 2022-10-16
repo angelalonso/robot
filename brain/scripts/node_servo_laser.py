@@ -121,7 +121,11 @@ class ServoLaserActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
-    DEBUGGED = getenv('DEBUGGED').split(',')
+    raw_debugged = getenv('DEBUGGED')
+    try:
+        DEBUGGED = str(raw_debugged).split(',')
+    except:
+        DEBUGGED = []
     ENABLE = getenv('ENABLE_SERVO_LASER')
 
     init(args=args)

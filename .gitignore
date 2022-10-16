@@ -23,3 +23,4 @@ brain/scripts/robotlogic/robotlogic.so
 **/files/user-data
 **/files/sshd_config
 **/files/50-cloud-init.yaml
+**/files/robot.service

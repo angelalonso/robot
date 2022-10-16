@@ -134,7 +134,11 @@ class ApiWrapper(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
-    DEBUGGED = getenv('DEBUGGED').split(',')
+    raw_debugged = getenv('DEBUGGED')
+    try:
+        DEBUGGED = str(raw_debugged).split(',')
+    except:
+        DEBUGGED = []
 
     init(args=args)
 

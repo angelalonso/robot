@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from rclpy import logging
+from rclpy import logging, shutdown
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
@@ -122,7 +122,7 @@ class ServoLaserActionClient(Node):
     def get_result_callback(self, future):
         result = future.result().result
         self.get_logger().debug('Result: {0}'.format(result.value))
-        rclpy.shutdown()
+        shutdown()
 
     def feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback

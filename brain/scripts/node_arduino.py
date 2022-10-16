@@ -148,11 +148,20 @@ class SerialLink(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
-    DEBUGGED = getenv('DEBUGGED').split(',')
+    raw_debugged = getenv('DEBUGGED')
+    try:
+        DEBUGGED = str(raw_debugged).split(',')
+    except:
+        DEBUGGED = []
     ARDUINO_MODE = getenv('ARDUINO_MODE')
     ARDUINO_MOCK_FILE = getenv('ARDUINO_MOCK_FILE')
     ARDUINO_USB_DEV = getenv('ARDUINO_USB_DEV')
-    ARDUINO_READ_DELAY = float(getenv('ARDUINO_READ_DELAY'))
+    raw_ardu_read_delay = getenv('ARDUINO_READ_DELAY')
+    try:
+        ARDUINO_READ_DELAY = float(str(raw_ardu_read_delay))
+    except:
+        ARDUINO_READ_DELAY = 0.0
+
 
     init(args=args)
 

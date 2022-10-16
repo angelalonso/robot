@@ -284,15 +284,26 @@ function prepare_rclocal {
   kill $PID
   /autosetup/blink.sh 0
 }
-## # Make Raspberry connect to LAN through Wi-Fi
-## Connect your Wifi dongle.  
-## Read https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md  
-## ```
-## $ sudo raspi-config  
-## ```
-## \> Localisation Options > Change Wi-fi Country > Choose yours  
-## \> Network Options > Wi-Fi > add the name of the WiFi network and the pass  
-## 
+
+function prepare_robotrun {
+  /autosetup/blink.sh $1 &
+  PID="$!"
+
+  # TODO: compile current code
+
+  echo
+  systemctl enable robot
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error enabling robot"
+  fi
+
+  show_log info "enabled robot"
+  kill $PID
+  /autosetup/blink.sh 0
+
+}
 
 ## -------------- Aux Functions
 
@@ -329,16 +340,17 @@ function load_dotenv {
 
 function run {
   if [ ! -f ${LOCKFILE} ]; then
-    load_dotenv 10
-    config_user 9
-    secure_ssh 8
-    config_python 7
-    install_fail2ban 6
-    install_firewall 5
-    install_ros2 4
-    install_rust 3
-    clone_repo 2
-    prepare_rclocal 1
+    load_dotenv 11
+    config_user 10
+    secure_ssh 9
+    config_python 8
+    install_fail2ban 7
+    install_firewall 6
+    install_ros2 5
+    install_rust 4
+    clone_repo 3
+    prepare_rclocal 2
+    prepare_robotrun 1
   else
     echo "Configuration ran properly. Skipping..."
   fi

@@ -66,8 +66,16 @@ class LEDMainActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
-    DEBUGGED = getenv('DEBUGGED').split(',')
-    LEDMAIN_PIN = int(getenv('LEDMAIN_PIN'))
+    raw_debugged = getenv('DEBUGGED')
+    try:
+        DEBUGGED = str(raw_debugged).split(',')
+    except:
+        DEBUGGED = []
+    raw_ledmain_pin = getenv('LEDMAIN_PIN')
+    try:
+        LEDMAIN_PIN = int(str(raw_ledmain_pin))
+    except:
+        LEDMAIN_PIN = 0
 
 
     init(args=args)

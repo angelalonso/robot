@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-# TODO: why did this not run on its first try?? no output either
 ##  Troubleshoot?  as root:
 ## sudo cloud-init init --local
 ## sudo cloud-init init
@@ -52,6 +51,9 @@ function modify_files {
   cp wpa_supplicant.conf.template wpa_supplicant.conf
   sed -i -e "s/  ssid=\"\"/  ssid=\"${WIFI_SSID}\"/g" wpa_supplicant.conf
   sed -i -e "s/  psk=\"\"/  psk=\"${WIFI_PASS}\"/g" wpa_supplicant.conf
+
+  cp robot.service.template robot.service
+  sed -i -e "s/\"NEWUSER\"/\"${NEWUSER}\"/g" robot.service
 }
 
 function copy_files {
@@ -71,6 +73,7 @@ function copy_files {
     sudo cp wpa_supplicant.conf $ROOTPATH/etc/wpa_supplicant/wpa_supplicant.conf
     sudo cp rc.local $ROOTPATH/etc/rc.local
     sudo cp rc-local.service $ROOTPATH/lib/systemd/system/rc-local.service
+    sudo cp robot.service $ROOTPATH/lib/systemd/system/robot.service
     sudo chmod +x $ROOTPATH/autosetup/autosetup.sh
     sudo chmod +x $ROOTPATH/autosetup/blink.sh
     sudo chmod +x $ROOTPATH/etc/rc.local

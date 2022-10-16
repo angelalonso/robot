@@ -80,11 +80,19 @@ class MotorLeftActionServer(Node):
 def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
-    DEBUGGED = getenv('DEBUGGED').split(',')
+    raw_debugged = getenv('DEBUGGED')
+    try:
+        DEBUGGED = str(raw_debugged).split(',')
+    except:
+        DEBUGGED = []
     MOTOR_L_PIN_IN1 = getenv('MOTOR_L_PIN_IN1')
     MOTOR_L_PIN_IN2 = getenv('MOTOR_L_PIN_IN2')
     MOTOR_L_PIN_ENA = getenv('MOTOR_L_PIN_ENA')
-    MOTOR_L_FACTOR = float(getenv('MOTOR_L_FACTOR'))
+    raw_motor_l_factor = getenv('MOTOR_L_FACTOR')
+    try:
+        MOTOR_L_FACTOR = float(str(raw_motor_l_factor))
+    except:
+        MOTOR_L_FACTOR = 1.0
 
     init(args=args)
 
