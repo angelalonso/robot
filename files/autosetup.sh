@@ -311,15 +311,23 @@ function show_log {
   TSTAMP=$(date "+%Y-%m-%d %H:%M:%S")
   case $1 in
     "debug"|"d")
+      echo "[$TSTAMP] --- [DEBUG] ---" >> $LOGFILE
+      echo "[$TSTAMP][DEBUG] - $2" >> $LOGFILE
       echo "[$TSTAMP][DEBUG] - $2"
       ;;
     "info"|"i")
+      echo "[$TSTAMP] --- [INFO] ---"
+      echo "[$TSTAMP][INFO] - $2" >> $LOGFILE
       echo "[$TSTAMP][INFO] - $2"
       ;;
     "warn"|"w")
+      echo "[$TSTAMP] --- [WARN] ---"
+      echo "[$TSTAMP][WARN] - $2" >> $LOGFILE
       echo "[$TSTAMP][WARN] - $2"
       ;;
     "error"|"err"|"e")
+      echo "[$TSTAMP] --- [ERROR] ---"
+      echo "[$TSTAMP][ERROR] - $2" >> $LOGFILE
       echo "[$TSTAMP][ERROR] - $2"
       exit 2
       ;;
@@ -339,6 +347,8 @@ function load_dotenv {
 }
 
 function run {
+  LOGFILE="autosetup-extra.log"
+  touch $LOGFILE
   if [ ! -f ${LOCKFILE} ]; then
     load_dotenv 11
     config_user 10

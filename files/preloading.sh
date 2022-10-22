@@ -146,8 +146,10 @@ function run {
   sudo umount $BOOTPATH
   sudo umount $ROOTPATH
 
-  show_log info " - MicroSD READY! Now please do as follows:""insert the MicroSD on your Raspberry Pi and boot it up!"
-  show_log info "  * Insert the MicroSD on your Raspberry Pi and boot it up"
+  show_log info " - MicroSD READY! Now please do as follows:"
+  show_log info "  * Insert the MicroSD on your Raspberry Pi and prepare to boot your robot up"
+  show_log info "    * Make sure it is connected to your wifi router using RJ45"
+  show_log info "    * Connect to a power outlet and not the battery"
   show_log info "  * Wait until it starts blinking (can take up to 15 minutes)"
   show_log info "  * Then wait another ~30 minutes until the final configuration is done"
   show_log info "   . The number of blinks shows the number of steps remaining until robot is ready"
