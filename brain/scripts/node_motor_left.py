@@ -31,9 +31,9 @@ class MotorLeftActionServer(Node):
             self.logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
         #logging._root_logger.set_level(getattr(logging.LoggingSeverity, loglevel.upper()))
 
-        self.left_in1 = pin_in1
-        self.left_in2 = pin_in2
-        self.left_en = pin_ena
+        self.left_in1 = int(pin_in1)
+        self.left_in2 = int(pin_in2)
+        self.left_en = int(pin_ena)
         self.state = "Stop"
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.left_in1,GPIO.OUT)

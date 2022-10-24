@@ -52,6 +52,7 @@ function modify_files {
   sed -i -e "s/  ssid=\"\"/  ssid=\"${WIFI_SSID}\"/g" wpa_supplicant.conf
   sed -i -e "s/  psk=\"\"/  psk=\"${WIFI_PASS}\"/g" wpa_supplicant.conf
 
+  # TODO: this does not substitute NEWUSER
   cp robot.service.template robot.service
   sed -i -e "s/\"NEWUSER\"/\"${NEWUSER}\"/g" robot.service
 }

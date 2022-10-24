@@ -1,11 +1,9 @@
 #!/usr/bin/bash
 
 # TODO:
-# - remove ubuntu user after everything went ok
-# - auto connect to wifi
-# - ./run.sh build
-# - problems with password
+
 # - auto restart
+# - have a done.lock file to continue from last step
 
 ## -------------- Vars
 
@@ -232,30 +230,32 @@ EOF
 function clone_repo {
   /autosetup/blink.sh $1 &
   PID="$!"
+  #TODO: Check that the repo is correct and only clone if not
 
-  git config --global protocol.version 1
-  git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot
+  runuser -l $NEWUSER -c 'git config --global protocol.version 1'
+  runuser -l $NEWUSER -c 'git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot'
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error cloning the robot repository"
   fi
 
-  chown $NEWUSER:$NEWUSER -R /home/$NEWUSER/robot
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error making $NEWUSER owner of the cloned repository folder"
-  fi
+  # TODO: Not needed?
+  #chown $NEWUSER:$NEWUSER -R /home/$NEWUSER/robot
+  #if [ $? -ne 0 ]; then
+  #  kill $PID
+  #  /autosetup/blink.sh 0
+  #  show_log err "There was an error making $NEWUSER owner of the cloned repository folder"
+  #fi
 
-  cp /.env /home/$NEWUSER/robot/brain/.env
+  runuser -l $NEWUSER -c 'cp /.env /home/$NEWUSER/robot/brain/.env'
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error copying the .env to the actual program"
   fi
 
-  cd /home/$NEWUSER/robot/brain && ./run.sh build
+  runuser -l $NEWUSER -c 'cd /home/$NEWUSER/robot/brain && ./run.sh build'
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
