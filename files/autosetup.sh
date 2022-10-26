@@ -230,10 +230,20 @@ EOF
 function clone_repo {
   /autosetup/blink.sh $1 &
   PID="$!"
-  #TODO: Check that the repo is correct and only clone if not
 
-  runuser -l $NEWUSER -c 'git config --global protocol.version 1'
-  runuser -l $NEWUSER -c 'git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot'
+  # Adding resilience for the fall that it fails half-way and we restart
+  if [[ -d "/home/$NEWUSER/robot" ]]; then
+    if [[ -d "/home/$NEWUSER/robot/brain" ]]; then
+      runuser -l $NEWUSER -c "cd /home/$NEWUSER/robot; git pull"
+    else
+      rm -rf /home/$NEWUSER/robot
+      runuser -l $NEWUSER -c 'git config --global protocol.version 1'
+      runuser -l $NEWUSER -c "git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot"
+    fi
+  else
+    runuser -l $NEWUSER -c 'git config --global protocol.version 1'
+    runuser -l $NEWUSER -c "git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot"
+  fi
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
@@ -248,14 +258,14 @@ function clone_repo {
   #  show_log err "There was an error making $NEWUSER owner of the cloned repository folder"
   #fi
 
-  runuser -l $NEWUSER -c 'cp /.env /home/$NEWUSER/robot/brain/.env'
+  runuser -l $NEWUSER -c "cp /.env /home/$NEWUSER/robot/brain/.env"
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
     show_log err "There was an error copying the .env to the actual program"
   fi
 
-  runuser -l $NEWUSER -c 'cd /home/$NEWUSER/robot/brain && ./run.sh build'
+  runuser -l $NEWUSER -c "cd /home/$NEWUSER/robot/brain && ./run.sh build"
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0

@@ -1,4 +1,0 @@
-- Shorter start time on raspberry
-- More precise 
-  - Sometimes SENSOR message arrives cut, but arduino itself saw no change...maybe we want to avoid checking for repeated values on arduino itself and move hat to robot?
-- record inputs and use as test inputs

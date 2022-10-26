@@ -54,7 +54,7 @@ function modify_files {
 
   # TODO: this does not substitute NEWUSER
   cp robot.service.template robot.service
-  sed -i -e "s/\"NEWUSER\"/\"${NEWUSER}\"/g" robot.service
+  sed -i -e "s/NEWUSER/${NEWUSER}/g" robot.service
 }
 
 function copy_files {
