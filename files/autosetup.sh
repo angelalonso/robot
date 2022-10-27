@@ -198,7 +198,6 @@ function install_rust {
   PID="$!"
 
   # TODO: this wasnt tested
-  show_log info "Installing rust for user $NEWUSER"
   sudo -i -u $NEWUSER bash << EOF
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 EOF
@@ -241,7 +240,7 @@ function clone_repo {
       runuser -l $NEWUSER -c "git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot"
     fi
   else
-    runuser -l $NEWUSER -c 'git config --global protocol.version 1'
+    #:runuser -l $NEWUSER -c 'git config --global protocol.version 1'
     runuser -l $NEWUSER -c "git clone -b thirdphase https://github.com/angelalonso/robot /home/$NEWUSER/robot"
   fi
   if [ $? -ne 0 ]; then
