@@ -1,0 +1,14 @@
+network:
+    version: 2
+    ethernets:
+        eth0:
+            optional: true
+            dhcp4: true
+    # add wifi setup information here ...
+    wifis:
+        wlan0:
+            optional: true
+            dhcp4: true
+            access-points:
+                "WIFISSID":
+                    password: "WIFIPASS"

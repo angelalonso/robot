@@ -1,0 +1,15 @@
+[Unit]
+Description=robot
+After=network.target
+After=systemd-user-sessions.service
+After=network-online.target
+
+[Service]
+User=NEWUSER
+WorkingDirectory=/home/NEWUSER/robot/brain
+ExecStart=/home/NEWUSER/robot/brain/run.sh
+Type=forking
+PIDFile=/var/run/robot.pid
+
+[Install]
+WantedBy=multi-user.target
