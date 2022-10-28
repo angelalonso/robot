@@ -37,6 +37,8 @@ sudo apt-get install whois
 # Compilation
 If you want to build at your laptop for the Raspberry you will need to install gcc-arm-linux-gnueabihf
 ```
-sudo apt install gcc-arm-linux-gnueabihf
+sudo apt install gcc-arm-linux-gnueabihf # NEEDED?
+sudo apt install gcc make gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu
+rustup target install aarch64-unknown-linux-gnu
 pip install ziglang
 ```
