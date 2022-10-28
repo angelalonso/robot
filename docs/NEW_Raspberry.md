@@ -33,3 +33,10 @@ sudo apt-get install whois
 - Power up the Raspberry
 - You should see the LED blinking in intervals
 - When it's finished, it will blink as follows --- 
+
+# Compilation
+If you want to build at your laptop for the Raspberry you will need to install gcc-arm-linux-gnueabihf
+```
+sudo apt install gcc-arm-linux-gnueabihf
+pip install ziglang
+```

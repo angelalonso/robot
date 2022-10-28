@@ -39,6 +39,7 @@ function build() {
   python3 -m venv env
   source env/bin/activate
   maturin develop
+# maturin build --release --target armv7-unknown-linux-gnueabihf --zig -i python3.8
   deactivate
   rm robotlogic.so || true
   BUILT=$(ls ./env/lib/python*/site-packages/robotlogic/*.so)
