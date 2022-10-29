@@ -3,11 +3,12 @@
 # importing Rust libraries
 import importlib.util
 
-built_lib = "./scripts/robotlogic/robotlogic.so"
-robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
-    built_lib)
-robotlogic = importlib.util.module_from_spec(robotlogic_spec)
-robotlogic_spec.loader.exec_module(robotlogic)
+import robotlogic
+#built_lib = "./scripts/robotlogic/robotlogic.so"
+#robotlogic_spec = importlib.util.spec_from_file_location("robotlogic", 
+#    built_lib)
+#robotlogic = importlib.util.module_from_spec(robotlogic_spec)
+#robotlogic_spec.loader.exec_module(robotlogic)
 
 from rclpy import init, logging, spin, shutdown
 from rclpy.node import Node
