@@ -63,9 +63,9 @@ function build() {
     # Compile for the local computer and for the Raspi
     maturin build --release --zig -i python3.8
     maturin build --release --target aarch64-unknown-linux-gnu --zig -i python3.10
+    deactivate
+    cd ${CWD}
   fi
-  deactivate
-  cd ${CWD}
 
   # TODO: try to avoid compiling this on the Raspi too
   source /opt/ros/rolling/local_setup.sh

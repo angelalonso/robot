@@ -3,12 +3,6 @@
 # TODO:
 
 # - auto restart
-# - have a done.lock file to continue from last step
-
-## -------------- Vars
-
-CONFIGFILE="/.env"
-LOCKFILE="/autosetup/autosetup.lock"
 
 ## -------------- Step Functions
 
@@ -356,27 +350,49 @@ function load_dotenv {
 }
 
 function run {
-  LOGFILE="autosetup-extra.log"
-  touch $LOGFILE
-  if [ ! -f ${LOCKFILE} ]; then
-    load_dotenv 11
-    config_user 10
-    secure_ssh 9
-    config_python 8
-    install_fail2ban 7
-    install_firewall 6
-    install_ros2 5
-    install_rust 4
-    clone_repo 3
-    prepare_rclocal 2
-    prepare_robotrun 1
-  else
-    echo "Configuration ran properly. Skipping..."
-  fi
+  functions=(
+  load_dotenv
+  config_user
+  secure_ssh
+  config_python
+  install_fail2ban
+  install_firewall
+  install_ros2
+  install_rust
+  clone_repo
+  prepare_rclocal
+  prepare_robotrun
+  )
 
-  touch ${LOCKFILE}
+  touch $LOGFILE
+
+  # TODO: use a file to control functions that already ran
+  # - have a done.lock file to continue from last step
+  # - use the number at done.lock instead of the LOCKFILE too
+  functions_length=${#functions[@]}
+
+  LAST=$(cat $DONELOCK 2>/dev/null || echo -1)
+  for (( ix=0; ix<${functions_length}; ix++ ));
+  do
+    if [[ $ix -gt $LAST ]]; then
+      echo "$(($functions_length-$ix)) functions left to run"
+      echo "running function ${functions[$ix]}"
+      ${functions[$ix]} `expr $functions_length - $ix`
+      if [ $? == 0 ]; then
+        echo $ix > $DONELOCK
+      fi
+    else
+      echo " Step #$ix already completed: ${functions[$ix]}"
+    fi
+  done
 
 }
+
+## -------------- Vars
+
+CONFIGFILE="/.env"
+DONELOCK="/autosetup/autosetup_done.lock"
+LOGFILE="autosetup-extra.log"
 
 ## -------------- Main
 

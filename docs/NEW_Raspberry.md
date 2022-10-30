@@ -29,7 +29,7 @@ sudo apt-get install whois
 ## Boot the Raspberry
 - Safely remove the MicroSD from your computer.
 - Mount the microSD into the Raspberry
-- Connect the Raspberry to your Router with an RJ45 cable
+- Connect the Raspberry to your Router with an RJ45 cable - IMPORTANT! If you don't, you'll have to restart the process from the "Burn the image" step!
 - Power up the Raspberry
 - You should see the LED blinking in intervals
 - When it's finished, it will blink as follows --- 
