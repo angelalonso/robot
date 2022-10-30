@@ -151,10 +151,12 @@ function run {
   show_log info "  * Insert the MicroSD on your Raspberry Pi and prepare to boot your robot up"
   show_log info "    * Make sure it is connected to your wifi router using RJ45 - IMPORTANT! if you don't you will have to restart the whole process!"
   show_log info "    * Connect to a power outlet and not the battery"
-  show_log info "  * Wait until it starts blinking (can take up to 15 minutes)"
+  show_log info "  * Wait until it starts blinking (can take more than 30 minutes)"
   show_log info "  * Then wait another ~30 minutes until the final configuration is done"
   show_log info "   . The number of blinks shows the number of steps remaining until robot is ready"
-  show_log info "   . At one point you will already be able to SSH into the machine"
+  show_log info "   . If it stops blinking after than, then it has either ended successfully or failed at some point"
+  show_log info "     . Restart (disconnect from power) the Raspberry and it should run the first program (1-sec motors and led on) automatically"
+  show_log info "     . Otherwise, try SSHing into the Raspberry with the creds you configured on .env to troubleshoot it"
 }
 
 ## -------------- Main
