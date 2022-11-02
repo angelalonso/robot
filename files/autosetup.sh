@@ -145,6 +145,12 @@ function install_firewall {
     /autosetup/blink.sh 0
     show_log err "There was an error allowing SSH Port"
   fi
+  ufw allow ${APIPORT}  
+  if [ $? -ne 0 ]; then
+    kill $PID
+    /autosetup/blink.sh 0
+    show_log err "There was an error allowing API Port"
+  fi
   ufw --force enable  
   if [ $? -ne 0 ]; then
     kill $PID

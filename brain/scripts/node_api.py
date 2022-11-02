@@ -58,8 +58,8 @@ class ApiWrapper(Node):
             for line in mapping:
                 self.logger.debug(line)
 
-    def run(self):
-        self.app.run(host="0.0.0.0")
+    def run(self, apiport):
+        self.app.run(host="0.0.0.0", port=apiport)
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None):
         self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(handler), methods=['POST'])
@@ -135,6 +135,7 @@ def main(args=None):
     load_dotenv()
     LOGLEVEL = getenv('LOGLEVEL')
     raw_debugged = getenv('DEBUGGED')
+    APIPORT = getenv('APIPORT')
     try:
         DEBUGGED = str(raw_debugged).split(',')
     except:
@@ -151,7 +152,7 @@ def main(args=None):
     api.add_endpoint(endpoint='/do/scan', endpoint_name='do_scan', handler=api.action_scan)
     api.add_endpoint(endpoint='/get/mode', endpoint_name='get_mode', handler=api.get_mode)
 
-    api.run()
+    api.run(APIPORT)
 
     shutdown()
 
