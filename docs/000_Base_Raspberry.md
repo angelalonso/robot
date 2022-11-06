@@ -78,7 +78,7 @@ $ sudo deluser -remove-home ubuntu
 $ sudo apt-get update  
 $ sudo apt-get upgrade  
 $ wget -O - https://raw.githubusercontent.com/tvdsluijs/raspberry-pi-python-sh-installer/main//python3.9.7.sh | sudo bash
-$ pip3 --trusted-host pypi.org --trusted-host files.pythonhosted.org  install flatdict flask maturin 
+$ pip3 --trusted-host pypi.org --trusted-host files.pythonhosted.org  install flatdict flask apiflask maturin 
 ```
   
 ## Strengthen SSH

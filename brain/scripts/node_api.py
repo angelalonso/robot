@@ -9,6 +9,7 @@ from std_msgs.msg import String
 
 import time
 from flask import Flask, Response
+from apiflask import APIFlask
 from dotenv import load_dotenv
 from os import getenv
 import asyncio
@@ -47,7 +48,7 @@ class ApiWrapper(Node):
         self.get_status_publisher_ = self.create_publisher(String, 'get_status', 10)
         self.test = -10.0
 
-        self.app = Flask(name)
+        self.app = APIFlask(name)
 
     def status_listener_callback(self, msg):
         if ('all' in self.debugged) or ('api' in self.debugged):

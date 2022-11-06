@@ -87,7 +87,7 @@ function config_python {
     /autosetup/blink.sh 0
     show_log err "There was an error upgrading pip"
   fi
-  pip install flatdict maturin python-dotenv flask RPi.GPIO
+  pip install flatdict maturin python-dotenv flask apiflask RPi.GPIO
   if [ $? -ne 0 ]; then
     kill $PID
     /autosetup/blink.sh 0
