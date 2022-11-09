@@ -12,13 +12,17 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(rclcpp_components REQUIRED)
 
+
 add_executable(node_master src/node_master.cpp)
 ament_target_dependencies(node_master
+  "action_interfaces"
   "rclcpp"
+  "rclcpp_action"
   "rclcpp_components")
 install(TARGETS
   node_master
   DESTINATION lib/circuit_nodes)
+
 
 add_library(action_server SHARED
   src/led_action_server.cpp)
@@ -39,6 +43,22 @@ install(TARGETS
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
 
+
+add_library(motorl_action_server SHARED
+  src/motor_l_action_server.cpp)
+target_include_directories(motorl_action_server PRIVATE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+target_compile_definitions(motorl_action_server
+  PRIVATE "CIRCUIT_NODES_BUILDING_DLL")
+ament_target_dependencies(motorl_action_server
+  "action_interfaces"
+  "rclcpp"
+  "rclcpp_action"
+  "rclcpp_components")
+install(TARGETS
+  motorl_action_server
+  DESTINATION lib/circuit_nodes)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
