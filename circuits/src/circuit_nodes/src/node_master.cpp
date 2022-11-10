@@ -1,12 +1,15 @@
 #include <chrono>
 #include <cinttypes>
 
+#include "action_client.hpp"
 #include "action_interfaces/action/led.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
 using Led = action_interfaces::action::Led;
 
+#include <iostream>
+using namespace std;
 
 int main(int argc, char ** argv)
 {
@@ -23,6 +26,9 @@ int main(int argc, char ** argv)
   auto goal_msg = Led::Goal();
   goal_msg.turn_on = 10;
 
+  ActionClient f(node, Led, "led");
+//  std::string msg = "####################" + to_string(f.getX());
+//  RCLCPP_INFO(node->get_logger(), msg.c_str());
   RCLCPP_INFO(node->get_logger(), "Sending goal");
   // Ask server to achieve some goal and wait until it's accepted
   auto goal_handle_future = action_client->async_send_goal(goal_msg);
