@@ -14,24 +14,26 @@ using namespace std;
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  auto node = rclcpp::Node::make_shared("minimal_action_client");
-  auto action_client = rclcpp_action::create_client<Led>(node, "led");
+  auto led_ac_node = rclcpp::Node::make_shared("led_action_client");
+  auto led_ac = rclcpp_action::create_client<Led>(led_ac_node, "led");
 
-  if (!action_client->wait_for_action_server(std::chrono::seconds(20))) {
-    RCLCPP_ERROR(node->get_logger(), "Action server not available after waiting");
+  if (!led_ac->wait_for_action_server(std::chrono::seconds(20))) {
+    RCLCPP_ERROR(led_ac_node->get_logger(), "Action server not available after waiting");
     return 1;
   }
 
-  // Populate a goal
-  auto goal_msg = Led::Goal();
-  goal_msg.turn_on = 10;
+  string led_ac_name = "led";
+  ActionClient* led_ac_obj = new ActionClient(led_ac, led_ac_node, led_ac_name);
+  std::string msg = "####################" + led_ac_obj->getid();
+  RCLCPP_INFO(led_ac_node->get_logger(), msg.c_str());
 
-  string clientname = "led";
-  ActionClient* ac = new ActionClient(action_client, node, clientname);
-  std::string msg = "####################" + ac->getid();
-  RCLCPP_INFO(node->get_logger(), msg.c_str());
-  ac->send_goal(goal_msg);
+  // Populate a goal
+  auto led_goal_msg = Led::Goal();
+  led_goal_msg.turn_on = 1;
+  led_ac_obj->send_goal(led_goal_msg);
   //delete ac;
+
+  /*
 
   RCLCPP_INFO(node->get_logger(), "Sending goal");
   // Ask server to achieve some goal and wait until it's accepted
@@ -80,6 +82,7 @@ int main(int argc, char ** argv)
   for (auto number : wrapped_result.result->confirmed) {
     RCLCPP_INFO(node->get_logger(), "%" PRId32, number);
   }
+  */
 
   rclcpp::shutdown();
   return 0;
