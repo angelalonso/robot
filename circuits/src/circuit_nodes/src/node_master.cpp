@@ -26,9 +26,13 @@ int main(int argc, char ** argv)
   auto goal_msg = Led::Goal();
   goal_msg.turn_on = 10;
 
-  ActionClient f(node, Led, "led");
-//  std::string msg = "####################" + to_string(f.getX());
-//  RCLCPP_INFO(node->get_logger(), msg.c_str());
+  string clientname = "led";
+  ActionClient* ac = new ActionClient(action_client, node, clientname);
+  std::string msg = "####################" + ac->getid();
+  RCLCPP_INFO(node->get_logger(), msg.c_str());
+  ac->send_goal(goal_msg);
+  //delete ac;
+
   RCLCPP_INFO(node->get_logger(), "Sending goal");
   // Ask server to achieve some goal and wait until it's accepted
   auto goal_handle_future = action_client->async_send_goal(goal_msg);
