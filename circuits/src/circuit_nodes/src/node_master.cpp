@@ -3,6 +3,7 @@
 
 #include "action_client.hpp"
 #include "action_interfaces/action/led.hpp"
+#include "action_interfaces/action/motor_l.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 
@@ -14,15 +15,17 @@ using namespace std;
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
+
+  // LED //
   auto led_ac_node = rclcpp::Node::make_shared("led_action_client");
-  auto led_ac = rclcpp_action::create_client<Led>(led_ac_node, "led");
+  string led_ac_name = "led";
+  auto led_ac = rclcpp_action::create_client<Led>(led_ac_node, led_ac_name);
 
   if (!led_ac->wait_for_action_server(std::chrono::seconds(20))) {
     RCLCPP_ERROR(led_ac_node->get_logger(), "Action server not available after waiting");
     return 1;
   }
 
-  string led_ac_name = "led";
   ActionClient* led_ac_obj = new ActionClient(led_ac, led_ac_node, led_ac_name);
   std::string msg = "####################" + led_ac_obj->getid();
   RCLCPP_INFO(led_ac_node->get_logger(), msg.c_str());
@@ -33,6 +36,24 @@ int main(int argc, char ** argv)
   led_ac_obj->send_goal(led_goal_msg);
   //delete ac;
 
+  // MOTOR LEFT //
+  auto motor_l_ac_node = rclcpp::Node::make_shared("motor_l_action_client");
+  auto motor_l_ac = rclcpp_action::create_client<MotorL>(motor_l_ac_node, "motor_l");
+
+  if (!motor_l_ac->wait_for_action_server(std::chrono::seconds(20))) {
+    RCLCPP_ERROR(motor_l_ac_node->get_logger(), "Action server not available after waiting");
+    return 1;
+  }
+
+  string motor_l_ac_name = "motor_l";
+  ActionClient* motor_l_ac_obj = new ActionClient(motor_l_ac, motor_l_ac_node, motor_l_ac_name);
+  msg = "####################" + motor_l_ac_obj->getid();
+  RCLCPP_INFO(led_ac_node->get_logger(), msg.c_str());
+
+  // Populate a goal
+  auto motor_l_goal_msg = MotorL::Goal();
+  motor_l_goal_msg.speed = 1;
+  motor_l_ac_obj->send_goal(motor_l_goal_msg);
   /*
 
   RCLCPP_INFO(node->get_logger(), "Sending goal");

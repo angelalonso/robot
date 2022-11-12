@@ -10,6 +10,7 @@ if [[ $1 == "" ]]; then
   . ./install/local_setup.bash
 
   ros2 run circuit_nodes led_action_server &
+  ros2 run circuit_nodes motor_l_action_server &
   ros2 run circuit_nodes node_master &
 fi
 if [[ $1 == "off" ]]; then
