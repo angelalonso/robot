@@ -27,65 +27,66 @@ install(TARGETS
   node_master
   DESTINATION lib/circuit_nodes)
 
-
-add_library(led_action_srvr SHARED
-  src/led_action_server.cpp)
-target_include_directories(led_action_srvr PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_definitions(led_action_srvr
-  PRIVATE "CIRCUIT_NODES_BUILDING_DLL")
-ament_target_dependencies(led_action_srvr
-  "action_interfaces"
-  "rclcpp"
-  "rclcpp_action"
-  "rclcpp_components")
-rclcpp_components_register_node(led_action_srvr PLUGIN "circuit_nodes::LedActionServer" EXECUTABLE led_action_server)
-install(TARGETS
-  led_action_srvr
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
-
-
-add_library(motor_l_action_srvr SHARED
-  src/motor_l_action_server.cpp)
-target_include_directories(motor_l_action_srvr PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_definitions(motor_l_action_srvr
-  PRIVATE "CIRCUIT_NODES_BUILDING_DLL")
-ament_target_dependencies(motor_l_action_srvr
-  "action_interfaces"
-  "rclcpp"
-  "rclcpp_action"
-  "rclcpp_components")
-rclcpp_components_register_node(motor_l_action_srvr PLUGIN "circuit_nodes::MotorLActionServer" EXECUTABLE motor_l_action_server)
-install(TARGETS
-  motor_l_action_srvr
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
-
-
-add_library(motor_r_action_srvr SHARED
-  src/motor_r_action_server.cpp)
-target_include_directories(motor_r_action_srvr PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-target_compile_definitions(motor_r_action_srvr
-  PRIVATE "CIRCUIT_NODES_BUILDING_DLL")
-ament_target_dependencies(motor_r_action_srvr
-  "action_interfaces"
-  "rclcpp"
-  "rclcpp_action"
-  "rclcpp_components")
-rclcpp_components_register_node(motor_r_action_srvr PLUGIN "circuit_nodes::MotorRActionServer" EXECUTABLE motor_r_action_server)
-install(TARGETS
-  motor_r_action_srvr
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
+#
+#
+#add_library(led_action_srvr SHARED
+#  src/led_action_server.cpp)
+#target_include_directories(led_action_srvr PRIVATE
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#  $<INSTALL_INTERFACE:include>)
+#target_compile_definitions(led_action_srvr
+#  PRIVATE "CIRCUIT_NODES_BUILDING_DLL")
+#ament_target_dependencies(led_action_srvr
+#  "action_interfaces"
+#  "rclcpp"
+#  "rclcpp_action"
+#  "rclcpp_components")
+#rclcpp_components_register_node(led_action_srvr PLUGIN "circuit_nodes::LedActionServer" EXECUTABLE led_action_server)
+#install(TARGETS
+#  led_action_srvr
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin)
+#
+#
+#add_library(motor_l_action_srvr SHARED
+#  src/motor_l_action_server.cpp)
+#target_include_directories(motor_l_action_srvr PRIVATE
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#  $<INSTALL_INTERFACE:include>)
+#target_compile_definitions(motor_l_action_srvr
+#  PRIVATE "CIRCUIT_NODES_BUILDING_DLL")
+#ament_target_dependencies(motor_l_action_srvr
+#  "action_interfaces"
+#  "rclcpp"
+#  "rclcpp_action"
+#  "rclcpp_components")
+#rclcpp_components_register_node(motor_l_action_srvr PLUGIN "circuit_nodes::MotorLActionServer" EXECUTABLE motor_l_action_server)
+#install(TARGETS
+#  motor_l_action_srvr
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin)
+#
+#
+#add_library(motor_r_action_srvr SHARED
+#  src/motor_r_action_server.cpp)
+#target_include_directories(motor_r_action_srvr PRIVATE
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#  $<INSTALL_INTERFACE:include>)
+#target_compile_definitions(motor_r_action_srvr
+#  PRIVATE "CIRCUIT_NODES_BUILDING_DLL")
+#ament_target_dependencies(motor_r_action_srvr
+#  "action_interfaces"
+#  "rclcpp"
+#  "rclcpp_action"
+#  "rclcpp_components")
+#rclcpp_components_register_node(motor_r_action_srvr PLUGIN "circuit_nodes::MotorRActionServer" EXECUTABLE motor_r_action_server)
+#install(TARGETS
+#  motor_r_action_srvr
+#  ARCHIVE DESTINATION lib
+#  LIBRARY DESTINATION lib
+#  RUNTIME DESTINATION bin)
 
 
 if(BUILD_TESTING)

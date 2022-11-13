@@ -23,18 +23,26 @@ function build() {
   trap ctrl_c INT
 
   source /opt/ros/rolling/local_setup.sh
-  rm -rf log/* build/* install/brain/*
+  rm -rf log/* build/* install/*
 
   CWD=$(pwd)
   cd src/action_interfaces
-  rm -rf log/* build/* install/brain/*
+  rm -rf log/* build/* install/*
+#  colcon build
+  colcon build && \
+  . ./install/setup.bash
+  cd $CWD
+  cd src/action_servers
+  rm -rf log/* build/* install/*
+#  colcon build
   colcon build && \
   . ./install/setup.bash
   cd $CWD
   cd src/circuit_nodes
-  rm -rf log/* build/* install/brain/*
-  colcon build && \
-  . ./install/setup.bash
+  rm -rf log/* build/* install/*
+  colcon build
+#  colcon build && \
+#  . ./install/setup.bash
   cd $CWD
 
 }
@@ -47,6 +55,9 @@ function just_run() {
 
   CWD=$(pwd)
   cd src/action_interfaces
+  . ./install/setup.bash && \
+  cd $CWD
+  cd src/action_servers
   . ./install/setup.bash && \
   cd $CWD
   cd src/circuit_nodes
