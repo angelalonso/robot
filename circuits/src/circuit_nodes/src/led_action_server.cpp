@@ -1,3 +1,4 @@
+#include <wiringPi.h>
 #include <functional>
 #include <memory>
 #include <thread>

@@ -21,26 +21,27 @@ class ActionClient {
     std::shared_ptr<rclcpp::Node> nd;
     string id;
 
-    ActionClient(std::shared_ptr<rclcpp_action::Client<action_interfaces::action::Led>> led_action, 
-        std::shared_ptr<rclcpp::Node> node, 
+    ActionClient(std::shared_ptr<rclcpp::Node> node, 
         string serverid) {
-      led_ac = led_action;
       nd = node;
       id = serverid;
-    }
-    ActionClient(std::shared_ptr<rclcpp_action::Client<action_interfaces::action::MotorL>> motor_l_action, 
-        std::shared_ptr<rclcpp::Node> node, 
-        string serverid) {
-      motor_l_ac = motor_l_action;
-      nd = node;
-      id = serverid;
-    }
-    ActionClient(std::shared_ptr<rclcpp_action::Client<action_interfaces::action::MotorR>> motor_r_action, 
-        std::shared_ptr<rclcpp::Node> node, 
-        string serverid) {
-      motor_r_ac = motor_r_action;
-      nd = node;
-      id = serverid;
+      if (serverid == "led") {
+        led_ac = rclcpp_action::create_client<Led>(nd, id);
+        if (!led_ac->wait_for_action_server(std::chrono::seconds(20))) {
+          RCLCPP_ERROR(nd->get_logger(), "Action server not available after waiting");
+        }
+      } else if (serverid == "motor_l") {
+        motor_l_ac = rclcpp_action::create_client<MotorL>(nd, id);
+        if (!motor_l_ac->wait_for_action_server(std::chrono::seconds(20))) {
+          RCLCPP_ERROR(nd->get_logger(), "Action server not available after waiting");
+        }
+      } else if (serverid == "motor_r") {
+        motor_r_ac = rclcpp_action::create_client<MotorR>(nd, id);
+        if (!motor_r_ac->wait_for_action_server(std::chrono::seconds(20))) {
+          RCLCPP_ERROR(nd->get_logger(), "Action server not available after waiting");
+        }
+      }
+
     }
 
     ~ActionClient();
@@ -49,6 +50,7 @@ class ActionClient {
       return id;
     }
 
+    // LED //
     int send_goal(action_interfaces::action::Led_Goal_<std::allocator<void>>& actint) {
       RCLCPP_INFO(nd->get_logger(), "Sending goal");
       // Ask server to achieve some goal and wait until it's accepted
@@ -99,6 +101,7 @@ class ActionClient {
       }
       return 0;
     }
+    // MOTOR L //
     int send_goal(action_interfaces::action::MotorL_Goal_<std::allocator<void>>& actint) {
       RCLCPP_INFO(nd->get_logger(), "Sending goal");
       // Ask server to achieve some goal and wait until it's accepted
@@ -149,6 +152,7 @@ class ActionClient {
       }
       return 0;
     }
+    // MOTOR R //
     int send_goal(action_interfaces::action::MotorR_Goal_<std::allocator<void>>& actint) {
       RCLCPP_INFO(nd->get_logger(), "Sending goal");
       // Ask server to achieve some goal and wait until it's accepted

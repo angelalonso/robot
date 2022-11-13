@@ -38,7 +38,6 @@ function crossbuild() {
   deactivate
   cd ${CWD}
 
-  # TODO: cross build as well
   source /opt/ros/rolling/local_setup.sh
 #  . ./interfaces/install/setup.bash && \
   colcon build && \
