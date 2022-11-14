@@ -15,7 +15,19 @@ function ctrl_c() {
 }
 
 function crossbuild() {
-  echo
+  SKIPKEYS="\
+ament_cmake \
+ament_lint_auto \
+ament_lint_common \
+rclcpp \
+rclcpp_action \
+rclcpp_components \
+rosidl_default_generators \
+"
+  echo "crossbuilding"
+  #ros_cross_compile $(pwd) --arch aarch64 --os ubuntu --rosdistro rolling --skip-rosdep-keys ament_lint_common ament_lint_auto ament_cmake rclcpp_components rclcpp_action rclcpp rosidl_default_generators
+  ros_cross_compile $(pwd) --arch aarch64 --os ubuntu --rosdistro rolling --skip-rosdep-keys "$SKIPKEYS"
+  
 }
 
 function build() {
@@ -87,15 +99,11 @@ if [[ "$1" == "help" ]]; then
   echo "  build    - Build related packages"
   echo "  buildrun - Build related packages, and then run"
   echo "  run      - Run whatever was built before"
-elif [[ "$1" == "crossbuild" ]]; then
+elif [[ "$1" == "crossbuild" ]] || [[ "$1" == "cross" ]]; then
   crossbuild
 elif [[ "$1" == "build" ]]; then
   build
-elif [[ "$1" == "buildrun" ]]; then
-  build_n_run
-elif [[ "$1" == "buildnrun" ]]; then
-  build_n_run
-elif [[ "$1" == "build_n_run" ]]; then
+elif [[ "$1" == "buildrun" ]] || [[ "$1" == "buildnrun" ]] || [[ "$1" == "build_n_run" ]]; then
   build_n_run
 elif [[ "$1" == "run" ]]; then
   just_run
