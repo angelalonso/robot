@@ -15,19 +15,33 @@ function ctrl_c() {
 }
 
 function crossbuild() {
-  SKIPKEYS="\
-ament_cmake \
-ament_lint_auto \
-ament_lint_common \
-rclcpp \
-rclcpp_action \
-rclcpp_components \
-rosidl_default_generators \
-"
-  echo "crossbuilding"
-  #ros_cross_compile $(pwd) --arch aarch64 --os ubuntu --rosdistro rolling --skip-rosdep-keys ament_lint_common ament_lint_auto ament_cmake rclcpp_components rclcpp_action rclcpp rosidl_default_generators
-  ros_cross_compile $(pwd) --arch aarch64 --os ubuntu --rosdistro rolling --skip-rosdep-keys "$SKIPKEYS"
-  
+  echo "##################  CROSS BUILD  ####################"
+  trap ctrl_c INT
+
+  rm -rf ../cross_circuits 
+  cp -R ../circuits ../cross_circuits
+
+  docker build \
+    --build-arg NEWUSER=$USER \
+    --platform linux/arm64/v8 \
+    -t aarch64-cross .
+  docker run \
+    --rm \
+    --user $USER \
+    --platform linux/arm64/v8 \
+    -v $PWD/../cross_circuits:/home/$USER/ros2_ws \
+    -v "$PWD:/work" \
+    -it aarch64-cross \
+    /bin/bash -c cd ros2_ws && ./run.sh build
+}
+
+function deploy() {
+# TODO: 
+#  not found: "/home/aaf/ros2_ws/src/action_interfaces/install/local_setup.bash"
+#  not found: "/home/aaf/ros2_ws/src/action_interfaces/install/local_setup.bash"
+#  not found: "/home/aaf/ros2_ws/src/action_servers/install/local_setup.bash"
+# TODO: use rsync ?
+  scp -P ${SSHPORT} -r -C ../cross_circuits ${NEWUSER}@${SSHIP}:/home/${NEWUSER}/robot/cross_circuits
 }
 
 function build() {
@@ -105,6 +119,8 @@ elif [[ "$1" == "build" ]]; then
   build
 elif [[ "$1" == "buildrun" ]] || [[ "$1" == "buildnrun" ]] || [[ "$1" == "build_n_run" ]]; then
   build_n_run
+elif [[ "$1" == "deploy" ]]; then
+  deploy
 elif [[ "$1" == "run" ]]; then
   just_run
 else
