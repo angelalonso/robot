@@ -20,39 +20,45 @@ function do_build() {
   show_log i "################## BUILD ####################"
   trap ctrl_c INT
 
-  BUILDTSTAMP=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
-  
-  cd ${CODEPATH}
-  source /opt/ros/rolling/local_setup.sh
-  rm -rf log/* build/* install/*
+  # Build only if anything changed (comparing to git), 
+  # TODO: accept -f or ask for confirmation if not
+  # TODO: we need to define this "git control" better (what if it was already commited?)
+  if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
+    BUILDTSTAMP=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
+    
+    cd ${CODEPATH}
+    source /opt/ros/rolling/local_setup.sh
+    rm -rf log/* build/* install/*
 
-  # TODO: build on a specific folder for each architecture, link afterwards
-  # TODO: maybe create a second one list for rust modules in the future
-  # TODO: build only if anything changed (compare to git), and accept -f or ask for confirmation if not
-  CWD=$(pwd)
-  for i in ${ROS_PCKGS}; do
-    show_log i "Building ${i}"
-    cd src/${i}
-    rm log build install 2>/dev/null || true 
-    colcon build && \
-    . ./install/setup.bash
-    # Make sure paths exist
-    mkdir -p ${ARCH}/install
-    mkdir -p ${ARCH}/log
-    mkdir -p ${ARCH}/build
-    mv install ${ARCH}/install/${BUILDTSTAMP}
-    mv log ${ARCH}/log/${BUILDTSTAMP}
-    mv build ${ARCH}/build/${BUILDTSTAMP}
-    ln -s ${ARCH}/install/${BUILDTSTAMP} install
-    ln -s ${ARCH}/log/${BUILDTSTAMP} log
-    ln -s ${ARCH}/build/${BUILDTSTAMP} build
-    cd $CWD
-  done
-  # TODO: check the build worked before continuing here
-  show_log i "######## Built Version: ${BUILDTSTAMP} ########"
+    # TODO: build on a specific folder for each architecture, link afterwards
+    # TODO: maybe create a second one list for rust modules in the future
+    CWD=$(pwd)
+    for i in ${ROS_PCKGS}; do
+      show_log i "Building ${i}"
+      cd src/${i}
+      rm log build install 2>/dev/null || true 
+      colcon build && \
+      . ./install/setup.bash
+      # Make sure paths exist
+      mkdir -p ${ARCH}/install
+      mkdir -p ${ARCH}/log
+      mkdir -p ${ARCH}/build
+      mv install ${ARCH}/install/${BUILDTSTAMP}
+      mv log ${ARCH}/log/${BUILDTSTAMP}
+      mv build ${ARCH}/build/${BUILDTSTAMP}
+      ln -s ${ARCH}/install/${BUILDTSTAMP} install
+      ln -s ${ARCH}/log/${BUILDTSTAMP} log
+      ln -s ${ARCH}/build/${BUILDTSTAMP} build
+      cd $CWD
+    done
+    # TODO: check the build worked before continuing here
+    show_log i "######## Built Version: ${BUILDTSTAMP} ########"
 
-  cd $CWDMAIN
-  do_clean
+    cd $CWDMAIN
+    do_clean
+  else
+    show_log w "There seems to be no changes on ${CODEPATH}, so we are not rebuilding"
+  fi
 }
 
 function do_test() {
