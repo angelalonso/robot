@@ -1,42 +1,109 @@
 #!/usr/bin/env bash
 #
+# TODO: we should only run robot.sh and it should follow the default mode:
+#   - Build -> Test -> Crossbuild -> Deploy -> Run
+#   The point is that it should progress based on checks:
+#   - Am I running on the Raspberry machine?
+#   - Is the Robot available through SSH?
+#   - Did all steps finish properly?
 
 set -eo pipefail
+
+# ACTION FUNCTIONS
 
 function do_build() {
   show_log i "################## BUILD ####################"
   trap ctrl_c INT
 
-  # TODO: build on a specific folder for each architecture, link afterwards
-  # TODO: do that for each module inside src
-  # TODO: create a list of modules to do that for
-  # TODO: maybe create a second one for rust modules in the future
-  CWDMAIN=$(pwd)
+  BUILDTSTAMP=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
+  
   cd ${CODEPATH}
   source /opt/ros/rolling/local_setup.sh
   rm -rf log/* build/* install/*
 
+  # TODO: build on a specific folder for each architecture, link afterwards
+  # TODO: maybe create a second one list for rust modules in the future
   CWD=$(pwd)
-  cd src/action_interfaces
-  rm -rf log/* build/* install/*
-#  colcon build
-  colcon build && \
-  . ./install/setup.bash
-  cd $CWD
-  cd src/action_servers
-  rm -rf log/* build/* install/*
-#  colcon build
-  colcon build && \
-  . ./install/setup.bash
-  cd $CWD
-  cd src/circuit_nodes
-  rm -rf log/* build/* install/*
-  colcon build
+  for i in ${ROS_PCKGS}; do
+    show_log i "Building ${i}"
+    cd src/${i}
+    rm log build install
+    colcon build && \
+    . ./install/setup.bash
+    # Make sure paths exist
+    mkdir -p ${ARCH}/install
+    mkdir -p ${ARCH}/log
+    mkdir -p ${ARCH}/build
+    mv install ${ARCH}/install/${BUILDTSTAMP}
+    mv log ${ARCH}/log/${BUILDTSTAMP}
+    mv build ${ARCH}/build/${BUILDTSTAMP}
+    ln -s ${ARCH}/install/${BUILDTSTAMP} install
+    ln -s ${ARCH}/log/${BUILDTSTAMP} log
+    ln -s ${ARCH}/build/${BUILDTSTAMP} build
+    cd $CWD
+  done
+  do_clean
+
+#  CWD=$(pwd)
+#  cd src/action_interfaces
+#  rm -rf log/* build/* install/*
+##  colcon build
 #  colcon build && \
 #  . ./install/setup.bash
+#  cd $CWD
+#  cd src/action_servers
+#  rm -rf log/* build/* install/*
+##  colcon build
+#  colcon build && \
+#  . ./install/setup.bash
+#  cd $CWD
+#  cd src/circuit_nodes
+#  rm -rf log/* build/* install/*
+#  colcon build
+##  colcon build && \
+##  . ./install/setup.bash
   cd $CWDMAIN
-
 }
+
+function do_test() {
+  show_log i "##################  RUN A LOCAL TEST  ####################"
+  trap ctrl_c INT
+
+  source /opt/ros/rolling/local_setup.sh
+
+  cd ${CODEPATH}
+  for i in ${ROS_PCKGS}; do
+    show_log i "Loading ${i}"
+    cd src/${i}
+    . ./install/setup.bash && \
+    cd ${CODEPATH}
+  done
+  ros2 launch circuit_nodes circuits.launch.py
+}
+
+function do_clean() {
+  # TODO: keep 3 latest, compress the oldest of them
+  show_log i "##################  CLEANUP OLD BUILDS  ####################"
+  trap ctrl_c INT
+
+  cd ${CODEPATH}
+  for i in ${ROS_PCKGS}; do
+    show_log i "Cleaning up ${i}"
+    cd src/${i}/${ARCH}
+    for j in log install build; do
+      for k in $(ls -t ${j} | tail -n+4); do
+        show_log i "Removing ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}"
+        rm -r ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}
+      done
+    done
+    cd ${CODEPATH}
+  done
+}
+
+function do_rollback() {
+  show_log e " TO BE DONE "
+}
+
 function crossbuild() {
   show_log i "##################  CROSS BUILD  ####################"
   trap ctrl_c INT
@@ -93,8 +160,8 @@ function build_n_test() {
 
 function do_all() {
   # TODO: check previous step worked before moving to next
-  build
-  just_test
+  do_build
+  do_test
 }
 
 # AUX FUNCTIONS
@@ -115,19 +182,24 @@ function show_log {
   TSTAMP=$(date "+%Y-%m-%d %H:%M:%S")
   case $1 in
     "debug"|"d")
-      echo "[$TSTAMP][DEBUG] - $2"
+      #echo "[$TSTAMP][DEBUG] - $2"
+      printf '\e[35m%s\n\e[0m' "[$TSTAMP][DEBUG] - $2"
       ;;
     "info"|"i")
-      echo "[$TSTAMP][INFO] - $2"
+      #echo "[$TSTAMP][INFO] - $2"
+      printf '\e[32m%s\n\e[0m' "[$TSTAMP][INFO] - $2"
       ;;
     "warn"|"w")
-      echo "[$TSTAMP][WARN] - $2"
+      #echo "[$TSTAMP][WARN] - $2"
+      printf '\e[33m%s\n\e[0m' "[$TSTAMP][WARN] - $2"
       ;;
     "error"|"err"|"e")
-      echo "[$TSTAMP][ERROR] - $2"
+      #echo "[$TSTAMP][ERROR] - $2"
+      printf '\e[31m%s\n\e[0m' "[$TSTAMP][ERROR] - $2"
       ;;
     *)
-      echo "[$TSTAMP][DEBUG] - Wrong Logging mode"
+      #echo "[$TSTAMP][DEBUG] - Wrong Logging mode"
+      printf '\e[35m%s\n\e[0m' "[$TSTAMP][DEBUG] - $2"
       exit 2
       ;;
   esac
@@ -168,17 +240,20 @@ function do_mode() {
     do_deploy
   elif [[ "$1" == "run" ]]; then
     do_run
+  elif [[ "$1" == "clean" ]]; then
+    # TODO: include this on all other functions that need it, then remove this option
+    do_clean
+  elif [[ "$1" == "rollback" ]]; then
+    do_rollback
   else
     do_all
   fi
 }
 
-# Modes
-# Default
-#   - Build -> Test -> Crossbuild -> Deploy -> Run
-
 ARCH=$(uname -m)
-CODEPATH="./circuits"
+CWDMAIN=$(pwd)
+CODEPATH="${CWDMAIN}/circuits"
+ROS_PCKGS=$(ls ${CODEPATH}/src)
 
 check_dotenv
 do_mode $1
