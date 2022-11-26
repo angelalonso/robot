@@ -13,35 +13,36 @@ A step by step Guide to building and configuring your own robot using partially 
 Right now, It does not work 
 
 There used to be a working thing written completely on Rust but it didn't scale well.
-It was redone from scratch, to use ROS2 instead, but somehow interfaces on python were too CPU-intensive.
-A minimal example of a ROS library was created as a PoC that Rust Libraries would work ok
-
+It was redone from scratch, to use ROS2 and python instead, but interfaces on python were too CPU-intensive.
+I redid the interfaces' functionality on Rust and added that as a python library.
+Then I realized having Python code would be too slow, so I started redoing everything on ROS's C++
+When I had something working, I also realized compiling it on the Raspberry would be too heavy, so I started introducing cross-compilation.
+So I find myself trying to put all things together.
+ 
 Now the next goal is to make everything come together as follows:
 - :wrench: Auto boot
   - :+1: python3.9
-  - :bulb: env/bin/activate: No such file or directory
-  - :bulb: maturin 
-```
-⚠️  Warning: the following metadata fields in `package.metadata.maturin` section of Cargo.toml are deprecated and will be removed in future versions: classifiers, please set them in pyproject.toml as PEP 621 specifies.
-💥 maturin failed
-  Caused by: Cargo metadata failed. Does your crate compile with `cargo build`?
-  Caused by: `cargo metadata` exited with an error:     Updating crates.io index
- Downloading crates ...
-error: failed to download from `https://crates.io/api/v1/crates/autocfg/1.1.0/download`
-```
-  - :bulb: configure raspberry automatically
+  - :+1: env/bin/activate: No such file or directory
+  - :+1: configure raspberry automatically
     - :+1: Install raspbian, then document what file to copy and where
     - :wrench: Automate the previous process and change docs
     - :+1: Create a Script to configure the Raspberry automatically
-    - :bulb: LED shows Step the run is in, and another pattern when ready
-  - :bulb: Automate latest from master
-    - :wrench: Use Rust library found at standard path - find generated file and link to it?
-    - :wrench: Create buildmin mode that does not build Rust parts
+    - :+1: LED shows Step the run is in, and another pattern when ready
+  - :bulb: Have a Script to control code flow
+    - :bulb: Compile for local tests
+    - :bulb: Run local tests
+    - :bulb: Compile for robot
+    - :bulb: Deploy to robot
+    - :bulb: Start running at robot
+    - :bulb: Stop running at robot
+    - :bulb: Rollback deployment at robot
   - :wrench: Install an LED
     - :+1: Make LED work on test computer
     - :+1: Install an LED physically
     - :+1: Make LED work on Robot
   - :bulb: Show status through this LED
+  - :bulb: Make 2 Motors work
+  - :bulb: Get data from Arduino
   - :bulb: Get a working API 
     - :bulb: Make sure this uses SSL and a Device ID to only allow calls from a set of given devices.
     - :bulb: The list of devices must go in a protected file
