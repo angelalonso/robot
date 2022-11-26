@@ -6,8 +6,7 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Next up: Only build if there were changes to latest
-#   TODO: rollback
+#   TODO: Next up: rollback
 #   TODO: Test build error
 #   TODO: Deploy
 #   TODO: Run at the robot
@@ -161,7 +160,17 @@ function do_clean() {
 }
 
 function do_rollback() {
-  show_log e " TO BE DONE "
+  show_log i "########  ROLLING BACK TO PREVIOUS VERSION  ##########"
+  trap ctrl_c INT
+  # TODO: identify current version, and previous version
+
+  PREV_VERSIONS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/*/ 2>/dev/null | sort -r )
+  echo ${PREV_VERSIONS}
+  for i in ${ROS_PCKGS}; do
+    show_log i "Cleaning up ${i}"
+  #  cd src/${i}/${ARCH}
+  #  for j in log install build; do
+  done
 }
 
 function crossbuild() {
@@ -313,7 +322,7 @@ function do_mode() {
 ARCH=$(uname -m)
 CWDMAIN=$(pwd)
 CODEPATH="${CWDMAIN}/circuits"
-ROS_PCKGS=$(ls ${CODEPATH}/src)
+ROS_PCKGS=($(ls ${CODEPATH}/src))
 
 check_dotenv
 do_mode $1
