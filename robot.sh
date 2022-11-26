@@ -23,11 +23,12 @@ function do_build() {
 
   # TODO: build on a specific folder for each architecture, link afterwards
   # TODO: maybe create a second one list for rust modules in the future
+  # TODO: build only if anything changed (compare to git), and accept -f or ask for confirmation if not
   CWD=$(pwd)
   for i in ${ROS_PCKGS}; do
     show_log i "Building ${i}"
     cd src/${i}
-    rm log build install
+    rm log build install 2>/dev/null || true 
     colcon build && \
     . ./install/setup.bash
     # Make sure paths exist
@@ -42,27 +43,11 @@ function do_build() {
     ln -s ${ARCH}/build/${BUILDTSTAMP} build
     cd $CWD
   done
-  do_clean
+  # TODO: check the build worked before continuing here
+  show_log i "######## Built Version: ${BUILDTSTAMP} ########"
 
-#  CWD=$(pwd)
-#  cd src/action_interfaces
-#  rm -rf log/* build/* install/*
-##  colcon build
-#  colcon build && \
-#  . ./install/setup.bash
-#  cd $CWD
-#  cd src/action_servers
-#  rm -rf log/* build/* install/*
-##  colcon build
-#  colcon build && \
-#  . ./install/setup.bash
-#  cd $CWD
-#  cd src/circuit_nodes
-#  rm -rf log/* build/* install/*
-#  colcon build
-##  colcon build && \
-##  . ./install/setup.bash
   cd $CWDMAIN
+  do_clean
 }
 
 function do_test() {
@@ -82,7 +67,7 @@ function do_test() {
 }
 
 function do_clean() {
-  # TODO: keep 3 latest, compress the oldest of them
+  # Keep the two latest folders, compress the third latest, remove the rest
   show_log i "##################  CLEANUP OLD BUILDS  ####################"
   trap ctrl_c INT
 
@@ -91,10 +76,49 @@ function do_clean() {
     show_log i "Cleaning up ${i}"
     cd src/${i}/${ARCH}
     for j in log install build; do
-      for k in $(ls -t ${j} | tail -n+4); do
-        show_log i "Removing ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}"
-        rm -r ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}
+      # STEP 1: Leave only the latest 3 directories
+      RETAIN_LATEST=3
+      ix=0
+      set +e
+      for k in $(ls -d ${CODEPATH}/src/${i}/${ARCH}/${j}/*/ 2>/dev/null | sort -r ); do
+        set -e
+        #show_log d "checking ${k}"
+        if [[ $ix -ge $RETAIN_LATEST ]]; then
+          show_log d "Removing old version ${k}"
+          rm -r ${k}
+        fi
+        ix=$((ix+1))
       done
+      set -e
+      # STEP 2: Compress the third latest directory
+      RETAIN_LATEST=2
+      ix=0
+      set +e
+      for k in $(ls -d ${CODEPATH}/src/${i}/${ARCH}/${j}/*/ 2>/dev/null | sort -r ); do
+        set -e
+        #show_log d "checking ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}"
+        if [[ $ix -ge $RETAIN_LATEST ]]; then
+          show_log d "Compressing ${k::-1}"
+          tar -zcf ${k::-1}.tar.gz ${k::-1} 2>/dev/null
+          show_log d "Cleaning up original folder ${k::-1}"
+          rm -r ${k::-1}
+        fi
+        ix=$((ix+1))
+      done
+      set -e
+      # STEP 3: Make sure we only keep that compressed file
+      RETAIN_LATEST=1
+      ix=0
+      set +e
+      for k in $(ls  ${j}/ | grep tar.gz | sort -r); do
+        set -e
+        if [[ $ix -ge $RETAIN_LATEST ]]; then
+          show_log d "Cleaning up old zipped version ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}"
+          rm -r ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}
+        fi
+        ix=$((ix+1))
+      done
+      set -e
     done
     cd ${CODEPATH}
   done
