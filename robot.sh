@@ -6,6 +6,11 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
+#   TODO: Next up: Only build if there were changes to latest
+#   TODO: rollback
+#   TODO: Test build error
+#   TODO: Deploy
+#   TODO: Run at the robot
 
 set -eo pipefail
 
