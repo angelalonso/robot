@@ -2,6 +2,10 @@
 
 A step by step Guide to building and configuring your own robot using partially my choice of Hardware and Software.
 
+## ;TLDR
+
+
+
 ## Motivation
 
 - I was looking for a project to learn that would have me entertained for longer than a month.
