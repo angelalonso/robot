@@ -23,7 +23,32 @@ function do_build() {
   # Build only if anything changed (comparing to git), 
   # TODO: accept -f or ask for confirmation if not
   # TODO: we need to define this "git control" better (what if it was already commited?)
+  BUILDORNOT=false
   if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
+    BUILDORNOT=true
+  else
+    show_log w "There seems to be no changes on ${CODEPATH}"
+    show_log w "Do you still want to Build? (just press y or n)"
+    LOOP=true
+    while [[ $LOOP == true ]] ; do
+      read -r -n 1 -p "[y/n]: " REPLY
+      case $REPLY in
+        [yY])
+          echo
+          BUILDORNOT=true
+          LOOP=false
+          ;;
+        [nN])
+          echo
+          BUILDORNOT=false
+          LOOP=false
+          ;;
+        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Build?"
+      esac
+    done
+  fi
+
+  if [[ "${BUILDORNOT}" == true ]]; then
     BUILDTSTAMP=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
     
     cd ${CODEPATH}
@@ -54,11 +79,11 @@ function do_build() {
     # TODO: check the build worked before continuing here
     show_log i "######## Built Version: ${BUILDTSTAMP} ########"
 
-    cd $CWDMAIN
-    do_clean
   else
-    show_log w "There seems to be no changes on ${CODEPATH}, so we are not rebuilding"
+    show_log w "Nothing was built"
   fi
+  cd $CWDMAIN
+  do_clean
 }
 
 function do_test() {
