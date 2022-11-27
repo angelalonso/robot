@@ -6,7 +6,8 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Next up: Test build error
+#   TODO: Next up: Sort functions (rename to have standards and group them), 
+#   TODO: Make sure build_prepare and related are used on build, deploy, rollback...
 #   TODO: Cross build
 #   TODO: Deploy
 #   TODO: Run at the robot
@@ -16,12 +17,150 @@ shopt -s extglob # required for proper string substitution
 
 # ACTION FUNCTIONS
 
+function do_reset() {
+    show_log w "This mode erases all past builds! are you sure?? (just press y or n)"
+    LOOP=true
+    while [[ $LOOP == true ]] ; do
+      read -r -n 1 -p "[y/n]: " REPLY
+      case $REPLY in
+        [yY])
+          echo
+          cd ${CODEPATH}
+          echo > ${VERSIONFILE}
+          for i in ${ROS_PCKGS[@]}; do
+            show_log i "Cleaning up ${i}"
+            for j in log install build; do
+              rm src/${i}/${j} 2>/dev/null || true 
+              rm -r src/${i}/${ARCH}/${j}/* || true
+            done
+             #  ln -s ${ARCH}/install/${PREV_VERSION} install
+          done
+          LOOP=false
+          ;;
+        [nN])
+          echo
+          LOOP=false
+          ;;
+        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Build?"
+      esac
+    done
+}
+
+function check_versions() {
+  # Future version
+  NEXT_VERSION=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
+
+  # Current version
+  SAVEDVERSION=$(cat ${VERSIONFILE} 2>/dev/null || true)
+  CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build || true)
+  CURR_VERSION="${CURR_LINK#@(${ARCH}/build/)}"
+  if [[ "${SAVEDVERSION}" != "${CURR_VERSION}" ]]; then
+    show_log w "Saved Version and Installed Version differ!"
+    show_log w " ${SAVEDVERSION} vs. ${CURR_VERSION}"
+    show_log w "Do you want to Correct the Saved Version? (just press y or n)"
+    LOOP=true
+    while [[ $LOOP == true ]] ; do
+      read -r -n 1 -p "[y/n]: " REPLY
+      case $REPLY in
+        [yY])
+          echo
+          echo ${CURR_VERSION} > ${VERSIONFILE}
+          LOOP=false
+          ;;
+        [nN])
+          echo
+          LOOP=false
+          ;;
+        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Correct it?"
+      esac
+    done
+  fi
+
+  # Previous version
+  PREV_LINKS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/*/ 2>/dev/null || true | sort -r )
+  for i in ${PREV_LINKS}; do
+    FMT_i=${i::-1} # Removing the / at the end
+    PREV_VERSION_UNTESTED="${FMT_i#@(${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/)}"
+    if [[ ${PREV_VERSION_UNTESTED} != ${CURR_VERSION} ]]; then
+      PREV_VERSION=${PREV_VERSION_UNTESTED}
+    fi
+  done
+}
+
+function show_versions() {
+  show_log i "Current Version = ${CURR_VERSION}"
+  show_log i "Rollback Version = ${PREV_VERSION}"
+  ALL_VERSIONS=$(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/ 2>/dev/null || true | sort )
+  for i in ${ALL_VERSIONS}; do
+    show_log d "${i}"
+  done
+}
+
+function build_prepare() {
+  show_log i "Preparing to deploy Version: ${NEXT_VERSION}"
+
+  # TODO: maybe create a second one list if folders for rust modules in the future
+  cd ${CODEPATH}
+  CWD=$(pwd)
+  for i in ${ROS_PCKGS[@]}; do
+    cd src/${i}
+    for j in log build install; do
+      rm ${j} 2>/dev/null || true 
+      mkdir -p ${ARCH}/${j}
+    done
+    cd ${CWD}
+  done
+}
+
+function build_abort() {
+  show_log w "Aborting deployment of Version: ${NEXT_VERSION}"
+  show_log w "Re-enabling Version: ${CURR_VERSION}"
+
+  # TODO: maybe create a second one list if folders for rust modules in the future
+  cd ${CODEPATH}
+  CWD=$(pwd)
+  for i in ${ROS_PCKGS[@]}; do
+    cd src/${i}
+    for j in log build install; do
+      rm ${j} 2>/dev/null || true 
+      mkdir -p ${ARCH}/${j}
+      if [[ "${CURR_VERSION}" != "" ]]; then
+        ln -s ${ARCH}/${j}/${CURR_VERSION} ${j}
+      else
+        show_log d "No other version was currently deployed before this build."
+      fi
+    done
+    cd ${CWD}
+  done
+  echo ${CURR_VERSION} > ${VERSIONFILE}
+}
+
+function build_confirm() {
+  show_log i "Deployed Version ${NEXT_VERSION} successfully!"
+
+  # TODO: save anything that may have been temporary until this point
+  cd ${CODEPATH}
+  CWD=$(pwd)
+  for i in ${ROS_PCKGS[@]}; do
+    show_log i "Deploying ${i}"
+    cd src/${i}
+    for j in log build install; do
+      mv ${j} ${ARCH}/${j}/${NEXT_VERSION}
+      ln -s ${ARCH}/${j}/${NEXT_VERSION} ${j}
+    done
+    cd ${CWD}
+  done
+  echo ${NEXT_VERSION} > ${VERSIONFILE}
+  do_clean
+}
+
 function do_build() {
   show_log i "################## BUILD ####################"
   trap ctrl_c INT
 
   # Build only if anything changed (comparing to git), 
   # TODO: we need to define this "git control" better (what if it was already commited?)
+  # TODO: One error is: as long as you dont commit, you can build without being asked, even if you didnt change since latest commit
   BUILDORNOT=false
   if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
     BUILDORNOT=true
@@ -48,43 +187,54 @@ function do_build() {
   fi
 
   if [[ "${BUILDORNOT}" == true ]]; then
-    BUILDTSTAMP=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
-    
     cd ${CODEPATH}
     source /opt/ros/rolling/local_setup.sh
-    rm -rf log/* build/* install/*
+    #rm -rf log/* build/* install/* # TODO: needed?
+    build_prepare
 
     # TODO: maybe create a second one list if folders for rust modules in the future
     CWD=$(pwd)
+    NO_BUILD_ERRORS=true
     for i in ${ROS_PCKGS[@]}; do
       show_log i "Building ${i}"
       cd src/${i}
-      rm log build install 2>/dev/null || true 
-      colcon build && \
-      . ./install/setup.bash
+      #rm log build install 2>/dev/null || true 
+      set +e
+      colcon build
+      if [[ $? -eq 0 ]]; then
+        . ./install/setup.bash
+      else
+        NO_BUILD_ERRORS=false
+        break
+      fi
+      set -e
+
       # Make sure paths exist
       # TODO: only do this if nothing failed to build, otherwise rollback
       # TODO: maybe the whole rollback thing should go on another function
-      mkdir -p ${ARCH}/install
-      mkdir -p ${ARCH}/log
-      mkdir -p ${ARCH}/build
-      mv install ${ARCH}/install/${BUILDTSTAMP}
-      mv log ${ARCH}/log/${BUILDTSTAMP}
-      mv build ${ARCH}/build/${BUILDTSTAMP}
-      ln -s ${ARCH}/install/${BUILDTSTAMP} install
-      ln -s ${ARCH}/log/${BUILDTSTAMP} log
-      ln -s ${ARCH}/build/${BUILDTSTAMP} build
+      ##mkdir -p ${ARCH}/install
+      ##mkdir -p ${ARCH}/log
+      ##mkdir -p ${ARCH}/build
+      ##mv install ${ARCH}/install/${NEXT_VERSION}
+      ##mv log ${ARCH}/log/${NEXT_VERSION}
+      ##mv build ${ARCH}/build/${NEXT_VERSION}
+      ##ln -s ${ARCH}/install/${NEXT_VERSION} install
+      ##ln -s ${ARCH}/log/${NEXT_VERSION} log
+      ##ln -s ${ARCH}/build/${NEXT_VERSION} build
       cd $CWD
     done
     # TODO: check the build worked before continuing here
-    show_log i "######## Built Version: ${BUILDTSTAMP} ########"
-
+    if [[ "${NO_BUILD_ERRORS}" == true ]]; then
+      show_log i "######## Built Version: ${NEXT_VERSION} ########"
+      build_confirm
+    else
+      show_log e "######## There was an error building ${NEXT_VERSION} ########"
+      build_abort
+    fi
   else
     show_log w "Nothing was built"
   fi
   cd $CWDMAIN
-  # TODO: only do this if nothing failed to build
-  # do_clean
 }
 
 function do_test() {
@@ -166,6 +316,7 @@ function do_rollback() {
   show_log i "########  ROLLING BACK TO PREVIOUS VERSION  ##########"
   trap ctrl_c INT
   # Getting current version # TODO: move to a function, use it script-wide
+  # TODO: Use check_version for CURR_VERSION and PREV_VERSION instead
   CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build)
   CURR_VERSION="${CURR_LINK#@(${ARCH}/build/)}"
 
@@ -348,12 +499,15 @@ function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
   elif [[ "$1" == "build" ]]; then
+    check_versions
     do_build
   elif [[ "$1" == "test" ]]; then
     do_test
   elif [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
+    check_versions
     do_build_n_test
   elif [[ "$1" == "cross" ]] || [[ "$1" == "crossbuild" ]]; then
+    check_versions
     do_crossbuild
   elif [[ "$1" == "deploy" ]]; then
     do_deploy
@@ -362,16 +516,25 @@ function do_mode() {
   elif [[ "$1" == "clean" ]]; then
     # TODO: include this on all other functions that need it, then remove this option
     do_clean
+  elif [[ "$1" == "reset" ]]; then
+    do_reset
   elif [[ "$1" == "rollback" ]]; then
     do_rollback
-  else
+  elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
+    check_versions
+    show_versions
+  elif [[ "$1" == "" ]]; then
     do_all
+  else
+    show_help
   fi
 }
 
 ARCH=$(uname -m)
 CWDMAIN=$(pwd)
 CODEPATH="${CWDMAIN}/circuits"
+VERSIONFILE="${CODEPATH}/VERSION"
+
 ROS_PCKGS=($(ls ${CODEPATH}/src))
 
 check_dotenv
