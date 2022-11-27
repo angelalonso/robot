@@ -6,8 +6,7 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Next up: Sort functions (rename to have standards and group them), 
-#   TODO: Make sure build_prepare and related are used on build, deploy, rollback...
+#   TODO: Next up: Make sure build_prepare and related are used on build, deploy, rollback...
 #   TODO: Cross build
 #   TODO: Deploy
 #   TODO: Run at the robot
@@ -15,9 +14,10 @@
 set -eo pipefail
 shopt -s extglob # required for proper string substitution
 
-# ACTION FUNCTIONS
 
-function do_reset() {
+# VERSION MANAGEMENT FUNCTIONS
+
+function versions_reset() {
     show_log w "This mode erases all past builds! are you sure?? (just press y or n)"
     LOOP=true
     while [[ $LOOP == true ]] ; do
@@ -46,7 +46,7 @@ function do_reset() {
     done
 }
 
-function check_versions() {
+function versions_check() {
   # Future version
   NEXT_VERSION=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
 
@@ -87,7 +87,7 @@ function check_versions() {
   done
 }
 
-function show_versions() {
+function versions_show() {
   show_log i "Current Version = ${CURR_VERSION}"
   show_log i "Rollback Version = ${PREV_VERSION}"
   ALL_VERSIONS=$(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/ 2>/dev/null || true | sort )
@@ -95,6 +95,9 @@ function show_versions() {
     show_log d "${i}"
   done
 }
+
+
+# BUILDS MANAGEMENT FUNCTIONS
 
 function build_prepare() {
   show_log i "Preparing to deploy Version: ${NEXT_VERSION}"
@@ -154,6 +157,9 @@ function build_confirm() {
   do_clean
 }
 
+
+# ACTION FUNCTIONS
+
 function do_build() {
   show_log i "################## BUILD ####################"
   trap ctrl_c INT
@@ -189,7 +195,6 @@ function do_build() {
   if [[ "${BUILDORNOT}" == true ]]; then
     cd ${CODEPATH}
     source /opt/ros/rolling/local_setup.sh
-    #rm -rf log/* build/* install/* # TODO: needed?
     build_prepare
 
     # TODO: maybe create a second one list if folders for rust modules in the future
@@ -198,7 +203,7 @@ function do_build() {
     for i in ${ROS_PCKGS[@]}; do
       show_log i "Building ${i}"
       cd src/${i}
-      #rm log build install 2>/dev/null || true 
+ 
       set +e
       colcon build
       if [[ $? -eq 0 ]]; then
@@ -209,21 +214,9 @@ function do_build() {
       fi
       set -e
 
-      # Make sure paths exist
-      # TODO: only do this if nothing failed to build, otherwise rollback
-      # TODO: maybe the whole rollback thing should go on another function
-      ##mkdir -p ${ARCH}/install
-      ##mkdir -p ${ARCH}/log
-      ##mkdir -p ${ARCH}/build
-      ##mv install ${ARCH}/install/${NEXT_VERSION}
-      ##mv log ${ARCH}/log/${NEXT_VERSION}
-      ##mv build ${ARCH}/build/${NEXT_VERSION}
-      ##ln -s ${ARCH}/install/${NEXT_VERSION} install
-      ##ln -s ${ARCH}/log/${NEXT_VERSION} log
-      ##ln -s ${ARCH}/build/${NEXT_VERSION} build
       cd $CWD
     done
-    # TODO: check the build worked before continuing here
+    # check the build worked before deploying the build
     if [[ "${NO_BUILD_ERRORS}" == true ]]; then
       show_log i "######## Built Version: ${NEXT_VERSION} ########"
       build_confirm
@@ -270,7 +263,6 @@ function do_clean() {
       set +e
       for k in $(ls -d ${CODEPATH}/src/${i}/${ARCH}/${j}/*/ 2>/dev/null | sort -r ); do
         set -e
-        #show_log d "checking ${k}"
         if [[ $ix -ge $RETAIN_LATEST ]]; then
           show_log d "Removing old version ${k}"
           rm -r ${k}
@@ -284,7 +276,6 @@ function do_clean() {
       set +e
       for k in $(ls -d ${CODEPATH}/src/${i}/${ARCH}/${j}/*/ 2>/dev/null | sort -r ); do
         set -e
-        #show_log d "checking ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}"
         if [[ $ix -ge $RETAIN_LATEST ]]; then
           show_log d "Compressing ${k::-1}"
           tar -zcf ${k::-1}.tar.gz ${k::-1} 2>/dev/null
@@ -317,8 +308,8 @@ function do_rollback() {
   trap ctrl_c INT
   # Getting current version # TODO: move to a function, use it script-wide
   # TODO: Use check_version for CURR_VERSION and PREV_VERSION instead
-  CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build)
-  CURR_VERSION="${CURR_LINK#@(${ARCH}/build/)}"
+  #CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build)
+  #CURR_VERSION="${CURR_LINK#@(${ARCH}/build/)}"
 
   # Getting available versions
   PREV_LINKS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/*/ 2>/dev/null | sort -r )
@@ -499,15 +490,15 @@ function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
   elif [[ "$1" == "build" ]]; then
-    check_versions
+    versions_check
     do_build
   elif [[ "$1" == "test" ]]; then
     do_test
   elif [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
-    check_versions
+    versions_check
     do_build_n_test
   elif [[ "$1" == "cross" ]] || [[ "$1" == "crossbuild" ]]; then
-    check_versions
+    versions_check
     do_crossbuild
   elif [[ "$1" == "deploy" ]]; then
     do_deploy
@@ -517,12 +508,12 @@ function do_mode() {
     # TODO: include this on all other functions that need it, then remove this option
     do_clean
   elif [[ "$1" == "reset" ]]; then
-    do_reset
+    versions_reset
   elif [[ "$1" == "rollback" ]]; then
     do_rollback
   elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
-    check_versions
-    show_versions
+    versions_check
+    versions_show
   elif [[ "$1" == "" ]]; then
     do_all
   else
