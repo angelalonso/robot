@@ -63,6 +63,8 @@ function do_build() {
       colcon build && \
       . ./install/setup.bash
       # Make sure paths exist
+      # TODO: only do this if nothing failed to build, otherwise rollback
+      # TODO: maybe the whole rollback thing should go on another function
       mkdir -p ${ARCH}/install
       mkdir -p ${ARCH}/log
       mkdir -p ${ARCH}/build
@@ -81,7 +83,8 @@ function do_build() {
     show_log w "Nothing was built"
   fi
   cd $CWDMAIN
-  do_clean
+  # TODO: only do this if nothing failed to build
+  # do_clean
 }
 
 function do_test() {
@@ -101,6 +104,7 @@ function do_test() {
 }
 
 function do_clean() {
+  # TODO: tell the user if nothing was cleaned up too
   # Keep the two latest folders, compress the third latest, remove the rest
   show_log i "##################  CLEANUP OLD BUILDS  ####################"
   trap ctrl_c INT
