@@ -6,12 +6,13 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Next up: rollback
-#   TODO: Test build error
+#   TODO: Next up: Test build error
+#   TODO: Cross build
 #   TODO: Deploy
 #   TODO: Run at the robot
 
 set -eo pipefail
+shopt -s extglob # required for proper string substitution
 
 # ACTION FUNCTIONS
 
@@ -20,7 +21,6 @@ function do_build() {
   trap ctrl_c INT
 
   # Build only if anything changed (comparing to git), 
-  # TODO: accept -f or ask for confirmation if not
   # TODO: we need to define this "git control" better (what if it was already commited?)
   BUILDORNOT=false
   if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
@@ -54,10 +54,9 @@ function do_build() {
     source /opt/ros/rolling/local_setup.sh
     rm -rf log/* build/* install/*
 
-    # TODO: build on a specific folder for each architecture, link afterwards
-    # TODO: maybe create a second one list for rust modules in the future
+    # TODO: maybe create a second one list if folders for rust modules in the future
     CWD=$(pwd)
-    for i in ${ROS_PCKGS}; do
+    for i in ${ROS_PCKGS[@]}; do
       show_log i "Building ${i}"
       cd src/${i}
       rm log build install 2>/dev/null || true 
@@ -92,7 +91,7 @@ function do_test() {
   source /opt/ros/rolling/local_setup.sh
 
   cd ${CODEPATH}
-  for i in ${ROS_PCKGS}; do
+  for i in ${ROS_PCKGS[@]}; do
     show_log i "Loading ${i}"
     cd src/${i}
     . ./install/setup.bash && \
@@ -107,7 +106,7 @@ function do_clean() {
   trap ctrl_c INT
 
   cd ${CODEPATH}
-  for i in ${ROS_PCKGS}; do
+  for i in ${ROS_PCKGS[@]}; do
     show_log i "Cleaning up ${i}"
     cd src/${i}/${ARCH}
     for j in log install build; do
@@ -162,15 +161,62 @@ function do_clean() {
 function do_rollback() {
   show_log i "########  ROLLING BACK TO PREVIOUS VERSION  ##########"
   trap ctrl_c INT
-  # TODO: identify current version, and previous version
+  # Getting current version # TODO: move to a function, use it script-wide
+  CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build)
+  CURR_VERSION="${CURR_LINK#@(${ARCH}/build/)}"
 
-  PREV_VERSIONS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/*/ 2>/dev/null | sort -r )
-  echo ${PREV_VERSIONS}
-  for i in ${ROS_PCKGS}; do
-    show_log i "Cleaning up ${i}"
-  #  cd src/${i}/${ARCH}
-  #  for j in log install build; do
+  # Getting available versions
+  PREV_LINKS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/*/ 2>/dev/null | sort -r )
+  DEPLOYORNOT=false
+  NOTHING_TO_DEPLOY=true
+  for i in ${PREV_LINKS}; do
+    FMT_i=${i::-1} # Removing the / at the end
+    PREV_VERSION="${FMT_i#@(${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/)}"
+    if [[ "${DEPLOYORNOT}" == false ]]; then
+      if [[ ${PREV_VERSION} != ${CURR_VERSION} ]]; then
+        NOTHING_TO_DEPLOY=false
+        show_log w "Do you want to OVERWRITE the current version ${CURR_VERSION} WITH VERSION ${PREV_VERSION}? (just press y or n)"
+        LOOP=true
+        while [[ $LOOP == true ]] ; do
+          read -r -n 1 -p "[y/n]: " REPLY
+          case $REPLY in
+            [yY])
+              echo
+              DEPLOYORNOT=true
+              cd ${CODEPATH}
+              CWD=$(pwd)
+              echo ${ROS_PCKGS[@]}
+              for i in ${ROS_PCKGS[@]}; do
+                cd src/${i}
+                show_log i "Cleaning up ${i}"
+                # remove current links
+                rm log build install 2>/dev/null || true 
+                # link to the previous version
+                ln -s ${ARCH}/install/${PREV_VERSION} install
+                ln -s ${ARCH}/log/${PREV_VERSION} log
+                ln -s ${ARCH}/build/${PREV_VERSION} build
+                # TODO: maybe test before removing
+                rm -r ${ARCH}/install/${CURR_VERSION}
+                rm -r ${ARCH}/log/${CURR_VERSION}
+                rm -r ${ARCH}/build/${CURR_VERSION}
+                cd $CWD
+              done
+              LOOP=false
+              ;;
+            [nN])
+              echo
+              DEPLOYORNOT=false
+              LOOP=false
+              ;;
+            *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Overwrite with ${PREV_VERSION}?"
+          esac
+        done
+      fi
+    fi
   done
+  if [[ "${NOTHING_TO_DEPLOY}" == true ]]; then
+    show_log w "No previous version was found to rollback to! We are stuck with ${CURR_VERSION}"
+  fi
 }
 
 function crossbuild() {
