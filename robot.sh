@@ -88,6 +88,7 @@ function versions_check() {
 }
 
 function versions_show() {
+  versions_check
   show_log i "Current Version = ${CURR_VERSION}"
   show_log i "Rollback Version = ${PREV_VERSION}"
   ALL_VERSIONS=$(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/ 2>/dev/null || true | sort )
@@ -100,7 +101,7 @@ function versions_show() {
 # BUILDS MANAGEMENT FUNCTIONS
 
 function build_prepare() {
-  show_log i "Preparing to deploy Version: ${NEXT_VERSION}"
+  show_log i "Preparing to deploy Version: ${1}"
 
   # TODO: maybe create a second one list if folders for rust modules in the future
   cd ${CODEPATH}
@@ -116,8 +117,8 @@ function build_prepare() {
 }
 
 function build_abort() {
-  show_log w "Aborting deployment of Version: ${NEXT_VERSION}"
-  show_log w "Re-enabling Version: ${CURR_VERSION}"
+  show_log w "Removing Version: ${1} completely."
+  show_log w "Re-enabling Version: ${2}"
 
   # TODO: maybe create a second one list if folders for rust modules in the future
   cd ${CODEPATH}
@@ -125,35 +126,39 @@ function build_abort() {
   for i in ${ROS_PCKGS[@]}; do
     cd src/${i}
     for j in log build install; do
-      rm ${j} 2>/dev/null || true 
+      rm -r ${j} 
       mkdir -p ${ARCH}/${j}
-      if [[ "${CURR_VERSION}" != "" ]]; then
-        ln -s ${ARCH}/${j}/${CURR_VERSION} ${j}
+      if [[ "${2}" != "" ]]; then
+        ln -s ${ARCH}/${j}/${2} ${j}
+        rm -r ${ARCH}/${j}/${1} # only when the other version has been enabled
       else
         show_log d "No other version was currently deployed before this build."
       fi
     done
     cd ${CWD}
   done
-  echo ${CURR_VERSION} > ${VERSIONFILE}
+  echo "prev:"
+  cat ${VERSIONFILE}
+  echo ${2} > ${VERSIONFILE}
+  echo "after:"
+  cat ${VERSIONFILE}
 }
 
 function build_confirm() {
-  show_log i "Deployed Version ${NEXT_VERSION} successfully!"
+  show_log i "Deployed Version ${1} successfully!"
 
-  # TODO: save anything that may have been temporary until this point
   cd ${CODEPATH}
   CWD=$(pwd)
   for i in ${ROS_PCKGS[@]}; do
     show_log i "Deploying ${i}"
     cd src/${i}
     for j in log build install; do
-      mv ${j} ${ARCH}/${j}/${NEXT_VERSION}
-      ln -s ${ARCH}/${j}/${NEXT_VERSION} ${j}
+      mv ${j} ${ARCH}/${j}/${1}
+      ln -s ${ARCH}/${j}/${1} ${j}
     done
     cd ${CWD}
   done
-  echo ${NEXT_VERSION} > ${VERSIONFILE}
+  echo ${1} > ${VERSIONFILE}
   do_clean
 }
 
@@ -161,6 +166,7 @@ function build_confirm() {
 # ACTION FUNCTIONS
 
 function do_build() {
+  versions_check
   show_log i "################## BUILD ####################"
   trap ctrl_c INT
 
@@ -195,7 +201,7 @@ function do_build() {
   if [[ "${BUILDORNOT}" == true ]]; then
     cd ${CODEPATH}
     source /opt/ros/rolling/local_setup.sh
-    build_prepare
+    build_prepare ${NEXT_VERSION}
 
     # TODO: maybe create a second one list if folders for rust modules in the future
     CWD=$(pwd)
@@ -219,10 +225,11 @@ function do_build() {
     # check the build worked before deploying the build
     if [[ "${NO_BUILD_ERRORS}" == true ]]; then
       show_log i "######## Built Version: ${NEXT_VERSION} ########"
-      build_confirm
+      build_confirm ${NEXT_VERSION}
     else
       show_log e "######## There was an error building ${NEXT_VERSION} ########"
-      build_abort
+      show_log e "######## Back to ${CURR_VERSION} ########"
+      build_abort ${NEXT_VERSION} ${CURR_VERSION}
     fi
   else
     show_log w "Nothing was built"
@@ -304,66 +311,33 @@ function do_clean() {
 }
 
 function do_rollback() {
-  show_log i "########  ROLLING BACK TO PREVIOUS VERSION  ##########"
-  trap ctrl_c INT
-  # Getting current version # TODO: move to a function, use it script-wide
-  # TODO: Use check_version for CURR_VERSION and PREV_VERSION instead
-  #CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build)
-  #CURR_VERSION="${CURR_LINK#@(${ARCH}/build/)}"
-
-  # Getting available versions
-  PREV_LINKS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/*/ 2>/dev/null | sort -r )
-  DEPLOYORNOT=false
-  NOTHING_TO_DEPLOY=true
-  for i in ${PREV_LINKS}; do
-    FMT_i=${i::-1} # Removing the / at the end
-    PREV_VERSION="${FMT_i#@(${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/)}"
-    if [[ "${DEPLOYORNOT}" == false ]]; then
-      if [[ ${PREV_VERSION} != ${CURR_VERSION} ]]; then
-        NOTHING_TO_DEPLOY=false
-        show_log w "Do you want to OVERWRITE the current version ${CURR_VERSION} WITH VERSION ${PREV_VERSION}? (just press y or n)"
-        LOOP=true
-        while [[ $LOOP == true ]] ; do
-          read -r -n 1 -p "[y/n]: " REPLY
-          case $REPLY in
-            [yY])
-              echo
-              DEPLOYORNOT=true
-              cd ${CODEPATH}
-              CWD=$(pwd)
-              echo ${ROS_PCKGS[@]}
-              for i in ${ROS_PCKGS[@]}; do
-                cd src/${i}
-                show_log i "Cleaning up ${i}"
-                # remove current links
-                rm log build install 2>/dev/null || true 
-                # link to the previous version
-                ln -s ${ARCH}/install/${PREV_VERSION} install
-                ln -s ${ARCH}/log/${PREV_VERSION} log
-                ln -s ${ARCH}/build/${PREV_VERSION} build
-                # TODO: maybe test before removing
-                rm -r ${ARCH}/install/${CURR_VERSION}
-                rm -r ${ARCH}/log/${CURR_VERSION}
-                rm -r ${ARCH}/build/${CURR_VERSION}
-                cd $CWD
-              done
-              LOOP=false
-              ;;
-            [nN])
-              echo
-              DEPLOYORNOT=false
-              LOOP=false
-              ;;
-            *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Overwrite with ${PREV_VERSION}?"
-          esac
-        done
-      fi
-    fi
-  done
-  if [[ "${NOTHING_TO_DEPLOY}" == true ]]; then
-    show_log w "No previous version was found to rollback to! We are stuck with ${CURR_VERSION}"
+  versions_check
+  if [[ ${PREV_VERSION} != "" ]]; then
+    show_log w "Do you want to OVERWRITE the current version ${CURR_VERSION} WITH VERSION ${PREV_VERSION}? (just press y or n)"
+    LOOP=true
+    while [[ $LOOP == true ]] ; do
+      read -r -n 1 -p "[y/n]: " REPLY
+      case $REPLY in
+        [yY])
+          echo
+          build_abort ${CURR_VERSION} ${PREV_VERSION}
+          LOOP=false
+          ;;
+        [nN])
+          echo
+          LOOP=false
+          ;;
+        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Overwrite with ${PREV_VERSION}?"
+      esac
+    done
+  else
+    # TODO: possibility to automatically recover a zipped version
+    show_log e "There are no versions available to rollback to. Please do one fo the following:"
+    show_log e " - Correct your code until it can be deployed."
+    show_log e " - Restore a zipped version that may be available"
   fi
 }
+
 
 function crossbuild() {
   show_log i "##################  CROSS BUILD  ####################"
@@ -490,7 +464,6 @@ function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
   elif [[ "$1" == "build" ]]; then
-    versions_check
     do_build
   elif [[ "$1" == "test" ]]; then
     do_test
@@ -512,7 +485,6 @@ function do_mode() {
   elif [[ "$1" == "rollback" ]]; then
     do_rollback
   elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
-    versions_check
     versions_show
   elif [[ "$1" == "" ]]; then
     do_all
