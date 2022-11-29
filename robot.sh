@@ -101,7 +101,7 @@ function versions_show() {
 # BUILDS MANAGEMENT FUNCTIONS
 
 function build_prepare() {
-  show_log i "Preparing to deploy Version: ${1}"
+  show_log i "Preparing to deploy Version: ${1} for arch ${2}"
 
   # TODO: maybe create a second one list if folders for rust modules in the future
   cd ${CODEPATH}
@@ -110,14 +110,14 @@ function build_prepare() {
     cd src/${i}
     for j in log build install; do
       rm ${j} 2>/dev/null || true 
-      mkdir -p ${ARCH}/${j}
+      mkdir -p ${2}/${j}
     done
     cd ${CWD}
   done
 }
 
 function build_abort() {
-  show_log w "Removing Version: ${1} completely."
+  show_log w "Removing Version: ${1} completely (on ${3})."
   show_log w "Re-enabling Version: ${2}"
 
   # TODO: maybe create a second one list if folders for rust modules in the future
@@ -127,25 +127,21 @@ function build_abort() {
     cd src/${i}
     for j in log build install; do
       rm -r ${j} 
-      mkdir -p ${ARCH}/${j}
+      mkdir -p ${3}/${j}
       if [[ "${2}" != "" ]]; then
-        ln -s ${ARCH}/${j}/${2} ${j}
-        rm -r ${ARCH}/${j}/${1} # only when the other version has been enabled
+        ln -s ${3}/${j}/${2} ${j}
+        rm -r ${3}/${j}/${1} # only when the other version has been enabled
       else
         show_log d "No other version was currently deployed before this build."
       fi
     done
     cd ${CWD}
   done
-  echo "prev:"
-  cat ${VERSIONFILE}
   echo ${2} > ${VERSIONFILE}
-  echo "after:"
-  cat ${VERSIONFILE}
 }
 
 function build_confirm() {
-  show_log i "Deployed Version ${1} successfully!"
+  show_log i "Deployed Version ${1} successfully! (arch ${2})"
 
   cd ${CODEPATH}
   CWD=$(pwd)
@@ -153,8 +149,8 @@ function build_confirm() {
     show_log i "Deploying ${i}"
     cd src/${i}
     for j in log build install; do
-      mv ${j} ${ARCH}/${j}/${1}
-      ln -s ${ARCH}/${j}/${1} ${j}
+      mv ${j} ${2}/${j}/${1}
+      ln -s ${2}/${j}/${1} ${j}
     done
     cd ${CWD}
   done
@@ -201,7 +197,7 @@ function do_build() {
   if [[ "${BUILDORNOT}" == true ]]; then
     cd ${CODEPATH}
     source /opt/ros/rolling/local_setup.sh
-    build_prepare ${NEXT_VERSION}
+    build_prepare ${NEXT_VERSION} ${ARCH}
 
     # TODO: maybe create a second one list if folders for rust modules in the future
     CWD=$(pwd)
@@ -225,11 +221,11 @@ function do_build() {
     # check the build worked before deploying the build
     if [[ "${NO_BUILD_ERRORS}" == true ]]; then
       show_log i "######## Built Version: ${NEXT_VERSION} ########"
-      build_confirm ${NEXT_VERSION}
+      build_confirm ${NEXT_VERSION} ${ARCH}
     else
       show_log e "######## There was an error building ${NEXT_VERSION} ########"
       show_log e "######## Back to ${CURR_VERSION} ########"
-      build_abort ${NEXT_VERSION} ${CURR_VERSION}
+      build_abort ${NEXT_VERSION} ${CURR_VERSION} ${ARCH}
     fi
   else
     show_log w "Nothing was built"
@@ -320,7 +316,7 @@ function do_rollback() {
       case $REPLY in
         [yY])
           echo
-          build_abort ${CURR_VERSION} ${PREV_VERSION}
+          build_abort ${CURR_VERSION} ${PREV_VERSION} ${ARCH}
           LOOP=false
           ;;
         [nN])
@@ -338,65 +334,33 @@ function do_rollback() {
   fi
 }
 
-
-function crossbuild() {
+function do_crossbuild() {
   show_log i "##################  CROSS BUILD  ####################"
   trap ctrl_c INT
 
-  rm -rf ../cross_circuits 
-  cp -R ../circuits ../cross_circuits
+  # uncomment this to get the image!
+  #docker build \
+  #  --build-arg NEWUSER=$USER \
+  #  --platform linux/arm64/v8 \
+  #  -t aarch64-cross .
 
-  docker build \
-    --build-arg NEWUSER=$USER \
-    --platform linux/arm64/v8 \
-    -t aarch64-cross .
+  cd ${CWDMAIN}
   docker run \
     --rm \
     --user $USER \
     --platform linux/arm64/v8 \
-    -v $PWD/../cross_circuits:/home/$USER/ros2_ws \
-    -v "$PWD:/work" \
+    -v $PWD:/home/$USER/ros2_ws \
+    -e "ARCH=aarch64" \
     -it aarch64-cross \
-    /bin/bash -c cd ros2_ws && ./run.sh build
+    /bin/bash -c "cd ros2_ws && ./robot.sh build"
+
+  # TODO: add some tests
+
 }
 
 function deploy() {
-# TODO: 
-#  not found: "/home/aaf/ros2_ws/src/action_interfaces/install/local_setup.bash"
-#  not found: "/home/aaf/ros2_ws/src/action_interfaces/install/local_setup.bash"
-#  not found: "/home/aaf/ros2_ws/src/action_servers/install/local_setup.bash"
 # TODO: use rsync ?
   scp -P ${SSHPORT} -r -C ../cross_circuits ${NEWUSER}@${SSHIP}:/home/${NEWUSER}/robot/cross_circuits
-}
-
-function just_run() {
-  show_log i "##################  RUN  ####################"
-  trap ctrl_c INT
-
-  source /opt/ros/rolling/local_setup.sh
-
-  CWD=$(pwd)
-  cd src/action_interfaces
-  . ./install/setup.bash && \
-  cd $CWD
-  cd src/action_servers
-  . ./install/setup.bash && \
-  cd $CWD
-  cd src/circuit_nodes
-  . ./install/setup.bash && \
-    ros2 launch circuit_nodes circuits.launch.py
-  cd $CWD
-}
-
-function build_n_test() {
-  build
-  just_test
-}
-
-function do_all() {
-  # TODO: check previous step worked before moving to next
-  do_build
-  do_test
 }
 
 # AUX FUNCTIONS
@@ -468,10 +432,9 @@ function do_mode() {
   elif [[ "$1" == "test" ]]; then
     do_test
   elif [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
-    versions_check
-    do_build_n_test
+    do_build
+    do_test
   elif [[ "$1" == "cross" ]] || [[ "$1" == "crossbuild" ]]; then
-    versions_check
     do_crossbuild
   elif [[ "$1" == "deploy" ]]; then
     do_deploy
@@ -487,13 +450,23 @@ function do_mode() {
   elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
     versions_show
   elif [[ "$1" == "" ]]; then
-    do_all
+    # TODO: check previous step worked before moving to next
+    do_build
+    do_test
+    do_crossbuild
+  elif [[ "$1" == "aux" ]]; then
+    #This option we use to test functions
+    show_help
   else
     show_help
   fi
 }
 
-ARCH=$(uname -m)
+# We inject ARCH=aarch64 in the cross-compiling container and can reuse build functions
+if [[ "${ARCH}" == "" ]]; then
+  ARCH=$(uname -m)
+fi
+CROSSARCH=aarch64 # This is what Raspberry 3B+ uses
 CWDMAIN=$(pwd)
 CODEPATH="${CWDMAIN}/circuits"
 VERSIONFILE="${CODEPATH}/VERSION"

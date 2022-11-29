@@ -23,6 +23,7 @@ device-tree-compiler \
 fakeroot \
 flex \
 gcc-aarch64-linux-gnu \
+git \
 gnupg \
 kmod \
 lsb-release \
