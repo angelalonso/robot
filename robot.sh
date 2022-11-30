@@ -31,9 +31,8 @@ function versions_reset() {
             show_log i "Cleaning up ${i}"
             for j in log install build; do
               rm src/${i}/${j} 2>/dev/null || true 
-              rm -r src/${i}/${ARCH}/${j}/* || true
+              rm -r src/${i}/versions/* || true
             done
-             #  ln -s ${ARCH}/install/${PREV_VERSION} install
           done
           LOOP=false
           ;;
@@ -53,7 +52,7 @@ function versions_check() {
   # Current version
   SAVEDVERSION=$(cat ${VERSIONFILE} 2>/dev/null || true)
   CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build || true)
-  CURR_VERSION="${CURR_LINK#@(${ARCH}/build/)}"
+  CURR_VERSION="$( echo "$CURR_LINK" | sed -e 's#^versions/##; s#/'${ARCH}'/build##; s#/'${CROSSARCH}'/build##' )"
   if [[ "${SAVEDVERSION}" != "${CURR_VERSION}" ]]; then
     show_log w "Saved Version and Installed Version differ!"
     show_log w " ${SAVEDVERSION} vs. ${CURR_VERSION}"
@@ -77,10 +76,10 @@ function versions_check() {
   fi
 
   # Previous version
-  PREV_LINKS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/*/ 2>/dev/null || true | sort -r )
+  PREV_LINKS=$(ls -d ${CODEPATH}/src/${ROS_PCKGS[0]}/versions/*/ 2>/dev/null || true | sort -r )
   for i in ${PREV_LINKS}; do
     FMT_i=${i::-1} # Removing the / at the end
-    PREV_VERSION_UNTESTED="${FMT_i#@(${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/)}"
+    PREV_VERSION_UNTESTED="${FMT_i#@(${CODEPATH}/src/${ROS_PCKGS[0]}/versions/)}"
     if [[ ${PREV_VERSION_UNTESTED} != ${CURR_VERSION} ]]; then
       PREV_VERSION=${PREV_VERSION_UNTESTED}
     fi
@@ -91,7 +90,7 @@ function versions_show() {
   versions_check
   show_log i "Current Version = ${CURR_VERSION}"
   show_log i "Rollback Version = ${PREV_VERSION}"
-  ALL_VERSIONS=$(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/${ARCH}/build/ 2>/dev/null || true | sort )
+  ALL_VERSIONS=$(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/versions/ 2>/dev/null || true | sort )
   for i in ${ALL_VERSIONS}; do
     show_log d "${i}"
   done
@@ -101,6 +100,8 @@ function versions_show() {
 # BUILDS MANAGEMENT FUNCTIONS
 
 function build_prepare() {
+  # $1 - Next Version
+  # $2 - Architecture
   show_log i "Preparing to deploy Version: ${1} for arch ${2}"
 
   # TODO: maybe create a second one list if folders for rust modules in the future
@@ -110,13 +111,16 @@ function build_prepare() {
     cd src/${i}
     for j in log build install; do
       rm ${j} 2>/dev/null || true 
-      mkdir -p ${2}/${j}
+      mkdir -p versions/${1}/${2}/${j}
     done
     cd ${CWD}
   done
 }
 
 function build_abort() {
+  # $1 - Next Version
+  # $2 - Current Version
+  # $3 - Architecture
   show_log w "Removing Version: ${1} completely (on ${3})."
   show_log w "Re-enabling Version: ${2}"
 
@@ -127,10 +131,9 @@ function build_abort() {
     cd src/${i}
     for j in log build install; do
       rm -r ${j} 
-      mkdir -p ${3}/${j}
       if [[ "${2}" != "" ]]; then
-        ln -s ${3}/${j}/${2} ${j}
-        rm -r ${3}/${j}/${1} # only when the other version has been enabled
+        ln -s versions/${2}/${3}/${j} ${j}
+        rm -r versions/${1} 2>/dev/null || true # TODO: probably this should go out of a loop, do we need the loop at all?
       else
         show_log d "No other version was currently deployed before this build."
       fi
@@ -141,6 +144,8 @@ function build_abort() {
 }
 
 function build_confirm() {
+  # $1 - Next Version
+  # $2 - Architecture
   show_log i "Deployed Version ${1} successfully! (arch ${2})"
 
   cd ${CODEPATH}
@@ -149,8 +154,8 @@ function build_confirm() {
     show_log i "Deploying ${i}"
     cd src/${i}
     for j in log build install; do
-      mv ${j} ${2}/${j}/${1}
-      ln -s ${2}/${j}/${1} ${j}
+      mv ${j} versions/${1}/${2}/
+      ln -s versions/${1}/${2}/${j} ${j}
     done
     cd ${CWD}
   done
@@ -234,6 +239,7 @@ function do_build() {
 }
 
 function do_test() {
+  #TODO: make sure arch is correct
   show_log i "##################  RUN A LOCAL TEST  ####################"
   trap ctrl_c INT
 
@@ -258,55 +264,54 @@ function do_clean() {
   cd ${CODEPATH}
   for i in ${ROS_PCKGS[@]}; do
     show_log i "Cleaning up ${i}"
-    cd src/${i}/${ARCH}
-    for j in log install build; do
-      # STEP 1: Leave only the latest 3 directories
-      RETAIN_LATEST=3
-      ix=0
-      set +e
-      for k in $(ls -d ${CODEPATH}/src/${i}/${ARCH}/${j}/*/ 2>/dev/null | sort -r ); do
-        set -e
-        if [[ $ix -ge $RETAIN_LATEST ]]; then
-          show_log d "Removing old version ${k}"
-          rm -r ${k}
-        fi
-        ix=$((ix+1))
-      done
+    cd src/${i}
+    # STEP 1: Leave only the latest 3 directories
+    RETAIN_LATEST=3
+    ix=0
+    set +e
+    for k in $(ls -d ${CODEPATH}/src/${i}/versions/*/ 2>/dev/null | sort -r ); do
       set -e
-      # STEP 2: Compress the third latest directory
-      RETAIN_LATEST=2
-      ix=0
-      set +e
-      for k in $(ls -d ${CODEPATH}/src/${i}/${ARCH}/${j}/*/ 2>/dev/null | sort -r ); do
-        set -e
-        if [[ $ix -ge $RETAIN_LATEST ]]; then
-          show_log d "Compressing ${k::-1}"
-          tar -zcf ${k::-1}.tar.gz ${k::-1} 2>/dev/null
-          show_log d "Cleaning up original folder ${k::-1}"
-          rm -r ${k::-1}
-        fi
-        ix=$((ix+1))
-      done
-      set -e
-      # STEP 3: Make sure we only keep that compressed file
-      RETAIN_LATEST=1
-      ix=0
-      set +e
-      for k in $(ls  ${j}/ | grep tar.gz | sort -r); do
-        set -e
-        if [[ $ix -ge $RETAIN_LATEST ]]; then
-          show_log d "Cleaning up old zipped version ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}"
-          rm -r ${CODEPATH}/src/${i}/${ARCH}/${j}/${k}
-        fi
-        ix=$((ix+1))
-      done
-      set -e
+      if [[ $ix -ge $RETAIN_LATEST ]]; then
+        show_log d "Removing old version ${k}"
+        rm -r ${k}
+      fi
+      ix=$((ix+1))
     done
+    set -e
+    # STEP 2: Compress the third latest directory
+    RETAIN_LATEST=2
+    ix=0
+    set +e
+    for k in $(ls -d ${CODEPATH}/src/${i}/versions/*/ 2>/dev/null | sort -r ); do
+      set -e
+      if [[ $ix -ge $RETAIN_LATEST ]]; then
+        show_log d "Compressing ${k::-1}"
+        tar -zcf ${k::-1}.tar.gz ${k::-1} 2>/dev/null
+        show_log d "Cleaning up original folder ${k::-1}"
+        rm -r ${k::-1}
+      fi
+      ix=$((ix+1))
+    done
+    set -e
+    # STEP 3: Make sure we only keep that compressed file
+    RETAIN_LATEST=1
+    ix=0
+    set +e
+    for k in $(ls versions/ | grep tar.gz | sort -r); do
+      set -e
+      if [[ $ix -ge $RETAIN_LATEST ]]; then
+        show_log d "Cleaning up old zipped version ${CODEPATH}/src/${i}/versions/${k}"
+        rm -r ${CODEPATH}/src/${i}/versions/${k}
+      fi
+      ix=$((ix+1))
+    done
+    set -e
     cd ${CODEPATH}
   done
 }
 
 function do_rollback() {
+  # TODO: possibility to unzip the last version saved automatically
   versions_check
   if [[ ${PREV_VERSION} != "" ]]; then
     show_log w "Do you want to OVERWRITE the current version ${CURR_VERSION} WITH VERSION ${PREV_VERSION}? (just press y or n)"
@@ -437,11 +442,12 @@ function do_mode() {
   elif [[ "$1" == "cross" ]] || [[ "$1" == "crossbuild" ]]; then
     do_crossbuild
   elif [[ "$1" == "deploy" ]]; then
+    # TODO: remove links and copy over the latest crosscompiled
     do_deploy
   elif [[ "$1" == "run" ]]; then
+    # TODO: Check that it doesn't fail because of arch
     do_run
   elif [[ "$1" == "clean" ]]; then
-    # TODO: include this on all other functions that need it, then remove this option
     do_clean
   elif [[ "$1" == "reset" ]]; then
     versions_reset
@@ -450,7 +456,7 @@ function do_mode() {
   elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
     versions_show
   elif [[ "$1" == "" ]]; then
-    # TODO: check previous step worked before moving to next
+    # TODO: Add more tests, check previous step worked before moving to next
     do_build
     do_test
     do_crossbuild
