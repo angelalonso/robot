@@ -1,0 +1,17 @@
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/launch/circuits.launch.py
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/lib/circuit_nodes/node_master
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/ament_index/resource_index/package_run_dependencies/circuit_nodes
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/ament_index/resource_index/parent_prefix_path/circuit_nodes
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/ament_prefix_path.sh
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/ament_prefix_path.dsv
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/path.sh
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/path.dsv
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.bash
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.sh
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.zsh
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.dsv
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/package.dsv
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/ament_index/resource_index/packages/circuit_nodes
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/cmake/circuit_nodesConfig.cmake
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/cmake/circuit_nodesConfig-version.cmake
+/home/aaf/ros2_ws/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/package.xml

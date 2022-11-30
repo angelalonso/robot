@@ -102,7 +102,7 @@ function versions_show() {
 function build_prepare() {
   # $1 - Next Version
   # $2 - Architecture
-  show_log i "Preparing to deploy Version: ${1} for arch ${2}"
+  show_log i "Preparing to build Version: ${1} for arch ${2}"
 
   # TODO: maybe create a second one list if folders for rust modules in the future
   cd ${CODEPATH}
@@ -343,6 +343,7 @@ function do_crossbuild() {
   show_log i "##################  CROSS BUILD  ####################"
   trap ctrl_c INT
 
+  # TODO: git not found (remove use of git maybe?)
   # uncomment this to get the image!
   #docker build \
   #  --build-arg NEWUSER=$USER \
@@ -359,8 +360,42 @@ function do_crossbuild() {
     -it aarch64-cross \
     /bin/bash -c "cd ros2_ws && ./robot.sh build"
 
+  # TODO: where is this being saved??
+  # TODO: 
+  #[2022-11-30 16:54:01][WARN] - Saved Version and Installed Version differ!
+  #[2022-11-30 16:54:01][WARN] -  20221130_175226 vs. 20221130_175226/x86_64/build
   # TODO: add some tests
 
+}
+
+function do_deploy() {
+  versions_check
+  # TODO: also update the robot
+  show_log i "##################  \"DEPLOYING\" THE LATEST VERSION  ####################"
+  # Find the latest crossbuilt version
+  FOUND_LATEST_VIABLE=false
+  if [[ $(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/versions/${CURR_VERSION}/ | grep ${CROSSARCH} | wc -l) -ne 1 ]]; then
+    show_log w "Current Version ${CURR_VERSION} has not yet built for ${CROSSARCH}!"
+    show_log w "Please consider running $0 without parameters to create a full build."
+    # TODO: option to use the second latest if available
+  else
+    # $1 - Next Version
+    # $2 - Architecture
+    show_log i "Preparing to deploy Version: ${CURR_VERSION} for arch ${CROSSARCH}"
+
+    # TODO: maybe create a second one list if folders for rust modules in the future
+    cd ${CODEPATH}
+    CWD=$(pwd)
+    for i in ${ROS_PCKGS[@]}; do
+      cd src/${i}
+      for j in log build install; do
+        rm ${j} 2>/dev/null || true 
+        cp -r versions/${CURR_VERSION}/${CROSSARCH}/${j} ${j}
+      done
+      cd ${CWD}
+    done
+  fi
+  # Copy over its contents to build and install (not log)
 }
 
 function deploy() {

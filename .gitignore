@@ -1,8 +1,14 @@
 **/VERSION
 **/target
 **/log
-**/build
-**/install
+circuits/src/*/versions
+circuits/aux
+# the following may go away soon
+
+brain/**/build
+brain/**/install
+#**/build
+#**/install
 **/scripts/__pycache__
 **/.env
 **/.env.bck
