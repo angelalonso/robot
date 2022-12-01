@@ -6,9 +6,7 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Next up: Make sure build_prepare and related are used on build, deploy, rollback...
-#   TODO: Cross build
-#   TODO: Deploy
+#   TODO: Next up: Deploy
 #   TODO: Run at the robot
 
 set -eo pipefail
@@ -343,7 +341,6 @@ function do_crossbuild() {
   show_log i "##################  CROSS BUILD  ####################"
   trap ctrl_c INT
 
-  # TODO: git not found (remove use of git maybe?)
   # uncomment this to get the image!
   #docker build \
   #  --build-arg NEWUSER=$USER \
@@ -355,10 +352,10 @@ function do_crossbuild() {
     --rm \
     --user $USER \
     --platform linux/arm64/v8 \
-    -v $PWD:/home/$USER/ros2_ws \
+    -v $PWD:/home/$USER/robot \
     -e "ARCH=aarch64" \
     -it aarch64-cross \
-    /bin/bash -c "cd ros2_ws && ./robot.sh build"
+    /bin/bash -c "cd robot && ./robot.sh build"
 
   # TODO: where is this being saved??
   # TODO: 
@@ -395,8 +392,15 @@ function do_deploy() {
       cd ${CWD}
     done
   fi
-  # create a new release with git command line?
-  # Copy over its contents to build and install (not log)
+  # TODO: improve this
+  LATEST_TAG=$(echo $(git tag -l))
+  show_log i "Latest released tag is: ${LATEST_TAG}"
+  # TODO: propose the new one
+  read -r -p "Please write down the new release id: " NEWTAG 
+  read -r -p "Please also provide a description for the new release: " NEWTAGDESC 
+  git add ${CODEPATH}
+  git tag -a ${NEWTAG} -m "${NEWTAGDESC}"
+  git push --tags
 }
 
 function deploy() {
@@ -476,12 +480,12 @@ function do_mode() {
     do_build
     do_test
   elif [[ "$1" == "cross" ]] || [[ "$1" == "crossbuild" ]]; then
+    # TODO: use the same configs as in Raspberry (path ros2_Ws not found)
     do_crossbuild
   elif [[ "$1" == "deploy" ]]; then
     # TODO: remove links and copy over the latest crosscompiled
     do_deploy
   elif [[ "$1" == "run" ]]; then
-    # TODO: Check that it doesn't fail because of arch
     #do_run
     do_test
   elif [[ "$1" == "clean" ]]; then

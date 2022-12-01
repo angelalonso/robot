@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaf/ros2_ws/circuits/src/action_interfaces
+CMAKE_SOURCE_DIR = /home/aaf/robot/circuits/src/action_interfaces
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces
+CMAKE_BINARY_DIR = /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces
 
 # Utility rule file for ament_cmake_python_copy_action_interfaces.
 
@@ -67,7 +67,7 @@ include CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/compiler_depend
 include CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/progress.make
 
 CMakeFiles/ament_cmake_python_copy_action_interfaces:
-	/usr/bin/cmake -E copy_directory /home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_generator_py/action_interfaces /home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/ament_cmake_python/action_interfaces/action_interfaces
+	/usr/bin/cmake -E copy_directory /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_generator_py/action_interfaces /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/ament_cmake_python/action_interfaces/action_interfaces
 
 ament_cmake_python_copy_action_interfaces: CMakeFiles/ament_cmake_python_copy_action_interfaces
 ament_cmake_python_copy_action_interfaces: CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/clean:
 .PHONY : CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/clean
 
 CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/depend:
-	cd /home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aaf/ros2_ws/circuits/src/action_interfaces /home/aaf/ros2_ws/circuits/src/action_interfaces /home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces /home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces /home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aaf/robot/circuits/src/action_interfaces /home/aaf/robot/circuits/src/action_interfaces /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ament_cmake_python_copy_action_interfaces.dir/depend
 

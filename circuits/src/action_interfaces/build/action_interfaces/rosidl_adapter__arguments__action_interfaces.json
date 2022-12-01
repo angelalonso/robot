@@ -1,8 +1,8 @@
 {
   "package_name": "action_interfaces",
   "non_idl_tuples": [
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces:action/Led.action",
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces:action/MotorL.action",
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces:action/MotorR.action"
+    "/home/aaf/robot/circuits/src/action_interfaces:action/Led.action",
+    "/home/aaf/robot/circuits/src/action_interfaces:action/MotorL.action",
+    "/home/aaf/robot/circuits/src/action_interfaces:action/MotorR.action"
   ]
 }

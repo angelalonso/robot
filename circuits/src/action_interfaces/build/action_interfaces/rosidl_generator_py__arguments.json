@@ -1,11 +1,11 @@
 {
   "package_name": "action_interfaces",
-  "output_dir": "/home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_generator_py/action_interfaces",
+  "output_dir": "/home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_generator_py/action_interfaces",
   "template_dir": "/opt/ros/rolling/share/rosidl_generator_py/cmake/../resource",
   "idl_tuples": [
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/Led.idl",
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/MotorL.idl",
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/MotorR.idl"
+    "/home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/Led.idl",
+    "/home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/MotorL.idl",
+    "/home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/MotorR.idl"
   ],
   "ros_interface_dependencies": [
     "action_msgs:/opt/ros/rolling/share/action_msgs/msg/GoalInfo.idl",
@@ -30,9 +30,9 @@
     "/opt/ros/rolling/share/rosidl_generator_py/cmake/../resource/_msg.py.em",
     "/opt/ros/rolling/share/rosidl_generator_py/cmake/../resource/_srv_pkg_typesupport_entry_point.c.em",
     "/opt/ros/rolling/share/rosidl_generator_py/cmake/../resource/_srv.py.em",
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces/action/Led.idl",
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces/action/MotorL.idl",
-    "/home/aaf/ros2_ws/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces/action/MotorR.idl",
+    "/home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces/action/Led.idl",
+    "/home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces/action/MotorL.idl",
+    "/home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces/action/MotorR.idl",
     "/opt/ros/rolling/share/action_msgs/msg/GoalInfo.idl",
     "/opt/ros/rolling/share/action_msgs/msg/GoalStatus.idl",
     "/opt/ros/rolling/share/action_msgs/msg/GoalStatusArray.idl",

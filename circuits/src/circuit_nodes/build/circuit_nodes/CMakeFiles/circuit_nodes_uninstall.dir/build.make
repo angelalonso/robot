@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaf/ros2_ws/circuits/src/circuit_nodes
+CMAKE_SOURCE_DIR = /home/aaf/robot/circuits/src/circuit_nodes
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaf/ros2_ws/circuits/src/circuit_nodes/build/circuit_nodes
+CMAKE_BINARY_DIR = /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes
 
 # Utility rule file for circuit_nodes_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/circuit_nodes_uninstall.dir/compiler_depend.make
 include CMakeFiles/circuit_nodes_uninstall.dir/progress.make
 
 CMakeFiles/circuit_nodes_uninstall:
-	/usr/bin/cmake -P /home/aaf/ros2_ws/circuits/src/circuit_nodes/build/circuit_nodes/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 circuit_nodes_uninstall: CMakeFiles/circuit_nodes_uninstall
 circuit_nodes_uninstall: CMakeFiles/circuit_nodes_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/circuit_nodes_uninstall.dir/clean:
 .PHONY : CMakeFiles/circuit_nodes_uninstall.dir/clean
 
 CMakeFiles/circuit_nodes_uninstall.dir/depend:
-	cd /home/aaf/ros2_ws/circuits/src/circuit_nodes/build/circuit_nodes && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aaf/ros2_ws/circuits/src/circuit_nodes /home/aaf/ros2_ws/circuits/src/circuit_nodes /home/aaf/ros2_ws/circuits/src/circuit_nodes/build/circuit_nodes /home/aaf/ros2_ws/circuits/src/circuit_nodes/build/circuit_nodes /home/aaf/ros2_ws/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles/circuit_nodes_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aaf/robot/circuits/src/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles/circuit_nodes_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/circuit_nodes_uninstall.dir/depend
 
