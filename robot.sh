@@ -395,6 +395,7 @@ function do_deploy() {
       cd ${CWD}
     done
   fi
+  # create a new release with git command line?
   # Copy over its contents to build and install (not log)
 }
 
@@ -481,7 +482,8 @@ function do_mode() {
     do_deploy
   elif [[ "$1" == "run" ]]; then
     # TODO: Check that it doesn't fail because of arch
-    do_run
+    #do_run
+    do_test
   elif [[ "$1" == "clean" ]]; then
     do_clean
   elif [[ "$1" == "reset" ]]; then
