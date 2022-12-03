@@ -8,7 +8,7 @@ ARG NEWUSER
 RUN useradd -m ${NEWUSER} \
 && echo "${NEWUSER}:${NEWUSER}" | chpasswd \
 && usermod -aG sudo ${NEWUSER} \
-&& mkdir -p /home/${NEWUSER}/ros2_ws \
+&& mkdir -p /home/${NEWUSER}/robot \
 && chown ${NEWUSER}. -R /home/${NEWUSER}
 
 # Install aarch64 gcc and build tools and some other stuff
@@ -45,7 +45,7 @@ RUN curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o 
 
 # Prepare workspace
 USER ${NEWUSER}
-ENV PATH "$PATH:/home/aaf/.local/bin"
+ENV PATH "$PATH:/home/robotadm/.local/bin"
 WORKDIR /home/${NEWUSER}
 RUN python3 -m pip install --upgrade pip \
 && pip3 install \

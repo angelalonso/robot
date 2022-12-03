@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaf/robot/circuits/src/circuit_nodes
+CMAKE_SOURCE_DIR = /home/robotadm/robot/circuits/src/circuit_nodes
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes
+CMAKE_BINARY_DIR = /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes
 
 # Utility rule file for uninstall.
 
@@ -78,6 +78,6 @@ CMakeFiles/uninstall.dir/clean:
 .PHONY : CMakeFiles/uninstall.dir/clean
 
 CMakeFiles/uninstall.dir/depend:
-	cd /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/aaf/robot/circuits/src/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/robotadm/robot/circuits/src/circuit_nodes /home/robotadm/robot/circuits/src/circuit_nodes /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/uninstall.dir/depend
 

@@ -54,10 +54,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/aaf/robot/circuits/src/circuit_nodes
+CMAKE_SOURCE_DIR = /home/robotadm/robot/circuits/src/circuit_nodes
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes
+CMAKE_BINARY_DIR = /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -83,14 +83,14 @@ clean: CMakeFiles/node_master.dir/clean
 CMakeFiles/uninstall.dir/all: CMakeFiles/circuit_nodes_uninstall.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/uninstall.dir/build.make CMakeFiles/uninstall.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/uninstall.dir/build.make CMakeFiles/uninstall.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles --progress-num= "Built target uninstall"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles --progress-num= "Built target uninstall"
 .PHONY : CMakeFiles/uninstall.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/uninstall.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/uninstall.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
 .PHONY : CMakeFiles/uninstall.dir/rule
 
 # Convenience name for target.
@@ -109,14 +109,14 @@ CMakeFiles/uninstall.dir/clean:
 CMakeFiles/circuit_nodes_uninstall.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/circuit_nodes_uninstall.dir/build.make CMakeFiles/circuit_nodes_uninstall.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/circuit_nodes_uninstall.dir/build.make CMakeFiles/circuit_nodes_uninstall.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles --progress-num= "Built target circuit_nodes_uninstall"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles --progress-num= "Built target circuit_nodes_uninstall"
 .PHONY : CMakeFiles/circuit_nodes_uninstall.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/circuit_nodes_uninstall.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/circuit_nodes_uninstall.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
 .PHONY : CMakeFiles/circuit_nodes_uninstall.dir/rule
 
 # Convenience name for target.
@@ -135,14 +135,14 @@ CMakeFiles/circuit_nodes_uninstall.dir/clean:
 CMakeFiles/node_master.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/node_master.dir/build.make CMakeFiles/node_master.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/node_master.dir/build.make CMakeFiles/node_master.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles --progress-num=1,2 "Built target node_master"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles --progress-num=1,2 "Built target node_master"
 .PHONY : CMakeFiles/node_master.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/node_master.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/node_master.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/aaf/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/robotadm/robot/circuits/src/circuit_nodes/build/circuit_nodes/CMakeFiles 0
 .PHONY : CMakeFiles/node_master.dir/rule
 
 # Convenience name for target.

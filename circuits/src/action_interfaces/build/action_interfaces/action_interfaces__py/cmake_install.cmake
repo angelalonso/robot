@@ -1,8 +1,8 @@
-# Install script for directory: /home/aaf/robot/circuits/src/action_interfaces/build/action_interfaces/action_interfaces__py
+# Install script for directory: /home/robotadm/robot/circuits/src/action_interfaces/build/action_interfaces/action_interfaces__py
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/aaf/robot/circuits/src/action_interfaces/install/action_interfaces")
+  set(CMAKE_INSTALL_PREFIX "/home/robotadm/robot/circuits/src/action_interfaces/install/action_interfaces")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

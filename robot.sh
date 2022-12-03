@@ -6,7 +6,8 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Next up: Deploy
+#   TODO: Next up: robot.sh deploy shows difference
+#   TODO: test rollback
 #   TODO: Run at the robot
 
 set -eo pipefail
@@ -50,7 +51,7 @@ function versions_check() {
   # Current version
   SAVEDVERSION=$(cat ${VERSIONFILE} 2>/dev/null || true)
   CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build || true)
-  CURR_VERSION="$( echo "$CURR_LINK" | sed -e 's#^versions/##; s#/'${ARCH}'/build##; s#/'${CROSSARCH}'/build##' )"
+  CURR_VERSION="$( echo "$CURR_LINK" | sed -e 's#^versions/##; s#/.*/build##' )"
   if [[ "${SAVEDVERSION}" != "${CURR_VERSION}" ]]; then
     show_log w "Saved Version and Installed Version differ!"
     show_log w " ${SAVEDVERSION} vs. ${CURR_VERSION}"
@@ -166,8 +167,11 @@ function build_confirm() {
 
 function do_build() {
   versions_check
-  show_log i "################## BUILD ####################"
+  show_log i "################## BUILD on ${ARCH} ####################"
   trap ctrl_c INT
+  if [[ ${1} != "" ]]; then
+    NEXT_VERSION=${1}
+  fi
 
   # Build only if anything changed (comparing to git), 
   # TODO: we need to define this "git control" better (what if it was already commited?)
@@ -309,7 +313,6 @@ function do_clean() {
 }
 
 function do_rollback() {
-  # TODO: possibility to unzip the last version saved automatically
   versions_check
   if [[ ${PREV_VERSION} != "" ]]; then
     show_log w "Do you want to OVERWRITE the current version ${CURR_VERSION} WITH VERSION ${PREV_VERSION}? (just press y or n)"
@@ -342,32 +345,29 @@ function do_crossbuild() {
   trap ctrl_c INT
 
   # uncomment this to get the image!
+  # TODO: avoid hardcoding robotadm here
   #docker build \
-  #  --build-arg NEWUSER=$USER \
+  #  --build-arg NEWUSER=robotadm \
   #  --platform linux/arm64/v8 \
   #  -t aarch64-cross .
 
   cd ${CWDMAIN}
+  # TODO: avoid hardcoding robotadm here
   docker run \
     --rm \
-    --user $USER \
+    --user robotadm \
     --platform linux/arm64/v8 \
-    -v $PWD:/home/$USER/robot \
+    -v $PWD:/home/robotadm/robot \
     -e "ARCH=aarch64" \
     -it aarch64-cross \
-    /bin/bash -c "cd robot && ./robot.sh build"
+    /bin/bash -c "cd robot && ./robot.sh build ${NEXT_VERSION}"
 
   # TODO: where is this being saved??
-  # TODO: 
-  #[2022-11-30 16:54:01][WARN] - Saved Version and Installed Version differ!
-  #[2022-11-30 16:54:01][WARN] -  20221130_175226 vs. 20221130_175226/x86_64/build
   # TODO: add some tests
-
 }
 
 function do_deploy() {
   versions_check
-  # TODO: also update the robot
   show_log i "##################  \"DEPLOYING\" THE LATEST VERSION  ####################"
   # Find the latest crossbuilt version
   FOUND_LATEST_VIABLE=false
@@ -376,8 +376,6 @@ function do_deploy() {
     show_log w "Please consider running $0 without parameters to create a full build."
     # TODO: option to use the second latest if available
   else
-    # $1 - Next Version
-    # $2 - Architecture
     show_log i "Preparing to deploy Version: ${CURR_VERSION} for arch ${CROSSARCH}"
 
     # TODO: maybe create a second one list if folders for rust modules in the future
@@ -392,20 +390,19 @@ function do_deploy() {
       cd ${CWD}
     done
   fi
-  # TODO: improve this
-  LATEST_TAG=$(echo $(git tag -l))
+  LATEST_TAG=$(echo $(git tag -l | tail -n1))
+  PROPOSED=$(echo ${LATEST_TAG} | awk -F '.' '{print $1"."$2"."$3+1}')
   show_log i "Latest released tag is: ${LATEST_TAG}"
-  # TODO: propose the new one
-  read -r -p "Please write down the new release id: " NEWTAG 
+  read -r -p "Please write down the new release id: (${PROPOSED})" NEWTAG 
+  if [[ ${NEWTAG} == "" ]]; then
+    NEWTAG=${PROPOSED}
+    echo "Using ${NEWTAG}"
+  fi
   read -r -p "Please also provide a description for the new release: " NEWTAGDESC 
   git add ${CODEPATH}
   git tag -a ${NEWTAG} -m "${NEWTAGDESC}"
   git push --tags
-}
-
-function deploy() {
-# TODO: use rsync ?
-  scp -P ${SSHPORT} -r -C ../cross_circuits ${NEWUSER}@${SSHIP}:/home/${NEWUSER}/robot/cross_circuits
+  # TODO: also update the robot
 }
 
 # AUX FUNCTIONS
@@ -413,6 +410,7 @@ function deploy() {
 function ctrl_c() {
   # once the launch run is stopped with CTRL-C we want to clean up
   echo "** Trapped CTRL-C"
+  exit 2
 
 #  # Set back to real libraries to have them ready to be pushed to the repo
 #  sed -i 's/^#import RPi.GPIO as GPIO/import RPi.GPIO as GPIO/g' scripts/*.py
@@ -473,7 +471,7 @@ function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
   elif [[ "$1" == "build" ]]; then
-    do_build
+    do_build $2
   elif [[ "$1" == "test" ]]; then
     do_test
   elif [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
@@ -498,9 +496,10 @@ function do_mode() {
     versions_show
   elif [[ "$1" == "" ]]; then
     # TODO: Add more tests, check previous step worked before moving to next
-    do_build
-    do_test
+    do_build # Accept a version to use instead of getting a new one
+    #do_test # TODO: create a test that doesnt need CTRL+C to stop
     do_crossbuild
+    do_deploy
   elif [[ "$1" == "aux" ]]; then
     #This option we use to test functions
     show_help
@@ -521,4 +520,4 @@ VERSIONFILE="${CODEPATH}/VERSION"
 ROS_PCKGS=($(ls ${CODEPATH}/src))
 
 check_dotenv
-do_mode $1
+do_mode $1 $2
