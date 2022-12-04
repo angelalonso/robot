@@ -42,70 +42,65 @@ namespace action_servers {
           std::bind(&LedActionServer::handle_goal, this, _1, _2),
           std::bind(&LedActionServer::handle_cancel, this, _1),
           std::bind(&LedActionServer::handle_accepted, this, _1));
+        prepare_led();
       }
 
-    private:
-      void removeTrigger(){
-        // remove the trigger from the LED
-        std::fstream fs;
-        fs.open( LED_PATH "/trigger", std::fstream::out);
-        fs << "none";
-        fs.close();
-      }
-
-      int new_do_led(string status) {
+      int prepare_led() {
         // Export the desired pin by writing to /sys/class/gpio/export
-
         int fd = open("/sys/class/gpio/export", O_WRONLY);
         if (fd == -1) {
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
             exit(1);
         }
+        sleep(1);
         // TODO: use LEDMAIN_PIN from .env
-        if (write(fd, "21", 2) != 2) {
-            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
-            exit(1);
-        }
-        RCLCPP_INFO(this->get_logger(), "--------------------- WROTE TO /sys/class/gpio/export");
+        write(fd, "21");
+        //if (write(fd, "21", 2) != 2) {
+        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
+        //    exit(1);
+        //}
+        //RCLCPP_INFO(this->get_logger(), "--------------------- WROTE TO /sys/class/gpio/export");
 
         close(fd);
 
         // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
-
         fd = open("/sys/class/gpio/gpio21/direction", O_WRONLY);
-        RCLCPP_INFO(this->get_logger(), "--------------------- OPEN /sys/class/gpio/gpio21/direction");
+        //RCLCPP_INFO(this->get_logger(), "--------------------- OPEN /sys/class/gpio/gpio21/direction");
         if (fd == -1) {
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/direction");
             exit(1);
         }
 
-        RCLCPP_INFO(this->get_logger(), "--------------------- wrote OUT /sys/class/gpio21/direction");
-        if (write(fd, "out", 3) != 3) {
-            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
-            exit(1);
-        }
+        //RCLCPP_INFO(this->get_logger(), "--------------------- wrote OUT /sys/class/gpio21/direction");
+        write(fd, "out");
+        //if (write(fd, "out", 3) != 3) {
+        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
+        //    exit(1);
+        //}
 
         close(fd);
+        return 0;
+      }
 
+    private:
 
-        fd = open("/sys/class/gpio/gpio21/value", O_WRONLY);
+      int do_led(string status) {
+        int fd = open("/sys/class/gpio/gpio21/value", O_WRONLY);
         RCLCPP_INFO(this->get_logger(), "--------------------- OPEN /sys/class/gpio/gpio21/value");
         if (fd == -1) {
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/value");
             exit(1);
         }
-  
+
         string cmd(status);
         if(cmd=="on"){
           RCLCPP_INFO(this->get_logger(), " ----------------------------------- ON");
-          RCLCPP_INFO(this->get_logger(), "--------------------- WRITE 1 /sys/class/gpio/gpio21/value");
           if (write(fd, "1", 1) != 1) {
               RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/value");
               exit(1);
           }
         } else if (cmd=="off"){
           RCLCPP_INFO(this->get_logger(), " ----------------------------------- OFF");
-          RCLCPP_INFO(this->get_logger(), "--------------------- WRITE 0 /sys/class/gpio/gpio21/value");
           if (write(fd, "0", 1) != 1) {
               RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/value");
               exit(1);
@@ -135,51 +130,6 @@ namespace action_servers {
         return 0;
       }
 
-      int do_led(string status) {
-        string cmd(status);
-        std::fstream fs;
-        cout << "Starting the LED flash program" << endl;
-        cout << "The LED Path is: " << LED_PATH << endl;
-
-        // select whether it is on, off or flash
-        if(cmd=="on"){
-          RCLCPP_INFO(this->get_logger(), " ----------------------------------- ON");
-          removeTrigger();
-          fs.open (LED_PATH "/brightness", std::fstream::out);
-          fs << "1";
-          fs.close();
-        }
-        else if (cmd=="off"){
-          RCLCPP_INFO(this->get_logger(), " ----------------------------------- OFF");
-          removeTrigger();
-          fs.open (LED_PATH "/brightness", std::fstream::out);
-          fs << "0";
-          fs.close();
-        }
-        else if (cmd=="flash"){
-          fs.open (LED_PATH "/trigger", std::fstream::out);
-          fs << "timer";
-          fs.close();
-          fs.open (LED_PATH "/delay_on", std::fstream::out);
-          fs << "50";
-          fs.close();
-          fs.open (LED_PATH "/delay_off", std::fstream::out);
-          fs << "50";
-          fs.close();
-        }
-        else if (cmd=="status"){
-          // display the current trigger details
-          fs.open( LED_PATH "/trigger", std::fstream::in);
-          string line;
-          while(getline(fs,line)) cout << line;
-          fs.close();
-        }
-        else{
-          cout << "Invalid command" << endl;
-        }
-        cout << "Finished the LED flash program" << endl;
-        return 0;
-      }
       rclcpp_action::Server<Led>::SharedPtr action_server_;
 
       rclcpp_action::GoalResponse handle_goal(
@@ -213,9 +163,9 @@ namespace action_servers {
 
         //Maybe avoid using on and off and use 1 and 0 instead directly
         if (goal->turn_on == 1) {
-          new_do_led("on");
+          do_led("on");
          } else {
-          new_do_led("off");
+          do_led("off");
         };
 
         for (int i = 1; (i < goal->turn_on) && rclcpp::ok(); ++i) {
