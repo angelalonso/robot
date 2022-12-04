@@ -49,29 +49,35 @@ function versions_check() {
   NEXT_VERSION=$(date "+%Y%m%d_%H%M%S") # to be used to identify build
 
   # Current version
+  # If build is not a symlink, we use the contents of VERSIONFILE
+  # If build is a symlink, we check VERSIONFILE points at the same, then ask for correction
   SAVEDVERSION=$(cat ${VERSIONFILE} 2>/dev/null || true)
-  CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build || true)
-  CURR_VERSION="$( echo "$CURR_LINK" | sed -e 's#^versions/##; s#/.*/build##' )"
-  if [[ "${SAVEDVERSION}" != "${CURR_VERSION}" ]]; then
-    show_log w "Saved Version and Installed Version differ!"
-    show_log w " ${SAVEDVERSION} vs. ${CURR_VERSION}"
-    show_log w "Do you want to Correct the Saved Version? (just press y or n)"
-    LOOP=true
-    while [[ $LOOP == true ]] ; do
-      read -r -n 1 -p "[y/n]: " REPLY
-      case $REPLY in
-        [yY])
-          echo
-          echo ${CURR_VERSION} > ${VERSIONFILE}
-          LOOP=false
-          ;;
-        [nN])
-          echo
-          LOOP=false
-          ;;
-        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Correct it?"
-      esac
-    done
+  if [[ -L ${CODEPATH}/src/${ROS_PCKGS[0]}/build ]]; then
+    CURR_LINK=$(readlink ${CODEPATH}/src/${ROS_PCKGS[0]}/build || true)
+    CURR_VERSION="$( echo "$CURR_LINK" | sed -e 's#^versions/##; s#/.*/build##' )"
+    if [[ "${SAVEDVERSION}" != "${CURR_VERSION}" ]]; then
+      show_log w "Saved Version and Installed Version differ!"
+      show_log w " ${SAVEDVERSION} vs. ${CURR_VERSION}"
+      show_log w "Do you want to Correct the Saved Version? (just press y or n)"
+      LOOP=true
+      while [[ $LOOP == true ]] ; do
+        read -r -n 1 -p "[y/n]: " REPLY
+        case $REPLY in
+          [yY])
+            echo
+            echo ${CURR_VERSION} > ${VERSIONFILE}
+            LOOP=false
+            ;;
+          [nN])
+            echo
+            LOOP=false
+            ;;
+          *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Correct it?"
+        esac
+      done
+    fi
+  else
+    CURR_VERSION=${SAVEDVERSION}
   fi
 
   # Previous version
@@ -110,6 +116,7 @@ function build_prepare() {
     cd src/${i}
     for j in log build install; do
       rm ${j} 2>/dev/null || true 
+      DIR=$(pwd)
       mkdir -p versions/${1}/${2}/${j}
     done
     cd ${CWD}
@@ -203,8 +210,8 @@ function do_build() {
 
   if [[ "${BUILDORNOT}" == true ]]; then
     cd ${CODEPATH}
-    source /opt/ros/rolling/local_setup.sh
     build_prepare ${NEXT_VERSION} ${ARCH}
+    source /opt/ros/rolling/local_setup.sh
 
     # TODO: maybe create a second one list if folders for rust modules in the future
     CWD=$(pwd)
@@ -212,9 +219,8 @@ function do_build() {
     for i in ${ROS_PCKGS[@]}; do
       show_log i "Building ${i}"
       cd src/${i}
- 
       set +e
-      colcon build
+      colcon build --cmake-clean-cache
       if [[ $? -eq 0 ]]; then
         . ./install/setup.bash
       else
@@ -407,6 +413,14 @@ function do_deploy() {
 
 # AUX FUNCTIONS
 
+function kill_switch() {
+  # TODO: this doesnt work well in the container
+  for pid in $(ps aux | grep robot.sh | grep -v vim | awk '{print $2}'); do
+    kill -9 $pid
+  done
+  reset
+}
+
 function ctrl_c() {
   # once the launch run is stopped with CTRL-C we want to clean up
   echo "** Trapped CTRL-C"
@@ -447,16 +461,18 @@ function show_log {
   esac
 }
 
-function check_dotenv {
-  if [ ! -f ".env" ]; then
+function load_dotenv {
+  if [ -f "$CONFIGFILE" ]; then
+    export $(cat ${CONFIGFILE} | grep -v '^#' | xargs) >/dev/null
+  else 
     show_log e "ERROR! .env file not found!"
     show_log i "REMEMBER you can copy env.template to .env and adapt it!"
     show_log i "Exiting..."
-    exit 2
   fi
 }
 
 function show_help() {
+  # TODO: keep this updated
   show_log i "SYNTAX:"
   show_log i "  build    - Build related packages locally"
   show_log i "  test     - Run tests locally"
@@ -486,12 +502,14 @@ function do_mode() {
   elif [[ "$1" == "run" ]]; then
     #do_run
     do_test
+  elif [[ "$1" == "rollback" ]]; then
+    do_rollback
   elif [[ "$1" == "clean" ]]; then
     do_clean
   elif [[ "$1" == "reset" ]]; then
     versions_reset
-  elif [[ "$1" == "rollback" ]]; then
-    do_rollback
+  elif [[ "$1" == "kill" ]]; then
+    kill_switch
   elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
     versions_show
   elif [[ "$1" == "" ]]; then
@@ -508,6 +526,9 @@ function do_mode() {
   fi
 }
 
+######################
+
+CONFIGFILE=".env"
 # We inject ARCH=aarch64 in the cross-compiling container and can reuse build functions
 if [[ "${ARCH}" == "" ]]; then
   ARCH=$(uname -m)
@@ -519,5 +540,5 @@ VERSIONFILE="${CODEPATH}/VERSION"
 
 ROS_PCKGS=($(ls ${CODEPATH}/src))
 
-check_dotenv
+load_dotenv
 do_mode $1 $2
