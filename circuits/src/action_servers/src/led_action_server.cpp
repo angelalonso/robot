@@ -54,7 +54,7 @@ namespace action_servers {
         }
         sleep(1);
         // TODO: use LEDMAIN_PIN from .env
-        write(fd, "21");
+        write(fd, "21", 2);
         //if (write(fd, "21", 2) != 2) {
         //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
         //    exit(1);
@@ -72,7 +72,7 @@ namespace action_servers {
         }
 
         //RCLCPP_INFO(this->get_logger(), "--------------------- wrote OUT /sys/class/gpio21/direction");
-        write(fd, "out");
+        write(fd, "out", 3);
         //if (write(fd, "out", 3) != 3) {
         //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
         //    exit(1);
