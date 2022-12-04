@@ -52,19 +52,21 @@ namespace action_servers {
             exit(1);
         }
 
-        //usleep(500);
-        sleep(1);
+        usleep(500);
+        //sleep(1);
         // TODO: investigate why this is a -1 and the one below is a 3
-        int data = write(fd, "21", 2);
-        std::string strData = std::to_string(data);
-        char* temp = new char[strData.length() + 1];
-        strcpy(temp, strData.c_str());
+        int fdout = write(fd, "21", 2);
+        std::string strData = std::to_string(fdout);
+        char* tmp = new char[strData.length() + 1];
+        strcpy(tmp, strData.c_str());
         RCLCPP_ERROR(this->get_logger(), "---------------------------------------");
-        RCLCPP_ERROR(this->get_logger(), temp); 
-        //if (write(fd, "21", 2) != -1 ) {
-        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
-        //    exit(1);
-        //}
+        RCLCPP_ERROR(this->get_logger(), tmp); 
+        if (fdout != -1 ) {
+          if (fdout != 2 ) {
+             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
+              exit(1);
+          }
+        }
 
         close(fd);
 
