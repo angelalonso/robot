@@ -53,10 +53,16 @@ namespace action_servers {
         }
 
         // TODO: investigate why this is a -1 and the one below is a 3
-        if (write(fd, "21", 2) != -1 ) {
-            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
-            exit(1);
-        }
+        int data = write(fd, "21", 2);
+        std::string strData = std::to_string(data);
+        char* temp = new char[strData.length() + 1];
+        strcpy(temp, strData.c_str());
+        RCLCPP_ERROR(this->get_logger(), "---------------------------------------");
+        RCLCPP_ERROR(this->get_logger(), temp); 
+        //if (write(fd, "21", 2) != -1 ) {
+        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
+        //    exit(1);
+        //}
 
         close(fd);
 
@@ -79,7 +85,6 @@ namespace action_servers {
 
       int do_led(string status) {
         int fd = open("/sys/class/gpio/gpio21/value", O_WRONLY);
-        //RCLCPP_INFO(this->get_logger(), "--------------------- OPEN /sys/class/gpio/gpio21/value");
         if (fd == -1) {
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/value");
             exit(1);
@@ -87,13 +92,11 @@ namespace action_servers {
 
         string cmd(status);
         if(cmd=="on"){
-          //RCLCPP_INFO(this->get_logger(), " ----------------------------------- ON");
           if (write(fd, "1", 1) != 1) {
               RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/value");
               exit(1);
           }
         } else if (cmd=="off"){
-          //RCLCPP_INFO(this->get_logger(), " ----------------------------------- OFF");
           if (write(fd, "0", 1) != 1) {
               RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/value");
               exit(1);
@@ -107,14 +110,12 @@ namespace action_servers {
 
         fd = open("/sys/class/gpio/unexport", O_WRONLY);
         if (fd == -1) {
-            //RCLCPP_INFO(this->get_logger(), "--------------------- OPEN /sys/class/gpio/unexport");
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/unexport");
             exit(1);
         }
 
         //write(fd, "24", 2);
         if (write(fd, "24", 2) != -1 ) {
-            //RCLCPP_INFO(this->get_logger(), "--------------------- WROTE TO /sys/class/gpio/unexport");
             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/unexport");
             exit(1);
         }
