@@ -56,11 +56,6 @@ namespace action_servers {
         //sleep(1);
         // TODO: investigate why this is a -1 and the one below is a 3
         int fdout = write(fd, "21", 2);
-        std::string strData = std::to_string(fdout);
-        char* tmp = new char[strData.length() + 1];
-        strcpy(tmp, strData.c_str());
-        RCLCPP_ERROR(this->get_logger(), "---------------------------------------");
-        RCLCPP_ERROR(this->get_logger(), tmp); 
         if (fdout != -1 ) {
           if (fdout != 2 ) {
              RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
@@ -71,10 +66,15 @@ namespace action_servers {
         close(fd);
 
         int fdd = open("/sys/class/gpio/gpio21/direction", O_WRONLY);
-        if (fdd == -1) {
-            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/direction");
-            exit(1);
-        }
+        std::string strData = std::to_string(fdd);
+        char* tmp = new char[strData.length() + 1];
+        strcpy(tmp, strData.c_str());
+        RCLCPP_ERROR(this->get_logger(), "---------------------------------------");
+        RCLCPP_ERROR(this->get_logger(), tmp); 
+        //if (fdd == -1) {
+        //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/direction");
+        //    exit(1);
+        //}
 
         if (write(fdd, "out", 3) != 3 ) {
             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
