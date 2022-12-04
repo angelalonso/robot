@@ -157,7 +157,7 @@ function build_confirm() {
   cd ${CODEPATH}
   CWD=$(pwd)
   for i in ${ROS_PCKGS[@]}; do
-    show_log i "Deploying ${i}"
+    show_log i "Installing ${i}"
     cd src/${i}
     for j in log build install; do
       mv ${j} versions/${1}/${2}/
@@ -220,6 +220,7 @@ function do_build() {
       show_log i "Building ${i}"
       cd src/${i}
       set +e
+      # TODO: this takes forever, maybe moving aarch64 around after crossbuild works better?
       colcon build --cmake-clean-cache
       if [[ $? -eq 0 ]]; then
         . ./install/setup.bash
