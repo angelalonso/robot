@@ -1,5 +1,6 @@
 #include <chrono>
 #include <cinttypes>
+#include <unistd.h>
 
 #include "action_client.hpp"
 
@@ -31,6 +32,9 @@ int main(int argc, char ** argv)
   // Populate a goal
   auto led_goal_msg = Led::Goal();
   led_goal_msg.turn_on = 1;
+  led_ac_obj->send_goal(led_goal_msg);
+  sleep(1);
+  led_goal_msg.turn_on = 0;
   led_ac_obj->send_goal(led_goal_msg);
   //delete ac;
   // LED - END //

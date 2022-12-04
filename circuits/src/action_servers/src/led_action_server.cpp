@@ -1,7 +1,20 @@
-//#include <wiringPi.h>
 #include <functional>
 #include <memory>
 #include <thread>
+
+#include <iostream>
+#include <fstream>
+//#include <string>
+#define LED_PATH "/sys/class/leds/beaglebone:green:usr0"
+//
+#include <errno.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 #include "action_interfaces/action/led.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -9,6 +22,8 @@
 #include "rclcpp_components/register_node_macro.hpp"
 
 #include "action_servers/visibility_control.h"
+
+using namespace std;
 
 namespace action_servers {
   class LedActionServer : public rclcpp::Node {
@@ -30,6 +45,134 @@ namespace action_servers {
       }
 
     private:
+      void removeTrigger(){
+        // remove the trigger from the LED
+        std::fstream fs;
+        fs.open( LED_PATH "/trigger", std::fstream::out);
+        fs << "none";
+        fs.close();
+      }
+
+      int new_do_led(string status) {
+        return 0;
+        // Export the desired pin by writing to /sys/class/gpio/export
+
+        int fd = open("/sys/class/gpio/export", O_WRONLY);
+        if (fd == -1) {
+            perror("Unable to open /sys/class/gpio/export");
+            exit(1);
+        }
+        // TODO: use LEDMAIN_PIN from .env
+        if (write(fd, "21", 2) != 2) {
+            perror("Error writing to /sys/class/gpio/export");
+            exit(1);
+        }
+
+        close(fd);
+
+        // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
+
+        fd = open("/sys/class/gpio/gpio24/direction", O_WRONLY);
+        if (fd == -1) {
+            perror("Unable to open /sys/class/gpio/gpio24/direction");
+            exit(1);
+        }
+
+        if (write(fd, "out", 3) != 3) {
+            perror("Error writing to /sys/class/gpio/gpio24/direction");
+            exit(1);
+        }
+
+        close(fd);
+
+
+        fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
+        if (fd == -1) {
+            perror("Unable to open /sys/class/gpio/gpio24/value");
+            exit(1);
+        }
+  
+        string cmd(status);
+        if(cmd=="on"){
+          RCLCPP_INFO(this->get_logger(), " ----------------------------------- ON");
+          if (write(fd, "1", 1) != 1) {
+              perror("Error writing to /sys/class/gpio/gpio24/value");
+              exit(1);
+          }
+        } else if (cmd=="off"){
+          RCLCPP_INFO(this->get_logger(), " ----------------------------------- OFF");
+          if (write(fd, "0", 1) != 1) {
+              perror("Error writing to /sys/class/gpio/gpio24/value");
+              exit(1);
+          }
+        }
+
+        close(fd);
+
+        // Unexport the pin by writing to /sys/class/gpio/unexport
+
+        fd = open("/sys/class/gpio/unexport", O_WRONLY);
+        if (fd == -1) {
+            perror("Unable to open /sys/class/gpio/unexport");
+            exit(1);
+        }
+
+        if (write(fd, "24", 2) != 2) {
+            perror("Error writing to /sys/class/gpio/unexport");
+            exit(1);
+        }
+
+        close(fd);
+
+        // And exit
+        return 0;
+      }
+
+      int do_led(string status) {
+        string cmd(status);
+        std::fstream fs;
+        cout << "Starting the LED flash program" << endl;
+        cout << "The LED Path is: " << LED_PATH << endl;
+
+        // select whether it is on, off or flash
+        if(cmd=="on"){
+          RCLCPP_INFO(this->get_logger(), " ----------------------------------- ON");
+          removeTrigger();
+          fs.open (LED_PATH "/brightness", std::fstream::out);
+          fs << "1";
+          fs.close();
+        }
+        else if (cmd=="off"){
+          RCLCPP_INFO(this->get_logger(), " ----------------------------------- OFF");
+          removeTrigger();
+          fs.open (LED_PATH "/brightness", std::fstream::out);
+          fs << "0";
+          fs.close();
+        }
+        else if (cmd=="flash"){
+          fs.open (LED_PATH "/trigger", std::fstream::out);
+          fs << "timer";
+          fs.close();
+          fs.open (LED_PATH "/delay_on", std::fstream::out);
+          fs << "50";
+          fs.close();
+          fs.open (LED_PATH "/delay_off", std::fstream::out);
+          fs << "50";
+          fs.close();
+        }
+        else if (cmd=="status"){
+          // display the current trigger details
+          fs.open( LED_PATH "/trigger", std::fstream::in);
+          string line;
+          while(getline(fs,line)) cout << line;
+          fs.close();
+        }
+        else{
+          cout << "Invalid command" << endl;
+        }
+        cout << "Finished the LED flash program" << endl;
+        return 0;
+      }
       rclcpp_action::Server<Led>::SharedPtr action_server_;
 
       rclcpp_action::GoalResponse handle_goal(
@@ -60,6 +203,13 @@ namespace action_servers {
         auto feedback = std::make_shared<Led::Feedback>();
         auto & confirmed = feedback->process_feed;
         auto result = std::make_shared<Led::Result>();
+
+        //Maybe avoid using on and off and use 1 and 0 instead directly
+        if (goal->turn_on == 1) {
+          new_do_led("on");
+         } else {
+          new_do_led("off");
+        };
 
         for (int i = 1; (i < goal->turn_on) && rclcpp::ok(); ++i) {
           // Check if there is a cancel request
