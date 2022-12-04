@@ -51,44 +51,25 @@ namespace action_servers {
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
             exit(1);
         }
-        // TODO: needed?
-        //sleep(0.5);
-        // TODO: use LEDMAIN_PIN from .env
-        //int test = write(fd, "21", 2);
-        //RCLCPP_INFO(this->get_logger(), "--------------------- ");
-        //std::string strData = std::to_string(test);
-        //char* temp = new char[strData.length() + 1];
-        //strcpy(temp, strData.c_str());
-        //RCLCPP_INFO(this->get_logger(), temp);
-        //RCLCPP_INFO(this->get_logger(), "--------------------- ");
+
+        // TODO: investigate why this is a -1 and the one below is a 3
         if (write(fd, "21", 2) != -1 ) {
             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
             exit(1);
         }
-        //RCLCPP_INFO(this->get_logger(), "--------------------- WROTE TO /sys/class/gpio/export");
 
         close(fd);
 
         int fdd = open("/sys/class/gpio/gpio21/direction", O_WRONLY);
-        //RCLCPP_INFO(this->get_logger(), "--------------------- OPEN /sys/class/gpio/gpio21/direction");
         if (fdd == -1) {
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/direction");
             exit(1);
         }
 
-        //RCLCPP_INFO(this->get_logger(), "--------------------- wrote OUT /sys/class/gpio21/direction");
-        //write(fdd, "out", 3);
-        int test = write(fdd, "out", 3);
-        RCLCPP_INFO(this->get_logger(), "--------------------- ");
-        std::string strData = std::to_string(test);
-        char* temp = new char[strData.length() + 1];
-        strcpy(temp, strData.c_str());
-        RCLCPP_INFO(this->get_logger(), temp);
-        RCLCPP_INFO(this->get_logger(), "--------------------- ");
-        //if (write(fdd, "out", 3) != -1 ) {
-        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
-        //    exit(1);
-        //}
+        if (write(fdd, "out", 3) != 3 ) {
+            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
+            exit(1);
+        }
 
         close(fdd);
         return 0;
