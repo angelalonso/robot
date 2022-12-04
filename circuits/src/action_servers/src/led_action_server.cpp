@@ -52,6 +52,8 @@ namespace action_servers {
             exit(1);
         }
 
+        //usleep(500);
+        sleep(1);
         // TODO: investigate why this is a -1 and the one below is a 3
         int data = write(fd, "21", 2);
         std::string strData = std::to_string(data);
