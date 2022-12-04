@@ -89,7 +89,7 @@ namespace action_servers {
         std::string strFDirOut = std::to_string(fDirOut);
         char* tmpFDirOut = new char[strFDirOut.length() + 1];
         strcpy(tmpFDirOut, strFDirOut.c_str());
-        RCLCPP_ERROR(this->get_logger(), "------------- direction ---------------");
+        RCLCPP_ERROR(this->get_logger(), "------------- direction out ---------------");
         RCLCPP_ERROR(this->get_logger(), tmpFDirOut); 
         //if (write(fddout, "out", 3) != 3 ) {
         //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
@@ -104,10 +104,15 @@ namespace action_servers {
 
       int do_led(string status) {
         int fVal = open("/sys/class/gpio/gpio21/value", O_WRONLY);
-        if (fVal == -1) {
-            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/value");
-            exit(1);
-        }
+        std::string strFVal = std::to_string(fVal);
+        char* tmpFVal = new char[strFVal.length() + 1];
+        strcpy(tmpFVal, strFVal.c_str());
+        RCLCPP_ERROR(this->get_logger(), "------------- value ---------------");
+        RCLCPP_ERROR(this->get_logger(), tmpFVal); 
+        //if (fVal == -1) {
+        //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/value");
+        //    exit(1);
+        //}
 
         string cmd(status);
         int cmdonoff;
