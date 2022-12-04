@@ -52,9 +52,15 @@ namespace action_servers {
             RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
             exit(1);
         }
-        sleep(1);
+        sleep(0.5);
         // TODO: use LEDMAIN_PIN from .env
-        write(fd, "21", 2);
+        int test = write(fd, "21", 2);
+        RCLCPP_INFO(this->get_logger(), "--------------------- ");
+        std::string strData = std::to_string(test);
+        char* temp = new char[strData.length() + 1];
+        strcpy(temp, strData.c_str());
+        RCLCPP_INFO(this->get_logger(), temp);
+        RCLCPP_INFO(this->get_logger(), "--------------------- ");
         //if (write(fd, "21", 2) != 2) {
         //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
         //    exit(1);
@@ -109,6 +115,7 @@ namespace action_servers {
 
         close(fd);
 
+        // TODO: do this on closing the class
         // Unexport the pin by writing to /sys/class/gpio/unexport
 
         fd = open("/sys/class/gpio/unexport", O_WRONLY);
@@ -118,11 +125,12 @@ namespace action_servers {
             exit(1);
         }
 
-        if (write(fd, "24", 2) != 2) {
-            RCLCPP_INFO(this->get_logger(), "--------------------- WROTE TO /sys/class/gpio/unexport");
-            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/unexport");
-            exit(1);
-        }
+        write(fd, "24", 2);
+        //if (write(fd, "24", 2) != 2) {
+        //    RCLCPP_INFO(this->get_logger(), "--------------------- WROTE TO /sys/class/gpio/unexport");
+        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/unexport");
+        //    exit(1);
+        //}
 
         close(fd);
 

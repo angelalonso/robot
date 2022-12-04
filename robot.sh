@@ -407,8 +407,13 @@ function do_deploy() {
   fi
   read -r -p "Please also provide a description for the new release: " NEWTAGDESC 
   git add ${CODEPATH}
+  git commit -m "${NEWTAGDESC}"
+  git push 
   git tag -a ${NEWTAG} -m "${NEWTAGDESC}"
   git push --tags
+  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd robot ; git pull"
+  show_log i "##################  Robot now also has the latest version installed  ####################"
+
   # TODO: also update the robot
 }
 
@@ -488,6 +493,7 @@ function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
   elif [[ "$1" == "build" ]]; then
+    # TODO: build only one package
     do_build $2
   elif [[ "$1" == "test" ]]; then
     do_test
