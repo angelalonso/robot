@@ -52,10 +52,12 @@ namespace action_servers {
         strcpy(tmpFd, strFd.c_str());
         RCLCPP_ERROR(this->get_logger(), "-------------- export -----------------");
         RCLCPP_ERROR(this->get_logger(), tmpFd); 
-        //if (fd == -1) {
-        //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
-        //    exit(1);
-        //}
+        if (fd != 17 ) {
+          if (fd != -1 ) {
+            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
+            exit(1);
+          }
+        }
 
         //usleep(500);
         //sleep(1);
@@ -74,10 +76,10 @@ namespace action_servers {
         std::string strData = std::to_string(fdd);
         char* tmp = new char[strData.length() + 1];
         strcpy(tmp, strData.c_str());
-        RCLCPP_ERROR(this->get_logger(), "---------------------------------------");
+        RCLCPP_ERROR(this->get_logger(), "------------- direction ---------------");
         RCLCPP_ERROR(this->get_logger(), tmp); 
         if (fdd != 17 ) {
-          if (fdout != -1 ) {
+          if (fdd != -1 ) {
              RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio21/direction");
               exit(1);
           }
