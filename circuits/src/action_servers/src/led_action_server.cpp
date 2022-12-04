@@ -84,15 +84,17 @@ namespace action_servers {
               exit(1);
           }
         }
-        //if (fdd == -1) {
-        //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/direction");
+
+        int fddout = write(fdd, "out", 3);
+        std::string strFddout = std::to_string(fddout);
+        char* tmpFddout = new char[strFddout.length() + 1];
+        strcpy(tmpFddout, strData.c_str());
+        RCLCPP_ERROR(this->get_logger(), "------------- direction ---------------");
+        RCLCPP_ERROR(this->get_logger(), tmpFddout); 
+        //if (write(fddout, "out", 3) != 3 ) {
+        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
         //    exit(1);
         //}
-
-        if (write(fdd, "out", 3) != 3 ) {
-            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
-            exit(1);
-        }
 
         close(fdd);
         return 0;
