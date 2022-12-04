@@ -1,0 +1,3 @@
+/home/robotadm/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/Led.idl
+/home/robotadm/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/MotorL.idl
+/home/robotadm/robot/circuits/src/action_interfaces/build/action_interfaces/rosidl_adapter/action_interfaces:action/MotorR.idl

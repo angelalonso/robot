@@ -1,0 +1,17 @@
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/launch/circuits.launch.py
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/lib/circuit_nodes/node_master
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/ament_index/resource_index/package_run_dependencies/circuit_nodes
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/ament_index/resource_index/parent_prefix_path/circuit_nodes
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/ament_prefix_path.sh
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/ament_prefix_path.dsv
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/path.sh
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/environment/path.dsv
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.bash
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.sh
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.zsh
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/local_setup.dsv
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/package.dsv
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/ament_index/resource_index/packages/circuit_nodes
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/cmake/circuit_nodesConfig.cmake
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/cmake/circuit_nodesConfig-version.cmake
+/home/robotadm/robot/circuits/src/circuit_nodes/install/circuit_nodes/share/circuit_nodes/package.xml

@@ -1,0 +1,18 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from action_interfaces/action/Led.action
+// generated code does not contain a copyright notice
+
+
+module action_interfaces {
+  module action {
+    struct Led_Goal {
+      boolean turn_on;
+    };
+    struct Led_Result {
+      string confirmed;
+    };
+    struct Led_Feedback {
+      string process_feed;
+    };
+  };
+};
