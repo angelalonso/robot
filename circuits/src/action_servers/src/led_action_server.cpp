@@ -71,6 +71,12 @@ namespace action_servers {
         strcpy(tmp, strData.c_str());
         RCLCPP_ERROR(this->get_logger(), "---------------------------------------");
         RCLCPP_ERROR(this->get_logger(), tmp); 
+        if (fdd != 17 ) {
+          if (fdout != -1 ) {
+             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
+              exit(1);
+          }
+        }
         //if (fdd == -1) {
         //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/direction");
         //    exit(1);
