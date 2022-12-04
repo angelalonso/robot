@@ -95,6 +95,7 @@ packages:
 - openssh-server 
 - python3-pip
 - python3-venv
+- rpi.gpio-common
 - wireless-tools
 - wpasupplicant
 #- avahi-daemon
