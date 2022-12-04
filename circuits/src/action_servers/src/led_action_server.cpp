@@ -59,12 +59,12 @@ namespace action_servers {
 
         int fd = open("/sys/class/gpio/export", O_WRONLY);
         if (fd == -1) {
-            perror("Unable to open /sys/class/gpio/export");
+            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
             exit(1);
         }
         // TODO: use LEDMAIN_PIN from .env
         if (write(fd, "21", 2) != 2) {
-            perror("Error writing to /sys/class/gpio/export");
+            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
             exit(1);
         }
 
@@ -72,23 +72,23 @@ namespace action_servers {
 
         // Set the pin to be an output by writing "out" to /sys/class/gpio/gpio24/direction
 
-        fd = open("/sys/class/gpio/gpio24/direction", O_WRONLY);
+        fd = open("/sys/class/gpio/gpio21/direction", O_WRONLY);
         if (fd == -1) {
-            perror("Unable to open /sys/class/gpio/gpio24/direction");
+            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/direction");
             exit(1);
         }
 
         if (write(fd, "out", 3) != 3) {
-            perror("Error writing to /sys/class/gpio/gpio24/direction");
+            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
             exit(1);
         }
 
         close(fd);
 
 
-        fd = open("/sys/class/gpio/gpio24/value", O_WRONLY);
+        fd = open("/sys/class/gpio/gpio21/value", O_WRONLY);
         if (fd == -1) {
-            perror("Unable to open /sys/class/gpio/gpio24/value");
+            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/gpio21/value");
             exit(1);
         }
   
@@ -96,13 +96,13 @@ namespace action_servers {
         if(cmd=="on"){
           RCLCPP_INFO(this->get_logger(), " ----------------------------------- ON");
           if (write(fd, "1", 1) != 1) {
-              perror("Error writing to /sys/class/gpio/gpio24/value");
+              RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/value");
               exit(1);
           }
         } else if (cmd=="off"){
           RCLCPP_INFO(this->get_logger(), " ----------------------------------- OFF");
           if (write(fd, "0", 1) != 1) {
-              perror("Error writing to /sys/class/gpio/gpio24/value");
+              RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/value");
               exit(1);
           }
         }
@@ -113,12 +113,12 @@ namespace action_servers {
 
         fd = open("/sys/class/gpio/unexport", O_WRONLY);
         if (fd == -1) {
-            perror("Unable to open /sys/class/gpio/unexport");
+            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/unexport");
             exit(1);
         }
 
         if (write(fd, "24", 2) != 2) {
-            perror("Error writing to /sys/class/gpio/unexport");
+            RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/unexport");
             exit(1);
         }
 
