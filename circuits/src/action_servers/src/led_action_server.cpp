@@ -54,7 +54,6 @@ namespace action_servers {
       }
 
       int new_do_led(string status) {
-        return 0;
         // Export the desired pin by writing to /sys/class/gpio/export
 
         int fd = open("/sys/class/gpio/export", O_WRONLY);
