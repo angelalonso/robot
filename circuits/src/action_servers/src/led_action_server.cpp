@@ -47,12 +47,17 @@ namespace action_servers {
 
       int prepare_led() {
         int fd = open("/sys/class/gpio/export", O_WRONLY);
-        if (fd == -1) {
-            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
-            exit(1);
-        }
+        std::string strFd = std::to_string(fd);
+        char* tmpFd = new char[strFd.length() + 1];
+        strcpy(tmpFd, strFd.c_str());
+        RCLCPP_ERROR(this->get_logger(), "-------------- export -----------------");
+        RCLCPP_ERROR(this->get_logger(), tmpFd); 
+        //if (fd == -1) {
+        //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
+        //    exit(1);
+        //}
 
-        usleep(500);
+        //usleep(500);
         //sleep(1);
         // TODO: investigate why this is a -1 and the one below is a 3
         int fdout = write(fd, "21", 2);
@@ -73,7 +78,7 @@ namespace action_servers {
         RCLCPP_ERROR(this->get_logger(), tmp); 
         if (fdd != 17 ) {
           if (fdout != -1 ) {
-             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
+             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio21/direction");
               exit(1);
           }
         }
