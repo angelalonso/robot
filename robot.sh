@@ -147,6 +147,8 @@ function build_abort() {
     cd ${CWD}
   done
   echo ${2} > ${VERSIONFILE}
+  show_log e "Build failed, Exiting now..."
+  exit 2
 }
 
 function build_confirm() {
@@ -173,11 +175,20 @@ function build_confirm() {
 # ACTION FUNCTIONS
 
 function do_build() {
+  # This function requires either a version to use or "-" to create a new one
   versions_check
   show_log i "################## BUILD on ${ARCH} ####################"
   trap ctrl_c INT
-  if [[ ${1} != "" ]]; then
-    NEXT_VERSION=${1}
+  if [[ ${2} != "" ]] && [[ ${2} != "-" ]]; then
+    NEXT_VERSION=${2}
+  fi
+  # It also allows to only build some of the packages
+  if [[ ${3} != "" ]]; then
+    ROS_PCKGS=()
+    for (( ix=3; ix<=${#}; ix++ ));
+    do
+      ROS_PCKGS+=(${!ix})
+    done
   fi
 
   # Build only if anything changed (comparing to git), 
@@ -248,6 +259,7 @@ function do_build() {
 }
 
 function do_test() {
+  #TODO: this is not working well on crossbuild, check why
   #TODO: make sure arch is correct
   show_log i "##################  RUN A LOCAL TEST  ####################"
   trap ctrl_c INT
@@ -367,7 +379,7 @@ function do_crossbuild() {
     -v $PWD:/home/robotadm/robot \
     -e "ARCH=aarch64" \
     -it aarch64-cross \
-    /bin/bash -c "cd robot && ./robot.sh build ${NEXT_VERSION}"
+    /bin/bash -c "cd robot && ./robot.sh buildonly ${NEXT_VERSION}"
 
   # TODO: where is this being saved??
   # TODO: add some tests
@@ -411,10 +423,9 @@ function do_deploy() {
   git push 
   git tag -a ${NEWTAG} -m "${NEWTAGDESC}"
   git push --tags
+  # TODO: show alert if the following fails
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd robot ; git pull"
   show_log i "##################  Robot now also has the latest version installed  ####################"
-
-  # TODO: also update the robot
 }
 
 # AUX FUNCTIONS
@@ -478,33 +489,122 @@ function load_dotenv {
 }
 
 function show_help() {
-  # TODO: keep this updated
   show_log i "SYNTAX:"
-  show_log i "  build    - Build related packages locally"
-  show_log i "  test     - Run tests locally"
-  show_log i "  cross    - Cross-build for the robot's architecture"
-  show_log i "  deploy   - Deploy current crossbuild to robot"
-  show_log i "  run      - Run current crossbuild on the robot"
-  show_log i "  rollback - Deploy previous crossbuild version on robot and make it current"
-  show_log i "  help     - Show this help"
+  show_log i " $0        - Build, Crosscompile and deploy to robot"
+  show_log i " - Main options:"
+  show_log i " $0 build     - Build related packages and run test locally"
+  show_log i " $0 test      - Run tests locally"
+  show_log i " $0 buildonly - Build related packages locally, accepts a list of packages"
+  show_log i " $0 cross     - Cross-build for the robot's architecture"
+  show_log i " $0 deploy    - Deploy current crossbuild to robot"
+  show_log i " $0 run       - Run current crossbuild on the robot"
+  show_log i " - Other options:"
+  show_log i " $0 rollback  - Deploy previous crossbuild version on robot and make it current"
+  show_log i " $0 clean     - Remove and compress old versions built" 
+  show_log i " $0 reset     - Remove everything previously built " 
+  show_log i " $0 kill      - Kill any leftover processes" 
+  show_log i " $0 version   - Show the current version(s) available" 
+  show_log i " $0 aux       - Run a function that is currently used for development of new stuff" 
+  show_log i " $0 help      - Show this help"
+}
+
+function aux_function() {
+  # This function requires either a version to use or "-" to create a new one
+  versions_check
+  show_log i "################## BUILD on ${ARCH} ####################"
+  trap ctrl_c INT
+  if [[ ${2} != "" ]] && [[ ${2} != "-" ]]; then
+    NEXT_VERSION=${2}
+  fi
+  # It also allows to only build one of the packages
+  if [[ ${3} != "" ]]; then
+    ROS_PCKGS=()
+    for (( ix=3; ix<=${#}; ix++ ));
+    do
+      ROS_PCKGS+=(${!ix})
+    done
+  fi
+
+  # Build only if anything changed (comparing to git), 
+  # TODO: we need to define this "git control" better (what if it was already commited?)
+  # TODO: One error is: as long as you dont commit, you can build without being asked, even if you didnt change since latest commit
+  BUILDORNOT=false
+  if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
+    BUILDORNOT=true
+  else
+    show_log w "There seems to be no changes on ${CODEPATH}"
+    show_log w "Do you still want to Build? (just press y or n)"
+    LOOP=true
+    while [[ $LOOP == true ]] ; do
+      read -r -n 1 -p "[y/n]: " REPLY
+      case $REPLY in
+        [yY])
+          echo
+          BUILDORNOT=true
+          LOOP=false
+          ;;
+        [nN])
+          echo
+          BUILDORNOT=false
+          LOOP=false
+          ;;
+        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Build?"
+      esac
+    done
+  fi
+
+  if [[ "${BUILDORNOT}" == true ]]; then
+    cd ${CODEPATH}
+    build_prepare ${NEXT_VERSION} ${ARCH}
+    source /opt/ros/rolling/local_setup.sh
+
+    # TODO: maybe create a second one list if folders for rust modules in the future
+    CWD=$(pwd)
+    NO_BUILD_ERRORS=true
+    for i in ${ROS_PCKGS[@]}; do
+      show_log i "Building ${i}"
+      cd src/${i}
+      set +e
+      # TODO: this takes forever, maybe moving aarch64 around after crossbuild works better?
+      colcon build --cmake-clean-cache
+      if [[ $? -eq 0 ]]; then
+        . ./install/setup.bash
+      else
+        NO_BUILD_ERRORS=false
+        break
+      fi
+      set -e
+
+      cd $CWD
+    done
+    # check the build worked before deploying the build
+    if [[ "${NO_BUILD_ERRORS}" == true ]]; then
+      show_log i "######## Built Version: ${NEXT_VERSION} ########"
+      build_confirm ${NEXT_VERSION} ${ARCH}
+    else
+      show_log e "######## There was an error building ${NEXT_VERSION} ########"
+      show_log e "######## Back to ${CURR_VERSION} ########"
+      build_abort ${NEXT_VERSION} ${CURR_VERSION} ${ARCH}
+    fi
+  else
+    show_log w "Nothing was built"
+  fi
+  cd $CWDMAIN
 }
 
 function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
-  elif [[ "$1" == "build" ]]; then
-    # TODO: build only one package
-    do_build $2
-  elif [[ "$1" == "test" ]]; then
-    do_test
-  elif [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
+  elif [[ "$1" == "build" ]] || [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
     do_build
     do_test
+  elif [[ "$1" == "test" ]]; then
+    do_test
+  elif [[ "$1" == "buildonly" ]]; then
+    do_build $@
   elif [[ "$1" == "cross" ]] || [[ "$1" == "crossbuild" ]]; then
-    # TODO: use the same configs as in Raspberry (path ros2_Ws not found)
     do_crossbuild
   elif [[ "$1" == "deploy" ]]; then
-    # TODO: remove links and copy over the latest crosscompiled
     do_deploy
   elif [[ "$1" == "run" ]]; then
     #do_run
@@ -521,13 +621,13 @@ function do_mode() {
     versions_show
   elif [[ "$1" == "" ]]; then
     # TODO: Add more tests, check previous step worked before moving to next
-    do_build # Accept a version to use instead of getting a new one
+    do_build 
     #do_test # TODO: create a test that doesnt need CTRL+C to stop
     do_crossbuild
     do_deploy
   elif [[ "$1" == "aux" ]]; then
     #This option we use to test functions
-    show_help
+    aux_function $@
   else
     show_help
   fi
@@ -548,4 +648,5 @@ VERSIONFILE="${CODEPATH}/VERSION"
 ROS_PCKGS=($(ls ${CODEPATH}/src))
 
 load_dotenv
-do_mode $1 $2
+#do_mode $1 $2 TODO: can this be removed? does everything work?
+do_mode $@
