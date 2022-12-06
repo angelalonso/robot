@@ -1,0 +1,18 @@
+// generated from rosidl_adapter/resource/action.idl.em
+// with input from action_interfaces/action/MotorR.action
+// generated code does not contain a copyright notice
+
+
+module action_interfaces {
+  module action {
+    struct MotorR_Goal {
+      float speed;
+    };
+    struct MotorR_Result {
+      string confirmed;
+    };
+    struct MotorR_Feedback {
+      string process_feed;
+    };
+  };
+};
