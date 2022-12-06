@@ -81,13 +81,11 @@ namespace action_servers {
         std::string strFDir = std::to_string(fDir);
         char* tmpFDir = new char[strFDir.length() + 1];
         strcpy(tmpFDir, strFDir.c_str());
-        RCLCPP_ERROR(this->get_logger(), "------------- direction open ---------------");
-        RCLCPP_ERROR(this->get_logger(), tmpFDir); 
         if (fDir != 17 ) {
-          if (fDir != -1 ) {
-             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio21/direction");
-              exit(1);
-          }
+          RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio21/direction");
+          RCLCPP_ERROR(this->get_logger(), "------------- direction open code:");
+          RCLCPP_ERROR(this->get_logger(), tmpFDir); 
+          exit(1);
         }
 
         int fDirOut = write(fDir, "out", 3);
