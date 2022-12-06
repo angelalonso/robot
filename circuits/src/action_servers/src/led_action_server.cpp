@@ -46,35 +46,36 @@ namespace action_servers {
       }
 
       int prepare_led() {
-        int fExp = open("/sys/class/gpio/export", O_WRONLY);
-        std::string strFExp = std::to_string(fExp);
-        char* tmpFExp = new char[strFExp.length() + 1];
-        strcpy(tmpFExp, strFExp.c_str());
-        RCLCPP_ERROR(this->get_logger(), "-------------- export open -----------------");
-        RCLCPP_ERROR(this->get_logger(), tmpFExp); 
-        if (fExp != 17 ) {
-          if (fExp != -1 ) {
-            RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
-            exit(1);
-          }
-        }
+        // // this is done outside
+        // //int fExp = open("/sys/class/gpio/export", O_WRONLY);
+        // //std::string strFExp = std::to_string(fExp);
+        // //char* tmpFExp = new char[strFExp.length() + 1];
+        // //strcpy(tmpFExp, strFExp.c_str());
+        // //RCLCPP_ERROR(this->get_logger(), "-------------- export open -----------------");
+        // //RCLCPP_ERROR(this->get_logger(), tmpFExp); 
+        // //if (fExp != 17 ) {
+        // //  if (fExp != -1 ) {
+        // //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/export");
+        // //    exit(1);
+        // //  }
+        // //}
 
-        //usleep(500);
-        sleep(1);
-        int fExpOut = write(fExp, "21", 2);
-        std::string strFExpOut = std::to_string(fExpOut);
-        char* tmpFExpOut = new char[strFExpOut.length() + 1];
-        strcpy(tmpFExpOut, strFExpOut.c_str());
-        RCLCPP_ERROR(this->get_logger(), "-------------- export written -----------------");
-        RCLCPP_ERROR(this->get_logger(), tmpFExpOut); 
-        if (fExpOut != -1 ) {
-          if (fExpOut != 2 ) {
-             RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
-              exit(1);
-          }
-        }
+        // ////usleep(500);
+        // ////sleep(1);
+        // //int fExpOut = write(fExp, "21", 2);
+        // //std::string strFExpOut = std::to_string(fExpOut);
+        // //char* tmpFExpOut = new char[strFExpOut.length() + 1];
+        // //strcpy(tmpFExpOut, strFExpOut.c_str());
+        // //RCLCPP_ERROR(this->get_logger(), "-------------- export written -----------------");
+        // //RCLCPP_ERROR(this->get_logger(), tmpFExpOut); 
+        // //if (fExpOut != -1 ) {
+        // //  if (fExpOut != 2 ) {
+        // //     RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/export");
+        // //      exit(1);
+        // //  }
+        // //}
 
-        close(fExp);
+        // //close(fExp);
 
         int fDir = open("/sys/class/gpio/gpio21/direction", O_WRONLY);
         std::string strFDir = std::to_string(fDir);
@@ -89,7 +90,6 @@ namespace action_servers {
           }
         }
 
-        sleep(1);
         int fDirOut = write(fDir, "out", 3);
         std::string strFDirOut = std::to_string(fDirOut);
         char* tmpFDirOut = new char[strFDirOut.length() + 1];
@@ -119,7 +119,6 @@ namespace action_servers {
         //    exit(1);
         //}
 
-        sleep(1);
         string cmd(status);
         int cmdonoff;
         if(cmd=="on"){
@@ -137,35 +136,35 @@ namespace action_servers {
 
         close(fVal);
 
-        // TODO: do this on closing the class
-        // Unexport the pin by writing to /sys/class/gpio/unexport
+       // // this is done outside
+       // //  // TODO: do this on closing the class
+       // //  // Unexport the pin by writing to /sys/class/gpio/unexport
 
-        int fUnx = open("/sys/class/gpio/unexport", O_WRONLY);
-        std::string strFUnx = std::to_string(fUnx);
-        char* tmpFUnx = new char[strFUnx.length() + 1];
-        strcpy(tmpFUnx, strFUnx.c_str());
-        RCLCPP_ERROR(this->get_logger(), "------------- unexport open ---------------");
-        RCLCPP_ERROR(this->get_logger(), tmpFUnx); 
-        //int fd = open("/sys/class/gpio/unexport", O_WRONLY);
-        //if (fd == -1) {
-        //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/unexport");
-        //    exit(1);
-        //}
+       // //  int fUnx = open("/sys/class/gpio/unexport", O_WRONLY);
+       // //  std::string strFUnx = std::to_string(fUnx);
+       // //  char* tmpFUnx = new char[strFUnx.length() + 1];
+       // //  strcpy(tmpFUnx, strFUnx.c_str());
+       // //  RCLCPP_ERROR(this->get_logger(), "------------- unexport open ---------------");
+       // //  RCLCPP_ERROR(this->get_logger(), tmpFUnx); 
+       // //  //int fd = open("/sys/class/gpio/unexport", O_WRONLY);
+       // //  //if (fd == -1) {
+       // //  //    RCLCPP_ERROR(this->get_logger(), "Unable to open /sys/class/gpio/unexport");
+       // //  //    exit(1);
+       // //  //}
 
-        sleep(1);
-        int fUnxOut = write(fUnx, "21", 2);
-        std::string strFUnxOut = std::to_string(fUnxOut);
-        char* tmpFUnxOut = new char[strFUnxOut.length() + 1];
-        strcpy(tmpFUnxOut, strFUnxOut.c_str());
-        RCLCPP_ERROR(this->get_logger(), "------------- unexport written ---------------");
-        RCLCPP_ERROR(this->get_logger(), tmpFUnxOut); 
-        ////write(fd, "24", 2);
-        //if (write(fd, "21", 2) != -1 ) {
-        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/unexport");
-        //    exit(1);
-        //}
+       // //  int fUnxOut = write(fUnx, "21", 2);
+       // //  std::string strFUnxOut = std::to_string(fUnxOut);
+       // //  char* tmpFUnxOut = new char[strFUnxOut.length() + 1];
+       // //  strcpy(tmpFUnxOut, strFUnxOut.c_str());
+       // //  RCLCPP_ERROR(this->get_logger(), "------------- unexport written ---------------");
+       // //  RCLCPP_ERROR(this->get_logger(), tmpFUnxOut); 
+       // //  ////write(fd, "24", 2);
+       // //  //if (write(fd, "21", 2) != -1 ) {
+       // //  //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/unexport");
+       // //  //    exit(1);
+       // //  //}
 
-        close(fUnx);
+       // //  close(fUnx);
 
         // And exit
         return 0;
