@@ -77,29 +77,29 @@ namespace action_servers {
 
         // //close(fExp);
 
-        int fDir = open("/sys/class/gpio/gpio21/direction", O_WRONLY);
-        std::string strFDir = std::to_string(fDir);
-        char* tmpFDir = new char[strFDir.length() + 1];
-        strcpy(tmpFDir, strFDir.c_str());
-        if (fDir != 17 ) {
-          RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio21/direction");
-          RCLCPP_ERROR(this->get_logger(), "------------- direction open code:");
-          RCLCPP_ERROR(this->get_logger(), tmpFDir); 
-          exit(1);
-        }
+        // //int fDir = open("/sys/class/gpio/gpio21/direction", O_WRONLY);
+        // //std::string strFDir = std::to_string(fDir);
+        // //char* tmpFDir = new char[strFDir.length() + 1];
+        // //strcpy(tmpFDir, strFDir.c_str());
+        // //if (fDir != 17 ) {
+        // //  RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio21/direction");
+        // //  RCLCPP_ERROR(this->get_logger(), "------------- direction open code:");
+        // //  RCLCPP_ERROR(this->get_logger(), tmpFDir); 
+        // //  exit(1);
+        // //}
 
-        int fDirOut = write(fDir, "out", 3);
-        std::string strFDirOut = std::to_string(fDirOut);
-        char* tmpFDirOut = new char[strFDirOut.length() + 1];
-        strcpy(tmpFDirOut, strFDirOut.c_str());
-        RCLCPP_ERROR(this->get_logger(), "------------- direction written ---------------");
-        RCLCPP_ERROR(this->get_logger(), tmpFDirOut); 
-        //if (write(fddout, "out", 3) != 3 ) {
-        //    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
-        //    exit(1);
-        //}
+        // //int fDirOut = write(fDir, "out", 3);
+        // //std::string strFDirOut = std::to_string(fDirOut);
+        // //char* tmpFDirOut = new char[strFDirOut.length() + 1];
+        // //strcpy(tmpFDirOut, strFDirOut.c_str());
+        // //RCLCPP_ERROR(this->get_logger(), "------------- direction written ---------------");
+        // //RCLCPP_ERROR(this->get_logger(), tmpFDirOut); 
+        // ////if (write(fddout, "out", 3) != 3 ) {
+        // ////    RCLCPP_ERROR(this->get_logger(), "Error writing to /sys/class/gpio/gpio21/direction");
+        // ////    exit(1);
+        // ////}
 
-        close(fDir);
+        // //close(fDir);
         return 0;
       }
 
