@@ -60,8 +60,7 @@ namespace action_servers {
         }
 
         //usleep(500);
-        //sleep(1);
-        // TODO: investigate why this is a -1 and the one below is a 3
+        sleep(1);
         int fExpOut = write(fExp, "21", 2);
         std::string strFExpOut = std::to_string(fExpOut);
         char* tmpFExpOut = new char[strFExpOut.length() + 1];
@@ -90,6 +89,7 @@ namespace action_servers {
           }
         }
 
+        sleep(1);
         int fDirOut = write(fDir, "out", 3);
         std::string strFDirOut = std::to_string(fDirOut);
         char* tmpFDirOut = new char[strFDirOut.length() + 1];
@@ -119,6 +119,7 @@ namespace action_servers {
         //    exit(1);
         //}
 
+        sleep(1);
         string cmd(status);
         int cmdonoff;
         if(cmd=="on"){
@@ -151,6 +152,7 @@ namespace action_servers {
         //    exit(1);
         //}
 
+        sleep(1);
         int fUnxOut = write(fUnx, "21", 2);
         std::string strFUnxOut = std::to_string(fUnxOut);
         char* tmpFUnxOut = new char[strFUnxOut.length() + 1];
