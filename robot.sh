@@ -264,6 +264,10 @@ function do_test() {
   show_log i "##################  RUN A LOCAL TEST  ####################"
   trap ctrl_c INT
 
+  # Prepare GPIO before running
+  echo ${LEDMAIN_PIN} | sudo tee -a /sys/class/gpio/export
+  echo "out" | sudo tee -a /sys/class/gpio/gpio${LEDMAIN_PIN}/direction
+
   source /opt/ros/rolling/local_setup.sh
 
   cd ${CODEPATH}
@@ -423,8 +427,7 @@ function do_deploy() {
   git push 
   git tag -a ${NEWTAG} -m "${NEWTAGDESC}"
   git push --tags
-  # TODO: show alert if the following fails
-  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd robot ; git pull"
+  ssh -o ConnectTimeout=3 ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd robot ; git pull"
   show_log i "##################  Robot now also has the latest version installed  ####################"
 }
 
@@ -441,6 +444,11 @@ function kill_switch() {
 function ctrl_c() {
   # once the launch run is stopped with CTRL-C we want to clean up
   echo "** Trapped CTRL-C"
+
+  # Cleanup of GPIO after running
+  echo 0 | sudo tee -a /sys/class/gpio/gpio${LEDMAIN_PIN}/value
+  echo ${LEDMAIN_PIN} | sudo tee -a /sys/class/gpio/unexport
+
   exit 2
 
 #  # Set back to real libraries to have them ready to be pushed to the repo

@@ -98,6 +98,9 @@ packages:
 - rpi.gpio-common
 - wireless-tools
 - wpasupplicant
+- iotop
+- sysstat
+- ntp
 #- avahi-daemon
 #- rng-tools
 #- python3-gpiozero
