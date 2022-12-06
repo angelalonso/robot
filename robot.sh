@@ -265,8 +265,10 @@ function do_test() {
   trap ctrl_c INT
 
   # Prepare GPIO before running
-  echo ${LEDMAIN_PIN} | sudo tee -a /sys/class/gpio/export
-  echo "out" | sudo tee -a /sys/class/gpio/gpio${LEDMAIN_PIN}/direction
+  echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/export
+  echo "out" | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/direction
+  echo 1 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value
+  echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value
 
   source /opt/ros/rolling/local_setup.sh
 
@@ -446,8 +448,8 @@ function ctrl_c() {
   echo "** Trapped CTRL-C"
 
   # Cleanup of GPIO after running
-  echo 0 | sudo tee -a /sys/class/gpio/gpio${LEDMAIN_PIN}/value
-  echo ${LEDMAIN_PIN} | sudo tee -a /sys/class/gpio/unexport
+  echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value
+  echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/unexport
 
   exit 2
 
