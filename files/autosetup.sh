@@ -220,6 +220,9 @@ EOF
     show_log err "There was an error installing colcon"
   fi
 
+  # TODO: install cbindgen
+  # cargo install --force cbindgen
+
   show_log info "installed and configured rust"
   kill $PID
   /autosetup/blink.sh 0
@@ -264,12 +267,13 @@ function clone_repo {
     show_log err "There was an error copying the .env to the actual program"
   fi
 
-  runuser -l $NEWUSER -c "cd /home/$NEWUSER/robot/brain && ./run.sh build"
-  if [ $? -ne 0 ]; then
-    kill $PID
-    /autosetup/blink.sh 0
-    show_log err "There was an error building the code"
-  fi
+  # TODO: not neeeded for now
+  #runuser -l $NEWUSER -c "cd /home/$NEWUSER/robot/brain && ./run.sh build"
+  #if [ $? -ne 0 ]; then
+  #  kill $PID
+  #  /autosetup/blink.sh 0
+  #  show_log err "There was an error building the code"
+  #fi
 
   show_log info "cloned robot repository and built it"
   kill $PID
@@ -367,7 +371,7 @@ function run {
   install_rust
   clone_repo
   prepare_rclocal
-  prepare_robotrun
+  #prepare_robotrun
   )
 
   touch $LOGFILE

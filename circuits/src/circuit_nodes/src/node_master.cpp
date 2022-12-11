@@ -2,6 +2,23 @@
 #include <cinttypes>
 #include <unistd.h>
 
+//Rust library, path seems to be correct like this:
+//#include "test-lib/test-lib.h"
+//extern "C" void print_hello();
+//#include "add.h"
+//#include "target/debug/libadd.a"
+//extern "C" void print_hello();
+
+//#include "libtest_lib.so"
+//extern "C" void print_hello();
+//#include "libadd.a"
+//extern "C" int32_t add(int32_t a, int32_t b);
+#include "lib.rs.h"
+#include <iostream>
+#include <string>
+#include "cxx.h"
+
+
 #include "action_client.hpp"
 
 #include "action_interfaces/action/led.hpp"
@@ -21,6 +38,10 @@ using namespace std;
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
+
+// TODO: undefined reference
+  std::string msg = "####################" + lib_cxxbridge_integer(4);
+  printf("%s\n",msg.c_str());
 
   // LED //
   auto led_ac_node = rclcpp::Node::make_shared("led_action_client");

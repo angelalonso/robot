@@ -1,4 +1,0 @@
-source;share/circuit_nodes/local_setup.bash
-source;share/circuit_nodes/local_setup.dsv
-source;share/circuit_nodes/local_setup.sh
-source;share/circuit_nodes/local_setup.zsh

@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
 #
-# TODO: we should only run robot.sh and it should follow the default mode:
 #   - Build -> Test -> Crossbuild -> Deploy -> Run
 #   The point is that it should progress based on checks:
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Next up: robot.sh deploy shows difference
-#   TODO: test rollback
 #   TODO: Run at the robot
 
 set -eo pipefail
@@ -109,7 +106,6 @@ function build_prepare() {
   # $2 - Architecture
   show_log i "Preparing to build Version: ${1} for arch ${2}"
 
-  # TODO: maybe create a second one list if folders for rust modules in the future
   cd ${CODEPATH}
   CWD=$(pwd)
   for i in ${ROS_PCKGS[@]}; do
@@ -130,16 +126,15 @@ function build_abort() {
   show_log w "Removing Version: ${1} completely (on ${3})."
   show_log w "Re-enabling Version: ${2}"
 
-  # TODO: maybe create a second one list if folders for rust modules in the future
   cd ${CODEPATH}
   CWD=$(pwd)
   for i in ${ROS_PCKGS[@]}; do
     cd src/${i}
+    rm -r versions/${1} 2>/dev/null || true 
     for j in log build install; do
       rm -r ${j} 
       if [[ "${2}" != "" ]]; then
         ln -s versions/${2}/${3}/${j} ${j}
-        rm -r versions/${1} 2>/dev/null || true # TODO: probably this should go out of a loop, do we need the loop at all?
       else
         show_log d "No other version was currently deployed before this build."
       fi
@@ -193,7 +188,7 @@ function do_build() {
 
   # Build only if anything changed (comparing to git), 
   # TODO: we need to define this "git control" better (what if it was already commited?)
-  # TODO: One error is: as long as you dont commit, you can build without being asked, even if you didnt change since latest commit
+  #       One error is: as long as you dont commit, you can build without being asked, even if you didnt change since latest commit
   BUILDORNOT=false
   if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
     BUILDORNOT=true
@@ -224,14 +219,12 @@ function do_build() {
     build_prepare ${NEXT_VERSION} ${ARCH}
     source /opt/ros/rolling/local_setup.sh
 
-    # TODO: maybe create a second one list if folders for rust modules in the future
     CWD=$(pwd)
     NO_BUILD_ERRORS=true
     for i in ${ROS_PCKGS[@]}; do
       show_log i "Building ${i}"
       cd src/${i}
       set +e
-      # TODO: this takes forever, maybe moving aarch64 around after crossbuild works better?
       colcon build --cmake-clean-cache
       if [[ $? -eq 0 ]]; then
         . ./install/setup.bash
@@ -259,16 +252,66 @@ function do_build() {
 }
 
 function do_test() {
-  #TODO: this is not working well on crossbuild, check why
-  #TODO: make sure arch is correct
+  # TODO: create more tests that dont need CTRL+C to stop
+  show_log i "##################  RUN A LOCAL TEST  ####################"
+  trap ctrl_c INT
+
+  # Prepare GPIO before running 
+  #show_log i "Initializing GPIOs"
+  #echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/export >/dev/null
+  #echo "out" | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/direction >/dev/null
+  #echo 1 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
+  #echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
+
+  source /opt/ros/rolling/local_setup.sh
+
+  cd ${CODEPATH}
+  for i in ${ROS_PCKGS[@]}; do
+    show_log i "Loading ${i}"
+    cd src/${i}
+    . ./install/setup.bash && \
+    cd ${CODEPATH}
+  done
+  ros2 launch circuit_nodes circuits.launch.py
+}
+
+function do_crosstest() {
+  echo "TBD"
+## THESE ARE THE ERRORS FROM do_test:
+## [2022-12-07 16:52:24][INFO] - ##################  RUN A LOCAL TEST  ####################
+## [2022-12-07 16:52:24][INFO] - Initializing GPIOs
+## [2022-12-07 16:52:25][INFO] - Loading action_interfaces
+## [2022-12-07 16:52:27][INFO] - Loading action_servers
+## [2022-12-07 16:52:30][INFO] - Loading circuit_nodes
+## [INFO] [launch]: All log files can be found below /home/robotadm/.ros/log/2022-12-07-16-52-35-191559-39bb27e9ca8f-4294
+## [INFO] [launch]: Default logging verbosity is set to INFO
+## [INFO] [node_master-1]: process started with pid [4297]
+## [INFO] [led_action_server-2]: process started with pid [4301]
+## [INFO] [motor_l_action_server-3]: process started with pid [4305]
+## [INFO] [motor_r_action_server-4]: process started with pid [4309]
+## [node_master-1] Unsupported setsockopt level=0 optname=32
+## [node_master-1] Unsupported setsockopt level=0 optname=32
+## [led_action_server-2] Unsupported setsockopt level=0 optname=32
+## [led_action_server-2] Unsupported setsockopt level=0 optname=32
+## [motor_l_action_server-3] Unsupported setsockopt level=0 optname=32
+## [motor_l_action_server-3] Unsupported setsockopt level=0 optname=32
+## [motor_r_action_server-4] Unsupported setsockopt level=0 optname=32
+## [motor_r_action_server-4] Unsupported setsockopt level=0 optname=32
+## [node_master-1] [ERROR] [1670431976.895537387] [led_action_client]: Action server not available after waiting
+## [node_master-1] [INFO] [1670431976.902721217] [led_action_client]: Sending goal 
+}
+
+function do_run() {
+  versions_check
   show_log i "##################  RUN A LOCAL TEST  ####################"
   trap ctrl_c INT
 
   # Prepare GPIO before running
-  echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/export
-  echo "out" | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/direction
-  echo 1 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value
-  echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value
+  show_log i "Initializing GPIOs"
+  echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/export >/dev/null
+  echo "out" | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/direction >/dev/null
+  echo 1 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
+  echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
 
   source /opt/ros/rolling/local_setup.sh
 
@@ -283,7 +326,6 @@ function do_test() {
 }
 
 function do_clean() {
-  # TODO: tell the user if nothing was cleaned up too
   # Keep the two latest folders, compress the third latest, remove the rest
   show_log i "##################  CLEANUP OLD BUILDS  ####################"
   trap ctrl_c INT
@@ -370,24 +412,21 @@ function do_crossbuild() {
   trap ctrl_c INT
 
   # uncomment this to get the image!
-  # TODO: avoid hardcoding robotadm here
   #docker build \
-  #  --build-arg NEWUSER=robotadm \
+  #  --build-arg NEWUSER=${NEWUSER} \
   #  --platform linux/arm64/v8 \
   #  -t aarch64-cross .
 
   cd ${CWDMAIN}
-  # TODO: avoid hardcoding robotadm here
   docker run \
     --rm \
-    --user robotadm \
+    --user ${NEWUSER} \
     --platform linux/arm64/v8 \
-    -v $PWD:/home/robotadm/robot \
+    -v $PWD:/home/${NEWUSER}/robot \
     -e "ARCH=aarch64" \
     -it aarch64-cross \
-    /bin/bash -c "cd robot && ./robot.sh buildonly ${NEXT_VERSION}"
+    /bin/bash -c "cd robot && ./robot.sh buildonly ${NEXT_VERSION} && ./robot.sh test"
 
-  # TODO: where is this being saved??
   # TODO: add some tests
 }
 
@@ -403,7 +442,6 @@ function do_deploy() {
   else
     show_log i "Preparing to deploy Version: ${CURR_VERSION} for arch ${CROSSARCH}"
 
-    # TODO: maybe create a second one list if folders for rust modules in the future
     cd ${CODEPATH}
     CWD=$(pwd)
     for i in ${ROS_PCKGS[@]}; do
@@ -448,8 +486,8 @@ function ctrl_c() {
   echo "** Trapped CTRL-C"
 
   # Cleanup of GPIO after running
-  echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value
-  echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/unexport
+  echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
+  echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/unexport >/dev/null
 
   exit 2
 
@@ -606,7 +644,7 @@ function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
   elif [[ "$1" == "build" ]] || [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
-    do_build
+    do_build $@
     do_test
   elif [[ "$1" == "test" ]]; then
     do_test
@@ -617,8 +655,7 @@ function do_mode() {
   elif [[ "$1" == "deploy" ]]; then
     do_deploy
   elif [[ "$1" == "run" ]]; then
-    #do_run
-    do_test
+    do_run
   elif [[ "$1" == "rollback" ]]; then
     do_rollback
   elif [[ "$1" == "clean" ]]; then
@@ -630,9 +667,8 @@ function do_mode() {
   elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
     versions_show
   elif [[ "$1" == "" ]]; then
-    # TODO: Add more tests, check previous step worked before moving to next
     do_build 
-    #do_test # TODO: create a test that doesnt need CTRL+C to stop
+    #do_test 
     do_crossbuild
     do_deploy
   elif [[ "$1" == "aux" ]]; then
@@ -658,5 +694,4 @@ VERSIONFILE="${CODEPATH}/VERSION"
 ROS_PCKGS=($(ls ${CODEPATH}/src))
 
 load_dotenv
-#do_mode $1 $2 TODO: can this be removed? does everything work?
 do_mode $@
