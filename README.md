@@ -2,9 +2,6 @@
 
 A step by step Guide to building and configuring your own robot using partially my choice of Hardware and Software.
 
-## ;TLDR
-
-
 
 ## Motivation
 
@@ -14,91 +11,38 @@ A step by step Guide to building and configuring your own robot using partially 
 
 ## Status
 
-Right now, It does not work 
+Right now, It does not work and I'm changing the Software of choice. Here is what I#ve tried so far:
+- Full Rust:
+  - There used to be a working thing written completely on Rust but it didn't scale well.
+- ROS2 - Python
+  - The project was redone from scratch, to use ROS2 and python instead, but interfaces on python were too CPU-intensive.
+  - I redid the interfaces' functionality on Rust and added that as a python library. Then I realized having Python code would be too slow
+- ROS2 - C++:
+  - After realizing Python would be too slow, I started redoing everything on ROS's C++
+  - When I had something working, I also realized compiling it on the Raspberry would be too heavy, so I started introducing cross-compilation.
+  - Then I tried to introduce libraries on Rust that would be called from C++. I never got it to work using ROS's cmakelists
 
-There used to be a working thing written completely on Rust but it didn't scale well.
-It was redone from scratch, to use ROS2 and python instead, but interfaces on python were too CPU-intensive.
-I redid the interfaces' functionality on Rust and added that as a python library.
-Then I realized having Python code would be too slow, so I started redoing everything on ROS's C++
-When I had something working, I also realized compiling it on the Raspberry would be too heavy, so I started introducing cross-compilation.
-So I find myself trying to put all things together.
- 
-Now the next goal is to make everything come together as follows:
-- :wrench: Auto boot
-  - :+1: python3.9
-  - :+1: env/bin/activate: No such file or directory
-  - :+1: configure raspberry automatically
-    - :+1: Install raspbian, then document what file to copy and where
-    - :wrench: Automate the previous process and change docs
-    - :+1: Create a Script to configure the Raspberry automatically
-    - :+1: LED shows Step the run is in, and another pattern when ready
-  - :bulb: Have a Script to control code flow
-    - :bulb: Compile for local tests
-    - :bulb: Run local tests
-    - :bulb: Compile for robot
-    - :bulb: Deploy to robot
-    - :bulb: Start running at robot
-    - :bulb: Stop running at robot
-    - :bulb: Rollback deployment at robot
-  - :wrench: Install an LED
-    - :+1: Make LED work on test computer
-    - :+1: Install an LED physically
-    - :+1: Make LED work on Robot
-  - :bulb: Show status through this LED
-  - :bulb: Make 2 Motors work
-  - :bulb: Get data from Arduino
-  - :bulb: Get a working API 
-    - :bulb: Make sure this uses SSL and a Device ID to only allow calls from a set of given devices.
-    - :bulb: The list of devices must go in a protected file
-    - :bulb: Automate as much as possible this process
-  - :bulb: Show status through a call to this API
-- :bulb: Mode
-  - :bulb: Available modes:
-    - :bulb: RC - actions can be controlled from an Android App that uses the API
-    - :bulb: Callibrating - goes through a set of tests to "learn from itself" (e.g.: how much power and time it needs on each wheel to turn 30 degrees clockwise)
-    - :bulb: Mapping - Moves around a space to build a map of the surroundings
-    - :bulb: Auto - uses mapping to move around among other actions
-      - :bulb: This mode can also override actions if API says so
-  - :bulb: The default mode is set on a file
-  - :bulb: The mode itself can be overridden on the go via API
+So my next approach will be to try and design again a full-Rust version that tries to mimc ROS2's architecture principles (e.g.: nodes, actions, messages...), with the hope that one day there will be a full-on ROS2-Rust library that I can easily migrate to.
 
+I will need to make the following work to consider this approach "usable":
+- Create a Node that lives until a CTRL-C is received
+- Make that Node work like an action server
+- Create a second Node that works like an action client
+- Have the action server turn an LED on and off
+- Make this run on the Raspberry and check load
 
-| :zap:        Current WIP is making averything come together, see thirdphase branch |
-|------------------------------------------------------------------------------------|
+Once that is working, I will adapt the code and auxiliar scripts to keep using what worked well in the past:
 
-| :exclamation:  Consider everything from here on as a Work in Progress |
-|-----------------------------------------------------------------------|
+- Autosetup of the Raspberry 
+- Build pipeline
+- .env configuration
 
-## HOW TO
-
-- [x] Base Project: 
-  - [[Buy your Hardware]](docs/000_Base_ShoppingList.md)
-  - [[Connect everything to the Chassis]](docs/000_Base_Chassis.md) (To be reviewed)
-  - [[Set up the Raspberry Pi]](docs/000_Base_Raspberry.md) (To be reviewed)
-  - [[Configure and start it up]](docs/000_Base_Software.md) (To be reviewed)
-- [x] Plugin: Input distance sensor. TBD
-
-## Screenshots
-
-To be done
-
-## Code Style
-
-I am using ROS2 with Python mostly (the base project is declared as a C++ one, because some ROS2 stuff would not work for python projects). 
-Before this project, I had never used ROS in my life. and I consider myself a Python middle-range user (I cannot explain why stuf works like they do, but with enough access to Stackoverflow and time I can do anything on Python)
-
-I am also looking for a way to have Rust added to the formula.
-
-## Built with
-
-- [ROS2](https://docs.ros.org/en/foxy/index.html)
-- [Bash](https://tiswww.case.edu/php/chet/bash/bashtop.html)
-  - [Bash autocompletion](https://www.gnu.org/software/bash/manual/html_node/Programmable-Completion.html)
-- [Raspberry Pi](https://www.raspberrypi.org/)
-- [Arduino](https://www.arduino.cc/)
-- [Rust](https://www.rust-lang.org/)
-
-Consider the above also a list of minimum requirements.
+Then I will try to extend to the rest of functionality:
+- Engines
+- Control through a secured API
+- Status advertised on LED
+- Automatic mode
+- Autoboot
 
 ## Contribute and Credits
 
