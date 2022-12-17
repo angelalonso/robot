@@ -12,7 +12,7 @@ RUN useradd -m ${NEWUSER} \
 && chown ${NEWUSER}. -R /home/${NEWUSER}
 
 RUN apt-get update && apt-get install -y curl \
- && apt-get install build-essential sudo -y \
+ && apt-get install build-essential git sudo -y \
  && rm -rf /var/lib/apt/lists/*
  
 RUN  sudo -i -u $NEWUSER bash -c "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"

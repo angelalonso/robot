@@ -16,13 +16,6 @@ shopt -s extglob # required for proper string substitution
 function do_build() {
   show_log i "################## BUILD on ${ARCH} ####################"
   trap ctrl_c INT
-  if [[ ${2} != "" ]]; then
-    RUST_PCKGS=()
-    for (( ix=2; ix<=${#}; ix++ ));
-    do
-      RUST_PCKGS+=(${!ix})
-    done
-  fi
 
   # Build only if anything changed (comparing to git), 
   # TODO: we need to define this "git control" better (what if it was already commited?)
@@ -55,10 +48,7 @@ function do_build() {
   if [[ "${BUILDORNOT}" == true ]]; then
     cargo update
     cd ${CODEPATH}
-    cd srv_clients/ && cargo build -vv
-
-    cd ${CODEPATH}
-    cd led_srv_server/ && cargo build
+    cargo build -vv
 
     #TODO: check if it worked
   else
@@ -66,6 +56,69 @@ function do_build() {
   fi
   cd $CWDMAIN
 }
+
+function do_crossbuild() {
+  show_log i "################## CROSS BUILD for AARCH64 ####################"
+  trap ctrl_c INT
+
+  # Build only if anything changed (comparing to git), 
+  # TODO: we need to define this "git control" better (what if it was already commited?)
+  #       One error is: as long as you dont commit, you can build without being asked, even if you didnt change since latest commit
+  #BUILDORNOT=false
+  #if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
+  #  BUILDORNOT=true
+  #else
+  #  show_log w "There seems to be no changes on ${CODEPATH}"
+  #  show_log w "Do you still want to Build? (just press y or n)"
+  #  LOOP=true
+  #  while [[ $LOOP == true ]] ; do
+  #    read -r -n 1 -p "[y/n]: " REPLY
+  #    case $REPLY in
+  #      [yY])
+  #        echo
+  #        BUILDORNOT=true
+  #        LOOP=false
+  #        ;;
+  #      [nN])
+  #        echo
+  #        BUILDORNOT=false
+  #        LOOP=false
+  #        ;;
+  #      *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Build?"
+  #    esac
+  #  done
+  #fi
+
+  #if [[ "${BUILDORNOT}" == true ]]; then
+  #  cargo update
+  #  cd ${CODEPATH}
+  #  cargo build --target aarch64-unknown-linux-gnu
+
+  #  #TODO: check if it worked
+  #else
+  #  show_log w "Nothing was built"
+  #fi
+  #cd $CWDMAIN
+
+  # uncomment this to get the image!
+  docker build \
+    --build-arg NEWUSER=${NEWUSER} \
+    --platform linux/arm64/v8 \
+    -t aarch64-cross .
+
+  #cd ${CWDMAIN}
+  docker run \
+    --rm \
+    --user ${NEWUSER} \
+    --platform linux/arm64/v8 \
+    -v $PWD:/home/${NEWUSER}/robot \
+    -e "ARCH=aarch64" \
+    -it aarch64-cross \
+    /bin/bash -c "source /home/${NEWUSER}/.cargo/env && cd robot && ./robot.sh build"
+
+  # TODO: add some tests
+}
+
 
 function do_run() {
   show_log i "##################  RUN  ####################"
@@ -79,159 +132,146 @@ function do_run() {
   #echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
 
   cd ${CODEPATH}
-  cd srv_clients/ && cargo run &
-  echo PID: $!
-
-  cd ${CODEPATH}
-  cd led_srv_server/ && cargo run  # last one must not go to background
-  echo PID: $!
+  cargo run 
 }
 
-function do_clean() {
-  # Keep the two latest folders, compress the third latest, remove the rest
-  show_log i "##################  CLEANUP OLD BUILDS  ####################"
+function do_crossrun() {
+  show_log i "##################  RUN  ####################"
   trap ctrl_c INT
 
+  ## Prepare GPIO before running
+  #show_log i "Initializing GPIOs"
+  #echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/export >/dev/null
+  #echo "out" | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/direction >/dev/null
+  #echo 1 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
+  #echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
+
   cd ${CODEPATH}
-  for i in ${ROS_PCKGS[@]}; do
-    show_log i "Cleaning up ${i}"
-    cd src/${i}
-    # STEP 1: Leave only the latest 3 directories
-    RETAIN_LATEST=3
-    ix=0
-    set +e
-    for k in $(ls -d ${CODEPATH}/src/${i}/versions/*/ 2>/dev/null | sort -r ); do
-      set -e
-      if [[ $ix -ge $RETAIN_LATEST ]]; then
-        show_log d "Removing old version ${k}"
-        rm -r ${k}
-      fi
-      ix=$((ix+1))
-    done
-    set -e
-    # STEP 2: Compress the third latest directory
-    RETAIN_LATEST=2
-    ix=0
-    set +e
-    for k in $(ls -d ${CODEPATH}/src/${i}/versions/*/ 2>/dev/null | sort -r ); do
-      set -e
-      if [[ $ix -ge $RETAIN_LATEST ]]; then
-        show_log d "Compressing ${k::-1}"
-        tar -zcf ${k::-1}.tar.gz ${k::-1} 2>/dev/null
-        show_log d "Cleaning up original folder ${k::-1}"
-        rm -r ${k::-1}
-      fi
-      ix=$((ix+1))
-    done
-    set -e
-    # STEP 3: Make sure we only keep that compressed file
-    RETAIN_LATEST=1
-    ix=0
-    set +e
-    for k in $(ls versions/ | grep tar.gz | sort -r); do
-      set -e
-      if [[ $ix -ge $RETAIN_LATEST ]]; then
-        show_log d "Cleaning up old zipped version ${CODEPATH}/src/${i}/versions/${k}"
-        rm -r ${CODEPATH}/src/${i}/versions/${k}
-      fi
-      ix=$((ix+1))
-    done
-    set -e
-    cd ${CODEPATH}
-  done
+  cargo run 
 }
 
-function do_rollback() {
-  versions_check
-  if [[ ${PREV_VERSION} != "" ]]; then
-    show_log w "Do you want to OVERWRITE the current version ${CURR_VERSION} WITH VERSION ${PREV_VERSION}? (just press y or n)"
-    LOOP=true
-    while [[ $LOOP == true ]] ; do
-      read -r -n 1 -p "[y/n]: " REPLY
-      case $REPLY in
-        [yY])
-          echo
-          build_abort ${CURR_VERSION} ${PREV_VERSION} ${ARCH}
-          LOOP=false
-          ;;
-        [nN])
-          echo
-          LOOP=false
-          ;;
-        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Overwrite with ${PREV_VERSION}?"
-      esac
-    done
-  else
-    # TODO: possibility to automatically recover a zipped version
-    show_log e "There are no versions available to rollback to. Please do one fo the following:"
-    show_log e " - Correct your code until it can be deployed."
-    show_log e " - Restore a zipped version that may be available"
-  fi
-}
+#function do_clean() {
+#  # Keep the two latest folders, compress the third latest, remove the rest
+#  show_log i "##################  CLEANUP OLD BUILDS  ####################"
+#  trap ctrl_c INT
+#
+#  cd ${CODEPATH}
+#  for i in ${ROS_PCKGS[@]}; do
+#    show_log i "Cleaning up ${i}"
+#    cd src/${i}
+#    # STEP 1: Leave only the latest 3 directories
+#    RETAIN_LATEST=3
+#    ix=0
+#    set +e
+#    for k in $(ls -d ${CODEPATH}/src/${i}/versions/*/ 2>/dev/null | sort -r ); do
+#      set -e
+#      if [[ $ix -ge $RETAIN_LATEST ]]; then
+#        show_log d "Removing old version ${k}"
+#        rm -r ${k}
+#      fi
+#      ix=$((ix+1))
+#    done
+#    set -e
+#    # STEP 2: Compress the third latest directory
+#    RETAIN_LATEST=2
+#    ix=0
+#    set +e
+#    for k in $(ls -d ${CODEPATH}/src/${i}/versions/*/ 2>/dev/null | sort -r ); do
+#      set -e
+#      if [[ $ix -ge $RETAIN_LATEST ]]; then
+#        show_log d "Compressing ${k::-1}"
+#        tar -zcf ${k::-1}.tar.gz ${k::-1} 2>/dev/null
+#        show_log d "Cleaning up original folder ${k::-1}"
+#        rm -r ${k::-1}
+#      fi
+#      ix=$((ix+1))
+#    done
+#    set -e
+#    # STEP 3: Make sure we only keep that compressed file
+#    RETAIN_LATEST=1
+#    ix=0
+#    set +e
+#    for k in $(ls versions/ | grep tar.gz | sort -r); do
+#      set -e
+#      if [[ $ix -ge $RETAIN_LATEST ]]; then
+#        show_log d "Cleaning up old zipped version ${CODEPATH}/src/${i}/versions/${k}"
+#        rm -r ${CODEPATH}/src/${i}/versions/${k}
+#      fi
+#      ix=$((ix+1))
+#    done
+#    set -e
+#    cd ${CODEPATH}
+#  done
+#}
 
-function do_crossbuild() {
-  show_log i "##################  CROSS BUILD  ####################"
-  trap ctrl_c INT
+#function do_rollback() {
+#  versions_check
+#  if [[ ${PREV_VERSION} != "" ]]; then
+#    show_log w "Do you want to OVERWRITE the current version ${CURR_VERSION} WITH VERSION ${PREV_VERSION}? (just press y or n)"
+#    LOOP=true
+#    while [[ $LOOP == true ]] ; do
+#      read -r -n 1 -p "[y/n]: " REPLY
+#      case $REPLY in
+#        [yY])
+#          echo
+#          build_abort ${CURR_VERSION} ${PREV_VERSION} ${ARCH}
+#          LOOP=false
+#          ;;
+#        [nN])
+#          echo
+#          LOOP=false
+#          ;;
+#        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Overwrite with ${PREV_VERSION}?"
+#      esac
+#    done
+#  else
+#    # TODO: possibility to automatically recover a zipped version
+#    show_log e "There are no versions available to rollback to. Please do one fo the following:"
+#    show_log e " - Correct your code until it can be deployed."
+#    show_log e " - Restore a zipped version that may be available"
+#  fi
+#}
 
-  # uncomment this to get the image!
-  #docker build \
-  #  --build-arg NEWUSER=${NEWUSER} \
-  #  --platform linux/arm64/v8 \
-  #  -t aarch64-cross .
-
-  cd ${CWDMAIN}
-  docker run \
-    --rm \
-    --user ${NEWUSER} \
-    --platform linux/arm64/v8 \
-    -v $PWD:/home/${NEWUSER}/robot \
-    -e "ARCH=aarch64" \
-    -it aarch64-cross \
-    /bin/bash -c "source /home/${NEWUSER}/.cargo/env && cd robot && ./robot.sh build"
-
-  # TODO: add some tests
-}
-
-function do_deploy() {
-  versions_check
-  show_log i "##################  \"DEPLOYING\" THE LATEST VERSION  ####################"
-  # Find the latest crossbuilt version
-  FOUND_LATEST_VIABLE=false
-  if [[ $(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/versions/${CURR_VERSION}/ | grep ${CROSSARCH} | wc -l) -ne 1 ]]; then
-    show_log w "Current Version ${CURR_VERSION} has not yet built for ${CROSSARCH}!"
-    show_log w "Please consider running $0 without parameters to create a full build."
-    # TODO: option to use the second latest if available
-  else
-    show_log i "Preparing to deploy Version: ${CURR_VERSION} for arch ${CROSSARCH}"
-
-    cd ${CODEPATH}
-    CWD=$(pwd)
-    for i in ${ROS_PCKGS[@]}; do
-      cd src/${i}
-      for j in log build install; do
-        rm ${j} 2>/dev/null || true 
-        cp -r versions/${CURR_VERSION}/${CROSSARCH}/${j} ${j}
-      done
-      cd ${CWD}
-    done
-  fi
-  LATEST_TAG=$(echo $(git tag -l | tail -n1))
-  PROPOSED=$(echo ${LATEST_TAG} | awk -F '.' '{print $1"."$2"."$3+1}')
-  show_log i "Latest released tag is: ${LATEST_TAG}"
-  read -r -p "Please write down the new release id: (${PROPOSED})" NEWTAG 
-  if [[ ${NEWTAG} == "" ]]; then
-    NEWTAG=${PROPOSED}
-    echo "Using ${NEWTAG}"
-  fi
-  read -r -p "Please also provide a description for the new release: " NEWTAGDESC 
-  git add ${CODEPATH}
-  git commit -m "${NEWTAGDESC}"
-  git push 
-  git tag -a ${NEWTAG} -m "${NEWTAGDESC}"
-  git push --tags
-  ssh -o ConnectTimeout=3 ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd robot ; git pull"
-  show_log i "##################  Robot now also has the latest version installed  ####################"
-}
+#function old_do_deploy() {
+#  versions_check
+#  show_log i "##################  \"DEPLOYING\" THE LATEST VERSION  ####################"
+#  # Find the latest crossbuilt version
+#  FOUND_LATEST_VIABLE=false
+#  if [[ $(ls ${CODEPATH}/src/${ROS_PCKGS[0]}/versions/${CURR_VERSION}/ | grep ${CROSSARCH} | wc -l) -ne 1 ]]; then
+#    show_log w "Current Version ${CURR_VERSION} has not yet built for ${CROSSARCH}!"
+#    show_log w "Please consider running $0 without parameters to create a full build."
+#    # TODO: option to use the second latest if available
+#  else
+#    show_log i "Preparing to deploy Version: ${CURR_VERSION} for arch ${CROSSARCH}"
+#
+#    cd ${CODEPATH}
+#    CWD=$(pwd)
+#    for i in ${ROS_PCKGS[@]}; do
+#      cd src/${i}
+#      for j in log build install; do
+#        rm ${j} 2>/dev/null || true 
+#        cp -r versions/${CURR_VERSION}/${CROSSARCH}/${j} ${j}
+#      done
+#      cd ${CWD}
+#    done
+#  fi
+#  LATEST_TAG=$(echo $(git tag -l | tail -n1))
+#  PROPOSED=$(echo ${LATEST_TAG} | awk -F '.' '{print $1"."$2"."$3+1}')
+#  show_log i "Latest released tag is: ${LATEST_TAG}"
+#  read -r -p "Please write down the new release id: (${PROPOSED})" NEWTAG 
+#  if [[ ${NEWTAG} == "" ]]; then
+#    NEWTAG=${PROPOSED}
+#    echo "Using ${NEWTAG}"
+#  fi
+#  read -r -p "Please also provide a description for the new release: " NEWTAGDESC 
+#  git add ${CODEPATH}
+#  git commit -m "${NEWTAGDESC}"
+#  git push 
+#  git tag -a ${NEWTAG} -m "${NEWTAGDESC}"
+#  git push --tags
+#  ssh -o ConnectTimeout=3 ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd robot ; git pull"
+#  show_log i "##################  Robot now also has the latest version installed  ####################"
+#}
 
 # AUX FUNCTIONS
 
@@ -253,10 +293,7 @@ function ctrl_c() {
   #
   # Cleanup of PIDs
   echo "Killing leftovers..."
-  for i in $(ps aux | grep target | grep led_action_server | awk '{print $2}'); do echo $i;kill $i;done
-  for i in $(ps aux | grep target | grep action_clients | awk '{print $2}'); do echo $i;kill $i;done
-  for i in $(ps aux | grep target | grep srv_clients | awk '{print $2}'); do echo $i;kill $i;done
-  for i in $(ps aux | grep target | grep led_srv_server | awk '{print $2}'); do echo $i;kill $i;done
+  for i in $(ps aux | grep target | grep circuits | awk '{print $2}'); do echo $i;kill $i;done
   kill_switch
   echo "...Killed!"
 
@@ -355,7 +392,7 @@ function do_mode() {
     do_build 
     #do_test 
     do_crossbuild
-    do_deploy
+    do_crossrun
   elif [[ "$1" == "aux" ]]; then
     #This option we use to test functions
     aux_function $@
@@ -371,7 +408,7 @@ CONFIGFILE=".env"
 if [[ "${ARCH}" == "" ]]; then
   ARCH=$(uname -m)
 fi
-CROSSARCH=aarch64 # This is what Raspberry 3B+ uses
+#CROSSARCH=aarch64 # This is what Raspberry 3B+ uses
 CWDMAIN=$(pwd)
 CODEPATH="${CWDMAIN}"
 #CODEPATH="${CWDMAIN}/circuits"
