@@ -9,3 +9,4 @@ edition = "2021"
 rand = "0.8.0"
 tokio = { version = "1.17", features = ["full"] }
 bytes = "1"
+tiny-tokio-actor = "0.2"

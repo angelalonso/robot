@@ -25,11 +25,11 @@ Right now, It does not work and I'm changing the Software of choice. Here is wha
 So my next approach will be to try and design again a full-Rust version that tries to mimc ROS2's architecture principles (e.g.: nodes, actions, messages...), with the hope that one day there will be a full-on ROS2-Rust library that I can easily migrate to.
 
 I will need to make the following work to consider this approach "usable":
-- Create a Node that lives until a CTRL-C is received
+- Create a 'Node' that lives until a CTRL-C is received
 - Make that Node work like an action server
 - Create a second Node that works like an action client
 - Have the action server turn an LED on and off
-- Make this run on the Raspberry and check load
+- Make this run on the Raspberry and check load - So far cross-compiling is not working, neither with --target nor with docker, we'll try qemu
 
 Once that is working, I will adapt the code and auxiliar scripts to keep using what worked well in the past:
 

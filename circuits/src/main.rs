@@ -1,35 +1,44 @@
-use circuits::node::Node;
-
-use std::sync::Arc;
-use tokio::sync::Mutex;
+use circuits::node_action_client_led::*;
+use circuits::node_action_server_led::*;
+use tiny_tokio_actor::*;
 
 #[tokio::main]
 async fn main() {
-    let mut nodes: Vec<Node> = vec![];
-    let data1 = Arc::new(Mutex::new("".to_string()));
-    let msgs: Vec<tokio::sync::MutexGuard<String>>; //add several for each group of nodes
-    let node_names = vec!["led_action_client", "led_action_server"];
+    let led_bus = EventBus::<EventMessage>::new(1000);
+    let system = ActorSystem::new("action_led", led_bus);
 
-    let mut idx = 0;
-    let mut index;
-    for n in node_names {
-        println!("Adding node: {}", n);
-        idx += 1;
-        index = format!("{}", idx);
-        let this_node = Node::new(index, n.to_string());
-        nodes.push(this_node);
-    }
-    let mut handles = vec![];
-    for mut n in nodes {
-        let data2 = Arc::clone(&data1);
-        let handle = tokio::spawn(async move {
-            let mut lock = data2.lock().await;
-            n.run(lock).await;
-        });
-        handles.push(handle);
-    }
+    let action_client_led = ClientLedActor { counter: 0 };
+    let mut action_client_led_ref = system
+        .create_actor("client_led", action_client_led)
+        .await
+        .unwrap();
 
-    for handle in handles {
-        handle.await.unwrap();
-    }
+    let action_server_led = ServerLedActor {};
+    let action_server_led_ref = system
+        .create_actor("server_led", action_server_led)
+        .await
+        .unwrap();
+
+    let start = StartMessage {
+        destination: action_server_led_ref.path().clone(),
+        limit: 15,
+    };
+
+    let mut events = system.events();
+    tokio::spawn(async move {
+        loop {
+            match events.recv().await {
+                Ok(event) => println!("Received event! {:?}", event),
+                Err(err) => println!("Error receivng event!!! {:?}", err),
+            }
+        }
+    });
+
+    tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
+
+    let result = action_client_led_ref
+        .ask(ClientLedMessage::Start(start))
+        .await
+        .unwrap();
+    println!("Final result: {:?}", &result);
 }
