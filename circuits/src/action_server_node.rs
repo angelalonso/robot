@@ -1,5 +1,6 @@
 use crate::udp_endpoint::*;
 
+use crossbeam_channel::unbounded;
 use std::sync::mpsc;
 use std::thread;
 
@@ -22,19 +23,27 @@ impl<'a> ActionServerNode<'a> {
     }
 
     pub fn run(&self) {
-        let mut conn_out = UDPConn::new(self.port_in.to_owned(), self.port_out.to_owned());
-        //conn_out.connect();
-        //conn_out.start_listening();
-        let (tx, rx) = mpsc::channel();
+        // Connection In
+        let mut conn_in = UDPConn::new(self.port_in.to_owned(), self.port_out.to_owned());
+
+        let (tx_in, rx_in) = mpsc::channel();
+        let (tx_out, rx_out) = unbounded();
+
+        let thread_tx_in = tx_in.clone();
         let handle_s = thread::spawn(move || {
-            conn_out.connect();
+            conn_in.connect();
             loop {
-                let msg_in_raw = conn_out.listen();
-                tx.send(msg_in_raw).unwrap();
+                let thread_rx_out = rx_out.clone();
+                let msg_in_raw = conn_in.listen();
+                thread_tx_in.send(msg_in_raw).unwrap();
+                println!("-> {:#?}", thread_rx_out.recv().unwrap());
             }
         });
-        for received in rx {
+
+        for received in rx_in {
+            let rcvd = format!("{}", String::from_utf8(received.clone()).unwrap());
             self.talk(received);
+            tx_out.send(rcvd).unwrap();
         }
 
         handle_s.join().unwrap();
