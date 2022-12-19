@@ -1,4 +1,3 @@
-use circuits::comms::*;
 use circuits::status_node::*;
 use circuits::test_node::*;
 //use circuits::action_client_node::*;
