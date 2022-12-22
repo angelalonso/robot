@@ -27,12 +27,17 @@ impl UDPComms {
             Ok(received) => format!("{}", String::from_utf8_lossy(&buf[..received]).to_owned()),
             Err(_) => "".to_owned(),
         };
-        println!("listen {} --- {}", self.port_in, recvd);
+        println!("received at {} --> {}", self.port_in, recvd);
         recvd
     }
 
     pub fn transmit(&self, msg: &Vec<u8>) -> usize {
-        println!("Transmitting data {:#?}", String::from_utf8_lossy(msg));
+        println!(
+            "Transmitting data from {} to {} --> {:#?}",
+            self.port_in,
+            self.remote,
+            String::from_utf8_lossy(msg)
+        );
         let result = self
             .socket
             .send_to(msg, &self.remote)
