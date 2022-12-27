@@ -2,7 +2,8 @@ use crate::comms::*;
 
 use log::{debug, info};
 // TODO: use a fake library for local tests
-use rust_gpiozero::*;
+//use rust_gpiozero::*;
+use crate::gpiozero_mock::*;
 use std::collections::HashMap;
 use std::sync::mpsc;
 use std::thread;

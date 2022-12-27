@@ -25,10 +25,10 @@ Right now, It does not work and I'm changing the Software of choice. Here is wha
 So my next approach will be to try and design again a full-Rust version that tries to mimc ROS2's architecture principles (e.g.: nodes, actions, messages...), with the hope that one day there will be a full-on ROS2-Rust library that I can easily migrate to.
 
 I will need to make the following work to consider this approach "usable":
-- Create a 'Node' that lives until a CTRL-C is received
+- DONE - Create a 'Node' that lives until a CTRL-C is received
 - Make that Node work like an action server
-- Create a second Node that works like an action client
-- Have the action server turn an LED on and off
+- DONE - Create a second Node that works like an action client
+- DONE - Have the action server turn an LED on and off
 - Make this run on the Raspberry and check load - So far cross-compiling is not working, neither with --target nor with docker, we'll try qemu
 
 Once that is working, I will adapt the code and auxiliar scripts to keep using what worked well in the past:
@@ -52,4 +52,14 @@ Just PM me on Github, I haven't figured this out yet.
 
 GNU General Public License v3.0
 
-
+## NEXT UP:
+### Must have
+- Fake gpiozero to test LEDs and Motors outside of the Raspberry
+- API to control it
+- Read vars from .env
+- Cross compiling/building
+### Should have
+- Modules mimic ROS2 (E.g.: instead of comms, something like actions that wraps comms)
+- "Autonomous" run with List of actions to do
+### Would be good to have
+- Completely autonomous run mode
