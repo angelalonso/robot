@@ -11,3 +11,6 @@ tokio = { version = "1.17", features = ["full"] }
 #bytes = "1"
 #tiny-tokio-actor = "0.2"
 crossbeam-channel = "0.5.1"
+log = "0.4.17"
+env_logger = "0.10.0"
+chrono = "0.4.23"
