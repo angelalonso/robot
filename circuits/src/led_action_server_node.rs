@@ -17,7 +17,7 @@ pub struct LedActionServerNode<'a> {
 impl<'a> LedActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
         //TODO: pin comes from .env
-        let led = LED::new(17);
+        let led = LED::new(21);
         let node = match get_port(name, conns.clone()) {
             Ok(c) => LedActionServerNode {
                 port_in: c,
