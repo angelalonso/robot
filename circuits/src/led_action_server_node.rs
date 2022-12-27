@@ -1,6 +1,8 @@
 use crate::comms::*;
 
 use log::{debug, info};
+// TODO: use a fake library for local tests
+use rust_gpiozero::*;
 use std::collections::HashMap;
 use std::sync::mpsc;
 use std::thread;
@@ -8,15 +10,19 @@ use std::thread;
 pub struct LedActionServerNode<'a> {
     port_in: &'a str,
     conns: HashMap<&'a str, &'a str>,
+    led: LED,
     led_on: bool,
 }
 
 impl<'a> LedActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
+        //TODO: pin comes from .env
+        let led = LED::new(17);
         let node = match get_port(name, conns.clone()) {
             Ok(c) => LedActionServerNode {
                 port_in: c,
                 conns,
+                led,
                 led_on: false,
             },
             Err(_) => {
@@ -24,6 +30,7 @@ impl<'a> LedActionServerNode<'a> {
                 LedActionServerNode {
                     port_in: "",
                     conns,
+                    led,
                     led_on: false,
                 }
             }
@@ -49,19 +56,23 @@ impl<'a> LedActionServerNode<'a> {
             if rcvd == "SET:on" {
                 info!("[led] Setting LED ON");
                 self.led_on = true;
+                self.led.on();
                 comms.send_to(&"SET:led:on".as_bytes().to_vec(), status_node);
             } else if rcvd == "SET:off" {
                 info!("[led] Setting LED OFF");
                 self.led_on = false;
+                self.led.off();
                 comms.send_to(&"SET:led:off".as_bytes().to_vec(), status_node);
             } else if rcvd == "SET:switch" {
                 if self.led_on == true {
                     info!("[led] Setting LED OFF");
                     self.led_on = false;
+                    self.led.off();
                     comms.send_to(&"SET:led:off".as_bytes().to_vec(), status_node);
                 } else {
                     info!("[led] Setting LED ON");
                     self.led_on = true;
+                    self.led.on();
                     comms.send_to(&"SET:led:on".as_bytes().to_vec(), status_node);
                 }
             }

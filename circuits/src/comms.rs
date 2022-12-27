@@ -63,6 +63,7 @@ impl<'a> UDPComms<'_> {
     //pub fn send_to(&self, msg: &Vec<u8>, dest_port: &str) -> usize {
     pub fn send_to(&self, msg: &Vec<u8>, dest_port: &str) {
         let local = format!("{}:{}", self.ip, self.port_in);
+        // TODO: control errors here:
         let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
         socket
             .set_read_timeout(None)
