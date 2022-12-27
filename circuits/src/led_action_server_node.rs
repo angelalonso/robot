@@ -1,6 +1,6 @@
 use crate::comms::*;
 
-use log::debug;
+use log::{debug, info};
 use std::collections::HashMap;
 use std::sync::mpsc;
 use std::thread;
