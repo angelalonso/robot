@@ -1,36 +1,25 @@
+use crate::gpio_robot::*;
 use rust_gpiozero;
 use std::panic;
 use sysfs_gpio::{Direction, Pin};
 
 pub struct LED {
     pin: u8,
-    real: Option<Pin>,
+    real: Option<GPIOLed>,
 }
 
 impl LED {
     pub fn new(pin: u8) -> Self {
-        let led_object = match panic::catch_unwind(|| {
-            let _ = Pin::new(pin as u64);
-        }) {
-            Ok(_) => {
-                let real = Some(Pin::new(pin as u64));
-                LED { pin, real }
-            }
-            Err(_) => {
-                let real = None;
-                LED { pin, real }
-            }
-        };
-        led_object
+        let real = Some(GPIOLed::new(pin));
+        LED { pin, real }
     }
 
     pub fn on(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
-            Some(l) => l.with_exported(|| {
-                l.set_direction(Direction::Out)?;
-                l.set_value(1)?;
+            Some(l) => {
+                l.on();
                 Ok(())
-            }),
+            }
             None => {
                 println!(" Mocked ON, pin {}", self.pin);
                 Ok(())
@@ -40,11 +29,10 @@ impl LED {
 
     pub fn off(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
-            Some(l) => l.with_exported(|| {
-                l.set_direction(Direction::Out)?;
-                l.set_value(0)?;
+            Some(l) => {
+                l.off();
                 Ok(())
-            }),
+            }
             None => {
                 println!(" Mocked ON, pin {}", self.pin);
                 Ok(())

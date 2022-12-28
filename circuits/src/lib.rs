@@ -1,4 +1,5 @@
 pub mod comms;
+pub mod gpio_robot;
 pub mod gpiozero_mock;
 pub mod led_action_server_node;
 pub mod motor_l_action_server_node;
