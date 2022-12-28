@@ -17,6 +17,7 @@ impl LED {
     pub fn on(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
             Some(l) => {
+                println!(" REAL ON, pin {}", self.pin);
                 l.on();
                 Ok(())
             }
@@ -30,6 +31,7 @@ impl LED {
     pub fn off(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
             Some(l) => {
+                println!(" REAL OFF, pin {}", self.pin);
                 l.off();
                 Ok(())
             }

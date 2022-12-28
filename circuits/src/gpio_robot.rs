@@ -39,10 +39,14 @@ impl GPIOLed {
     }
 
     pub fn on(&self) {
+        println!(" REAL ON, pin {}", self.pin);
         write(self.pin, true);
     }
 
-    pub fn off(&self) {}
+    pub fn off(&self) {
+        println!(" REAL OFF, pin {}", self.pin);
+        write(self.pin, false);
+    }
 }
 
 fn open_file(filepath: &String) -> Result<File, std::io::Error> {
