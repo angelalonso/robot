@@ -1,39 +1,43 @@
 use rust_gpiozero;
 use std::panic;
+use sysfs_gpio::{Direction, Pin};
 
 pub struct LED {
     pin: u8,
-    real: Option<rust_gpiozero::LED>,
+    real: Option<Pin>,
 }
 
 impl LED {
     pub fn new(pin: u8) -> Self {
-        let led_object = match panic::catch_unwind(|| {
-            let _ = rust_gpiozero::LED::new(pin);
-        }) {
-            Ok(_) => {
-                let real = Some(rust_gpiozero::LED::new(pin));
-                LED { pin, real }
-            }
-            Err(_) => {
-                let real = None;
-                LED { pin, real }
-            }
-        };
-        led_object
+        let real = Some(Pin::new(pin as u64));
+        LED { pin, real }
     }
 
-    pub fn on(&self) {
+    pub fn on(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
-            Some(l) => l.on(),
-            None => println!(" Mocked ON, pin {}", self.pin),
+            Some(l) => l.with_exported(|| {
+                l.set_direction(Direction::Low)?;
+                l.set_value(1)?;
+                Ok(())
+            }),
+            None => {
+                println!(" Mocked ON, pin {}", self.pin);
+                Ok(())
+            }
         }
     }
 
-    pub fn off(&self) {
+    pub fn off(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
-            Some(l) => l.off(),
-            None => println!(" Mocked OFF, pin {}", self.pin),
+            Some(l) => l.with_exported(|| {
+                l.set_direction(Direction::Low)?;
+                l.set_value(0)?;
+                Ok(())
+            }),
+            None => {
+                println!(" Mocked ON, pin {}", self.pin);
+                Ok(())
+            }
         }
     }
 }
@@ -77,8 +81,8 @@ impl Motor {
     pub fn fwd(&self) {
         match &self.real_a {
             Some(_) => {
-                self.real_a.as_ref().unwrap().on();
-                self.real_b.as_ref().unwrap().off();
+                self.real_a.as_ref().unwrap().off();
+                self.real_b.as_ref().unwrap().on();
             }
             None => println!(" Mocked FWD, pins {}-{}", self.pin_a, self.pin_b),
         }
@@ -87,8 +91,8 @@ impl Motor {
     pub fn bwd(&self) {
         match &self.real_a {
             Some(_) => {
-                self.real_a.as_ref().unwrap().off();
-                self.real_b.as_ref().unwrap().on();
+                self.real_a.as_ref().unwrap().on();
+                self.real_b.as_ref().unwrap().off();
             }
             None => println!(" Mocked BWD, pins {}-{}", self.pin_a, self.pin_b),
         }
