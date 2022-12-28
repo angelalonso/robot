@@ -9,14 +9,25 @@ pub struct LED {
 
 impl LED {
     pub fn new(pin: u8) -> Self {
-        let real = Some(Pin::new(pin as u64));
-        LED { pin, real }
+        let led_object = match panic::catch_unwind(|| {
+            let _ = Pin::new(pin as u64);
+        }) {
+            Ok(_) => {
+                let real = Some(Pin::new(pin as u64));
+                LED { pin, real }
+            }
+            Err(_) => {
+                let real = None;
+                LED { pin, real }
+            }
+        };
+        led_object
     }
 
     pub fn on(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
             Some(l) => l.with_exported(|| {
-                l.set_direction(Direction::Low)?;
+                l.set_direction(Direction::Out)?;
                 l.set_value(1)?;
                 Ok(())
             }),
@@ -30,7 +41,7 @@ impl LED {
     pub fn off(&self) -> sysfs_gpio::Result<()> {
         match &self.real {
             Some(l) => l.with_exported(|| {
-                l.set_direction(Direction::Low)?;
+                l.set_direction(Direction::Out)?;
                 l.set_value(0)?;
                 Ok(())
             }),
