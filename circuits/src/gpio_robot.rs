@@ -34,6 +34,7 @@ pub struct GPIOLed {
 impl GPIOLed {
     pub fn new(pin: u8) -> Self {
         export(pin);
+        set_direction(pin, Directions::Output);
         GPIOLed { pin }
     }
 
