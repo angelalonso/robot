@@ -9,7 +9,7 @@ use std::thread;
 pub struct MotorLActionServerNode<'a> {
     port_in: &'a str,
     conns: HashMap<&'a str, &'a str>,
-    motor: GPIOMotor
+    motor: GPIOMotor,
     speed: i8,
 }
 

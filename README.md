@@ -63,3 +63,13 @@ GNU General Public License v3.0
 - "Autonomous" run with List of actions to do
 ### Would be good to have
 - Completely autonomous run mode
+
+
+# TBD
+- Document:
+  - https://abyz.me.uk/rpi/pigpio/download.html - needed for rust-pigpio
+wget https://github.com/joan2937/pigpio/archive/master.zip
+unzip master.zip
+cd pigpio-master
+make
+sudo make install

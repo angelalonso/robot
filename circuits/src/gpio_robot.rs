@@ -3,7 +3,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-//use rust_pigpio::pwm::*;
+use rust_pigpio::pwm;
+use rust_pigpio::initialize;
 
 // Thanks to: https://michm.de/blog/rust/ansteuern-von-raspberry-pi-gpio-in-rust/
 
@@ -70,18 +71,29 @@ pub struct GPIOMotor {
 
 impl GPIOMotor {
     pub fn new(pin1: u8, pin2: u8, pin_enabler: u8) -> Self {
-        if (export(pin1) && export(pin2) && export(pin_enabler)) {
+        let out1 = export(pin1);
+        std::thread::sleep(std::time::Duration::from_millis(50));
+        let out2 = export(pin2);
+        std::thread::sleep(std::time::Duration::from_millis(50));
+        let out_enabler = export(pin_enabler);
+        std::thread::sleep(std::time::Duration::from_millis(50));
+        if out1 && out2 && out_enabler {
+            initialize();
             let is_real = true;
             std::thread::sleep(std::time::Duration::from_millis(50));
             set_direction(pin1, Directions::Output);
             set_direction(pin2, Directions::Output);
             set_direction(pin_enabler, Directions::Output);
+            std::thread::sleep(std::time::Duration::from_millis(50));
             write(pin1, 0);
             write(pin2, 0);
             // TODO:
             // GPIO.setmode(GPIO.BCM) ?
             // p = GPIO.PWM(IE, 1000)
             // p.start(100)
+            pwm::set_pwm_frequency(pin_enabler as u32, 500).unwrap();
+            pwm::set_pwm_range(pin_enabler as u32, 1000).unwrap(); //     Set range to 1000. 1 range = 2 us;
+            let p = pwm::pwm(pin_enabler as u32, 100);
         } else {
             let is_real = false;
         }
@@ -153,7 +165,7 @@ pub fn export(gpio_num: u8) -> bool {
             file = f;
             is_real = true;
             if let Err(why) = file.write_all(gpio_num.to_string().as_bytes()) {
-                println!("couldn't write to {}: {}", filepath, why);
+                println!("couldn't write to {}: {} ({})", filepath, why, gpio_num);
                 is_real = false;
             } else {
                 is_real = true;
