@@ -1,5 +1,6 @@
 use crate::comms::*;
 
+use crate::gpio_robot::*;
 use log::{debug, info};
 use std::collections::HashMap;
 use std::sync::mpsc;
@@ -8,15 +9,18 @@ use std::thread;
 pub struct MotorLActionServerNode<'a> {
     port_in: &'a str,
     conns: HashMap<&'a str, &'a str>,
+    motor: GPIOMotor
     speed: i8,
 }
 
 impl<'a> MotorLActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
+        let motor = GPIOMotor::new(24, 23, 25);
         let node = match get_port(name, conns.clone()) {
             Ok(c) => MotorLActionServerNode {
                 port_in: c,
                 conns,
+                motor,
                 speed: 0,
             },
             Err(_) => {
@@ -46,14 +50,19 @@ impl<'a> MotorLActionServerNode<'a> {
             if rcvd == "SET:fwd" {
                 info!("[motor_l] Setting Left Motor Forwards");
                 self.speed = 1;
+                self.motor.fwd();
                 comms.send_to(&"SET:motorl:fwd".as_bytes().to_vec(), status_node);
+
             } else if rcvd == "SET:bwd" {
                 info!("[motor_l] Setting Left Motor Backwards");
                 self.speed = -1;
+                self.motor.bwd();
                 comms.send_to(&"SET:motorl:bwd".as_bytes().to_vec(), status_node);
+
             } else if rcvd == "SET:STP" {
                 info!("[motor_l] Setting Left Motor to Stop");
                 self.speed = 0;
+                self.motor.stp();
                 comms.send_to(&"SET:motorl:stp".as_bytes().to_vec(), status_node);
             }
             h.join().unwrap();

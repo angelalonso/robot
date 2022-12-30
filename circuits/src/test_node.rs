@@ -27,11 +27,14 @@ impl<'a> TestNode<'a> {
     pub fn talk(&mut self) {
         let status_node = get_port("status", self.conns.clone()).unwrap();
         let led_node = get_port("led_action_server", self.conns.clone()).unwrap();
+        let motor_l = get_port("motor_l_action_server", self.conns.clone()).unwrap();
+
         let comms = UDPComms::new(self.port_in.to_owned());
         let (tx, rx) = mpsc::channel();
         loop {
             //debug!("test LOOP");
-            comms.send_to(&"SET:switch".as_bytes().to_vec(), led_node);
+            //comms.send_to(&"SET:switch".as_bytes().to_vec(), led_node);
+            comms.send_to(&"SET:fwd".as_bytes().to_vec(), motor_l);
             std::thread::sleep(std::time::Duration::from_millis(50));
             comms.send_to(
                 &format!("GET:led|{}", self.port_in).as_bytes().to_vec(),
@@ -45,7 +48,9 @@ impl<'a> TestNode<'a> {
             let rcvd = rx.recv().unwrap();
             debug!("[test] Received: {}", rcvd);
             h.join().unwrap();
-            //std::thread::sleep(std::time::Duration::from_secs(1));
+            std::thread::sleep(std::time::Duration::from_secs(1));
+            comms.send_to(&"SET:stp".as_bytes().to_vec(), motor_l);
+            std::thread::sleep(std::time::Duration::from_secs(1));
             //debug!("test LOOP END");
         }
     }

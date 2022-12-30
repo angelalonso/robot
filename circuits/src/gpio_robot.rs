@@ -46,7 +46,7 @@ impl GPIOLed {
 
     pub fn on(&self) {
         if self.is_real {
-            write(self.pin, true);
+            write(self.pin, 1);
         } else {
             println!(" Mocked ON, pin {}", self.pin);
         }
@@ -54,7 +54,7 @@ impl GPIOLed {
 
     pub fn off(&self) {
         if self.is_real {
-            write(self.pin, false);
+            write(self.pin, 0);
         } else {
             println!(" Mocked OFF, pin {}", self.pin);
         }
@@ -76,20 +76,12 @@ impl GPIOMotor {
             set_direction(pin1, Directions::Output);
             set_direction(pin2, Directions::Output);
             set_direction(pin_enabler, Directions::Output);
+            write(pin1, 0);
+            write(pin2, 0);
             // TODO:
-            // I1=24
-            // I2=23
-            // IE=25
-            // GPIO.setmode(GPIO.BCM)
-            // GPIO.setup(I1, GPIO.OUT)
-            // GPIO.setup(I2, GPIO.OUT)
-            // GPIO.setup(IE, GPIO.OUT)
-            // GPIO.output(I1, GPIO.LOW)
-            // GPIO.output(I2, GPIO.LOW)
+            // GPIO.setmode(GPIO.BCM) ?
             // p = GPIO.PWM(IE, 1000)
             // p.start(100)
-            // GPIO.output(I1, GPIO.LOW)
-            // GPIO.output(I2, GPIO.HIGH)
         } else {
             let is_real = false;
         }
@@ -98,6 +90,42 @@ impl GPIOMotor {
             pin2,
             pin_enabler,
             is_real: false,
+        }
+    }
+
+    pub fn fwd(&self) {
+        if self.is_real {
+            write(self.pin1, 0);
+            write(self.pin2, 1);
+        } else {
+            println!(
+                " Mocked FWD, pins {},{} - {}",
+                self.pin1, self.pin2, self.pin_enabler
+            );
+        }
+    }
+
+    pub fn bwd(&self) {
+        if self.is_real {
+            write(self.pin1, 1);
+            write(self.pin2, 0);
+        } else {
+            println!(
+                " Mocked BWD, pins {},{} - {}",
+                self.pin1, self.pin2, self.pin_enabler
+            );
+        }
+    }
+
+    pub fn stp(&self) {
+        if self.is_real {
+            write(self.pin1, 0);
+            write(self.pin2, 0);
+        } else {
+            println!(
+                " Mocked STP, pins {},{} - {}",
+                self.pin1, self.pin2, self.pin_enabler
+            );
         }
     }
 }
@@ -149,7 +177,7 @@ pub fn unexport(gpio_num: u8) {
     }
 }
 
-pub fn write(gpio_num: u8, signal: bool) {
+pub fn write(gpio_num: u8, signal: u8) {
     let mut file: File;
     let mut filepath = String::from("/sys/class/gpio/gpio%/value");
     let gpio = gpio_num.to_string();
