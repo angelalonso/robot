@@ -1,6 +1,5 @@
 use circuits::led_action_server_node::*;
 use circuits::motor_l_action_server_node::*;
-use circuits::motor_r_action_server_node::*;
 use circuits::status_node::*;
 use circuits::test_node::*;
 
@@ -34,15 +33,10 @@ async fn main() {
         "motor_l_action_server",
         get_conns(["motor_l_action_server", "status", "test"].to_vec()),
     );
-    let mut node_server_action_motor_r = MotorRActionServerNode::new(
-        "motor_r_action_server",
-        get_conns(["motor_r_action_server", "status", "test"].to_vec()),
-    );
     let mut node_status = StatusNode::new(
         "status",
         get_conns(
             [
-                "motor_r_action_server",
                 "motor_l_action_server",
                 "led_action_server",
                 "status",
@@ -55,7 +49,6 @@ async fn main() {
         "test",
         get_conns(
             [
-                "motor_r_action_server",
                 "motor_l_action_server",
                 "led_action_server",
                 "status",
@@ -74,10 +67,6 @@ async fn main() {
         node_server_action_motor_l.talk();
     });
     info!("Motor L - Process started");
-    let handle_motor_r = thread::spawn(move || {
-        node_server_action_motor_r.talk();
-    });
-    info!("Motor R - Process started");
     let handle_led = thread::spawn(move || {
         node_server_action_led.talk();
     });
@@ -90,7 +79,6 @@ async fn main() {
 
     handle_led.join().unwrap();
     handle_motor_l.join().unwrap();
-    handle_motor_r.join().unwrap();
     handle_st.join().unwrap();
     handle_ts.join().unwrap();
 }

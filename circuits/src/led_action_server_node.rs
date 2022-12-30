@@ -1,6 +1,7 @@
 use crate::comms::*;
 
-use crate::gpiozero_mock::*;
+//use crate::gpiozero_mock::*;
+use crate::gpio_robot::*;
 use log::{debug, info};
 use std::collections::HashMap;
 use std::sync::mpsc;
@@ -9,14 +10,14 @@ use std::thread;
 pub struct LedActionServerNode<'a> {
     port_in: &'a str,
     conns: HashMap<&'a str, &'a str>,
-    led: LED,
+    led: GPIOLed,
     led_on: bool,
 }
 
 impl<'a> LedActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
         //TODO: pin comes from .env
-        let led = LED::new(21);
+        let led = GPIOLed::new(21);
         let node = match get_port(name, conns.clone()) {
             Ok(c) => LedActionServerNode {
                 port_in: c,
@@ -25,13 +26,10 @@ impl<'a> LedActionServerNode<'a> {
                 led_on: false,
             },
             Err(_) => {
-                // TODO: this should fail instead
-                LedActionServerNode {
-                    port_in: "",
-                    conns,
-                    led,
-                    led_on: false,
-                }
+                panic!(
+                    "couldn't find a port to itself: {} (HINT: check name at main.rs)",
+                    name
+                );
             }
         };
         node

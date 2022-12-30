@@ -15,8 +15,10 @@ impl<'a> TestNode<'a> {
         let node = match get_port(name, conns.clone()) {
             Ok(c) => TestNode { port_in: c, conns },
             Err(_) => {
-                // TODO: this should fail instead
-                TestNode { port_in: "", conns }
+                panic!(
+                    "couldn't find a port to itself: {} (HINT: check name at main.rs)",
+                    name
+                );
             }
         };
         node

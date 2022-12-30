@@ -20,12 +20,10 @@ impl<'a> MotorLActionServerNode<'a> {
                 speed: 0,
             },
             Err(_) => {
-                // TODO: this should fail instead
-                MotorLActionServerNode {
-                    port_in: "",
-                    conns,
-                    speed: 0,
-                }
+                panic!(
+                    "couldn't find a port to itself: {} (HINT: check name at main.rs)",
+                    name
+                );
             }
         };
         node
