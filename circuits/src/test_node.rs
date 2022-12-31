@@ -34,7 +34,7 @@ impl<'a> TestNode<'a> {
         loop {
             //debug!("test LOOP");
             //comms.send_to(&"SET:switch".as_bytes().to_vec(), led_node);
-            comms.send_to(&"SET:fwd".as_bytes().to_vec(), motor_l);
+            comms.send_to(&"SET:switch".as_bytes().to_vec(), motor_l);
             std::thread::sleep(std::time::Duration::from_millis(50));
             comms.send_to(
                 &format!("GET:led|{}", self.port_in).as_bytes().to_vec(),
@@ -48,9 +48,9 @@ impl<'a> TestNode<'a> {
             let rcvd = rx.recv().unwrap();
             debug!("[test] Received: {}", rcvd);
             h.join().unwrap();
-            std::thread::sleep(std::time::Duration::from_secs(1));
-            comms.send_to(&"SET:stp".as_bytes().to_vec(), motor_l);
-            std::thread::sleep(std::time::Duration::from_secs(1));
+            //std::thread::sleep(std::time::Duration::from_secs(1));
+            //comms.send_to(&"SET:stp".as_bytes().to_vec(), motor_l);
+            //std::thread::sleep(std::time::Duration::from_secs(1));
             //debug!("test LOOP END");
         }
     }

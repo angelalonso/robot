@@ -52,18 +52,28 @@ impl<'a> MotorLActionServerNode<'a> {
                 self.speed = 1;
                 self.motor.fwd();
                 comms.send_to(&"SET:motorl:fwd".as_bytes().to_vec(), status_node);
-
             } else if rcvd == "SET:bwd" {
                 info!("[motor_l] Setting Left Motor Backwards");
                 self.speed = -1;
                 self.motor.bwd();
                 comms.send_to(&"SET:motorl:bwd".as_bytes().to_vec(), status_node);
-
-            } else if rcvd == "SET:STP" {
+            } else if rcvd == "SET:stp" {
                 info!("[motor_l] Setting Left Motor to Stop");
                 self.speed = 0;
                 self.motor.stp();
                 comms.send_to(&"SET:motorl:stp".as_bytes().to_vec(), status_node);
+            } else if rcvd == "SET:switch" {
+                if self.speed == 0 {
+                    info!("[motor_l] Setting Left Motor Forwards");
+                    self.speed = 1;
+                    self.motor.fwd();
+                    comms.send_to(&"SET:motorl:fwd".as_bytes().to_vec(), status_node);
+                } else {
+                    info!("[motor_l] Setting Left Motor to Stop");
+                    self.speed = 0;
+                    self.motor.stp();
+                    comms.send_to(&"SET:motorl:stp".as_bytes().to_vec(), status_node);
+                }
             }
             h.join().unwrap();
         }
