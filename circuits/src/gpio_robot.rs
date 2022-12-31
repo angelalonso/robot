@@ -3,8 +3,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use rust_pigpio::pwm;
-use rust_pigpio::initialize;
+//use rust_pigpio::pwm;
+//use rust_pigpio::initialize;
 
 // Thanks to: https://michm.de/blog/rust/ansteuern-von-raspberry-pi-gpio-in-rust/
 
@@ -78,7 +78,7 @@ impl GPIOMotor {
         let out_enabler = export(pin_enabler);
         std::thread::sleep(std::time::Duration::from_millis(50));
         if out1 && out2 && out_enabler {
-            initialize();
+            //initialize();
             let is_real = true;
             std::thread::sleep(std::time::Duration::from_millis(50));
             set_direction(pin1, Directions::Output);
@@ -91,9 +91,9 @@ impl GPIOMotor {
             // GPIO.setmode(GPIO.BCM) ?
             // p = GPIO.PWM(IE, 1000)
             // p.start(100)
-            pwm::set_pwm_frequency(pin_enabler as u32, 500).unwrap();
-            pwm::set_pwm_range(pin_enabler as u32, 1000).unwrap(); //     Set range to 1000. 1 range = 2 us;
-            let p = pwm::pwm(pin_enabler as u32, 100);
+            //pwm::set_pwm_frequency(pin_enabler as u32, 500).unwrap();
+            //pwm::set_pwm_range(pin_enabler as u32, 1000).unwrap(); //     Set range to 1000. 1 range = 2 us;
+            //let p = pwm::pwm(pin_enabler as u32, 100);
         } else {
             let is_real = false;
         }
