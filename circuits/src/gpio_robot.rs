@@ -3,8 +3,14 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use rust_pigpio::pwm;
+#[cfg(target_arch = "x86_64")]
+use crate::mock_rust_pigpio::initialize;
+#[cfg(target_arch = "x86_64")]
+use crate::mock_rust_pigpio::pwm;
+#[cfg(target_arch = "aarch64")]
 use rust_pigpio::initialize;
+#[cfg(target_arch = "aarch64")]
+use rust_pigpio::pwm;
 
 // Thanks to: https://michm.de/blog/rust/ansteuern-von-raspberry-pi-gpio-in-rust/
 
@@ -88,13 +94,9 @@ impl GPIOMotor {
             std::thread::sleep(std::time::Duration::from_millis(50));
             write(pin1, 0);
             write(pin2, 0);
-            // TODO:
-            // GPIO.setmode(GPIO.BCM) ?
-            // p = GPIO.PWM(IE, 1000)
-            // p.start(100)
             pwm::set_pwm_frequency(pin_enabler as u32, 1000).unwrap();
-            //pwm::set_pwm_range(pin_enabler as u32, 1000).unwrap(); //     Set range to 1000. 1 range = 2 us;
-            let _p = pwm::pwm(pin_enabler as u32, 100);
+            pwm::set_pwm_range(pin_enabler as u32, 2000).unwrap(); //     Set range to 1000. 1 range = 2 us;
+            let _p = pwm::pwm(pin_enabler as u32, 2000);
         } else {
             is_real = false;
         }

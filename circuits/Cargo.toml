@@ -8,12 +8,10 @@ edition = "2021"
 [dependencies]
 rand = "0.8.0"
 tokio = { version = "1.17", features = ["full"] }
-#bytes = "1"
-#tiny-tokio-actor = "0.2"
 crossbeam-channel = "0.5.1"
 log = "0.4.17"
 env_logger = "0.10.0"
 chrono = "0.4.23"
-#rust_gpiozero = "0.2.0"
-#sysfs_gpio = "0.6"
+
+[target.'cfg(target_arch = "aarch64")'.dependencies]
 rust-pigpio = "0.2.0"

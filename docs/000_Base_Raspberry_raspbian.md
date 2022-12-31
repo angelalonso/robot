@@ -43,10 +43,9 @@ $ sudo apt-get upgrade
 $ sudo apt-get install -y pigpio vim git
 ```
 
-## Make pigpio daemon run at boot
+## Make pigpio daemon NOT run at boot
 ```
-$ sudo systemctl enable pigpiod
-$ sudo systemctl start pigpiod
+$ sudo systemctl disable pigpiod
 ```
 
 ## Configure your own user
