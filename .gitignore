@@ -3,6 +3,7 @@
 **/log
 circuits/src/*/versions
 circuits/aux
+circuits/Cargo.lock
 # the following may go away soon
 
 brain/**/build
