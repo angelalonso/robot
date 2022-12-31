@@ -67,6 +67,8 @@ GNU General Public License v3.0
 
 # TBD
 - Document:
+  - Raspbian
+    - 
   - https://abyz.me.uk/rpi/pigpio/download.html - needed for rust-pigpio
 wget https://github.com/joan2937/pigpio/archive/master.zip
 unzip master.zip
