@@ -7,9 +7,9 @@ use std::path::Path;
 use crate::mock_rust_pigpio::initialize;
 #[cfg(target_arch = "x86_64")]
 use crate::mock_rust_pigpio::pwm;
-#[cfg(target_arch = "aarch64")]
+#[cfg(target_arch = "arm")]
 use rust_pigpio::initialize;
-#[cfg(target_arch = "aarch64")]
+#[cfg(target_arch = "arm")]
 use rust_pigpio::pwm;
 
 // Thanks to: https://michm.de/blog/rust/ansteuern-von-raspberry-pi-gpio-in-rust/
@@ -78,6 +78,7 @@ pub struct GPIOMotor {
 impl GPIOMotor {
     pub fn new(pin1: u8, pin2: u8, pin_enabler: u8) -> Self {
         let mut is_real: bool = false;
+        std::thread::sleep(std::time::Duration::from_millis(50));
         let out1 = export(pin1);
         std::thread::sleep(std::time::Duration::from_millis(50));
         let out2 = export(pin2);

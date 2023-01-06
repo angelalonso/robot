@@ -15,7 +15,7 @@ pub struct MotorLActionServerNode<'a> {
 
 impl<'a> MotorLActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
-        let motor = GPIOMotor::new(24, 23, 25);
+        let motor = GPIOMotor::new(27, 17, 22);
         let node = match get_port(name, conns.clone()) {
             Ok(c) => MotorLActionServerNode {
                 port_in: c,
