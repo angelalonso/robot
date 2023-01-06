@@ -36,15 +36,22 @@ impl<'a> ApiNode<'a> {
 }
 
 async fn run(led_n: String, comms_orig: UDPComms<'static>) {
+    // TODO: use the same logging format, pass the log level to both
     let items_db: ItemsDb = Arc::new(Mutex::new(HashMap::new()));
     let led_node: ItemNode = Arc::new(Mutex::new(led_n));
     let comms: ItemComms = Arc::new(Mutex::new(comms_orig));
     let root = warp::path::end().map(|| "Welcome to my warp server!");
-    let get_route = warp::path("get")
+    let get_route_empty = warp::path("get")
         .and(warp::post())
         .and(with_node(led_node.clone()))
         .and(with_comms(comms.clone()))
-        .and_then(test_do);
+        .and_then(test_get_empty);
+
+    let get_route = warp::path!("get" / "mode" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(test_get);
 
     let shopping_list_items_route = warp::path("shopping_list_items")
         .and(warp::get())
@@ -128,8 +135,21 @@ pub struct UpdateShoppingListItem {
 //use crate::{models, ItemsDb, Result};
 use warp::{http::StatusCode, reply, Reply};
 
-pub async fn test_do(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+pub async fn test_get_empty(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
     let result = "";
+    println!("test {}", result);
+
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn test_get(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+    let led = led_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:led:on".as_bytes().to_vec(), &led);
+    let result = format!(" get mode");
+    println!("{}", result);
 
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
