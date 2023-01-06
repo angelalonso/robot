@@ -1,5 +1,4 @@
-//pub mod api_node;
-pub mod api_test;
+pub mod api_node;
 pub mod comms;
 pub mod gpio_robot;
 pub mod led_action_server_node;

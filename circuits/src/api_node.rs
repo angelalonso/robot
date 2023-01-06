@@ -1,27 +1,12 @@
+// thanks to https://github.com/tmsdev82/rust-warp-rest-api-tutorial
 use crate::comms::*;
+use std::{collections::HashMap, convert::Infallible, sync::Arc};
+use tokio::sync::Mutex;
+use warp::{http::StatusCode, reply, Filter, Rejection, Reply};
 
-use log::debug;
-use std::collections::HashMap;
-
-use hyper::body::Buf;
-use hyper::server::conn::Http;
-use hyper::service::service_fn;
-use hyper::{header, Body, Method, Request, Response, StatusCode};
-use rand::Rng;
-use serde::{Deserialize, Serialize};
-use std::error::Error;
-use std::net::SocketAddr;
-use tokio::net::TcpListener;
-
-#[derive(Serialize, Deserialize)]
-struct Car {
-    id: String,
-    brand: String,
-    model: String,
-    year: u16,
-}
-
-const INTERNAL_SERVER_ERROR: &str = "Internal Server Error";
+type ItemNode = Arc<Mutex<String>>;
+type ItemComms<'a> = Arc<Mutex<UDPComms<'a>>>;
+type Result<T> = std::result::Result<T, Rejection>;
 
 pub struct ApiNode<'a> {
     port_in: &'a str,
@@ -41,160 +26,252 @@ impl<'a> ApiNode<'a> {
         };
         node
     }
-    //pub async fn talk(&mut self) -> Result<(), Box<dyn Error + Send + Sync>> {
     pub async fn talk(&mut self) {
         let led_node = get_port("led_action_server", self.conns.clone()).unwrap();
+        let mut nodes: HashMap<String, String> = HashMap::new();
+        nodes.insert(
+            "led_action_server".to_owned(),
+            get_port("led_action_server", self.conns.clone())
+                .unwrap()
+                .to_owned(),
+        );
+        nodes.insert(
+            "motor_l_action_server".to_owned(),
+            get_port("motor_l_action_server", self.conns.clone())
+                .unwrap()
+                .to_owned(),
+        );
+        nodes.insert(
+            "motor_r_action_server".to_owned(),
+            get_port("motor_r_action_server", self.conns.clone())
+                .unwrap()
+                .to_owned(),
+        );
         let comms = UDPComms::new(self.port_in.to_owned());
-        match run().await {
-            Ok(_) => println!("OK"),
-            Err(_) => println!("Err"),
-        };
-    }
-}
-// ---------------------------------------------
-
-async fn run() -> Result<(), Box<dyn Error + Send + Sync>> {
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-
-    let listener = TcpListener::bind(addr).await?;
-    println!("Listening on http://{}", addr);
-    loop {
-        let (stream, _) = listener.accept().await?;
-
-        tokio::task::spawn(async move {
-            if let Err(err) = Http::new()
-                .serve_connection(stream, service_fn(api_handler))
-                .await
-            {
-                println!("Error serving connection: {:?}", err);
-            }
-        });
+        run(nodes, comms).await;
     }
 }
 
-async fn api_handler(req: Request<Body>) -> Result<Response<Body>, Box<dyn Error + Send + Sync>> {
-    let path = req.uri().path().to_owned();
-    let path_segments = path.split("/").collect::<Vec<&str>>();
-    let base_path = path_segments[1];
+async fn run(nodes: HashMap<String, String>, comms_orig: UDPComms<'static>) {
+    // TODO: use the same logging format, pass the log level to both
+    // TODO: use proper API actions, Get, Post...only when it makes sense
+    let led_node: ItemNode = Arc::new(Mutex::new(
+        nodes.get("led_action_server").unwrap().to_string(),
+    ));
+    let motor_l_node: ItemNode = Arc::new(Mutex::new(
+        nodes.get("motor_l_action_server").unwrap().to_string(),
+    ));
+    let motor_r_node: ItemNode = Arc::new(Mutex::new(
+        nodes.get("motor_r_action_server").unwrap().to_string(),
+    ));
+    let comms: ItemComms = Arc::new(Mutex::new(comms_orig));
+    let root = warp::path::end().map(|| "Welcome to my warp server!");
+    let get_empty_route = warp::path("get")
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(get_empty);
 
-    match (req.method(), base_path) {
-        // TODO: fill this up
-        // TODO: change android app to use GET for these
-        (&Method::GET, "get") => {
-            if path_segments.len() <= 2 {
-                let res = "Empty, TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            }
+    let get_route = warp::path!("get" / "mode" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(get_mode);
 
-            let obj_id = path_segments[2];
+    let do_scan_route = warp::path!("do" / "scan" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_scan);
 
-            if obj_id.trim().is_empty() {
-                let res = "Empty but with no stuff too, TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            } else {
-                let res = "NOT Empty, TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            }
-        }
+    let do_stop_route = warp::path!("do" / "stop" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_node(motor_l_node.clone()))
+        .and(with_node(motor_r_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_stop);
 
-        (&Method::POST, "get") => {
-            if path_segments.len() <= 2 {
-                let res = "Empty, TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            }
+    let do_fwd_route = warp::path!("do" / "fwd" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_node(motor_l_node.clone()))
+        .and(with_node(motor_r_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_fwd);
 
-            let obj_id = path_segments[2];
+    let do_bwd_route = warp::path!("do" / "bwd" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_node(motor_l_node.clone()))
+        .and(with_node(motor_r_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_bwd);
 
-            if obj_id.trim().is_empty() {
-                let res = "Empty GET but with no stuff too, TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            } else {
-                let res = "NOT Empty GET, TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            }
-        }
+    let do_left_route = warp::path!("do" / "left" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_node(motor_l_node.clone()))
+        .and(with_node(motor_r_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_left);
 
-        (&Method::POST, "do") => {
-            if path_segments.len() <= 2 {
-                let res = "Empty DO , TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            }
+    let do_right_route = warp::path!("do" / "right" / ..)
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_node(motor_l_node.clone()))
+        .and(with_node(motor_r_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_right);
 
-            let obj_id = path_segments[2].trim();
+    let routes = root
+        .or(get_route)
+        .or(get_empty_route)
+        .or(do_scan_route)
+        .or(do_stop_route)
+        .or(do_fwd_route)
+        .or(do_bwd_route)
+        .or(do_left_route)
+        .or(do_right_route)
+        .with(warp::cors().allow_any_origin());
 
-            if obj_id.is_empty() {
-                let res = "Empty DO but with no stuff too, TBD";
-                println!("answering {}", res);
-                return Ok(build_response(res.to_owned()));
-            } else {
-                match obj_id {
-                    // TODO: change this to stp
-                    "stop" => {
-                        let res = "DO STP, TBD";
-                        println!("answering {}", res);
-                        return Ok(build_response(res.to_owned()));
-                    }
-                    "fwd" => {
-                        let res = "DO FWD, TBD";
-                        println!("answering {}", res);
-                        return Ok(build_response(res.to_owned()));
-                    }
-                    "bwd" => {
-                        let res = "DO BWD, TBD";
-                        println!("answering {}", res);
-                        return Ok(build_response(res.to_owned()));
-                    }
-                    "right" => {
-                        let res = "DO RIGHT, TBD";
-                        println!("answering {}", res);
-                        return Ok(build_response(res.to_owned()));
-                    }
-                    "left" => {
-                        let res = "DO LEFT, TBD";
-                        println!("answering {}", res);
-                        return Ok(build_response(res.to_owned()));
-                    }
-                    "scan" => {
-                        let res = "DO SCAN, TBD";
-                        println!("answering {}", res);
-                        return Ok(build_response(res.to_owned()));
-                    }
-                    _ => {
-                        let res = "NOT Empty but wrong DO, TBD";
-                        println!("answering {}", res);
-                        return Ok(build_response(res.to_owned()));
-                    }
-                }
-            }
-        }
-
-        // Return the 404 Not Found for other routes.
-        _ => {
-            let mut not_found = Response::default();
-            *not_found.status_mut() = StatusCode::NOT_FOUND;
-            Ok(not_found)
-        }
-    }
+    warp::serve(routes).run(([127, 0, 0, 1], 3000)).await;
 }
 
-fn build_response(text: String) -> Response<Body> {
-    let res: [String; 1] = [text];
+fn with_node(
+    node_name: ItemNode,
+) -> impl Filter<Extract = (ItemNode,), Error = Infallible> + Clone {
+    warp::any().map(move || node_name.clone())
+}
 
-    match serde_json::to_string(&res) {
-        Ok(json) => Response::builder()
-            .header(header::CONTENT_TYPE, "application/json")
-            .body(Body::from(json))
-            .unwrap(),
-        Err(_) => Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body(INTERNAL_SERVER_ERROR.into())
-            .unwrap(),
-    }
+fn with_comms(comms: ItemComms) -> impl Filter<Extract = (ItemComms,), Error = Infallible> + Clone {
+    warp::any().map(move || comms.clone())
+}
+
+pub async fn get_empty(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+    let result = "";
+    println!("test {}", result);
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn get_mode(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+    let led = led_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:led:on".as_bytes().to_vec(), &led);
+    let result = format!(" get mode");
+    println!("{}", result);
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_scan(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+    let result = "";
+    println!("do scan");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_stop(
+    led_n: ItemNode,
+    motor_l_n: ItemNode,
+    motor_r_n: ItemNode,
+    comms_orig: ItemComms<'_>,
+) -> Result<impl Reply> {
+    let motor_l = motor_l_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:stp".as_bytes().to_vec(), &motor_l);
+    let motor_r = motor_r_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:stp".as_bytes().to_vec(), &motor_r);
+    let result = "";
+    println!("do stop");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_fwd(
+    led_n: ItemNode,
+    motor_l_n: ItemNode,
+    motor_r_n: ItemNode,
+    comms_orig: ItemComms<'_>,
+) -> Result<impl Reply> {
+    let motor_l = motor_l_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_l);
+    let motor_r = motor_r_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_r);
+    let result = "";
+    println!("do forward");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_bwd(
+    led_n: ItemNode,
+    motor_l_n: ItemNode,
+    motor_r_n: ItemNode,
+    comms_orig: ItemComms<'_>,
+) -> Result<impl Reply> {
+    let motor_l = motor_l_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_l);
+    let motor_r = motor_r_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_r);
+    let result = "";
+    println!("do backwards");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_left(
+    led_n: ItemNode,
+    motor_l_n: ItemNode,
+    motor_r_n: ItemNode,
+    comms_orig: ItemComms<'_>,
+) -> Result<impl Reply> {
+    let motor_l = motor_l_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_l);
+    let motor_r = motor_r_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_r);
+    let result = "";
+    println!("do left");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_right(
+    led_n: ItemNode,
+    motor_l_n: ItemNode,
+    motor_r_n: ItemNode,
+    comms_orig: ItemComms<'_>,
+) -> Result<impl Reply> {
+    let motor_l = motor_l_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_l);
+    let motor_r = motor_r_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_r);
+    let result = "";
+    println!("do right");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
