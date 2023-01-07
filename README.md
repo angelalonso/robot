@@ -29,7 +29,8 @@ I will need to make the following work to consider this approach "usable":
 - Make that Node work like an action server
 - DONE - Create a second Node that works like an action client
 - DONE - Have the action server turn an LED on and off
-- Make this run on the Raspberry and check load - So far cross-compiling is not working, neither with --target nor with docker, we'll try qemu
+- Make this run on the Raspberry and check load
+- Cross compile to save time -> not working, neither with --target nor with docker, we'll try qemu
 
 Once that is working, I will adapt the code and auxiliar scripts to keep using what worked well in the past:
 
@@ -54,8 +55,6 @@ GNU General Public License v3.0
 
 ## NEXT UP:
 ### Must have
-- Fake gpiozero to test LEDs and Motors outside of the Raspberry
-- API to control it
 - Read vars from .env
 - Cross compiling/building
 ### Should have
@@ -68,10 +67,4 @@ GNU General Public License v3.0
 # TBD
 - Document:
   - Raspbian
-    - 
-  - https://abyz.me.uk/rpi/pigpio/download.html - needed for rust-pigpio
-wget https://github.com/joan2937/pigpio/archive/master.zip
-unzip master.zip
-cd pigpio-master
-make
-sudo make install
+    - Auto install with copy over of .env
