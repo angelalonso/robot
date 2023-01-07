@@ -77,7 +77,7 @@ pub struct GPIOMotor {
 
 impl GPIOMotor {
     pub fn new(pin1: u8, pin2: u8, pin_enabler: u8) -> Self {
-        let mut is_real: bool = false;
+        let is_real: bool;
         std::thread::sleep(std::time::Duration::from_millis(50));
         let out1 = export(pin1);
         std::thread::sleep(std::time::Duration::from_millis(50));
@@ -105,7 +105,7 @@ impl GPIOMotor {
             pin1,
             pin2,
             pin_enabler,
-            is_real,
+            is_real: is_real,
         }
     }
 
@@ -167,7 +167,6 @@ pub fn export(gpio_num: u8) -> bool {
         Err(why) => println!("couldn't open {}: {}", filepath, why),
         Ok(f) => {
             file = f;
-            is_real = true;
             if let Err(why) = file.write_all(gpio_num.to_string().as_bytes()) {
                 println!("couldn't write to {}: {} ({})", filepath, why, gpio_num);
                 is_real = false;

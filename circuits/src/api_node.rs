@@ -27,7 +27,6 @@ impl<'a> ApiNode<'a> {
         node
     }
     pub async fn talk(&mut self) {
-        let led_node = get_port("led_action_server", self.conns.clone()).unwrap();
         let mut nodes: HashMap<String, String> = HashMap::new();
         nodes.insert(
             "led_action_server".to_owned(),
@@ -148,7 +147,7 @@ fn with_comms(comms: ItemComms) -> impl Filter<Extract = (ItemComms,), Error = I
     warp::any().map(move || comms.clone())
 }
 
-pub async fn get_empty(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+pub async fn get_empty(_led_n: ItemNode, _comms_orig: ItemComms<'_>) -> Result<impl Reply> {
     let result = "";
     println!("test {}", result);
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
@@ -165,14 +164,14 @@ pub async fn get_mode(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
-pub async fn do_scan(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+pub async fn do_scan(_led_n: ItemNode, _comms_orig: ItemComms<'_>) -> Result<impl Reply> {
     let result = "";
     println!("do scan");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
 pub async fn do_stop(
-    led_n: ItemNode,
+    _led_n: ItemNode,
     motor_l_n: ItemNode,
     motor_r_n: ItemNode,
     comms_orig: ItemComms<'_>,
@@ -193,7 +192,7 @@ pub async fn do_stop(
 }
 
 pub async fn do_fwd(
-    led_n: ItemNode,
+    _led_n: ItemNode,
     motor_l_n: ItemNode,
     motor_r_n: ItemNode,
     comms_orig: ItemComms<'_>,
@@ -214,7 +213,7 @@ pub async fn do_fwd(
 }
 
 pub async fn do_bwd(
-    led_n: ItemNode,
+    _led_n: ItemNode,
     motor_l_n: ItemNode,
     motor_r_n: ItemNode,
     comms_orig: ItemComms<'_>,
@@ -235,7 +234,7 @@ pub async fn do_bwd(
 }
 
 pub async fn do_left(
-    led_n: ItemNode,
+    _led_n: ItemNode,
     motor_l_n: ItemNode,
     motor_r_n: ItemNode,
     comms_orig: ItemComms<'_>,
@@ -256,7 +255,7 @@ pub async fn do_left(
 }
 
 pub async fn do_right(
-    led_n: ItemNode,
+    _led_n: ItemNode,
     motor_l_n: ItemNode,
     motor_r_n: ItemNode,
     comms_orig: ItemComms<'_>,

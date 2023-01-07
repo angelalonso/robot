@@ -17,43 +17,11 @@ function do_build() {
   show_log i "################## BUILD on ${ARCH} ####################"
   trap ctrl_c INT
 
-  # Build only if anything changed (comparing to git), 
-  # TODO: we need to define this "git control" better (what if it was already commited?)
-  #       One error is: as long as you dont commit, you can build without being asked, even if you didnt change since latest commit
-  BUILDORNOT=false
-  if [[ $(git status -s ${CODEPATH} | wc -l) -gt 0 ]]; then
-    BUILDORNOT=true
-  else
-    show_log w "There seems to be no changes on ${CODEPATH}"
-    show_log w "Do you still want to Build? (just press y or n)"
-    LOOP=true
-    while [[ $LOOP == true ]] ; do
-      read -r -n 1 -p "[y/n]: " REPLY
-      case $REPLY in
-        [yY])
-          echo
-          BUILDORNOT=true
-          LOOP=false
-          ;;
-        [nN])
-          echo
-          BUILDORNOT=false
-          LOOP=false
-          ;;
-        *) echo;show_log w "Invalid Input, please answer y or n. Do you want to Build?"
-      esac
-    done
-  fi
-
-  if [[ "${BUILDORNOT}" == true ]]; then
-    cargo update
-    cd ${CODEPATH}
-    cargo build -vv
-
-    #TODO: check if it worked
-  else
+  cargo update && cargo build --release
+  if [[ $? -ne 0 ]]; then
     show_log w "Nothing was built"
   fi
+
   cd $CWDMAIN
 }
 
@@ -124,15 +92,19 @@ function do_run() {
   show_log i "##################  RUN  ####################"
   trap ctrl_c INT
 
-  ## Prepare GPIO before running
-  #show_log i "Initializing GPIOs"
-  #echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/export >/dev/null
-  #echo "out" | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/direction >/dev/null
-  #echo 1 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
-  #echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
+  # TODO: modify this when new PINS are in use
+  echo "${LED_PIN}" | sudo tee /sys/class/gpio/unexport >/dev/null || true 
+  echo "${MOTOR_R_PIN_IN1}" | sudo tee /sys/class/gpio/unexport >/dev/null || true 
+  echo "${MOTOR_R_PIN_IN2}" | sudo tee /sys/class/gpio/unexport >/dev/null || true 
+  echo "${MOTOR_R_PIN_ENA}" | sudo tee /sys/class/gpio/unexport >/dev/null || true 
+  echo "${MOTOR_L_PIN_IN1}" | sudo tee /sys/class/gpio/unexport >/dev/null || true 
+  echo "${MOTOR_L_PIN_IN2}" | sudo tee /sys/class/gpio/unexport >/dev/null || true 
+  echo "${MOTOR_L_PIN_ENA}" | sudo tee /sys/class/gpio/unexport >/dev/null || true 
+  show_log i "(please ignore errors above about unexport)"
 
   cd ${CODEPATH}
-  cargo run 
+  RUNPATH=${CODEPATH}/target/release/circuits
+  sudo ${RUNPATH}
 }
 
 function do_crossrun() {
@@ -339,21 +311,21 @@ function load_dotenv {
 
 function show_help() {
   show_log i "SYNTAX:"
-  show_log i " $0        - Build, Crosscompile and deploy to robot"
+  #show_log i " $0        - Build, Crosscompile and deploy to robot"
   show_log i " - Main options:"
   show_log i " $0 build     - Build related packages and run test locally"
-  show_log i " $0 test      - Run tests locally"
-  show_log i " $0 buildonly - Build related packages locally, accepts a list of packages"
-  show_log i " $0 cross     - Cross-build for the robot's architecture"
-  show_log i " $0 deploy    - Deploy current crossbuild to robot"
-  show_log i " $0 run       - Run current crossbuild on the robot"
+  #show_log i " $0 test      - Run tests locally"
+  #show_log i " $0 buildonly - Build related packages locally, accepts a list of packages"
+  #show_log i " $0 cross     - Cross-build for the robot's architecture"
+  #show_log i " $0 deploy    - Deploy current crossbuild to robot"
+  #show_log i " $0 run       - Run current crossbuild on the robot"
   show_log i " - Other options:"
-  show_log i " $0 rollback  - Deploy previous crossbuild version on robot and make it current"
-  show_log i " $0 clean     - Remove and compress old versions built" 
-  show_log i " $0 reset     - Remove everything previously built " 
-  show_log i " $0 kill      - Kill any leftover processes" 
-  show_log i " $0 version   - Show the current version(s) available" 
-  show_log i " $0 aux       - Run a function that is currently used for development of new stuff" 
+  #show_log i " $0 rollback  - Deploy previous crossbuild version on robot and make it current"
+  #show_log i " $0 clean     - Remove and compress old versions built" 
+  #show_log i " $0 reset     - Remove everything previously built " 
+  #show_log i " $0 kill      - Kill any leftover processes" 
+  #show_log i " $0 version   - Show the current version(s) available" 
+  #show_log i " $0 aux       - Run a function that is currently used for development of new stuff" 
   show_log i " $0 help      - Show this help"
 }
 
@@ -364,35 +336,35 @@ function aux_function() {
 function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
-  elif [[ "$1" == "build" ]] || [[ "$1" == "buildtest" ]] || [[ "$1" == "buildntest" ]] || [[ "$1" == "build_n_test" ]]; then
+  elif [[ "$1" == "build" ]] || [[ "$1" == "buildrun" ]] || [[ "$1" == "buildnrun" ]] || [[ "$1" == "build_n_run" ]]; then
     do_build $@
     #do_test
     do_run
   elif [[ "$1" == "test" ]]; then
-    do_test
+    echo do_test
   elif [[ "$1" == "buildonly" ]]; then
     do_build $@
   elif [[ "$1" == "cross" ]] || [[ "$1" == "crossbuild" ]]; then
-    do_crossbuild
+    echo do_crossbuild
   elif [[ "$1" == "deploy" ]]; then
-    do_deploy
+    echo do_deploy
   elif [[ "$1" == "run" ]]; then
     do_run
   elif [[ "$1" == "rollback" ]]; then
-    do_rollback
+    echo do_rollback
   elif [[ "$1" == "clean" ]]; then
-    do_clean
+    echo do_clean
   elif [[ "$1" == "reset" ]]; then
-    versions_reset
+    echo versions_reset
   elif [[ "$1" == "kill" ]]; then
-    kill_switch
+    echo kill_switch
   elif [[ "$1" == "version" ]] || [[ "$1" == "versions" ]]; then
-    versions_show
+    echo versions_show
   elif [[ "$1" == "" ]]; then
     do_build 
     #do_test 
-    do_crossbuild
-    do_crossrun
+    #do_crossbuild
+    #do_crossrun
   elif [[ "$1" == "aux" ]]; then
     #This option we use to test functions
     aux_function $@
@@ -411,6 +383,7 @@ fi
 #CROSSARCH=aarch64 # This is what Raspberry 3B+ uses
 CWDMAIN=$(pwd)
 CODEPATH="${CWDMAIN}"
+# TODO: change this when out of circuits folder
 #CODEPATH="${CWDMAIN}/circuits"
 VERSIONFILE="${CODEPATH}/VERSION"
 
