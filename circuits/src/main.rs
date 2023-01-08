@@ -7,6 +7,7 @@ use circuits::test_node::*;
 
 use chrono::Local;
 use env_logger::Builder;
+use load_dotenv::load_dotenv;
 use log::info;
 use std::collections::HashMap;
 use std::io::Write;
@@ -14,6 +15,8 @@ use std::thread;
 
 #[tokio::main]
 async fn main() {
+    load_dotenv!();
+    println!("----------------------- {}", env!("MOTOR_R_PIN_IN2"));
     let mut handles = vec![];
 
     Builder::new()

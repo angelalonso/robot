@@ -1,6 +1,7 @@
 use crate::comms::*;
 
 use crate::gpio_robot::*;
+use load_dotenv::load_dotenv;
 use log::{debug, info};
 use std::collections::HashMap;
 use std::sync::mpsc;
@@ -15,7 +16,12 @@ pub struct MotorRActionServerNode<'a> {
 
 impl<'a> MotorRActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
-        let motor = GPIOMotor::new(24, 23, 25);
+        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        let motor = GPIOMotor::new(
+            env!("MOTOR_R_PIN_IN1").parse::<u8>().unwrap(),
+            env!("MOTOR_R_PIN_IN2").parse::<u8>().unwrap(),
+            env!("MOTOR_R_PIN_ENA").parse::<u8>().unwrap(),
+        );
         let node = match get_port(name, conns.clone()) {
             Ok(c) => MotorRActionServerNode {
                 port_in: c,

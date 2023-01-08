@@ -86,6 +86,7 @@ impl GPIOMotor {
         let out_enabler = export(pin_enabler);
         std::thread::sleep(std::time::Duration::from_millis(50));
         if out1 && out2 && out_enabler {
+            // TODO:
             initialize();
             is_real = true;
             std::thread::sleep(std::time::Duration::from_millis(50));

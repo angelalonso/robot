@@ -1,7 +1,7 @@
 use crate::comms::*;
 
-//use crate::gpiozero_mock::*;
 use crate::gpio_robot::*;
+use load_dotenv::load_dotenv;
 use log::{debug, info};
 use std::collections::HashMap;
 use std::sync::mpsc;
@@ -16,8 +16,8 @@ pub struct LedActionServerNode<'a> {
 
 impl<'a> LedActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
-        //TODO: pin comes from .env
-        let led = GPIOLed::new(21);
+        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        let led = GPIOLed::new(env!("LEDMAIN_PIN").parse::<u8>().unwrap());
         let node = match get_port(name, conns.clone()) {
             Ok(c) => LedActionServerNode {
                 port_in: c,
