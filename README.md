@@ -7,9 +7,9 @@ A step by step Guide on how I build, configure and run my own robot using a spec
 Yeah. You just need to be familiar with troubleshooting on linux and searching the web for resources :) 
 Everything software-related I use is included here, but neither properly sorted nor documented.
 Some thing you may want to check are:
-- (How I put together the current Chassis|https://github.com/angelalonso/robot/blob/master/docs/000_Base_Chassis.md)
-- (Where I originally got my HW from|https://github.com/angelalonso/robot/blob/master/docs/000_Base_ShoppingList.md)
-- (How to configure the Raspberry|https://github.com/angelalonso/robot/blob/master/docs/000_Base_Raspberry_raspbian.md)
+- [How I put together the current Chassis](https://github.com/angelalonso/robot/blob/master/docs/000_Base_Chassis.md)
+- [Where I originally got my HW from](https://github.com/angelalonso/robot/blob/master/docs/000_Base_ShoppingList.md)
+- [How to configure the Raspberry](https://github.com/angelalonso/robot/blob/master/docs/000_Base_Raspberry_raspbian.md)
  
 
 ## Notes on why I do this
