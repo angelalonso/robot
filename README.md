@@ -70,17 +70,18 @@ Just PM me on Github, I haven't figured this out yet.
 
 GNU General Public License v3.0
 
-## NEXT UP:
-### Must have
-- Cross compiling/building
-### Should have
-- Modules mimic ROS2 (E.g.: instead of comms, something like actions that wraps comms)
-- "Autonomous" run with List of actions to do
-### Would be good to have
-- Completely autonomous run mode
-
 
 # TBD
-- Document:
-  - Raspbian
-    - Auto install with copy over of .env
+### Must have
+- Tested docs on Chassis, Hardware and Raspberry setup
+- Automatic Raspberry setup script (with .env)
+- Cross compiling/building
+
+### Should have
+- Build pipeline with tests
+- Load tests
+- Modules mimic ROS2 (E.g.: instead of comms, something like actions that wraps comms)
+- "Autonomous" run with List of actions to do
+
+### Would be good to have
+- Completely autonomous run mode
