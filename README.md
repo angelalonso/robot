@@ -1,17 +1,29 @@
 # Robot
 
-A step by step Guide to building and configuring your own robot using partially my choice of Hardware and Software.
+A step by step Guide on how I build, configure and run my own robot using a specific choice of Hardware and Software.
 
+## Can I run it myself? How?
 
-## Motivation
+Yeah. You just need to be familiar with troubleshooting on linux and searching the web for resources :) 
+Everything software-related I use is included here, but neither properly sorted nor documented.
+
+## Notes on why I do this
 
 - I was looking for a project to learn that would have me entertained for longer than a month.
 - As a kid I loved the idea of having a Robot at home one day.
 - That robot had to be configurable with only two limitations: pocket and knowledge 
 
-## Status
+## Notes on the status
 
-Right now, It does not work and I'm changing the Software of choice. Here is what I#ve tried so far:
+Right now, It can manage two motors through an API. 
+- The code to run on the Raspberry is on /circuits
+  - You can use curl to send calls to the API
+  - There is a very primitive Android app on /AndroidApp that helps with that, but you probably need to open ports on the RAspberry (not yet tested).
+  - Still, running off a battery is not yet tested.
+  - I need to also work on a cross-compiling system
+
+## Notes on my choice of Software
+
 - Full Rust:
   - There used to be a working thing written completely on Rust but it didn't scale well.
 - ROS2 - Python
@@ -22,9 +34,9 @@ Right now, It does not work and I'm changing the Software of choice. Here is wha
   - When I had something working, I also realized compiling it on the Raspberry would be too heavy, so I started introducing cross-compilation.
   - Then I tried to introduce libraries on Rust that would be called from C++. I never got it to work using ROS's cmakelists
 
-So my next approach will be to try and design again a full-Rust version that tries to mimc ROS2's architecture principles (e.g.: nodes, actions, messages...), with the hope that one day there will be a full-on ROS2-Rust library that I can easily migrate to.
+So my next approach is a redesign, again based off a full-Rust version that tries to mimc ROS2's architecture principles (e.g.: nodes, actions, messages...), with the hope that one day there will be a full-on ROS2-Rust library that I can easily migrate to.
 
-I will need to make the following work to consider this approach "usable":
+I need to make the following work to consider this approach "usable":
 - DONE - Create a 'Node' that lives until a CTRL-C is received
 - Make that Node work like an action server
 - DONE - Create a second Node that works like an action client
@@ -36,7 +48,7 @@ Once that is working, I will adapt the code and auxiliar scripts to keep using w
 
 - Autosetup of the Raspberry 
 - Build pipeline
-- .env configuration
+- DONE .env configuration
 
 Then I will try to extend to the rest of functionality:
 - Engines
@@ -55,7 +67,6 @@ GNU General Public License v3.0
 
 ## NEXT UP:
 ### Must have
-- Read vars from .env
 - Cross compiling/building
 ### Should have
 - Modules mimic ROS2 (E.g.: instead of comms, something like actions that wraps comms)

@@ -6,8 +6,7 @@ circuits/aux
 circuits/Cargo.lock
 # the following may go away soon
 
-brain/**/build
-brain/**/install
+aux/
 #**/build
 #**/install
 **/scripts/__pycache__
