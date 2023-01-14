@@ -134,7 +134,7 @@ fn get_conns(names: Vec<&str>) -> HashMap<&str, &str> {
     // return only the ones needed
     let result: HashMap<&str, &str> = all_conns
         .into_iter()
-        .filter(|(k, _v)| names.contains(&k))
+        .filter(|(k, _v)| names.contains(k))
         .collect();
-    return result;
+    result
 }

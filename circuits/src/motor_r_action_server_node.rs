@@ -57,28 +57,28 @@ impl<'a> MotorRActionServerNode<'a> {
                 info!("[motor_r] Setting Right Motor Forwards");
                 self.speed = 1;
                 self.motor.fwd();
-                comms.send_to(&"SET:motorr:fwd".as_bytes().to_vec(), status_node);
+                comms.send_to("SET:motorr:fwd".as_bytes(), status_node);
             } else if rcvd == "SET:bwd" {
                 info!("[motor_r] Setting Right Motor Backwards");
                 self.speed = -1;
                 self.motor.bwd();
-                comms.send_to(&"SET:motorr:bwd".as_bytes().to_vec(), status_node);
+                comms.send_to("SET:motorr:bwd".as_bytes(), status_node);
             } else if rcvd == "SET:stp" {
                 info!("[motor_r] Setting Right Motor to Stop");
                 self.speed = 0;
                 self.motor.stp();
-                comms.send_to(&"SET:motorr:stp".as_bytes().to_vec(), status_node);
+                comms.send_to("SET:motorr:stp".as_bytes(), status_node);
             } else if rcvd == "SET:switch" {
                 if self.speed == 0 {
                     info!("[motor_r] Setting Right Motor Forwards");
                     self.speed = 1;
                     self.motor.fwd();
-                    comms.send_to(&"SET:motorr:fwd".as_bytes().to_vec(), status_node);
+                    comms.send_to("SET:motorr:fwd".as_bytes(), status_node);
                 } else {
                     info!("[motor_r] Setting Right Motor to Stop");
                     self.speed = 0;
                     self.motor.stp();
-                    comms.send_to(&"SET:motorr:stp".as_bytes().to_vec(), status_node);
+                    comms.send_to("SET:motorr:stp".as_bytes(), status_node);
                 }
             }
             h.join().unwrap();

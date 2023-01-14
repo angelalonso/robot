@@ -54,23 +54,23 @@ impl<'a> LedActionServerNode<'a> {
                 info!("[led] Setting LED ON");
                 self.led_on = true;
                 self.led.on();
-                comms.send_to(&"SET:led:on".as_bytes().to_vec(), status_node);
+                comms.send_to("SET:led:on".as_bytes(), status_node);
             } else if rcvd == "SET:off" {
                 info!("[led] Setting LED OFF");
                 self.led_on = false;
                 self.led.off();
-                comms.send_to(&"SET:led:off".as_bytes().to_vec(), status_node);
+                comms.send_to("SET:led:off".as_bytes(), status_node);
             } else if rcvd == "SET:switch" {
-                if self.led_on == true {
+                if self.led_on {
                     info!("[led] Setting LED OFF");
                     self.led_on = false;
                     self.led.off();
-                    comms.send_to(&"SET:led:off".as_bytes().to_vec(), status_node);
+                    comms.send_to("SET:led:off".as_bytes(), status_node);
                 } else {
                     info!("[led] Setting LED ON");
                     self.led_on = true;
                     self.led.on();
-                    comms.send_to(&"SET:led:on".as_bytes().to_vec(), status_node);
+                    comms.send_to("SET:led:on".as_bytes(), status_node);
                 }
             }
             h.join().unwrap();

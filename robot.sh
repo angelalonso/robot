@@ -5,7 +5,10 @@
 #   - Am I running on the Raspberry machine?
 #   - Is the Robot available through SSH?
 #   - Did all steps finish properly?
-#   TODO: Run at the robot
+#   TODO: 
+#   clippy and tests on build
+#   check ports and gpio before run
+#   localbuild, localrun, build as localbuild on the robot and same for run
 
 set -eo pipefail
 shopt -s extglob # required for proper string substitution

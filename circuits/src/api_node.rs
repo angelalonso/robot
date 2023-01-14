@@ -1,5 +1,7 @@
 // thanks to https://github.com/tmsdev82/rust-warp-rest-api-tutorial
 use crate::comms::*;
+
+use load_dotenv::load_dotenv;
 use std::{collections::HashMap, convert::Infallible, sync::Arc};
 use tokio::sync::Mutex;
 use warp::{http::StatusCode, reply, Filter, Rejection, Reply};
@@ -10,13 +12,20 @@ type Result<T> = std::result::Result<T, Rejection>;
 
 pub struct ApiNode<'a> {
     port_in: &'a str,
+    port_api: u16,
     conns: HashMap<&'a str, &'a str>,
 }
 
 impl<'a> ApiNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
+        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        let p_api = env!("APIPORT").parse::<u16>().unwrap();
         let node = match get_port(name, conns.clone()) {
-            Ok(c) => ApiNode { port_in: c, conns },
+            Ok(c) => ApiNode {
+                port_in: c,
+                port_api: p_api,
+                conns,
+            },
             Err(_) => {
                 panic!(
                     "couldn't find a port to itself: {} (HINT: check name at main.rs)",
@@ -47,11 +56,11 @@ impl<'a> ApiNode<'a> {
                 .to_owned(),
         );
         let comms = UDPComms::new(self.port_in.to_owned());
-        run(nodes, comms).await;
+        run(self.port_api, nodes, comms).await;
     }
 }
 
-async fn run(nodes: HashMap<String, String>, comms_orig: UDPComms<'static>) {
+async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms<'static>) {
     // TODO: use the same logging format, pass the log level to both
     // TODO: use proper API actions, Get, Post...only when it makes sense
     let led_node: ItemNode = Arc::new(Mutex::new(
@@ -135,7 +144,7 @@ async fn run(nodes: HashMap<String, String>, comms_orig: UDPComms<'static>) {
         .with(warp::cors().allow_any_origin());
 
     // TODO: make this an env var
-    warp::serve(routes).run(([0, 0, 0, 0], 3000)).await;
+    warp::serve(routes).run(([0, 0, 0, 0], port_api)).await;
 }
 
 fn with_node(
@@ -159,8 +168,8 @@ pub async fn get_mode(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:led:on".as_bytes().to_vec(), &led);
-    let result = format!(" get mode");
+        .send_to("SET:led:on".as_bytes(), &led);
+    let result = " get mode".to_owned();
     println!("{}", result);
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
@@ -181,12 +190,12 @@ pub async fn do_stop(
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:stp".as_bytes().to_vec(), &motor_l);
+        .send_to("SET:stp".as_bytes(), &motor_l);
     let motor_r = motor_r_n.lock().await;
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:stp".as_bytes().to_vec(), &motor_r);
+        .send_to("SET:stp".as_bytes(), &motor_r);
     let result = "";
     println!("do stop");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
@@ -202,12 +211,12 @@ pub async fn do_fwd(
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_l);
+        .send_to("SET:fwd".as_bytes(), &motor_l);
     let motor_r = motor_r_n.lock().await;
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_r);
+        .send_to("SET:fwd".as_bytes(), &motor_r);
     let result = "";
     println!("do forward");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
@@ -223,12 +232,12 @@ pub async fn do_bwd(
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_l);
+        .send_to("SET:bwd".as_bytes(), &motor_l);
     let motor_r = motor_r_n.lock().await;
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_r);
+        .send_to("SET:bwd".as_bytes(), &motor_r);
     let result = "";
     println!("do backwards");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
@@ -244,12 +253,12 @@ pub async fn do_left(
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_l);
+        .send_to("SET:bwd".as_bytes(), &motor_l);
     let motor_r = motor_r_n.lock().await;
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_r);
+        .send_to("SET:fwd".as_bytes(), &motor_r);
     let result = "";
     println!("do left");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
@@ -265,12 +274,12 @@ pub async fn do_right(
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:fwd".as_bytes().to_vec(), &motor_l);
+        .send_to("SET:fwd".as_bytes(), &motor_l);
     let motor_r = motor_r_n.lock().await;
     comms_orig
         .lock()
         .await
-        .send_to(&"SET:bwd".as_bytes().to_vec(), &motor_r);
+        .send_to("SET:bwd".as_bytes(), &motor_r);
     let result = "";
     println!("do right");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))

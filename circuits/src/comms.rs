@@ -44,7 +44,7 @@ impl<'a> UDPComms<'_> {
             Err(_) => "".to_owned(),
         };
         //println!("received at {} --> {}", self.port_in, recvd);
-        recvd.clone()
+        recvd
     }
 
     pub fn get_data(&mut self, callback: Sender<String>) {
@@ -61,9 +61,10 @@ impl<'a> UDPComms<'_> {
     }
 
     //pub fn send_to(&self, msg: &Vec<u8>, dest_port: &str) -> usize {
-    pub fn send_to(&self, msg: &Vec<u8>, dest_port: &str) {
+    pub fn send_to(&self, msg: &[u8], dest_port: &str) {
         let local = format!("{}:{}", self.ip, self.port_in);
-        // TODO: control errors here:
+        // TODO: control errors here: retry on  Os { code: 98, kind: AddrInUse, message: "Address
+        // already in use"  }
         let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
         socket
             .set_read_timeout(None)

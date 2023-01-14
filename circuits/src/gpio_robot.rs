@@ -112,7 +112,7 @@ impl GPIOMotor {
             pin1,
             pin2,
             pin_enabler,
-            is_real: is_real,
+            is_real,
         }
     }
 
@@ -155,11 +155,10 @@ impl GPIOMotor {
 // AUX Functions
 
 fn open_file(filepath: &String) -> Result<File, std::io::Error> {
-    let file: File;
     let path = Path::new(&filepath);
-    match fs::OpenOptions::new().write(true).open(path) {
+    let file: File = match fs::OpenOptions::new().write(true).open(path) {
         Err(why) => return Err(why),
-        Ok(f) => file = f,
+        Ok(f) => f,
     };
 
     Ok(file)
@@ -187,12 +186,11 @@ pub fn export(gpio_num: u8) -> bool {
 
 pub fn unexport(gpio_num: u8) {
     let filepath = String::from("/sys/class/gpio/unexport");
-    let mut file: File;
 
-    match open_file(&filepath) {
+    let mut file: File = match open_file(&filepath) {
         Err(why) => panic!("couldn't open {}: {}", filepath, why),
-        Ok(f) => file = f,
-    }
+        Ok(f) => f,
+    };
 
     if let Err(why) = file.write_all(gpio_num.to_string().as_bytes()) {
         panic!("couldn't write to {}: {}", filepath, why);
@@ -200,17 +198,16 @@ pub fn unexport(gpio_num: u8) {
 }
 
 pub fn write(gpio_num: u8, signal: u8) {
-    let mut file: File;
     let mut filepath = String::from("/sys/class/gpio/gpio%/value");
     let gpio = gpio_num.to_string();
-    filepath = filepath.replace("%", gpio.as_str());
+    filepath = filepath.replace('%', gpio.as_str());
 
-    match open_file(&filepath) {
+    let mut file: File = match open_file(&filepath) {
         Err(why) => panic!("couldn't open {}: {}", filepath, why),
-        Ok(f) => file = f,
-    }
+        Ok(f) => f,
+    };
 
-    if let Err(why) = file.write_all(u8::from(signal).to_string().as_bytes()) {
+    if let Err(why) = file.write_all(signal.to_string().as_bytes()) {
         panic!("couldn't write to {}: {}", filepath, why);
     }
 }
@@ -218,7 +215,7 @@ pub fn write(gpio_num: u8, signal: u8) {
 pub fn read(gpio_num: u8) -> bool {
     let mut filepath = String::from("/sys/class/gpio/gpio%/value");
     let gpio = gpio_num.to_string();
-    filepath = filepath.replace("%", gpio.as_str());
+    filepath = filepath.replace('%', gpio.as_str());
 
     match fs::read_to_string(filepath) {
         Err(why) => panic!("couldn't read: {}", why),
@@ -227,15 +224,14 @@ pub fn read(gpio_num: u8) -> bool {
 }
 
 pub fn set_direction(gpio_num: u8, direction: Directions) {
-    let mut file: File;
     let mut filepath = String::from("/sys/class/gpio/gpio%/direction");
     let gpio = gpio_num.to_string();
-    filepath = filepath.replace("%", gpio.as_str());
+    filepath = filepath.replace('%', gpio.as_str());
 
-    match open_file(&filepath) {
+    let mut file: File = match open_file(&filepath) {
         Err(why) => panic!("couldn't open {}: {}", filepath, why),
-        Ok(f) => file = f,
-    }
+        Ok(f) => f,
+    };
 
     if let Err(why) = file.write_all(direction.as_bytes()) {
         panic!("couldn't write to {}: {}", filepath, why);

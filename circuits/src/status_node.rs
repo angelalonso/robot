@@ -39,17 +39,17 @@ impl<'a> StatusNode<'a> {
             std::thread::sleep(std::time::Duration::from_millis(1));
             debug!("[status] Received: {}", rcvd);
             if rcvd.contains("SET:") {
-                let split1: Vec<&str> = rcvd.split(":").collect();
+                let split1: Vec<&str> = rcvd.split(':').collect();
                 status.insert(split1[1].to_owned(), split1[2].to_owned());
             } else if rcvd.contains("GET:") {
-                let split1: Vec<&str> = rcvd.split("|").collect();
+                let split1: Vec<&str> = rcvd.split('|').collect();
                 let callback = split1[1];
-                let split2: Vec<&str> = split1[0].split(":").collect();
+                let split2: Vec<&str> = split1[0].split(':').collect();
                 let key = split2[1];
                 match status.get(key) {
                     Some(v) => {
                         //debug!("sending {} -> {}", v, callback);
-                        comms.send_to(&v.as_bytes().to_vec(), callback);
+                        comms.send_to(v.as_bytes(), callback);
                     }
                     None => (),
                 };
