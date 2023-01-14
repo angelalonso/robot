@@ -26,6 +26,7 @@ Right now, It can manage two motors through an API.
   - There is a very primitive Android app on /AndroidApp that helps with that, but you probably need to open ports on the RAspberry (not yet tested).
   - Still, running off a battery is not yet tested.
   - I need to also work on a cross-compiling system
+    - The difficulty here is that pigpio is needed, and that cannot be done using cargo directly in a local machine
 
 ## Notes on my choice of Software
 

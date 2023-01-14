@@ -7,9 +7,15 @@ use std::path::Path;
 use crate::mock_rust_pigpio::initialize;
 #[cfg(target_arch = "x86_64")]
 use crate::mock_rust_pigpio::pwm;
+
 #[cfg(target_arch = "arm")]
 use rust_pigpio::initialize;
 #[cfg(target_arch = "arm")]
+use rust_pigpio::pwm;
+
+#[cfg(target_arch = "aarch64")]
+use rust_pigpio::initialize;
+#[cfg(target_arch = "aarch64")]
 use rust_pigpio::pwm;
 
 // Thanks to: https://michm.de/blog/rust/ansteuern-von-raspberry-pi-gpio-in-rust/

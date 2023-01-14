@@ -134,7 +134,8 @@ async fn run(nodes: HashMap<String, String>, comms_orig: UDPComms<'static>) {
         .or(do_right_route)
         .with(warp::cors().allow_any_origin());
 
-    warp::serve(routes).run(([127, 0, 0, 1], 3000)).await;
+    // TODO: make this an env var
+    warp::serve(routes).run(([0, 0, 0, 0], 3000)).await;
 }
 
 fn with_node(
