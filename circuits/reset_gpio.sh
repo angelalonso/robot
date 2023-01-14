@@ -20,6 +20,6 @@ function load_dotenv {
 
 load_dotenv
 for i in $(printenv | grep PIN | awk -F'=' '{print $2}' | sort | uniq); do
-  echo $i >> /sys/class/gpio/unexport
+  echo $i >> /sys/class/gpio/unexport 2>/dev/null || true
 done
 
