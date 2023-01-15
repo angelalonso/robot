@@ -42,6 +42,10 @@ function kill_switch() {
   for pid in $(ps aux | grep robot.sh | grep -v vim | awk '{print $2}'); do
     kill -9 $pid
   done
+  for pid in $(ps aux | grep circuits | grep -v vim | awk '{print $2}'); do
+    kill -9 $pid
+  done
+  sudo ${CODEPATH}/reset_gpio.sh
   reset
 }
 
@@ -111,6 +115,8 @@ function do_mode() {
     do_run
   elif [[ "$1" == "aux_run" ]]; then
     aux_run
+  elif [[ "$1" == "kill" ]]; then
+    aux_run
   elif [[ "$1" == "" ]]; then
     do_test 
     is_robot_available
@@ -179,7 +185,7 @@ function do_run() {
   show_log i "##################  CALLING RUN ON ROBOT  ##########"
   trap ctrl_c INT
 
-  # TODO: manage API port, unexport... when CTRL-C is pressed
+  kill_switch
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_run"
 }
 
