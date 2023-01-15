@@ -57,11 +57,6 @@ function ctrl_c() {
   # once the launch run is stopped with CTRL-C we want to clean up
   echo "** Trapped CTRL-C"
 
-  # Cleanup of GPIO after running
-  #echo 0 | sudo tee /sys/class/gpio/gpio${LEDMAIN_PIN}/value >/dev/null
-  #echo ${LEDMAIN_PIN} | sudo tee /sys/class/gpio/unexport >/dev/null
-  #
-  # Cleanup of PIDs
   echo "Killing leftovers..."
   for i in $(ps aux | grep target | grep circuits | awk '{print $2}'); do echo $i;kill $i;done
   kill_switch
@@ -120,7 +115,9 @@ function do_mode() {
   elif [[ "$1" == "aux_run" ]]; then
     aux_run
   elif [[ "$1" == "kill" ]]; then
-    aux_run
+    robot_kill
+  elif [[ "$1" == "aux_kill" ]]; then
+    aux_kill
   elif [[ "$1" == "" ]]; then
     do_test 
     is_robot_available
@@ -198,6 +195,21 @@ function aux_run() {
 
   clean_gpio
   cd ${CODEPATH} && sudo ./target/release/circuits
+}
+
+function robot_kill() {
+  show_log i "##################  RESETTING EVERYTHING ON ROBOT  ##############"
+  trap ctrl_c INT
+
+  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_kill"
+  cd ${CODEPATH} && sudo ./target/release/circuits
+}
+
+function aux_kill() {
+  show_log i "##################  RESETTING EVERYTHING FROM ROBOT SIDE  ##############"
+  trap ctrl_c INT
+
+  kill_switch
 }
 
 # MAIN
