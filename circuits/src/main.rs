@@ -16,7 +16,6 @@ use std::thread;
 #[tokio::main]
 async fn main() {
     load_dotenv!();
-    println!("----------------------- {}", env!("MOTOR_R_PIN_IN2"));
     let mut handles = vec![];
 
     Builder::new()
