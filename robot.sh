@@ -185,7 +185,7 @@ function do_run() {
   show_log i "##################  CALLING RUN ON ROBOT  ##########"
   trap ctrl_c INT
 
-  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_run"
+  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_kill && ./robot.sh aux_run"
 }
 
 function aux_run() {
