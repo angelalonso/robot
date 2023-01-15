@@ -38,6 +38,10 @@ function is_robot_available() {
   fi
 }
 
+function clean_gpio() {
+  sudo ${CODEPATH}/reset_gpio.sh
+}
+
 function kill_switch() {
   for pid in $(ps aux | grep robot.sh | grep -v vim | awk '{print $2}'); do
     kill -9 $pid
@@ -45,7 +49,7 @@ function kill_switch() {
   for pid in $(ps aux | grep circuits | grep -v vim | awk '{print $2}'); do
     kill -9 $pid
   done
-  sudo ${CODEPATH}/reset_gpio.sh
+  clean_gpio
   reset
 }
 
@@ -185,7 +189,6 @@ function do_run() {
   show_log i "##################  CALLING RUN ON ROBOT  ##########"
   trap ctrl_c INT
 
-  kill_switch
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_run"
 }
 
@@ -193,6 +196,7 @@ function aux_run() {
   show_log i "##################  RUNNING ON ROBOT  ##############"
   trap ctrl_c INT
 
+  clean_gpio
   cd ${CODEPATH} && sudo ./target/release/circuits
 }
 
