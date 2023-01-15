@@ -40,14 +40,14 @@ function is_robot_available() {
 
 function clean_gpio() {
   echo "Unexporting GPIO PINs..."
-  sudo ${CODEPATH}/reset_gpio.sh
+  sudo ${CODEPATH}/reset_gpio.sh || true
   echo "...Done!"
 }
 
 function kill_switch() {
   echo "Killing leftovers of circuits..."
   for pid in $(ps aux | grep circuits | grep -v vim | awk '{print $2}'); do
-    sudo kill -9 $pid
+    sudo kill -9 $pid || true
   done
   echo "...Killed!"
   clean_gpio
@@ -60,6 +60,7 @@ function ctrl_c() {
 
   for i in $(ps aux | grep target | grep circuits | awk '{print $2}'); do echo $i;kill $i;done
   kill_switch
+  # TODO: maybe have different ctrl_c for in-robot and local
 
   cd ${CWDMAIN}
   exit 2
@@ -196,7 +197,7 @@ function aux_run() {
   cd ${CODEPATH} && sudo ./target/release/circuits
 }
 
-# TODO: make this work
+
 # TODO: find a better naming for the robot#s part
 function robot_kill() {
   show_log i "##################  RESETTING EVERYTHING ON ROBOT  ##############"
