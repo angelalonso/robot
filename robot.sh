@@ -20,7 +20,7 @@ function is_robot_available() {
     if [[ ${RES} == "" ]]; then RES=${AUX}; fi
 
     if [[ ${RES} != 0 ]]; then
-      show_log w " Host ${SSHIP} unreachable"
+      show_log w " Host ${SSHIP} unreachable from $HOSTNAME"
       sleep ${SLEEPTIME}
       SLEEPTIME=$((SLEEPTIME * 2)) # "increasing wait until retry", and a limit of 4 seconds
       if [[ ${SLEEPTIME} -gt 4 ]]; then
@@ -117,7 +117,6 @@ function do_mode() {
   elif [[ "$1" == "kill" ]]; then
     dev_kill
   elif [[ "$1" == "live_kill" ]]; then
-    is_robot_available
     live_kill
   elif [[ "$1" == "" ]]; then
     dev_test 
