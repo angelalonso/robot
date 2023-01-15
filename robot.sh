@@ -105,23 +105,23 @@ function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
   elif [[ "$1" == "local" ]]; then
-    do_test
+    dev_test
   elif [[ "$1" == "deploy" ]]; then
     is_robot_available
-    do_deploy
+    trigger_deploy
   elif [[ "$1" == "run" ]]; then
-    do_run
-  elif [[ "$1" == "aux_run" ]]; then
-    aux_run
+    trigger_run
+  elif [[ "$1" == "live_run" ]]; then
+    live_run
   elif [[ "$1" == "kill" ]]; then
-    robot_kill
-  elif [[ "$1" == "aux_kill" ]]; then
-    aux_kill
+    dev_kill
+  elif [[ "$1" == "live_kill" ]]; then
+    live_kill
   elif [[ "$1" == "" ]]; then
-    do_test 
+    dev_test 
     is_robot_available
-    do_deploy
-    do_run
+    trigger_deploy
+    trigger_run
   else
     show_help
   fi
@@ -143,7 +143,7 @@ function show_help() {
 ####################
 
 
-function do_test() {
+function dev_test() {
   show_log i "##################  LOCAL TEST  ####################"
   trap ctrl_c INT
 
@@ -172,23 +172,21 @@ function do_test() {
   cargo run
 }
 
-function do_deploy() {
+function trigger_deploy() {
   show_log i "##################  DEPLOYING AT ROBOT  ############"
   trap ctrl_c INT
   
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && git pull && cd ${ROBOTLIB} && /home/robotadm/.cargo/bin/cargo build --release"
-
-
 }
 
-function do_run() {
+function trigger_run() {
   show_log i "##################  CALLING RUN ON ROBOT  ##########"
   trap ctrl_c INT
 
-  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_kill || true && ./robot.sh aux_run"
+  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh live_kill || true && ./robot.sh live_run"
 }
 
-function aux_run() {
+function live_run() {
   show_log i "##################  RUNNING ON ROBOT  ##############"
   trap ctrl_c INT
 
@@ -198,14 +196,14 @@ function aux_run() {
 
 
 # TODO: find a better naming for the robot#s part
-function robot_kill() {
+function dev_kill() {
   show_log i "##################  RESETTING EVERYTHING ON ROBOT  ##############"
   trap ctrl_c INT
 
-  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_kill"
+  ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh live_kill"
 }
 
-function aux_kill() {
+function live_kill() {
   show_log i "##################  RESETTING EVERYTHING FROM ROBOT SIDE  ##############"
   trap ctrl_c INT
 
