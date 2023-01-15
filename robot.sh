@@ -110,9 +110,9 @@ function do_mode() {
     is_robot_available
     trigger_deploy
   elif [[ "$1" == "run" ]]; then
+    is_robot_available
     trigger_run
   elif [[ "$1" == "live_run" ]]; then
-    is_robot_available
     live_run
   elif [[ "$1" == "kill" ]]; then
     dev_kill
@@ -150,28 +150,28 @@ function dev_test() {
   trap ctrl_c INT
 
   cd ${CODEPATH}
+  cargo check
+  if [[ $? != 0 ]]; then
+    show_log e "- Cargo Check: Errors found"
+  else
+    show_log i "- Cargo Check: Everything OK"
+  fi
+
   cargo clippy
   if [[ $? != 0 ]]; then
-    show_log e "- Clippy: Errors found"
+    show_log e "- Cargo Clippy: Errors found"
   else
-    show_log i "- Clippy: Everything OK"
+    show_log i "- Cargo Clippy: Everything OK"
   fi
 
   cargo test
   if [[ $? != 0 ]]; then
-    show_log e "- Tests: Errors found"
+    show_log e "- Cargo Test: Errors found"
   else
-    show_log i "- Tests: Everything OK"
+    show_log i "- Cargo Test: Everything OK"
   fi
 
-  cargo build
-  if [[ $? != 0 ]]; then
-    show_log e "- Build: Errors found"
-  else
-    show_log i "- Build: Everything OK"
-  fi
-
-  #cargo run
+  #cargo run ## Let's play a game: this is forbidden in the local dev environment!
 }
 
 function trigger_deploy() {
