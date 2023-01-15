@@ -112,10 +112,12 @@ function do_mode() {
   elif [[ "$1" == "run" ]]; then
     trigger_run
   elif [[ "$1" == "live_run" ]]; then
+    is_robot_available
     live_run
   elif [[ "$1" == "kill" ]]; then
     dev_kill
   elif [[ "$1" == "live_kill" ]]; then
+    is_robot_available
     live_kill
   elif [[ "$1" == "" ]]; then
     dev_test 
@@ -169,7 +171,7 @@ function dev_test() {
     show_log i "- Build: Everything OK"
   fi
 
-  cargo run
+  #cargo run
 }
 
 function trigger_deploy() {
