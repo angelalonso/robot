@@ -47,7 +47,7 @@ function clean_gpio() {
 function kill_switch() {
   echo "Killing leftovers of circuits..."
   for pid in $(ps aux | grep circuits | grep -v vim | awk '{print $2}'); do
-    kill -9 $pid
+    sudo kill -9 $pid
   done
   echo "...Killed!"
   clean_gpio
