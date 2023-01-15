@@ -51,7 +51,6 @@ function kill_switch() {
   done
   echo "...Killed!"
   clean_gpio
-  reset
 }
 
 function ctrl_c() {
