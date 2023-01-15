@@ -39,16 +39,17 @@ function is_robot_available() {
 }
 
 function clean_gpio() {
+  echo "Unexporting GPIO PINs..."
   sudo ${CODEPATH}/reset_gpio.sh
+  echo "...Done!"
 }
 
 function kill_switch() {
-  for pid in $(ps aux | grep robot.sh | grep -v vim | awk '{print $2}'); do
-    kill -9 $pid
-  done
+  echo "Killing leftovers of circuits..."
   for pid in $(ps aux | grep circuits | grep -v vim | awk '{print $2}'); do
     kill -9 $pid
   done
+  echo "...Killed!"
   clean_gpio
   reset
 }
@@ -57,10 +58,8 @@ function ctrl_c() {
   # once the launch run is stopped with CTRL-C we want to clean up
   echo "** Trapped CTRL-C"
 
-  echo "Killing leftovers..."
   for i in $(ps aux | grep target | grep circuits | awk '{print $2}'); do echo $i;kill $i;done
   kill_switch
-  echo "...Killed!"
 
   cd ${CWDMAIN}
   exit 2
@@ -197,6 +196,8 @@ function aux_run() {
   cd ${CODEPATH} && sudo ./target/release/circuits
 }
 
+# TODO: make this work
+# TODO: find a better naming for the robot#s part
 function robot_kill() {
   show_log i "##################  RESETTING EVERYTHING ON ROBOT  ##############"
   trap ctrl_c INT
