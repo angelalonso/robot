@@ -202,7 +202,6 @@ function robot_kill() {
   trap ctrl_c INT
 
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && ./robot.sh aux_kill"
-  cd ${CODEPATH} && sudo ./target/release/circuits
 }
 
 function aux_kill() {
