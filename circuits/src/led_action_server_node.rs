@@ -78,3 +78,14 @@ impl<'a> LedActionServerNode<'a> {
         }
     }
 }
+
+#[test]
+fn test_led_node() {
+    use crate::get_conns;
+    let _test_node = LedActionServerNode::new(
+        "led",
+        get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
+    );
+}
+
+//TODO: test talk, but how??

@@ -85,3 +85,14 @@ impl<'a> MotorRActionServerNode<'a> {
         }
     }
 }
+
+#[test]
+fn test_motor_r_node() {
+    use crate::get_conns;
+    let _test_node = MotorRActionServerNode::new(
+        "motor_r",
+        get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
+    );
+}
+
+//TODO: test talk, but how??

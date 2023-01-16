@@ -1,4 +1,5 @@
 use circuits::api_node::*;
+use circuits::get_conns;
 use circuits::led_action_server_node::*;
 use circuits::motor_l_action_server_node::*;
 use circuits::motor_r_action_server_node::*;
@@ -9,7 +10,6 @@ use chrono::Local;
 use env_logger::Builder;
 use load_dotenv::load_dotenv;
 use log::info;
-use std::collections::HashMap;
 use std::io::Write;
 use std::thread;
 
@@ -31,55 +31,23 @@ async fn main() {
         .filter(None, log::LevelFilter::Debug)
         .init();
 
-    let mut node_server_action_led = LedActionServerNode::new(
-        "led_action_server",
-        get_conns(["led_action_server", "status", "test"].to_vec()),
-    );
-    let mut node_server_action_motor_l = MotorLActionServerNode::new(
-        "motor_l_action_server",
-        get_conns(["motor_l_action_server", "status", "test"].to_vec()),
-    );
-    let mut node_server_action_motor_r = MotorRActionServerNode::new(
-        "motor_r_action_server",
-        get_conns(["motor_r_action_server", "status", "test"].to_vec()),
-    );
+    let mut node_server_action_led =
+        LedActionServerNode::new("led", get_conns(["led", "status", "test"].to_vec()));
+    let mut node_server_action_motor_l =
+        MotorLActionServerNode::new("motor_l", get_conns(["motor_l", "status", "test"].to_vec()));
+    let mut node_server_action_motor_r =
+        MotorRActionServerNode::new("motor_r", get_conns(["motor_r", "status", "test"].to_vec()));
     let mut node_api = ApiNode::new(
         "api",
-        get_conns(
-            [
-                "motor_l_action_server",
-                "motor_r_action_server",
-                "led_action_server",
-                "api",
-                "status",
-                "test",
-            ]
-            .to_vec(),
-        ),
+        get_conns(["motor_l", "motor_r", "led", "api", "status", "test"].to_vec()),
     );
     let mut node_status = StatusNode::new(
         "status",
-        get_conns(
-            [
-                "motor_l_action_server",
-                "led_action_server",
-                "status",
-                "test",
-            ]
-            .to_vec(),
-        ),
+        get_conns(["motor_l", "motor_r", "led", "status", "test"].to_vec()),
     );
     let mut node_test = TestNode::new(
         "test",
-        get_conns(
-            [
-                "motor_l_action_server",
-                "led_action_server",
-                "status",
-                "test",
-            ]
-            .to_vec(),
-        ),
+        get_conns(["motor_l", "motor_r", "led", "status", "test"].to_vec()),
     );
 
     std::thread::sleep(std::time::Duration::from_millis(50));
@@ -119,21 +87,4 @@ async fn main() {
     for handle in handles {
         handle.join().unwrap();
     }
-}
-
-fn get_conns(names: Vec<&str>) -> HashMap<&str, &str> {
-    // build connection list in a hashmap
-    let mut all_conns: HashMap<&str, &str> = HashMap::new();
-    all_conns.insert("led_action_server", "8101");
-    all_conns.insert("motor_l_action_server", "8102");
-    all_conns.insert("motor_r_action_server", "8103");
-    all_conns.insert("api", "8202");
-    all_conns.insert("status", "8201");
-    all_conns.insert("test", "9000");
-    // return only the ones needed
-    let result: HashMap<&str, &str> = all_conns
-        .into_iter()
-        .filter(|(k, _v)| names.contains(k))
-        .collect();
-    result
 }

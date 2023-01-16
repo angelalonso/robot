@@ -59,3 +59,14 @@ impl<'a> StatusNode<'a> {
         }
     }
 }
+
+#[test]
+fn test_status_node() {
+    use crate::get_conns;
+    let _test_node = StatusNode::new(
+        "status",
+        get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
+    );
+}
+
+//TODO: test talk, but how??
