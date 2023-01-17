@@ -83,3 +83,16 @@ impl<'a> UDPComms<'_> {
         //result
     }
 }
+
+#[test]
+fn test_get_port() {
+    let name = "test";
+    let mut conns: HashMap<&str, &str> = HashMap::new();
+    conns.insert("test", "0001");
+    conns.insert("test_2", "0002");
+
+    match get_port(name, conns) {
+        Ok(a) => println!("OK {}", a),
+        Err(_) => println!("ERR"),
+    }
+}
