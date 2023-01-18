@@ -38,22 +38,16 @@ impl<'a> ApiNode<'a> {
     pub async fn talk(&mut self) {
         let mut nodes: HashMap<String, String> = HashMap::new();
         nodes.insert(
-            "led_action_server".to_owned(),
-            get_port("led_action_server", self.conns.clone())
-                .unwrap()
-                .to_owned(),
+            "led".to_owned(),
+            get_port("led", self.conns.clone()).unwrap().to_owned(),
         );
         nodes.insert(
-            "motor_l_action_server".to_owned(),
-            get_port("motor_l_action_server", self.conns.clone())
-                .unwrap()
-                .to_owned(),
+            "motor_l".to_owned(),
+            get_port("motor_l", self.conns.clone()).unwrap().to_owned(),
         );
         nodes.insert(
-            "motor_r_action_server".to_owned(),
-            get_port("motor_r_action_server", self.conns.clone())
-                .unwrap()
-                .to_owned(),
+            "motor_r".to_owned(),
+            get_port("motor_r", self.conns.clone()).unwrap().to_owned(),
         );
         let comms = UDPComms::new(self.port_in.to_owned());
         run(self.port_api, nodes, comms).await;
@@ -63,15 +57,9 @@ impl<'a> ApiNode<'a> {
 async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms<'static>) {
     // TODO: use the same logging format, pass the log level to both
     // TODO: use proper API actions, Get, Post...only when it makes sense
-    let led_node: ItemNode = Arc::new(Mutex::new(
-        nodes.get("led_action_server").unwrap().to_string(),
-    ));
-    let motor_l_node: ItemNode = Arc::new(Mutex::new(
-        nodes.get("motor_l_action_server").unwrap().to_string(),
-    ));
-    let motor_r_node: ItemNode = Arc::new(Mutex::new(
-        nodes.get("motor_r_action_server").unwrap().to_string(),
-    ));
+    let led_node: ItemNode = Arc::new(Mutex::new(nodes.get("led").unwrap().to_string()));
+    let motor_l_node: ItemNode = Arc::new(Mutex::new(nodes.get("motor_l").unwrap().to_string()));
+    let motor_r_node: ItemNode = Arc::new(Mutex::new(nodes.get("motor_r").unwrap().to_string()));
     let comms: ItemComms = Arc::new(Mutex::new(comms_orig));
     let root = warp::path::end().map(|| "Welcome to my warp server!");
     let get_empty_route = warp::path("get")
