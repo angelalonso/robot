@@ -60,29 +60,35 @@ impl<'a> UDPComms<'_> {
         };
     }
 
-    //pub fn send_to(&self, msg: &Vec<u8>, dest_port: &str) -> usize {
     pub fn send_to(&self, msg: &[u8], dest_port: &str) {
         let local = format!("{}:{}", self.ip, self.port_in);
-        // TODO: control errors here: retry on  Os { code: 98, kind: AddrInUse, message: "Address
-        // already in use"  }
         //let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
         let socket = match net::UdpSocket::bind(&local) {
             Ok(s) => Some(s),
             Err(e) => {
                 println!("Error binding to {}: {}, retrying...", dest_port, e);
-                std::thread::sleep(std::time::Duration::from_millis(50));
+                std::thread::sleep(std::time::Duration::from_millis(10));
                 match net::UdpSocket::bind(&local) {
-                    Ok(s) => Some(s),
+                    Ok(s) => {
+                        println!("{} connected!", dest_port);
+                        Some(s)
+                    }
                     Err(e) => {
                         println!("Error binding to {}: {}, retrying #2...", dest_port, e);
-                        std::thread::sleep(std::time::Duration::from_millis(50));
+                        std::thread::sleep(std::time::Duration::from_millis(20));
                         match net::UdpSocket::bind(&local) {
-                            Ok(s) => Some(s),
+                            Ok(s) => {
+                                println!("{} connected!", dest_port);
+                                Some(s)
+                            }
                             Err(e) => {
                                 println!("Error binding to {}: {}, retrying #3...", dest_port, e);
-                                std::thread::sleep(std::time::Duration::from_millis(50));
+                                std::thread::sleep(std::time::Duration::from_millis(40));
                                 match net::UdpSocket::bind(&local) {
-                                    Ok(s) => Some(s),
+                                    Ok(s) => {
+                                        println!("{} connected!", dest_port);
+                                        Some(s)
+                                    }
                                     Err(_) => None,
                                 }
                             }
