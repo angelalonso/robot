@@ -86,13 +86,28 @@ impl<'a> MotorLActionServerNode<'a> {
     }
 }
 
-#[test]
-fn test_motor_l_node() {
-    use crate::get_conns;
-    let _test_node = MotorLActionServerNode::new(
-        "motor_l",
-        get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
-    );
-}
+#[cfg(test)]
+mod led_node_tests {
+    use super::*;
+    #[test]
+    fn test_object_created_ok() {
+        use crate::get_conns;
+        let _test_node1 = MotorLActionServerNode::new(
+            "motor_l",
+            get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
+        );
+        let _test_node2 = MotorLActionServerNode::new("motor_l", get_conns(["motor_l"].to_vec()));
+    }
+    #[test]
+    #[should_panic]
+    fn test_object_created_not_ok() {
+        use crate::get_conns;
+        let _test_node1 = MotorLActionServerNode::new(
+            "motor_l",
+            get_conns(["led", "motor_r", "status"].to_vec()),
+        );
+        let _test_node2 = MotorLActionServerNode::new("motor_l", get_conns(["status"].to_vec()));
+    }
 
-//TODO: test talk, but how??
+    //TODO: test talk, but how??
+}

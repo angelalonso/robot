@@ -79,13 +79,26 @@ impl<'a> LedActionServerNode<'a> {
     }
 }
 
-#[test]
-fn test_led_node() {
-    use crate::get_conns;
-    let _test_node = LedActionServerNode::new(
-        "led",
-        get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
-    );
-}
+#[cfg(test)]
+mod led_node_tests {
+    use super::*;
+    #[test]
+    fn test_object_created_ok() {
+        use crate::get_conns;
+        let _test_node1 = LedActionServerNode::new(
+            "led",
+            get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
+        );
+        let _test_node2 = LedActionServerNode::new("led", get_conns(["led"].to_vec()));
+    }
+    #[test]
+    #[should_panic]
+    fn test_object_created_not_ok() {
+        use crate::get_conns;
+        let _test_node1 =
+            LedActionServerNode::new("led", get_conns(["motor_l", "motor_r", "status"].to_vec()));
+        let _test_node2 = LedActionServerNode::new("led", get_conns(["status"].to_vec()));
+    }
 
-//TODO: test talk, but how??
+    //TODO: test talk, but how??
+}

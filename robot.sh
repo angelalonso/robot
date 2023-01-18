@@ -104,7 +104,7 @@ function load_dotenv {
 function do_mode() {
   if [[ "$1" == "help" ]]; then
     show_help
-  elif [[ "$1" == "local" ]]; then
+  elif [[ "$1" == "test" ]]; then
     dev_test
   elif [[ "$1" == "deploy" ]]; then
     is_robot_available

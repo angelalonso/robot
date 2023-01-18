@@ -84,15 +84,24 @@ impl<'a> UDPComms<'_> {
     }
 }
 
-#[test]
-fn test_get_port() {
-    let name = "test";
-    let mut conns: HashMap<&str, &str> = HashMap::new();
-    conns.insert("test", "0001");
-    conns.insert("test_2", "0002");
-
-    match get_port(name, conns) {
-        Ok(a) => println!("OK {}", a),
-        Err(_) => println!("ERR"),
+#[cfg(test)]
+mod comms_tests {
+    use super::*;
+    #[test]
+    fn test_get_port() {
+        let mut conns: HashMap<&str, &str> = HashMap::new();
+        conns.insert("test", "0001");
+        // expected port
+        let name = "test";
+        match get_port(name, conns.clone()) {
+            Ok(a) => assert_eq!(a, "0001"),
+            Err(e) => assert_eq!(e, "Nothing found."),
+        }
+        // expected error
+        let name = "test2";
+        match get_port(name, conns) {
+            Ok(a) => assert_eq!(a, "0001"),
+            Err(e) => assert_eq!(e, "Nothing found."),
+        }
     }
 }
