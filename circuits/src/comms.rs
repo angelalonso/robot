@@ -65,22 +65,51 @@ impl<'a> UDPComms<'_> {
         let local = format!("{}:{}", self.ip, self.port_in);
         // TODO: control errors here: retry on  Os { code: 98, kind: AddrInUse, message: "Address
         // already in use"  }
-        let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
-        socket
-            .set_read_timeout(None)
-            .expect("set_read_timeout call failed");
-        let destination = format!("{}:{}", self.ip, dest_port);
-        //println!(
-        //    "Transmitting data from {} to {} --> {:#?}",
-        //    self.port_in,
-        //    destination,
-        //    String::from_utf8_lossy(msg)
-        //);
-        let _result = socket
-            .send_to(msg, &destination)
-            .expect("failed to send message");
+        //let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
+        let socket = match net::UdpSocket::bind(&local) {
+            Ok(s) => Some(s),
+            Err(e) => {
+                println!("Error binding to {}: {}, retrying...", dest_port, e);
+                std::thread::sleep(std::time::Duration::from_millis(50));
+                match net::UdpSocket::bind(&local) {
+                    Ok(s) => Some(s),
+                    Err(e) => {
+                        println!("Error binding to {}: {}, retrying #2...", dest_port, e);
+                        std::thread::sleep(std::time::Duration::from_millis(50));
+                        match net::UdpSocket::bind(&local) {
+                            Ok(s) => Some(s),
+                            Err(e) => {
+                                println!("Error binding to {}: {}, retrying #3...", dest_port, e);
+                                std::thread::sleep(std::time::Duration::from_millis(50));
+                                match net::UdpSocket::bind(&local) {
+                                    Ok(s) => Some(s),
+                                    Err(_) => None,
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        match socket {
+            Some(s) => {
+                s.set_read_timeout(None)
+                    .expect("set_read_timeout call failed");
+                let destination = format!("{}:{}", self.ip, dest_port);
+                //println!(
+                //    "Transmitting data from {} to {} --> {:#?}",
+                //    self.port_in,
+                //    destination,
+                //    String::from_utf8_lossy(msg)
+                //);
+                let _result = s
+                    .send_to(msg, &destination)
+                    .expect("failed to send message");
 
-        //result
+                //result
+            }
+            None => println!("Error using {}", dest_port),
+        }
     }
 }
 
