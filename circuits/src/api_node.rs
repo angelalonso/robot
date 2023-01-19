@@ -272,3 +272,25 @@ pub async fn do_right(
     println!("do right");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
+#[cfg(test)]
+mod api_node_tests {
+    use super::*;
+    #[test]
+    fn test_object_created_ok() {
+        use crate::get_conns;
+        let _test_node1 = ApiNode::new(
+            "api",
+            get_conns(["motor_l", "motor_r", "api", "led", "status"].to_vec()),
+        );
+        let _test_node2 = ApiNode::new("api", get_conns(["api"].to_vec()));
+    }
+    #[test]
+    #[should_panic]
+    fn test_object_created_not_ok() {
+        use crate::get_conns;
+        let _test_node1 = ApiNode::new("api", get_conns(["motor_l", "motor_r", "status"].to_vec()));
+        let _test_node2 = ApiNode::new("api", get_conns(["status"].to_vec()));
+    }
+
+    // TODO: test each call?
+}

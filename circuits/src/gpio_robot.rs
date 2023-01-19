@@ -237,3 +237,4 @@ pub fn set_direction(gpio_num: u8, direction: Directions) {
         panic!("couldn't write to {}: {}", filepath, why);
     }
 }
+// TODO: test something here??

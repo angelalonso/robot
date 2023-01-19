@@ -27,8 +27,8 @@ load_dotenv
 #curl --header "Content-Type: application/json" --request POST http://${SSHIP}:${APIPORT}/do/right
 #curl --header "Content-Type: application/json" --request POST http://${SSHIP}:${APIPORT}/do/stop
 
-NR_OF_RUNS=2
-SLEEPTIME=0.04
+NR_OF_RUNS=24
+SLEEPTIME=0.01
 for i in $(seq ${NR_OF_RUNS})   # you can also use {0..9}
 do
   echo "---- Run Nr. ${i} ----"

@@ -139,4 +139,5 @@ mod comms_tests {
             Err(e) => assert_eq!(e, "Nothing found."),
         }
     }
+    // TODO: test the other ones?
 }
