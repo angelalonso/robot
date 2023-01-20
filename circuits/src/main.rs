@@ -1,4 +1,5 @@
 use circuits::api_node::*;
+use circuits::arduino_node::*;
 use circuits::get_conns;
 use circuits::led_action_server_node::*;
 use circuits::motor_l_action_server_node::*;
@@ -41,6 +42,12 @@ async fn main() {
         "api",
         get_conns(["motor_l", "motor_r", "led", "api", "status", "test"].to_vec()),
     );
+    let mut node_arduino = ArduinoNode::new(
+        "arduino",
+        get_conns(["arduino", "status"].to_vec()),
+        false,
+        "/dev/ttyACM0",
+    );
     let mut node_status = StatusNode::new(
         "status",
         get_conns(["motor_l", "motor_r", "led", "status", "test"].to_vec()),
@@ -56,6 +63,12 @@ async fn main() {
     });
     handles.push(handle_st);
     info!("Status - Process started");
+    node_arduino.connect();
+    let handle_ar = thread::spawn(move || {
+        node_arduino.talk();
+    });
+    handles.push(handle_ar);
+    info!("Arduino - Process started");
     let handle_motor_l = thread::spawn(move || {
         node_server_action_motor_l.talk();
     });

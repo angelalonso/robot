@@ -49,7 +49,7 @@ function step_3_more() {
   show_log info "(STEP 5:) Update, upgrade, install the basics"
   echo " $ sudo apt-get update"
   echo " $ sudo apt-get upgrade"
-  echo " $ sudo apt-get install -y pigpio vim git"
+  echo " $ sudo apt-get install -y pigpio vim git libudev-dev"
   echo " - Make pigpio daemon NOT run at boot"
   echo " $ sudo systemctl disable pigpiod"
   echo " - Configure your own user"

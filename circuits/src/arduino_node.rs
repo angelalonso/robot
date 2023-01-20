@@ -1,7 +1,10 @@
 use crate::comms::*;
 
+use log::{debug, info};
 use serialport::*;
 use std::collections::HashMap;
+use std::sync::mpsc;
+use std::thread;
 
 pub struct ArduinoNode<'a> {
     port_in: &'a str,
@@ -68,6 +71,25 @@ impl<'a> ArduinoNode<'a> {
 
     pub fn listen(&mut self) -> &'a str {
         ""
+    }
+
+    pub fn talk(&mut self) {
+        let status_node = get_port("status", self.conns.clone()).unwrap();
+        let comms = UDPComms::new(self.port_in.to_owned());
+        let _status: HashMap<String, String> = HashMap::new();
+        let (tx, rx) = mpsc::channel();
+        loop {
+            let mut this_comms = comms.clone();
+            let this_tx = tx.clone();
+            let h = thread::spawn(move || {
+                this_comms.get_data(this_tx);
+            });
+
+            let rcvd = rx.recv().unwrap();
+            debug!("[arduino] Received: {}", rcvd);
+            comms.send_to(rcvd.as_bytes(), status_node);
+            h.join().unwrap();
+        }
     }
 }
 
