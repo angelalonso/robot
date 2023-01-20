@@ -120,6 +120,24 @@ async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms
         .and(with_comms(comms.clone()))
         .and_then(do_right);
 
+    let do_led_on_route = warp::path!("do" / "led_on" / ..) // TODO: maybe create /led/on ?
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_led_on);
+
+    let do_led_off_route = warp::path!("do" / "led_off" / ..) // TODO: maybe create /led/off ?
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_led_off);
+
+    let do_led_switch_route = warp::path!("do" / "led_switch" / ..) // TODO: maybe create /led/switch ?
+        .and(warp::post())
+        .and(with_node(led_node.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(do_led_switch);
+
     let routes = root
         .or(get_route)
         .or(get_empty_route)
@@ -129,6 +147,9 @@ async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms
         .or(do_bwd_route)
         .or(do_left_route)
         .or(do_right_route)
+        .or(do_led_on_route)
+        .or(do_led_off_route)
+        .or(do_led_switch_route)
         .with(warp::cors().allow_any_origin());
 
     // TODO: make this an env var
@@ -272,6 +293,34 @@ pub async fn do_right(
     println!("do right");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
+
+pub async fn do_led_on(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+    let led = led_n.lock().await;
+    comms_orig.lock().await.send_to("SET:on".as_bytes(), &led);
+    let result = "";
+    println!("do led on");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_led_off(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+    let led = led_n.lock().await;
+    comms_orig.lock().await.send_to("SET:off".as_bytes(), &led);
+    let result = "";
+    println!("do led off");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn do_led_switch(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
+    let led = led_n.lock().await;
+    comms_orig
+        .lock()
+        .await
+        .send_to("SET:switch".as_bytes(), &led);
+    let result = "";
+    println!("do led switch");
+    Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
 #[cfg(test)]
 mod api_node_tests {
     use super::*;
