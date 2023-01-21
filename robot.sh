@@ -181,7 +181,7 @@ function trigger_push() {
 
   cd ${CWDMAIN}
   cd ${ROBOTLIB}
-  git commit -am "robot.sh: automatically committing latest 'working' version"
+  git commit -am "robot.sh: automatically committing latest 'working' version" || true
   git push origin ${GIT_BRANCH}
   
 }
