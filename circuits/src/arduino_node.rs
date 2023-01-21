@@ -80,10 +80,10 @@ impl<'a> ArduinoNode<'a> {
                     let mut serial_buf: Vec<u8> = vec![0; 1000];
                     match sp.read(serial_buf.as_mut_slice()) {
                         Ok(t) => {
-                            self.msg
-                                .to_owned()
-                                .push_str(std::str::from_utf8(&serial_buf[..t].to_vec()).unwrap());
-                            println!("{}-> {}", t, self.msg);
+                            let newmsg_raw = serial_buf[..t].to_vec();
+                            let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
+                            self.msg.to_owned().push_str(newmsg);
+                            println!("{}->{}->{:#?}", t, newmsg, newmsg_raw);
                             //io::stdout().write_all(&serial_buf[..t]).unwrap();
                         }
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
