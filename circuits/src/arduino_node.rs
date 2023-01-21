@@ -68,21 +68,29 @@ impl<'a> ArduinoNode<'a> {
         };
         match serialport {
             None => println!("Mocking and not Receiving data"),
-            Some(mut sp) => loop {
-                let mut serial_buf: Vec<u8> = vec![0; 1000];
-                println!("Receiving data at {} baud:", &self.baudrate);
-                match sp.read(serial_buf.as_mut_slice()) {
-                    Ok(t) => {
-                        self.msg
-                            .to_owned()
-                            .push_str(std::str::from_utf8(&serial_buf[..t].to_vec()).unwrap());
-                        println!("-> {}", self.msg);
-                        io::stdout().write_all(&serial_buf[..t]).unwrap();
+            Some(mut sp) => {
+                match sp.write("".as_bytes()) {
+                    Ok(_) => {
+                        std::io::stdout().flush().unwrap();
                     }
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                     Err(e) => eprintln!("{:?}", e),
                 }
-            },
+                loop {
+                    let mut serial_buf: Vec<u8> = vec![0; 1000];
+                    match sp.read(serial_buf.as_mut_slice()) {
+                        Ok(t) => {
+                            self.msg
+                                .to_owned()
+                                .push_str(std::str::from_utf8(&serial_buf[..t].to_vec()).unwrap());
+                            println!("-> {}", self.msg);
+                            io::stdout().write_all(&serial_buf[..t]).unwrap();
+                        }
+                        Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
+                        Err(e) => eprintln!("{:?}", e),
+                    }
+                }
+            }
         }
     }
 }
