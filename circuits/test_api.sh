@@ -25,8 +25,7 @@ SLEEPTIME=0.01
 for i in $(seq ${NR_OF_RUNS})   # you can also use {0..9}
 do
   echo "---- Run Nr. ${i} ----"
-  for i in /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch
-  #for i in /get/mode /do/fwd /do/bwd /do/left /do/right /do/stop /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch
+  for i in /get/mode /do/fwd /do/bwd /do/left /do/right /do/stop /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch /do/led_switch
   do
     echo Calling $i
     #RESULT=$(curl --header "Content-Type: application/json" --request POST http://${SSHIP}:${APIPORT}${i})

@@ -20,7 +20,7 @@ impl<'a> ArduinoNode<'a> {
         name: &'a str,
         conns: HashMap<&'a str, &'a str>,
         mocked: bool,
-        portpath: &'a str,
+        portpath: &'a str, // TODO: portpath comes from .env preferably
     ) -> Self {
         let node = match get_port(name, conns.clone()) {
             Ok(c) => ArduinoNode {
@@ -49,8 +49,11 @@ impl<'a> ArduinoNode<'a> {
                 .timeout(std::time::Duration::from_millis(100))
                 .open();
             match port {
-                Ok(_) => {
+                Ok(p) => {
                     self.connected = true;
+                    let output = "First message.".as_bytes();
+                    let written_bytes = p.write(output).expect("Write failed!");
+
                     Ok(self.portpath)
                 }
                 Err(e) => Err(e),

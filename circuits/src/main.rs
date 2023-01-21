@@ -46,7 +46,7 @@ async fn main() {
         "arduino",
         get_conns(["arduino", "status"].to_vec()),
         false,
-        "/dev/ttyACM0",
+        "/dev/ttyACM0", // TODO: this one comes from .env instead of being passed here
     );
     let mut node_status = StatusNode::new(
         "status",
