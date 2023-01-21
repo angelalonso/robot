@@ -16,6 +16,7 @@ pub struct ArduinoNode<'a> {
     mocked: bool,
     portpath: &'a str,
     baudrate: u32,
+    msg: &'a str,
     connected: bool,
 }
 
@@ -33,6 +34,7 @@ impl<'a> ArduinoNode<'a> {
         load_dotenv!(); //TODO: is it better to pass parameters when needed?
         let portpath = env!("ARDUINO_USB_DEV");
         let baudrate = env!("ARDUINO_BAUDRATE").parse::<u32>().unwrap();
+        let msg = "";
         let node = match get_port(name, conns.clone()) {
             Ok(c) => ArduinoNode {
                 port_in: c,
@@ -40,6 +42,7 @@ impl<'a> ArduinoNode<'a> {
                 mocked,
                 portpath,
                 baudrate,
+                msg,
                 connected: false,
             },
             Err(_) => {
@@ -69,7 +72,13 @@ impl<'a> ArduinoNode<'a> {
                 let mut serial_buf: Vec<u8> = vec![0; 1000];
                 println!("Receiving data at {} baud:", &self.baudrate);
                 match sp.read(serial_buf.as_mut_slice()) {
-                    Ok(t) => io::stdout().write_all(&serial_buf[..t]).unwrap(),
+                    Ok(t) => {
+                        self.msg
+                            .to_owned()
+                            .push_str(std::str::from_utf8(&serial_buf[..t].to_vec()).unwrap());
+                        println!("-> {}", self.msg);
+                        io::stdout().write_all(&serial_buf[..t]).unwrap();
+                    }
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                     Err(e) => eprintln!("{:?}", e),
                 }
