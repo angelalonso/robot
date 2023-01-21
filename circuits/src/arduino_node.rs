@@ -83,8 +83,8 @@ impl<'a> ArduinoNode<'a> {
                             self.msg
                                 .to_owned()
                                 .push_str(std::str::from_utf8(&serial_buf[..t].to_vec()).unwrap());
-                            println!("{  }-> {}", t, self.msg);
-                            io::stdout().write_all(&serial_buf[..t]).unwrap();
+                            println!("{}-> {}", t, self.msg);
+                            //io::stdout().write_all(&serial_buf[..t]).unwrap();
                         }
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                         Err(e) => eprintln!("{:?}", e),
