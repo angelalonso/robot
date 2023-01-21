@@ -42,6 +42,7 @@ impl<'a> ArduinoNode<'a> {
     }
 
     pub fn connect(&mut self) -> Result<&'a str> {
+        let mut serial_buf: Vec<u8> = vec![0; 1000];
         if self.mocked {
             Ok("mocked")
         } else {
@@ -49,12 +50,13 @@ impl<'a> ArduinoNode<'a> {
                 .timeout(std::time::Duration::from_millis(100))
                 .open();
             match port {
-                Ok(p) => {
+                Ok(mut p) => {
                     self.connected = true;
                     let output = "First message.".as_bytes();
                     let written_bytes = p.write(output).expect("Write failed!");
 
-                    Ok(self.portpath)
+                    println!("First response: {:#?}", p.read(serial_buf.as_mut_slice()));
+                    Ok("physical arduino")
                 }
                 Err(e) => Err(e),
             }
