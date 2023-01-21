@@ -1,5 +1,6 @@
 use crate::comms::*;
 
+use load_dotenv::load_dotenv;
 use log::{debug, info};
 use serialport::*;
 use std::collections::HashMap;
@@ -16,12 +17,9 @@ pub struct ArduinoNode<'a> {
 }
 
 impl<'a> ArduinoNode<'a> {
-    pub fn new(
-        name: &'a str,
-        conns: HashMap<&'a str, &'a str>,
-        mocked: bool,
-        portpath: &'a str, // TODO: portpath comes from .env preferably
-    ) -> Self {
+    pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>, mocked: bool) -> Self {
+        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        let portpath = env!("ARDUINO_USB_DEV");
         let node = match get_port(name, conns.clone()) {
             Ok(c) => ArduinoNode {
                 port_in: c,

@@ -42,12 +42,8 @@ async fn main() {
         "api",
         get_conns(["motor_l", "motor_r", "led", "api", "status", "test"].to_vec()),
     );
-    let mut node_arduino = ArduinoNode::new(
-        "arduino",
-        get_conns(["arduino", "status"].to_vec()),
-        false,
-        "/dev/ttyACM0", // TODO: this one comes from .env instead of being passed here
-    );
+    let mut node_arduino =
+        ArduinoNode::new("arduino", get_conns(["arduino", "status"].to_vec()), false);
     let mut node_status = StatusNode::new(
         "status",
         get_conns(["motor_l", "motor_r", "led", "status", "test"].to_vec()),
