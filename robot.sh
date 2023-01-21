@@ -181,7 +181,7 @@ function trigger_deploy() {
   cd ${ROBOTLIB}
   show_log d "              ####  PUSHING CHANGES TO GIT #########"
   git commit -am "robot.sh: automatically committing latest 'working' version"
-  git push origin master
+  git push origin ${GIT_BRANCH}
   
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && git pull && cd ${ROBOTLIB} && /home/robotadm/.cargo/bin/cargo build --release"
 }
