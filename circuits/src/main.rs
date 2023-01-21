@@ -59,7 +59,6 @@ async fn main() {
     });
     handles.push(handle_st);
     info!("Status - Process started");
-    node_arduino.connect();
     let handle_ar = thread::spawn(move || {
         node_arduino.talk();
     });

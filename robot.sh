@@ -114,6 +114,8 @@ function do_mode() {
     trigger_run
   elif [[ "$1" == "live_run" ]]; then
     live_run
+  elif [[ "$1" == "push" ]]; then
+    trigger_push
   elif [[ "$1" == "kill" ]]; then
     dev_kill
   elif [[ "$1" == "live_kill" ]]; then
@@ -173,16 +175,24 @@ function dev_test() {
   #cargo run ## Let's play a game: this is forbidden in the local dev environment!
 }
 
-function trigger_deploy() {
-  show_log i "##################  DEPLOYING AT ROBOT  ############"
+function trigger_push() {
+  show_log d "              ####  PUSHING CHANGES TO GIT #########"
   trap ctrl_c INT
 
   cd ${CWDMAIN}
   cd ${ROBOTLIB}
-  show_log d "              ####  PUSHING CHANGES TO GIT #########"
   git commit -am "robot.sh: automatically committing latest 'working' version"
   git push origin ${GIT_BRANCH}
   
+}
+
+function trigger_deploy() {
+  show_log i "##################  DEPLOYING AT ROBOT  ############"
+  trap ctrl_c INT
+
+  trigger_push
+  
+  show_log d "              ####  COMPILING ON ROBOT  #########"
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && git pull && cd ${ROBOTLIB} && /home/robotadm/.cargo/bin/cargo build --release"
 }
 
