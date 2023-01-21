@@ -176,6 +176,11 @@ function dev_test() {
 function trigger_deploy() {
   show_log i "##################  DEPLOYING AT ROBOT  ############"
   trap ctrl_c INT
+
+  cd ${CWDMAIN}
+  cd ${ROBOTLIB}
+  git commit -am "robot.sh: automatically committing latest 'working' version"
+  git push origin master
   
   ssh ${NEWUSER}@${SSHIP} -p${SSHPORT} "cd \$HOME/robot && git pull && cd ${ROBOTLIB} && /home/robotadm/.cargo/bin/cargo build --release"
 }
@@ -196,7 +201,6 @@ function live_run() {
 }
 
 
-# TODO: find a better naming for the robot#s part
 function dev_kill() {
   show_log i "##################  RESETTING EVERYTHING ON ROBOT  ##############"
   trap ctrl_c INT

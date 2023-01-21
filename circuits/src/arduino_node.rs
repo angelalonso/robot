@@ -106,14 +106,8 @@ mod arduino_node_tests {
             "arduino",
             get_conns(["motor_l", "motor_r", "arduino", "status"].to_vec()),
             false,
-            "/dev/ttyACM0",
         );
-        let _test_node2 = ArduinoNode::new(
-            "arduino",
-            get_conns(["arduino"].to_vec()),
-            false,
-            "/dev/ttyACM0",
-        );
+        let _test_node2 = ArduinoNode::new("arduino", get_conns(["arduino"].to_vec()), false);
     }
     #[test]
     #[should_panic]
@@ -123,33 +117,19 @@ mod arduino_node_tests {
             "arduino",
             get_conns(["motor_l", "motor_r", "status"].to_vec()),
             false,
-            "/dev/ttyACM0",
         );
-        let _test_node2 = ArduinoNode::new(
-            "arduino",
-            get_conns(["status"].to_vec()),
-            false,
-            "/dev/ttyACM0",
-        );
+        let _test_node2 = ArduinoNode::new("arduino", get_conns(["status"].to_vec()), false);
     }
 
     #[test]
     fn test_connect() {
         use crate::get_conns;
         use std::io::ErrorKind::NotFound;
-        let mut test_node_ok = ArduinoNode::new(
-            "arduino",
-            get_conns(["arduino", "status"].to_vec()),
-            true,
-            "this path is not needed",
-        );
+        let mut test_node_ok =
+            ArduinoNode::new("arduino", get_conns(["arduino", "status"].to_vec()), true);
         assert_eq!(test_node_ok.connect().unwrap(), "mocked");
-        let mut test_node_err = ArduinoNode::new(
-            "arduino",
-            get_conns(["arduino", "status"].to_vec()),
-            false,
-            "/dev/ttyACM0",
-        );
+        let mut test_node_err =
+            ArduinoNode::new("arduino", get_conns(["arduino", "status"].to_vec()), false);
         assert_eq!(
             test_node_err.connect().map_err(|e| e.kind()),
             Err(serialport::ErrorKind::Io(NotFound))
@@ -159,12 +139,8 @@ mod arduino_node_tests {
     #[test]
     fn test_listen() {
         use crate::get_conns;
-        let mut test_node_ok = ArduinoNode::new(
-            "arduino",
-            get_conns(["arduino", "status"].to_vec()),
-            true,
-            "this path is not needed",
-        );
+        let mut test_node_ok =
+            ArduinoNode::new("arduino", get_conns(["arduino", "status"].to_vec()), true);
         assert_eq!(test_node_ok.connect().unwrap(), "mocked");
         assert_eq!(test_node_ok.listen(), "");
     }
