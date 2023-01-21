@@ -179,6 +179,7 @@ function trigger_deploy() {
 
   cd ${CWDMAIN}
   cd ${ROBOTLIB}
+  show_log d "              ####  PUSHING CHANGES TO GIT #########"
   git commit -am "robot.sh: automatically committing latest 'working' version"
   git push origin master
   

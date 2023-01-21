@@ -16,6 +16,15 @@ pub struct ArduinoNode<'a> {
     connected: bool,
 }
 
+// TODO: connect on creation
+// TODO: loop to read
+// https://github.com/serialport/serialport-rs/blob/main/examples/receive_data.rs
+// TODO: check ports on connection
+// https://github.com/serialport/serialport-rs/blob/main/examples/list_ports.rs
+// TODO: HW check??
+// https://github.com/serialport/serialport-rs/blob/main/examples/hardware_check.rs
+// TODO Transmit function??
+// https://github.com/serialport/serialport-rs/blob/main/examples/transmit.rs
 impl<'a> ArduinoNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>, mocked: bool) -> Self {
         load_dotenv!(); //TODO: is it better to pass parameters when needed?
