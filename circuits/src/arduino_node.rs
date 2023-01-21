@@ -83,7 +83,7 @@ impl<'a> ArduinoNode<'a> {
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
                             self.msg.to_owned().push_str(newmsg);
-                            println!("{}->{}->{:#?}", t, newmsg, newmsg_raw);
+                            println!("->{}<-...{}", newmsg, self.msg);
                             //io::stdout().write_all(&serial_buf[..t]).unwrap();
                         }
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
