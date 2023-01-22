@@ -22,8 +22,6 @@ pub struct ArduinoNode<'a> {
 }
 
 // TODO: connect on creation
-// TODO: loop to read
-// https://github.com/serialport/serialport-rs/blob/main/examples/receive_data.rs
 // TODO: check ports on connection
 // https://github.com/serialport/serialport-rs/blob/main/examples/list_ports.rs
 // TODO: HW check??
@@ -80,13 +78,19 @@ impl<'a> ArduinoNode<'a> {
                         Err(e) => error!("{:?}", e),
                     }
                     match sp.read(serial_buf.as_mut_slice()) {
-                        // TODO: fill up self.msg
+                        // TODO: cleanup self.msg, use get_msg instead
                         Ok(t) => {
-                            thread::sleep(Duration::from_millis(175));
+                            thread::sleep(Duration::from_millis(
+                                env!("ARDUINO_READ_DELAY").parse::<u64>().unwrap(),
+                            ));
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
-                            self.msg.to_owned().push_str(newmsg);
-                            info!("->{}<-...{}", newmsg, self.msg);
+                            let values_rcvd = get_msg(newmsg);
+                            for (k, v) in values_rcvd.unwrap() {
+                                info!("{}-{}", k, v);
+                            }
+                            //self.msg.to_owned().push_str(newmsg);
+                            //info!("->{}<-...{}", newmsg, self.msg);
                         }
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                         Err(e) => error!("{:?}", e),
@@ -97,22 +101,39 @@ impl<'a> ArduinoNode<'a> {
     }
 }
 
-pub fn get_msg(raw_msg: &str) -> Option<Vec<String>> {
-    let result = [].to_vec();
-    let ok_start: Vec<char> = "SENSOR:".to_owned().chars().collect();
+pub fn get_msg(raw_msg: &str) -> Option<HashMap<String, String>> {
+    let mut output = HashMap::new();
+    let ok_start: Vec<char> = "SENSOR: ".to_owned().chars().collect();
     let msg: Vec<char> = raw_msg.to_owned().chars().collect();
+    let mut clean_msg_vec = [].to_vec();
+    // length is greater than the minimum starting message, ok_start
     if msg.len() < ok_start.len() {
         return None;
     } else {
+        // it must contain ok_start at the beginning
         for ix in 0..ok_start.len() {
-            println!("{}<>{}", msg[ix], ok_start[ix]);
             if msg[ix] != ok_start[ix] {
                 return None;
             }
         }
+        // we only compute full messages
+        if msg[msg.len() - 1] != '|' {
+            return None;
+        } else {
+            for ix in 0..msg.len() - 1 {
+                if ix >= ok_start.len() {
+                    clean_msg_vec.push(msg[ix]);
+                }
+            }
+            let clean_msg: String = clean_msg_vec.into_iter().collect();
+            let entries: Vec<&str> = clean_msg.split('|').collect();
+            for e in entries {
+                let keyval: Vec<&str> = e.split('=').collect();
+                output.insert(keyval[0].to_owned(), keyval[1].to_owned());
+            }
+        };
+        Some(output)
     }
-
-    return Some(result);
 }
 
 mod arduino_node_tests {
@@ -154,17 +175,17 @@ mod arduino_node_tests {
 
     #[test]
     fn test_get_msg() {
-        // TODO: make commented out examples fail too (check | is the last char, then extract key-val)
-        //        let failing_examples: [&str; 16] = [
-        let failing_examples: [&str; 13] = [
+        let failing_examples: [&str; 18] = [
             ": laser=70|distance=101|",
             "=103|",
             "OR: laser=68|distance=103|",
             "SENS",
             "SENSOR",
-            //            "SENSOR: las",
-            //            "SENSOR: laser=59|di",
-            //            "SENSOR: laser=59|distance=103",
+            "SENSOR:",
+            "SENSOR: ",
+            "SENSOR: las",
+            "SENSOR: laser=59|di",
+            "SENSOR: laser=59|distance=103",
             "SOR: laser=69|distance=102|",
             "ance=103|",
             "ce=103|",
@@ -177,12 +198,14 @@ mod arduino_node_tests {
         for e in failing_examples {
             assert_eq!(None, get_msg(e));
         }
+        // TODO: sort these out
 
-        /*
-        "SENSOR:",
-        "SENSOR: ",
-        "SENSOR: laser=59|",
-        "SENSOR: laser=59|distance=103|",
-        */
+        let mut output1 = HashMap::new();
+        output1.insert("laser".to_owned(), "59".to_owned());
+        assert_eq!(Some(output1), get_msg("SENSOR: laser=59|"));
+        let mut output2 = HashMap::new();
+        output2.insert("laser".to_owned(), "59".to_owned());
+        output2.insert("distance".to_owned(), "103".to_owned());
+        assert_eq!(Some(output2), get_msg("SENSOR: laser=59|distance=103|"));
     }
 }
