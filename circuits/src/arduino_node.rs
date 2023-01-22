@@ -1,7 +1,7 @@
 use crate::comms::*;
 
 use load_dotenv::load_dotenv;
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 use serialport;
 use std::collections::HashMap;
 use std::io;
@@ -12,12 +12,12 @@ use std::thread;
 use std::time::Duration;
 
 pub struct ArduinoNode<'a> {
-    //port_in: &'a str,
-    //conns: HashMap<&'a str, &'a str>,
+    port_in: &'a str,
+    conns: HashMap<&'a str, &'a str>,
     //mocked: bool,
     portpath: &'a str,
     baudrate: u32,
-    msg: &'a str,
+    //msg: &'a str,
     //connected: bool,
 }
 
@@ -35,13 +35,13 @@ impl<'a> ArduinoNode<'a> {
         let baudrate = env!("ARDUINO_BAUDRATE").parse::<u32>().unwrap();
         let msg = "";
         let node = match get_port(name, conns.clone()) {
-            Ok(_c) => ArduinoNode {
-                //port_in: c,
-                //conns,
+            Ok(c) => ArduinoNode {
+                port_in: c,
+                conns,
                 //mocked,
                 portpath,
                 baudrate,
-                msg,
+                //msg,
                 //connected: false,
             },
             Err(_) => {
@@ -55,15 +55,15 @@ impl<'a> ArduinoNode<'a> {
     }
 
     pub fn talk(&mut self) {
-        //let status_node = get_port("status", self.conns.clone()).unwrap();
-        //let comms = UDPComms::new(self.port_in.to_owned());
-        let _status: HashMap<String, String> = HashMap::new();
+        let status_node = get_port("status", self.conns.clone()).unwrap();
+        let comms = UDPComms::new(self.port_in.to_owned());
+        //let _status: HashMap<String, String> = HashMap::new();
         let arduino_read_delay_raw = env!("ARDUINO_READ_DELAY");
         let arduino_read_delay = match arduino_read_delay_raw.parse::<u64>() {
             Ok(a) => a,
             Err(e) => {
-                info!(
-                    "------------------------ ERROR in {}: {}",
+                warn!(
+                    "ERROR in ARDUINO_READ_DELAY value:{}->{}",
                     arduino_read_delay_raw, e
                 );
                 0
