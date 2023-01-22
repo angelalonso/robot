@@ -1,7 +1,7 @@
 use crate::comms::*;
 
 use load_dotenv::load_dotenv;
-use log::{debug, error, info, warn};
+use log::{debug, error, warn};
 use serialport;
 use std::collections::HashMap;
 use std::io;
@@ -94,12 +94,9 @@ impl<'a> ArduinoNode<'a> {
                             thread::sleep(Duration::from_millis(arduino_read_delay as u64));
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
-                            info!("-------------3->{}<-", newmsg);
                             match get_msg(newmsg) {
                                 Some(recv) => {
-                                    info!("-------------4->{:#?}<-", recv);
                                     for (k, v) in recv {
-                                        info!("{}-{}", k, v);
                                         comms.send_to(
                                             format!("SET:{}:{}", k, v).as_bytes(),
                                             status_node,
@@ -226,5 +223,8 @@ mod arduino_node_tests {
         output2.insert("laser".to_owned(), "59".to_owned());
         output2.insert("distance".to_owned(), "103".to_owned());
         assert_eq!(Some(output2), get_msg("SENSOR: laser=59|distance=103|"));
+        let mut output3 = HashMap::new();
+        output3.insert("laser".to_owned(), "59".to_owned());
+        assert_eq!(Some(output3), get_msg("SENSOR: laser=59|\n"));
     }
 }
