@@ -6,6 +6,7 @@ use serialport::*;
 use std::collections::HashMap;
 use std::io;
 use std::io::Write;
+use std::thread;
 //use std::sync::mpsc;
 //use std::thread;
 use std::time::Duration;
@@ -69,17 +70,21 @@ impl<'a> ArduinoNode<'a> {
         match serialport {
             None => println!("Mocking and not Receiving data"),
             Some(mut sp) => {
-                match sp.write("".as_bytes()) {
-                    Ok(_) => {
-                        std::io::stdout().flush().unwrap();
-                    }
-                    Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                    Err(e) => eprintln!("{:?}", e),
-                }
                 loop {
                     let mut serial_buf: Vec<u8> = vec![0; 1000];
+                    match sp.write(" ".as_bytes()) {
+                        Ok(_) => {
+                            std::io::stdout().flush().unwrap();
+                        }
+                        Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
+                        Err(e) => eprintln!("{:?}", e),
+                    }
                     match sp.read(serial_buf.as_mut_slice()) {
+                        // TODO: fill up self.msg
+                        // TODO: write on each loop?
+                        // TODO: wait on each loop?
                         Ok(t) => {
+                            thread::sleep(Duration::from_millis(175));
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
                             self.msg.to_owned().push_str(newmsg);
@@ -126,7 +131,10 @@ mod arduino_node_tests {
         use crate::get_conns;
         let mut test_node_ok =
             ArduinoNode::new("arduino", get_conns(["arduino", "status"].to_vec()), true);
-        test_node_ok.talk();
+        let handle_ar = thread::spawn(move || {
+            test_node_ok.talk();
+        });
+        handle_ar.join().unwrap();
     }
     //TODO: test AND build: buffer of input from the arduino (mocked) to be cut and passed over
 }
