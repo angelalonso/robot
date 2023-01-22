@@ -58,10 +58,14 @@ impl<'a> ArduinoNode<'a> {
         //let status_node = get_port("status", self.conns.clone()).unwrap();
         //let comms = UDPComms::new(self.port_in.to_owned());
         let _status: HashMap<String, String> = HashMap::new();
-        let arduino_read_delay = match env!("ARDUINO_READ_DELAY").parse::<u64>() {
+        let arduino_read_delay_raw = env!("ARDUINO_READ_DELAY");
+        let arduino_read_delay = match arduino_read_delay_raw.parse::<u64>() {
             Ok(a) => a,
             Err(e) => {
-                info!("------------------------ ERROR: {}", e);
+                info!(
+                    "------------------------ ERROR in {}: {}",
+                    arduino_read_delay_raw, e
+                );
                 0
             }
         };
@@ -88,7 +92,7 @@ impl<'a> ArduinoNode<'a> {
                     match sp.read(serial_buf.as_mut_slice()) {
                         // TODO: cleanup self.msg, use get_msg instead
                         Ok(t) => {
-                            thread::sleep(Duration::from_millis(arduino_read_delay));
+                            thread::sleep(Duration::from_millis(arduino_read_delay as u64));
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
                             let values_rcvd = get_msg(newmsg);
