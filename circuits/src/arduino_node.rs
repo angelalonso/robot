@@ -1,8 +1,8 @@
 use crate::comms::*;
 
 use load_dotenv::load_dotenv;
-//use log::{debug, info};
-use serialport::*;
+use log::{debug, error, info};
+use serialport;
 use std::collections::HashMap;
 use std::io;
 use std::io::Write;
@@ -12,13 +12,13 @@ use std::thread;
 use std::time::Duration;
 
 pub struct ArduinoNode<'a> {
-    port_in: &'a str,
-    conns: HashMap<&'a str, &'a str>,
-    mocked: bool,
+    //port_in: &'a str,
+    //conns: HashMap<&'a str, &'a str>,
+    //mocked: bool,
     portpath: &'a str,
     baudrate: u32,
     msg: &'a str,
-    connected: bool,
+    //connected: bool,
 }
 
 // TODO: connect on creation
@@ -31,20 +31,20 @@ pub struct ArduinoNode<'a> {
 // TODO Transmit function??
 // https://github.com/serialport/serialport-rs/blob/main/examples/transmit.rs
 impl<'a> ArduinoNode<'a> {
-    pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>, mocked: bool) -> Self {
+    pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>, _mocked: bool) -> Self {
         load_dotenv!(); //TODO: is it better to pass parameters when needed?
         let portpath = env!("ARDUINO_USB_DEV");
         let baudrate = env!("ARDUINO_BAUDRATE").parse::<u32>().unwrap();
         let msg = "";
         let node = match get_port(name, conns.clone()) {
-            Ok(c) => ArduinoNode {
-                port_in: c,
-                conns,
-                mocked,
+            Ok(_c) => ArduinoNode {
+                //port_in: c,
+                //conns,
+                //mocked,
                 portpath,
                 baudrate,
                 msg,
-                connected: false,
+                //connected: false,
             },
             Err(_) => {
                 panic!(
@@ -60,15 +60,15 @@ impl<'a> ArduinoNode<'a> {
         //let status_node = get_port("status", self.conns.clone()).unwrap();
         //let comms = UDPComms::new(self.port_in.to_owned());
         let _status: HashMap<String, String> = HashMap::new();
-        let serialport = match serialport::new(self.portpath, self.baudrate)
+        let serial_port = match serialport::new(self.portpath, self.baudrate)
             .timeout(Duration::from_millis(10))
             .open()
         {
             Ok(sp) => Some(sp),
             Err(_) => None,
         };
-        match serialport {
-            None => println!("Mocking and not Receiving data"),
+        match serial_port {
+            None => debug!("Mocking and not Receiving data"),
             Some(mut sp) => {
                 loop {
                     let mut serial_buf: Vec<u8> = vec![0; 1000];
@@ -77,27 +77,42 @@ impl<'a> ArduinoNode<'a> {
                             std::io::stdout().flush().unwrap();
                         }
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                        Err(e) => eprintln!("{:?}", e),
+                        Err(e) => error!("{:?}", e),
                     }
                     match sp.read(serial_buf.as_mut_slice()) {
                         // TODO: fill up self.msg
-                        // TODO: write on each loop?
-                        // TODO: wait on each loop?
                         Ok(t) => {
                             thread::sleep(Duration::from_millis(175));
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
                             self.msg.to_owned().push_str(newmsg);
-                            println!("->{}<-...{}", newmsg, self.msg);
-                            //io::stdout().write_all(&serial_buf[..t]).unwrap();
+                            info!("->{}<-...{}", newmsg, self.msg);
                         }
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                        Err(e) => eprintln!("{:?}", e),
+                        Err(e) => error!("{:?}", e),
                     }
                 }
             }
         }
     }
+}
+
+pub fn get_msg(raw_msg: &str) -> Option<Vec<String>> {
+    let result = [].to_vec();
+    let ok_start: Vec<char> = "SENSOR:".to_owned().chars().collect();
+    let msg: Vec<char> = raw_msg.to_owned().chars().collect();
+    if msg.len() < ok_start.len() {
+        return None;
+    } else {
+        for ix in 0..ok_start.len() {
+            println!("{}<>{}", msg[ix], ok_start[ix]);
+            if msg[ix] != ok_start[ix] {
+                return None;
+            }
+        }
+    }
+
+    return Some(result);
 }
 
 mod arduino_node_tests {
@@ -136,5 +151,38 @@ mod arduino_node_tests {
         });
         handle_ar.join().unwrap();
     }
-    //TODO: test AND build: buffer of input from the arduino (mocked) to be cut and passed over
+
+    #[test]
+    fn test_get_msg() {
+        // TODO: make commented out examples fail too (check | is the last char, then extract key-val)
+        //        let failing_examples: [&str; 16] = [
+        let failing_examples: [&str; 13] = [
+            ": laser=70|distance=101|",
+            "=103|",
+            "OR: laser=68|distance=103|",
+            "SENS",
+            "SENSOR",
+            //            "SENSOR: las",
+            //            "SENSOR: laser=59|di",
+            //            "SENSOR: laser=59|distance=103",
+            "SOR: laser=69|distance=102|",
+            "ance=103|",
+            "ce=103|",
+            "distance=103|",
+            "er=62|distance=103|",
+            "laser=67|distance=103|",
+            "ser=78|distance=102|",
+            "stance=103|",
+        ];
+        for e in failing_examples {
+            assert_eq!(None, get_msg(e));
+        }
+
+        /*
+        "SENSOR:",
+        "SENSOR: ",
+        "SENSOR: laser=59|",
+        "SENSOR: laser=59|distance=103|",
+        */
+    }
 }

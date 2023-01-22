@@ -87,10 +87,7 @@ async fn main() {
     info!("Test - Process started");
 
     // This one goes at the end
-    //let handle_api = thread::spawn(move || {
     node_api.talk().await;
-    //});
-    //handles2.push(handle_api);
     info!("API - Process started");
     for handle in handles {
         handle.join().unwrap();

@@ -106,6 +106,8 @@ function do_mode() {
     show_help
   elif [[ "$1" == "test" ]]; then
     dev_test
+  elif [[ "$1" == "test_arduino" ]]; then
+    dev_test_arduino
   elif [[ "$1" == "deploy" ]]; then
     is_robot_available
     trigger_deploy
@@ -174,6 +176,22 @@ function dev_test() {
 
   #cargo run ## Let's play a game: this is forbidden in the local dev environment!
 }
+
+function dev_test_arduino() {
+  show_log i "##################  LOCAL TEST OF ARDUINO  #########"
+  show_log d "              ####  PLEASE CONNECT ARDUINO DIRECTLY TO YOUR LAPTOP"
+  trap ctrl_c INT
+
+  cd ${CODEPATH}
+  cargo test -- --ignored --show-output --nocapture  
+  if [[ $? != 0 ]]; then
+    show_log e "- Cargo Check: Errors found"
+  else
+    show_log i "- Cargo Check: Everything OK"
+  fi
+
+}
+
 
 function trigger_push() {
   show_log d "              ####  PUSHING CHANGES TO GIT #########"
