@@ -58,7 +58,13 @@ impl<'a> ArduinoNode<'a> {
         //let status_node = get_port("status", self.conns.clone()).unwrap();
         //let comms = UDPComms::new(self.port_in.to_owned());
         let _status: HashMap<String, String> = HashMap::new();
-        let arduino_read_delay = env!("ARDUINO_READ_DELAY").parse::<u64>().unwrap();
+        let arduino_read_delay = match env!("ARDUINO_READ_DELAY").parse::<u64>() {
+            Ok(a) => a,
+            Err(e) => {
+                info!("------------------------ ERROR: {}", e);
+                0
+            }
+        };
         info!("------------- {}", arduino_read_delay);
         let serial_port = match serialport::new(self.portpath, self.baudrate)
             .timeout(Duration::from_millis(10))
@@ -108,7 +114,7 @@ pub fn get_msg(raw_msg: &str) -> Option<HashMap<String, String>> {
     let mut clean_msg_vec = [].to_vec();
     // length is greater than the minimum starting message, ok_start
     if msg.len() < ok_start.len() {
-        return None;
+        None
     } else {
         // it must contain ok_start at the beginning
         for ix in 0..ok_start.len() {
@@ -120,9 +126,9 @@ pub fn get_msg(raw_msg: &str) -> Option<HashMap<String, String>> {
         if msg[msg.len() - 1] != '|' {
             return None;
         } else {
-            for ix in 0..msg.len() - 1 {
+            for (ix, item) in msg.iter().enumerate().take(msg.len() - 1) {
                 if ix >= ok_start.len() {
-                    clean_msg_vec.push(msg[ix]);
+                    clean_msg_vec.push(item);
                 }
             }
             let clean_msg: String = clean_msg_vec.into_iter().collect();
