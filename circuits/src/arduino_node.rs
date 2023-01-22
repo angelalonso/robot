@@ -33,7 +33,6 @@ impl<'a> ArduinoNode<'a> {
         load_dotenv!(); //TODO: is it better to pass parameters when needed?
         let portpath = env!("ARDUINO_USB_DEV");
         let baudrate = env!("ARDUINO_BAUDRATE").parse::<u32>().unwrap();
-        let msg = "";
         let node = match get_port(name, conns.clone()) {
             Ok(c) => ArduinoNode {
                 port_in: c,
