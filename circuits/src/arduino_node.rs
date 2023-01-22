@@ -80,7 +80,6 @@ impl<'a> ArduinoNode<'a> {
             None => debug!("Mocking and not Receiving data"),
             Some(mut sp) => {
                 loop {
-                    info!("-------------1");
                     let mut serial_buf: Vec<u8> = vec![0; 1000];
                     match sp.write(" ".as_bytes()) {
                         Ok(_) => {
@@ -89,7 +88,6 @@ impl<'a> ArduinoNode<'a> {
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                         Err(e) => error!("{:?}", e),
                     }
-                    info!("-------------2");
                     match sp.read(serial_buf.as_mut_slice()) {
                         // TODO: cleanup self.msg, use get_msg instead
                         Ok(t) => {
@@ -99,6 +97,7 @@ impl<'a> ArduinoNode<'a> {
                             info!("-------------3->{}<-", newmsg);
                             match get_msg(newmsg) {
                                 Some(recv) => {
+                                    info!("-------------4->{:#?}<-", recv);
                                     for (k, v) in recv {
                                         info!("{}-{}", k, v);
                                         comms.send_to(
@@ -124,7 +123,7 @@ impl<'a> ArduinoNode<'a> {
 pub fn get_msg(raw_msg: &str) -> Option<HashMap<String, String>> {
     let mut output = HashMap::new();
     let ok_start: Vec<char> = "SENSOR: ".to_owned().chars().collect();
-    let msg: Vec<char> = raw_msg.to_owned().chars().collect();
+    let msg: Vec<char> = raw_msg.trim().to_owned().chars().collect();
     let mut clean_msg_vec = [].to_vec();
     // length is greater than the minimum starting message, ok_start
     if msg.len() < ok_start.len() {
