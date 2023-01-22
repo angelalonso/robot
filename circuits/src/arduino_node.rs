@@ -95,12 +95,16 @@ impl<'a> ArduinoNode<'a> {
                             thread::sleep(Duration::from_millis(arduino_read_delay as u64));
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
-                            let values_rcvd = get_msg(newmsg);
-                            for (k, v) in values_rcvd.unwrap() {
-                                info!("{}-{}", k, v);
+                            match get_msg(newmsg) {
+                                Some(recv) => {
+                                    for (k, v) in recv {
+                                        info!("{}-{}", k, v);
+                                    }
+                                    //self.msg.to_owned().push_str(newmsg);
+                                    //info!("->{}<-...{}", newmsg, self.msg);
+                                }
+                                None => (),
                             }
-                            //self.msg.to_owned().push_str(newmsg);
-                            //info!("->{}<-...{}", newmsg, self.msg);
                         }
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                         Err(e) => error!("{:?}", e),
