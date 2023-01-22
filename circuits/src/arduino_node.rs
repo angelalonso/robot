@@ -69,7 +69,6 @@ impl<'a> ArduinoNode<'a> {
                 0
             }
         };
-        info!("------------- {}", arduino_read_delay);
         let serial_port = match serialport::new(self.portpath, self.baudrate)
             .timeout(Duration::from_millis(10))
             .open()
@@ -81,6 +80,7 @@ impl<'a> ArduinoNode<'a> {
             None => debug!("Mocking and not Receiving data"),
             Some(mut sp) => {
                 loop {
+                    info!("------------- ");
                     let mut serial_buf: Vec<u8> = vec![0; 1000];
                     match sp.write(" ".as_bytes()) {
                         Ok(_) => {
@@ -99,6 +99,10 @@ impl<'a> ArduinoNode<'a> {
                                 Some(recv) => {
                                     for (k, v) in recv {
                                         info!("{}-{}", k, v);
+                                        comms.send_to(
+                                            format!("SET:{}:{}", k, v).as_bytes(),
+                                            status_node,
+                                        );
                                     }
                                     //self.msg.to_owned().push_str(newmsg);
                                     //info!("->{}<-...{}", newmsg, self.msg);
