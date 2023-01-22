@@ -77,10 +77,11 @@ impl<'a> ArduinoNode<'a> {
             Err(_) => None,
         };
         match serial_port {
+            // TODO: nothing coming from here on run
             None => debug!("Mocking and not Receiving data"),
             Some(mut sp) => {
                 loop {
-                    info!("------------- ");
+                    info!("-------------1");
                     let mut serial_buf: Vec<u8> = vec![0; 1000];
                     match sp.write(" ".as_bytes()) {
                         Ok(_) => {
@@ -89,12 +90,14 @@ impl<'a> ArduinoNode<'a> {
                         Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                         Err(e) => error!("{:?}", e),
                     }
+                    info!("-------------2");
                     match sp.read(serial_buf.as_mut_slice()) {
                         // TODO: cleanup self.msg, use get_msg instead
                         Ok(t) => {
                             thread::sleep(Duration::from_millis(arduino_read_delay as u64));
                             let newmsg_raw = serial_buf[..t].to_vec();
                             let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
+                            info!("-------------3->{}<-", newmsg);
                             match get_msg(newmsg) {
                                 Some(recv) => {
                                     for (k, v) in recv {
