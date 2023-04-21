@@ -2,6 +2,8 @@
 use crate::comms::*;
 
 use load_dotenv::load_dotenv;
+use std::sync::mpsc;
+use std::thread;
 use std::{collections::HashMap, convert::Infallible, sync::Arc};
 use tokio::sync::Mutex;
 use warp::{http::StatusCode, reply, Filter, Rejection, Reply};
@@ -18,7 +20,7 @@ pub struct ApiNode<'a> {
 
 impl<'a> ApiNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
-        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        load_dotenv!(); //TODO??: is it better to pass parameters when needed?
         let p_api = env!("APIPORT").parse::<u16>().unwrap();
         let node = match get_port(name, conns.clone()) {
             Ok(c) => ApiNode {
@@ -38,6 +40,10 @@ impl<'a> ApiNode<'a> {
     pub async fn talk(&mut self) {
         let mut nodes: HashMap<String, String> = HashMap::new();
         nodes.insert(
+            "status".to_owned(),
+            get_port("status", self.conns.clone()).unwrap().to_owned(),
+        );
+        nodes.insert(
             "led".to_owned(),
             get_port("led", self.conns.clone()).unwrap().to_owned(),
         );
@@ -55,8 +61,9 @@ impl<'a> ApiNode<'a> {
 }
 
 async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms<'static>) {
-    // TODO: use the same logging format, pass the log level to both
-    // TODO: use proper API actions, Get, Post...only when it makes sense
+    // TODO??: use the same logging format, pass the log level to both - is this possible?
+    // TODO**: use proper API actions, Get, Post...only when it makes sense -> first app must be ready
+    let status: ItemNode = Arc::new(Mutex::new(nodes.get("status").unwrap().to_string()));
     let led_node: ItemNode = Arc::new(Mutex::new(nodes.get("led").unwrap().to_string()));
     let motor_l_node: ItemNode = Arc::new(Mutex::new(nodes.get("motor_l").unwrap().to_string()));
     let motor_r_node: ItemNode = Arc::new(Mutex::new(nodes.get("motor_r").unwrap().to_string()));
@@ -68,7 +75,13 @@ async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms
         .and(with_comms(comms.clone()))
         .and_then(get_empty);
 
-    let get_route = warp::path!("get" / "mode" / ..)
+    let get_status_route = warp::path!("get" / "status" / ..)
+        .and(warp::get())
+        .and(with_node(status.clone()))
+        .and(with_comms(comms.clone()))
+        .and_then(get_status);
+
+    let get_mode_route = warp::path!("get" / "mode" / ..)
         .and(warp::post())
         .and(with_node(led_node.clone()))
         .and(with_comms(comms.clone()))
@@ -120,26 +133,27 @@ async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms
         .and(with_comms(comms.clone()))
         .and_then(do_right);
 
-    let do_led_on_route = warp::path!("do" / "led_on" / ..) // TODO: maybe create /led/on ?
+    let do_led_on_route = warp::path!("do" / "led_on" / ..) // TODO??: maybe create /led/on ?
         .and(warp::post())
         .and(with_node(led_node.clone()))
         .and(with_comms(comms.clone()))
         .and_then(do_led_on);
 
-    let do_led_off_route = warp::path!("do" / "led_off" / ..) // TODO: maybe create /led/off ?
+    let do_led_off_route = warp::path!("do" / "led_off" / ..) // TODO??: maybe create /led/off ?
         .and(warp::post())
         .and(with_node(led_node.clone()))
         .and(with_comms(comms.clone()))
         .and_then(do_led_off);
 
-    let do_led_switch_route = warp::path!("do" / "led_switch" / ..) // TODO: maybe create /led/switch ?
+    let do_led_switch_route = warp::path!("do" / "led_switch" / ..) // TODO??: maybe create /led/switch ?
         .and(warp::post())
         .and(with_node(led_node.clone()))
         .and(with_comms(comms.clone()))
         .and_then(do_led_switch);
 
     let routes = root
-        .or(get_route)
+        .or(get_status_route)
+        .or(get_mode_route)
         .or(get_empty_route)
         .or(do_scan_route)
         .or(do_stop_route)
@@ -152,7 +166,6 @@ async fn run(port_api: u16, nodes: HashMap<String, String>, comms_orig: UDPComms
         .or(do_led_switch_route)
         .with(warp::cors().allow_any_origin());
 
-    // TODO: make this an env var
     warp::serve(routes).run(([0, 0, 0, 0], port_api)).await;
 }
 
@@ -168,8 +181,20 @@ fn with_comms(comms: ItemComms) -> impl Filter<Extract = (ItemComms,), Error = I
 
 pub async fn get_empty(_led_n: ItemNode, _comms_orig: ItemComms<'_>) -> Result<impl Reply> {
     let result = "";
-    println!("test {}", result);
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
+}
+
+pub async fn get_status(status_n: ItemNode, comms_orig: ItemComms<'static>) -> Result<impl Reply> {
+    let status = status_n.lock().await;
+    let mut this_comms = comms_orig.lock().await.clone();
+    this_comms.send_to("GET:.*".as_bytes(), &status);
+    let (tx, rx) = mpsc::channel();
+    let h = thread::spawn(move || {
+        this_comms.get_data(tx);
+    });
+    let (rcvd, _) = remove_sender(&rx.recv().unwrap());
+    h.join().unwrap();
+    Ok(reply::with_status(reply::json(&rcvd), StatusCode::OK))
 }
 
 pub async fn get_mode(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl Reply> {
@@ -179,13 +204,11 @@ pub async fn get_mode(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<impl
         .await
         .send_to("SET:led:on".as_bytes(), &led);
     let result = " get mode".to_owned();
-    println!("{}", result);
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
 pub async fn do_scan(_led_n: ItemNode, _comms_orig: ItemComms<'_>) -> Result<impl Reply> {
     let result = "";
-    println!("do scan");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -206,7 +229,6 @@ pub async fn do_stop(
         .await
         .send_to("SET:stp".as_bytes(), &motor_r);
     let result = "";
-    println!("do stop");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -227,7 +249,6 @@ pub async fn do_fwd(
         .await
         .send_to("SET:fwd".as_bytes(), &motor_r);
     let result = "";
-    println!("do forward");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -248,7 +269,6 @@ pub async fn do_bwd(
         .await
         .send_to("SET:bwd".as_bytes(), &motor_r);
     let result = "";
-    println!("do backwards");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -269,7 +289,6 @@ pub async fn do_left(
         .await
         .send_to("SET:fwd".as_bytes(), &motor_r);
     let result = "";
-    println!("do left");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -290,7 +309,6 @@ pub async fn do_right(
         .await
         .send_to("SET:bwd".as_bytes(), &motor_r);
     let result = "";
-    println!("do right");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -298,7 +316,6 @@ pub async fn do_led_on(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<imp
     let led = led_n.lock().await;
     comms_orig.lock().await.send_to("SET:on".as_bytes(), &led);
     let result = "";
-    println!("do led on");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -306,7 +323,6 @@ pub async fn do_led_off(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result<im
     let led = led_n.lock().await;
     comms_orig.lock().await.send_to("SET:off".as_bytes(), &led);
     let result = "";
-    println!("do led off");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -317,7 +333,6 @@ pub async fn do_led_switch(led_n: ItemNode, comms_orig: ItemComms<'_>) -> Result
         .await
         .send_to("SET:switch".as_bytes(), &led);
     let result = "";
-    println!("do led switch");
     Ok(reply::with_status(reply::json(&result), StatusCode::OK))
 }
 
@@ -341,5 +356,5 @@ mod api_node_tests {
         let _test_node2 = ApiNode::new("api", get_conns(["status"].to_vec()));
     }
 
-    // TODO: test each call?
+    // TODO??: test each call?
 }

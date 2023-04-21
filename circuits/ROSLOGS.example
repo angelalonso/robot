@@ -1,0 +1,137 @@
+##################  RUN  ####################
+Defaulting to user installation because normal site-packages is not writeable
+Processing ./target/wheels/robotlogic-0.1.0-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl
+robotlogic is already installed with the same version as the provided wheel. Use --force-reinstall to force an installation of the wheel.
+[INFO] [launch]: All log files can be found below /home/aaf/.ros/log/2022-12-23-08-23-48-458918-aafhome-12238
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [node_api.py-1]: process started with pid [12240]
+[INFO] [node_status.py-2]: process started with pid [12242]
+[INFO] [node_arduino.py-3]: process started with pid [12244]
+[INFO] [node_led.py-4]: process started with pid [12246]
+[INFO] [node_servo_laser.py-5]: process started with pid [12248]
+[INFO] [node_motor_right.py-6]: process started with pid [12250]
+[INFO] [node_motor_left.py-7]: process started with pid [12252]
+[node_status.py-2] [WARN] [1671780229.461132363] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[node_status.py-2] [WARN] [1671780229.468750812] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[node_status.py-2] [WARN] [1671780229.474393995] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[node_api.py-1] [WARN] [1671780229.635196132] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[node_api.py-1] [WARN] [1671780229.644810664] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[node_api.py-1] [WARN] [1671780229.651696463] [rcl.logging_rosout]: Publisher already registered for provided node name. If this is due to multiple nodes with the same name then all logs for that logger name will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[node_api.py-1]  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+^C[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[node_led.py-4] Traceback (most recent call last):
+[node_led.py-4]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_led.py", line 90, in <module>
+[node_led.py-4]     main()
+[node_led.py-4]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_led.py", line 85, in main
+[node_led.py-4]     spin(ledmain_action_server)
+[node_led.py-4]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/__init__.py", line 222, in spin
+[node_led.py-4]     executor.spin_once()
+[node_led.py-4]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 704, in spin_once
+[node_led.py-4]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[node_led.py-4]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 690, in wait_for_ready_callbacks
+[node_led.py-4]     return next(self._cb_iter)
+[node_led.py-4]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 588, in _wait_for_ready_callbacks
+[node_led.py-4]     wait_set.wait(timeout_nsec)
+[node_led.py-4] KeyboardInterrupt
+[node_arduino.py-3] Traceback (most recent call last):
+[node_arduino.py-3]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_arduino.py", line 180, in <module>
+[node_arduino.py-3]     main()
+[node_arduino.py-3]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_arduino.py", line 175, in main
+[node_arduino.py-3]     arduino_serial.sync_and_read(ARDUINO_READ_DELAY)
+[node_arduino.py-3]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_arduino.py", line 124, in sync_and_read
+[node_arduino.py-3]     time.sleep(read_delay)
+[node_arduino.py-3] KeyboardInterrupt
+[node_status.py-2] Traceback (most recent call last):
+[node_status.py-2]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_status.py", line 242, in <module>
+[node_status.py-2]     main()
+[node_status.py-2]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_status.py", line 235, in main
+[node_status.py-2]     spin(status_manager)
+[node_status.py-2]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/__init__.py", line 222, in spin
+[node_status.py-2]     executor.spin_once()
+[node_status.py-2]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 704, in spin_once
+[node_status.py-2]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[node_status.py-2]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 690, in wait_for_ready_callbacks
+[node_status.py-2]     return next(self._cb_iter)
+[node_status.py-2]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 588, in _wait_for_ready_callbacks
+[node_status.py-2]     wait_set.wait(timeout_nsec)
+[node_status.py-2] KeyboardInterrupt
+[node_servo_laser.py-5] Traceback (most recent call last):
+[node_servo_laser.py-5]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_servo_laser.py", line 140, in <module>
+[node_servo_laser.py-5]     main()
+[node_servo_laser.py-5]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_servo_laser.py", line 135, in main
+[node_servo_laser.py-5]     spin(servolaser_action_server)
+[node_servo_laser.py-5]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/__init__.py", line 222, in spin
+[node_servo_laser.py-5]     executor.spin_once()
+[node_servo_laser.py-5]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 704, in spin_once
+[node_servo_laser.py-5]     handler, entity, node = self.wait_for_ready_callbacks(timeout_sec=timeout_sec)
+[node_servo_laser.py-5]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 690, in wait_for_ready_callbacks
+[node_servo_laser.py-5]     return next(self._cb_iter)
+[node_servo_laser.py-5]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 588, in _wait_for_ready_callbacks
+[node_servo_laser.py-5]     wait_set.wait(timeout_nsec)
+[node_servo_laser.py-5] KeyboardInterrupt
+[node_motor_right.py-6] Traceback (most recent call last):
+[node_motor_right.py-6]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_motor_right.py", line 112, in <module>
+[node_motor_right.py-6]     main()
+[node_motor_right.py-6]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_motor_right.py", line 107, in main
+[node_motor_right.py-6]     spin(motorright_action_server)
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/__init__.py", line 222, in spin
+[node_motor_right.py-6]     executor.spin_once()
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 710, in spin_once
+[node_motor_right.py-6]     handler()
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/task.py", line 239, in __call__
+[node_motor_right.py-6]     self._handler.send(None)
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 418, in handler
+[node_motor_right.py-6]     await call_coroutine(entity, arg)
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 384, in _execute_waitable
+[node_motor_right.py-6]     await waitable.execute(data)
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 471, in execute
+[node_motor_right.py-6]     await self._execute_goal_request(taken_data['goal'])
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 316, in _execute_goal_request
+[node_motor_right.py-6]     await await_or_execute(self._handle_accepted_callback, goal_handle)
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 107, in await_or_execute
+[node_motor_right.py-6]     return callback(*args)
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 172, in default_handle_accepted_callback
+[node_motor_right.py-6]     goal_handle.execute()
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 130, in execute
+[node_motor_right.py-6]     self._update_state(_rclpy.GoalEvent.EXECUTE)
+[node_motor_right.py-6]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 119, in _update_state
+[node_motor_right.py-6]     self._action_server._handle.publish_status()
+[node_motor_right.py-6] KeyboardInterrupt
+[node_motor_left.py-7] Traceback (most recent call last):
+[node_motor_left.py-7]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_motor_left.py", line 112, in <module>
+[node_motor_left.py-7]     main()
+[node_motor_left.py-7]   File "/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_motor_left.py", line 107, in main
+[node_motor_left.py-7]     spin(motorleft_action_server)
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/__init__.py", line 222, in spin
+[node_motor_left.py-7]     executor.spin_once()
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 710, in spin_once
+[node_motor_left.py-7]     handler()
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/task.py", line 239, in __call__
+[node_motor_left.py-7]     self._handler.send(None)
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 418, in handler
+[node_motor_left.py-7]     await call_coroutine(entity, arg)
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 384, in _execute_waitable
+[node_motor_left.py-7]     await waitable.execute(data)
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 471, in execute
+[node_motor_left.py-7]     await self._execute_goal_request(taken_data['goal'])
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 316, in _execute_goal_request
+[node_motor_left.py-7]     await await_or_execute(self._handle_accepted_callback, goal_handle)
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/executors.py", line 107, in await_or_execute
+[node_motor_left.py-7]     return callback(*args)
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 172, in default_handle_accepted_callback
+[node_motor_left.py-7]     goal_handle.execute()
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 130, in execute
+[node_motor_left.py-7]     self._update_state(_rclpy.GoalEvent.EXECUTE)
+[node_motor_left.py-7]   File "/opt/ros/rolling/lib/python3.8/site-packages/rclpy/action/server.py", line 119, in _update_state
+[node_motor_left.py-7]     self._action_server._handle.publish_status()
+[node_motor_left.py-7] KeyboardInterrupt
+[ERROR] [node_arduino.py-3]: process has died [pid 12244, exit code -2, cmd '/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_arduino.py --ros-args -r __node:=node_arduino -r __ns:=/brain'].
+[ERROR] [node_servo_laser.py-5]: process has died [pid 12248, exit code -2, cmd '/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_servo_laser.py --ros-args -r __node:=node_servo_laser -r __ns:=/brain'].
+[ERROR] [node_motor_right.py-6]: process has died [pid 12250, exit code -2, cmd '/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_motor_right.py --ros-args -r __node:=node_motor_right_worker -r __ns:=/brain'].
+[ERROR] [node_motor_left.py-7]: process has died [pid 12252, exit code -2, cmd '/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_motor_left.py --ros-args -r __node:=node_motor_left_worker -r __ns:=/brain'].
+[ERROR] [node_status.py-2]: process has died [pid 12242, exit code -2, cmd '/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_status.py --ros-args -r __node:=node_status -r __ns:=/brain'].
+[INFO] [launch.user]: STATUS Node 2 stopped. Stopping everything...
+[INFO] [launch]: process[node_status.py-2] was required: shutting down launched system
+[ERROR] [node_led.py-4]: process has died [pid 12246, exit code -2, cmd '/home/aaf/Software/Dev/robot/brain/install/brain/lib/brain/node_led.py --ros-args -r __node:=node_led -r __ns:=/brain'].
+[INFO] [node_api.py-1]: process has finished cleanly [pid 12240]
+** Trapped CTRL-C

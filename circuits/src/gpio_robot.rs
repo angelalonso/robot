@@ -92,7 +92,6 @@ impl GPIOMotor {
         let out_enabler = export(pin_enabler);
         std::thread::sleep(std::time::Duration::from_millis(50));
         if out1 && out2 && out_enabler {
-            // TODO:
             let _init_result = initialize();
             is_real = true;
             std::thread::sleep(std::time::Duration::from_millis(50));
@@ -237,4 +236,4 @@ pub fn set_direction(gpio_num: u8, direction: Directions) {
         panic!("couldn't write to {}: {}", filepath, why);
     }
 }
-// TODO: test something here??
+// TODO??: test something here??

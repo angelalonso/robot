@@ -18,6 +18,7 @@ tokio = { version = "1.17", features = ["full"] }
 warp = "0.3"
 load-dotenv = "0.1.2"
 serialport = "4.2.0"
+regex = "1.7.1"
 
 [target.'cfg(target_arch = "arm")'.dependencies]
 rust-pigpio = "0.2.0"

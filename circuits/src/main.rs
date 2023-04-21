@@ -5,7 +5,6 @@ use circuits::led_action_server_node::*;
 use circuits::motor_l_action_server_node::*;
 use circuits::motor_r_action_server_node::*;
 use circuits::status_node::*;
-use circuits::test_node::*;
 
 use chrono::Local;
 use env_logger::Builder;
@@ -33,24 +32,20 @@ async fn main() {
         .init();
 
     let mut node_server_action_led =
-        LedActionServerNode::new("led", get_conns(["led", "status", "test"].to_vec()));
+        LedActionServerNode::new("led", get_conns(["led", "status"].to_vec()));
     let mut node_server_action_motor_l =
-        MotorLActionServerNode::new("motor_l", get_conns(["motor_l", "status", "test"].to_vec()));
+        MotorLActionServerNode::new("motor_l", get_conns(["motor_l", "status"].to_vec()));
     let mut node_server_action_motor_r =
-        MotorRActionServerNode::new("motor_r", get_conns(["motor_r", "status", "test"].to_vec()));
+        MotorRActionServerNode::new("motor_r", get_conns(["motor_r", "status"].to_vec()));
     let mut node_api = ApiNode::new(
         "api",
-        get_conns(["motor_l", "motor_r", "led", "api", "status", "test"].to_vec()),
+        get_conns(["motor_l", "motor_r", "led", "api", "status"].to_vec()),
     );
     let mut node_arduino =
         ArduinoNode::new("arduino", get_conns(["arduino", "status"].to_vec()), false);
     let mut node_status = StatusNode::new(
         "status",
-        get_conns(["motor_l", "motor_r", "led", "status", "test"].to_vec()),
-    );
-    let mut node_test = TestNode::new(
-        "test",
-        get_conns(["motor_l", "motor_r", "led", "status", "test"].to_vec()),
+        get_conns(["motor_l", "motor_r", "led", "status"].to_vec()),
     );
 
     std::thread::sleep(std::time::Duration::from_millis(50));
@@ -80,11 +75,6 @@ async fn main() {
     handles.push(handle_led);
     info!("Led - Process started");
     std::thread::sleep(std::time::Duration::from_millis(50));
-    let handle_ts = thread::spawn(move || {
-        node_test.talk();
-    });
-    handles.push(handle_ts);
-    info!("Test - Process started");
 
     // This one goes at the end
     node_api.talk().await;

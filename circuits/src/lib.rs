@@ -7,7 +7,6 @@ pub mod mock_rust_pigpio;
 pub mod motor_l_action_server_node;
 pub mod motor_r_action_server_node;
 pub mod status_node;
-pub mod test_node;
 
 use std::collections::HashMap;
 
@@ -20,8 +19,6 @@ pub fn get_conns(names: Vec<&str>) -> HashMap<&str, &str> {
     all_conns.insert("status", "8201"); // status
     all_conns.insert("api", "8301"); // inputs
     all_conns.insert("arduino", "8302");
-    all_conns.insert("test", "9000"); // TODO: remove maybe
-                                      // return only the ones needed
     let result: HashMap<&str, &str> = all_conns
         .into_iter()
         .filter(|(k, _v)| names.contains(k))

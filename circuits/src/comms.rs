@@ -24,7 +24,7 @@ pub struct UDPComms<'a> {
 
 impl<'a> UDPComms<'_> {
     pub fn new(port_in: String) -> Self {
-        let ip = "127.0.0.1"; // TODO: make this default but not the only choice
+        let ip = "127.0.0.1"; // TODO??: Does this need to be on .env?
         UDPComms {
             ip,
             rx: "",
@@ -60,9 +60,10 @@ impl<'a> UDPComms<'_> {
         };
     }
 
-    pub fn send_to(&self, msg: &[u8], dest_port: &str) {
+    pub fn send_to(&self, raw_msg: &[u8], dest_port: &str) {
+        let msg = add_sender(raw_msg, self.port_in.as_bytes());
+
         let local = format!("{}:{}", self.ip, self.port_in);
-        //let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
         let socket = match net::UdpSocket::bind(&local) {
             Ok(s) => Some(s),
             Err(e) => {
@@ -109,7 +110,7 @@ impl<'a> UDPComms<'_> {
                 //    String::from_utf8_lossy(msg)
                 //);
                 let _result = s
-                    .send_to(msg, &destination)
+                    .send_to(&msg, &destination)
                     .expect("failed to send message");
 
                 //result
@@ -117,6 +118,16 @@ impl<'a> UDPComms<'_> {
             None => println!("Error using {}", dest_port),
         }
     }
+}
+
+fn add_sender<'a>(text: &'a [u8], port_from: &'a [u8]) -> Vec<u8> {
+    let step_1 = [text, "|".as_bytes()].concat();
+    [step_1, port_from.to_owned()].concat()
+}
+
+pub fn remove_sender(text: &'_ str) -> (String, String) {
+    let result: Vec<&str> = text.split('|').collect();
+    (result[0].to_string(), result[1].to_string())
 }
 
 #[cfg(test)]
@@ -139,5 +150,21 @@ mod comms_tests {
             Err(e) => assert_eq!(e, "Nothing found."),
         }
     }
-    // TODO: test the other ones?
+
+    #[test]
+    fn test_add_sender() {
+        assert_eq!(
+            add_sender("hello world".as_bytes(), "0001".as_bytes()),
+            "hello world|0001".as_bytes()
+        );
+    }
+
+    #[test]
+    fn test_remove_sender() {
+        assert_eq!(
+            remove_sender("hello world|0001"),
+            ("hello world".to_owned(), "0001".to_owned())
+        );
+    }
+    // TODO??: test the other ones?
 }

@@ -16,7 +16,7 @@ pub struct MotorLActionServerNode<'a> {
 
 impl<'a> MotorLActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
-        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        load_dotenv!(); //TODO??: is it better to pass parameters when needed?
         let motor = GPIOMotor::new(
             env!("MOTOR_L_PIN_IN1").parse::<u8>().unwrap(),
             env!("MOTOR_L_PIN_IN2").parse::<u8>().unwrap(),
@@ -40,6 +40,7 @@ impl<'a> MotorLActionServerNode<'a> {
     }
 
     pub fn talk(&mut self) {
+        // TODO: is this called status_node everywhere?
         let status_node = get_port("status", self.conns.clone()).unwrap();
         let comms = UDPComms::new(self.port_in.to_owned());
 
@@ -51,7 +52,9 @@ impl<'a> MotorLActionServerNode<'a> {
                 this_comms.get_data(this_tx);
             });
 
-            let rcvd = rx.recv().unwrap();
+            //let rcvd = remove_sender(&rx.recv().unwrap());
+            let rcvd_raw = rx.recv().unwrap();
+            let (rcvd, _) = remove_sender(&rcvd_raw);
             debug!("[motor_l] Received: {}", rcvd);
             if rcvd == "SET:fwd" {
                 info!("[motor_l] Setting Left Motor Forwards");
@@ -109,5 +112,5 @@ mod led_node_tests {
         let _test_node2 = MotorLActionServerNode::new("motor_l", get_conns(["status"].to_vec()));
     }
 
-    //TODO: test talk, but how??
+    //TODO??: test talk, but how??
 }

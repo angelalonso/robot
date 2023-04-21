@@ -16,7 +16,7 @@ pub struct MotorRActionServerNode<'a> {
 
 impl<'a> MotorRActionServerNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>) -> Self {
-        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        load_dotenv!(); //TODO??: is it better to pass parameters when needed?
         let motor = GPIOMotor::new(
             env!("MOTOR_R_PIN_IN1").parse::<u8>().unwrap(),
             env!("MOTOR_R_PIN_IN2").parse::<u8>().unwrap(),
@@ -51,33 +51,41 @@ impl<'a> MotorRActionServerNode<'a> {
                 this_comms.get_data(this_tx);
             });
 
-            let rcvd = rx.recv().unwrap();
+            let rcvd_raw = rx.recv().unwrap();
+            let (rcvd, _) = remove_sender(&rcvd_raw);
             debug!("[motor_r] Received: {}", rcvd);
             if rcvd == "SET:fwd" {
                 info!("[motor_r] Setting Right Motor Forwards");
                 self.speed = 1;
                 self.motor.fwd();
+                // These sleeps are there to not overstress the status node
+                // TODO: maybe build a buffer at status instead?
+                std::thread::sleep(std::time::Duration::from_millis(2));
                 comms.send_to("SET:motorr:fwd".as_bytes(), status_node);
             } else if rcvd == "SET:bwd" {
                 info!("[motor_r] Setting Right Motor Backwards");
                 self.speed = -1;
                 self.motor.bwd();
+                std::thread::sleep(std::time::Duration::from_millis(2));
                 comms.send_to("SET:motorr:bwd".as_bytes(), status_node);
             } else if rcvd == "SET:stp" {
                 info!("[motor_r] Setting Right Motor to Stop");
                 self.speed = 0;
                 self.motor.stp();
+                std::thread::sleep(std::time::Duration::from_millis(2));
                 comms.send_to("SET:motorr:stp".as_bytes(), status_node);
             } else if rcvd == "SET:switch" {
                 if self.speed == 0 {
                     info!("[motor_r] Setting Right Motor Forwards");
                     self.speed = 1;
                     self.motor.fwd();
+                    std::thread::sleep(std::time::Duration::from_millis(2));
                     comms.send_to("SET:motorr:fwd".as_bytes(), status_node);
                 } else {
                     info!("[motor_r] Setting Right Motor to Stop");
                     self.speed = 0;
                     self.motor.stp();
+                    std::thread::sleep(std::time::Duration::from_millis(2));
                     comms.send_to("SET:motorr:stp".as_bytes(), status_node);
                 }
             }
@@ -109,5 +117,5 @@ mod led_node_tests {
         let _test_node2 = MotorRActionServerNode::new("motor_r", get_conns(["status"].to_vec()));
     }
 
-    //TODO: test talk, but how??
+    //TODO??: test talk, but how??
 }

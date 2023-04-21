@@ -17,20 +17,18 @@ pub struct ArduinoNode<'a> {
     //mocked: bool,
     portpath: &'a str,
     baudrate: u32,
-    //msg: &'a str,
     //connected: bool,
 }
 
-// TODO: connect on creation
 // TODO: check ports on connection
 // https://github.com/serialport/serialport-rs/blob/main/examples/list_ports.rs
-// TODO: HW check??
+// TODO??: HW check??
 // https://github.com/serialport/serialport-rs/blob/main/examples/hardware_check.rs
-// TODO Transmit function??
+// TODO??: Transmit function??
 // https://github.com/serialport/serialport-rs/blob/main/examples/transmit.rs
 impl<'a> ArduinoNode<'a> {
     pub fn new(name: &'a str, conns: HashMap<&'a str, &'a str>, _mocked: bool) -> Self {
-        load_dotenv!(); //TODO: is it better to pass parameters when needed?
+        load_dotenv!(); //TODO**: is it better to pass parameters when needed?
         let portpath = env!("ARDUINO_USB_DEV");
         let baudrate = env!("ARDUINO_BAUDRATE").parse::<u32>().unwrap();
         let node = match get_port(name, conns.clone()) {
@@ -40,7 +38,6 @@ impl<'a> ArduinoNode<'a> {
                 //mocked,
                 portpath,
                 baudrate,
-                //msg,
                 //connected: false,
             },
             Err(_) => {
@@ -76,43 +73,38 @@ impl<'a> ArduinoNode<'a> {
             Err(_) => None,
         };
         match serial_port {
-            // TODO: nothing coming from here on run
-            None => debug!("Mocking and not Receiving data"),
-            Some(mut sp) => {
-                loop {
-                    let mut serial_buf: Vec<u8> = vec![0; 1000];
-                    match sp.write(" ".as_bytes()) {
-                        Ok(_) => {
-                            std::io::stdout().flush().unwrap();
-                        }
-                        Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                        Err(e) => error!("{:?}", e),
+            // TODO**: nothing coming from here on run -> test if thats true
+            None => debug!("Mocking Serial Port and not Receiving real data"),
+            Some(mut sp) => loop {
+                let mut serial_buf: Vec<u8> = vec![0; 1000];
+                match sp.write(" ".as_bytes()) {
+                    Ok(_) => {
+                        std::io::stdout().flush().unwrap();
                     }
-                    match sp.read(serial_buf.as_mut_slice()) {
-                        // TODO: cleanup self.msg, use get_msg instead
-                        Ok(t) => {
-                            thread::sleep(Duration::from_millis(arduino_read_delay as u64));
-                            let newmsg_raw = serial_buf[..t].to_vec();
-                            let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
-                            match get_msg(newmsg) {
-                                Some(recv) => {
-                                    for (k, v) in recv {
-                                        comms.send_to(
-                                            format!("SET:{}:{}", k, v).as_bytes(),
-                                            status_node,
-                                        );
-                                    }
-                                    //self.msg.to_owned().push_str(newmsg);
-                                    //info!("->{}<-...{}", newmsg, self.msg);
-                                }
-                                None => (),
-                            }
-                        }
-                        Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                        Err(e) => error!("{:?}", e),
-                    }
+                    Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
+                    Err(e) => error!("{:?}", e),
                 }
-            }
+                match sp.read(serial_buf.as_mut_slice()) {
+                    Ok(t) => {
+                        thread::sleep(Duration::from_millis(arduino_read_delay as u64));
+                        let newmsg_raw = serial_buf[..t].to_vec();
+                        let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
+                        match get_msg(newmsg) {
+                            Some(recv) => {
+                                for (k, v) in recv {
+                                    comms.send_to(
+                                        format!("SET:{}:{}", k, v).as_bytes(),
+                                        status_node,
+                                    );
+                                }
+                            }
+                            None => (),
+                        }
+                    }
+                    Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
+                    Err(e) => error!("{:?}", e),
+                }
+            },
         }
     }
 }
@@ -214,7 +206,6 @@ mod arduino_node_tests {
         for e in failing_examples {
             assert_eq!(None, get_msg(e));
         }
-        // TODO: sort these out
 
         let mut output1 = HashMap::new();
         output1.insert("laser".to_owned(), "59".to_owned());
