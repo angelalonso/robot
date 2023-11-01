@@ -22,7 +22,8 @@ pub struct UDPComms<'a> {
     port_in: String,
 }
 
-impl<'a> UDPComms<'_> {
+//impl<'a> UDPComms<'_> {
+impl UDPComms<'_> {
     pub fn new(port_in: String) -> Self {
         let ip = "127.0.0.1"; // TODO??: Does this need to be on .env?
         UDPComms {
@@ -34,22 +35,26 @@ impl<'a> UDPComms<'_> {
 
     pub fn listen(&mut self) -> String {
         let local = format!("{}:{}", self.ip, self.port_in);
-        let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
+        let socket = net::UdpSocket::bind(local).expect("failed to bind host socket");
         socket
             .set_read_timeout(None)
             .expect("set_read_timeout call failed");
         let mut buf = [0; 100];
-        let recvd = match socket.recv(&mut buf) {
-            Ok(received) => format!("{}", String::from_utf8_lossy(&buf[..received]).to_owned()),
+        //let recvd = match socket.recv(&mut buf) {
+        //    Ok(received) => format!("{}", String::from_utf8_lossy(&buf[..received]).to_owned()),
+        //    Err(_) => "".to_owned(),
+        //};
+        ////println!("received at {} --> {}", self.port_in, recvd);
+        //recvd
+        match socket.recv(&mut buf) {
+            Ok(received) => String::from_utf8_lossy(&buf[..received]).into_owned(),
             Err(_) => "".to_owned(),
-        };
-        //println!("received at {} --> {}", self.port_in, recvd);
-        recvd
+        }
     }
 
     pub fn get_data(&mut self, callback: Sender<String>) {
         let local = format!("{}:{}", self.ip, self.port_in);
-        let socket = net::UdpSocket::bind(&local).expect("failed to bind host socket");
+        let socket = net::UdpSocket::bind(local).expect("failed to bind host socket");
         socket
             .set_read_timeout(None)
             .expect("set_read_timeout call failed");
@@ -110,7 +115,7 @@ impl<'a> UDPComms<'_> {
                 //    String::from_utf8_lossy(msg)
                 //);
                 let _result = s
-                    .send_to(&msg, &destination)
+                    .send_to(&msg, destination)
                     .expect("failed to send message");
 
                 //result

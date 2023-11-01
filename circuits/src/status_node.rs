@@ -54,14 +54,20 @@ impl<'a> StatusNode<'a> {
                 let split_objs: Vec<&str> = cleanedup[1].split(':').collect();
                 let mut response = String::from("");
                 for o in split_objs {
-                    match self.get_status_regex(o.to_owned()) {
-                        Some(v_map) => {
-                            for (k, v) in v_map {
-                                let key_val_json = format!("{{ {}: {} }}", k, v);
-                                response += &key_val_json;
-                            }
+                    //match self.get_status_regex(o.to_owned()) {
+                    //    Some(v_map) => {
+                    //        for (k, v) in v_map {
+                    //            let key_val_json = format!("{{ {}: {} }}", k, v);
+                    //            response += &key_val_json;
+                    //        }
+                    //    }
+                    //    None => (),
+                    //};
+                    if let Some(v_map) = self.get_status_regex(o.to_owned()) {
+                        for (k, v) in v_map {
+                            let key_val_json = format!("{{ {}: {} }}", k, v);
+                            response += &key_val_json;
                         }
-                        None => (),
                     };
                 }
                 // TODO: test this with more values

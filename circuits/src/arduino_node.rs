@@ -86,19 +86,24 @@ impl<'a> ArduinoNode<'a> {
                 }
                 match sp.read(serial_buf.as_mut_slice()) {
                     Ok(t) => {
-                        thread::sleep(Duration::from_millis(arduino_read_delay as u64));
+                        thread::sleep(Duration::from_millis(arduino_read_delay));
                         let newmsg_raw = serial_buf[..t].to_vec();
                         let newmsg = std::str::from_utf8(&newmsg_raw).unwrap();
-                        match get_msg(newmsg) {
-                            Some(recv) => {
-                                for (k, v) in recv {
-                                    comms.send_to(
-                                        format!("SET:{}:{}", k, v).as_bytes(),
-                                        status_node,
-                                    );
-                                }
+                        //match get_msg(newmsg) {
+                        //    Some(recv) => {
+                        //        for (k, v) in recv {
+                        //            comms.send_to(
+                        //                format!("SET:{}:{}", k, v).as_bytes(),
+                        //                status_node,
+                        //            );
+                        //        }
+                        //    }
+                        //    None => (),
+                        //}
+                        if let Some(recv) = get_msg(newmsg) {
+                            for (k, v) in recv {
+                                comms.send_to(format!("SET:{}:{}", k, v).as_bytes(), status_node);
                             }
-                            None => (),
                         }
                     }
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),

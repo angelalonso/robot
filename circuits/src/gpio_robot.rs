@@ -92,7 +92,7 @@ impl GPIOMotor {
         let out_enabler = export(pin_enabler);
         std::thread::sleep(std::time::Duration::from_millis(50));
         if out1 && out2 && out_enabler {
-            let _init_result = initialize();
+            initialize();
             is_real = true;
             std::thread::sleep(std::time::Duration::from_millis(50));
             set_direction(pin1, Directions::Output);
