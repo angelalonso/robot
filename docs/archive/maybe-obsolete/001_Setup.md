@@ -21,11 +21,11 @@ In other words, these are the basic design premises we will try to stick with:
 
 We will be providing power from the Raspberry pi to the Arduino via USB, and also communications through it.
 
-![Connection Raspberry to Arduino](../img/conn_raspi_ardu.jpg)
+![Connection Raspberry to Arduino](../../../img/conn_raspi_ardu.jpg)
 
 There is also the possibility to use ICSP (see extra cables on the picture) to directly flash the Arduino from the Raspberry pi.
 
 # Challenges
 - Our current setup seems to be a bit slow on reaction times and that might be a design flaw
 
-[PREV: Shopping List <--](000_ShoppingList.md) [--> NEXT: Preparing the Raspberry](002_Raspberry.md)
+[PREV: Shopping List <--](../../hardware/000_Base_ShoppingList.md) [--> NEXT: Preparing the Raspberry](002_Raspberry.md)

@@ -7,9 +7,9 @@ A step by step Guide on how I build, configure and run my own robot using a spec
 Yeah. You just need to be familiar with troubleshooting on linux and searching the web for resources :) 
 Everything software-related I use is included here, but neither properly sorted nor documented.
 Some thing you may want to check are:
-- [How I put together the current Chassis](https://github.com/angelalonso/robot/blob/master/docs/000_Base_Chassis.md)
-- [Where I originally got my HW from](https://github.com/angelalonso/robot/blob/master/docs/000_Base_ShoppingList.md)
-- [How to configure the Raspberry](https://github.com/angelalonso/robot/blob/master/docs/000_Base_Raspberry_raspbian.md)
+- [How I put together the current Chassis](docs/hardware_chassis.md)
+- [Where I originally got my HW from](docs/hardware_shopping_list.md)
+- [How to configure the Raspberry](docs/hardware_raspberry.md)
  
 
 ## Notes on why I do this
@@ -27,6 +27,15 @@ Right now, It can manage two motors through an API.
   - Still, running off a battery is not yet tested.
   - I need to also work on a cross-compiling system
     - The difficulty here is that pigpio is needed, and that cannot be done using cargo directly in a local machine
+
+## Working-robot planning documents
+
+- [Documentation standard for every phase](docs/documentation-standard.md)
+- [Current hardware and software state](docs/current-state.md)
+- [Target working robot](docs/target-state.md)
+- [Roadmap and verification gates](docs/roadmap.md)
+- [Phase 0 hardware fact-finding checklist](docs/phase_0.md)
+- [Image meanings and document conflicts](docs/images-and-conflicts.md)
 
 ## Notes on my choice of Software
 

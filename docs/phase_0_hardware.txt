@@ -1,0 +1,63 @@
+Phase 0 hardware schematic - provisional verification record
+=============================================================
+
+STATUS: NOT AUTHORITATIVE UNTIL THE PHASE 0 CHECKLIST IS SIGNED OFF.
+Do not connect motor power while any polarity, ground, motor identity, or
+GPIO direction remains unknown.
+
+POWER PATHS
+-----------
+
+Pi power bank                         Motor battery pack
+  +5V ---------------------> Pi 5V     +V -- fuse -- switch --> L298N VMOT
+  GND ----------------------+           0V -------------------+------------+
+                            |                                |            |
+                         Pi GND                         L298N GND    (Arduino
+                                                                    GND only
+                                                                    if used)
+
+The Pi power bank and motor battery are intended to be separate power sources.
+The L298N 5 V regulator/jumper state is UNKNOWN until measured. Do not use the
+L298N regulator to power the Pi without an electrical design review.
+
+RASPBERRY PI TO L298N
+---------------------
+
+Function                 BCM GPIO    Physical header pin    L298N terminal
+Left motor IN1           27          13                     IN1
+Left motor IN2           17          11                     IN2
+Left motor enable/PWM    22          15                     ENA
+Right motor IN1          24          18                     IN1
+Right motor IN2          23          16                     IN2
+Right motor enable/PWM   25          22                     ENB
+Logic ground             --          GND                    GND
+
+The right-motor IN1/IN2 order conflicts with historical chassis notes. The
+template currently uses IN1=GPIO24 and IN2=GPIO23. Verify continuity and
+direction with wheels lifted before applying normal motor power.
+
+L298N MOTOR OUTPUTS
+-------------------
+
+L298N OUT1/OUT2  ------> physically labelled LEFT MOTOR (UNVERIFIED)
+L298N OUT3/OUT4  ------> physically labelled RIGHT MOTOR (UNVERIFIED)
+
+Do not infer left/right from OUT1/OUT2 or OUT3/OUT4 labels. Record the actual
+mapping after inspection.
+
+STATUS LED
+----------
+
+Pi BCM GPIO21 / physical pin 40 ----> current-limiting resistor (VALUE UNKNOWN)
+                                      ----> LED ----> GND
+
+The resistor value, LED polarity, and physical connection must be verified.
+
+TEST POINTS
+-----------
+
+TP1: motor battery positive to motor battery ground, no load
+TP2: Pi 5V input to Pi ground
+TP3: Pi ground to L298N logic ground continuity
+TP4: each GPIO wire to its labelled L298N terminal
+TP5: motor battery positive to every Pi GPIO (must NOT conduct)

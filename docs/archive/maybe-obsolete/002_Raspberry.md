@@ -125,7 +125,7 @@ $ git clone https://github.com/angelalonso/robot
 ```
 
 # Install and configure avrdude on Raspberry 
-See [README.md](README.md) for physical connection scheme
+See [README.md](../../../README.md) for physical connection scheme
 
 ```
 $ sudo apt-get update  
@@ -204,4 +204,4 @@ $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 - The documentation has not been fully tested.
 - The process could use automation.
 
-[PREV: Setup and Manifest <--](001_Setup.md) [--> NEXT: Checking your GPIO on Raspberry](003_GPIO.md)
+[PREV: Setup and Manifest <--](001_Setup.md) [--> NEXT: Checking your GPIO on Raspberry](../../hardware/003_GPIO.md)

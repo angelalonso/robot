@@ -6,7 +6,7 @@ For the time being, you can put together a useful structure if you keep the foll
 
 - You need the structure to leave enough room for all components and cables
 - The more open your structure is, the easier it will be to work on it
-- The default chassis I got with my robotic kit (see [Shopping List](./000_ShoppingList.md)) was too small
+- The default chassis I got with my robotic kit (see [Shopping List](./hardware_shopping_list.md)) was too small
 - Weight should be distributed evenly. The battery will take most of that weight
 
 ## My first build
@@ -27,4 +27,4 @@ We will call that thing our chassis from now on.
 
 I put all components together on top of the chassis to decide on the best distribution possible. Bear in mind that you will want to add some more elements in the future.
 
-[PREV: Preparing the Arduino <--](003_Arduino.md)
+[PREV: Preparing the Arduino <--](../arduino/README.md)
