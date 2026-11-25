@@ -25,6 +25,28 @@ The 4xAA Battery pack is followed by the 2xAA Battery pack (in serial), and then
 
 The Anker Powercore will power Raspberry on the top layer with its USB cable.
 
+## Recommended assembly order
+
+Because the chassis has two layers, rebuild it from the bottom layer upward:
+
+1. Mount the motors, wheels, sensors, battery holders, switch, fuse, rear
+   wheel, and L298N on the bottom layer.
+2. Route and label the motor and battery wiring, but leave the battery
+   disconnected until polarity, voltage, and continuity have been checked.
+3. Test the L298N and motors progressively, starting with one lifted wheel and
+   one motor. Confirm motor-to-output mapping and direction before installing
+   the upper layer.
+4. Mount the Raspberry Pi, breadboard, and Arduino on the upper layer, keeping
+   their signal and power wiring separated from the motor terminals.
+5. Add the labelled inter-layer harness for L298N control, common ground,
+   encoder signals, and sensor connections.
+6. Connect the Raspberry power bank independently, then perform a final
+   continuity and polarity check before normal operation.
+
+Do not treat the physical layer arrangement as proof of electrical safety:
+motor voltage, encoder voltage, common ground, fuse protection, and L298N
+regulator state must still be verified independently.
+
 - For now, just connect the Motors to each side of the L298N (I honestly am not sure which one is which, just don't tighten too much and be ready to switch them if needed).
 
 ![Lowerlayer](../img/chassisply_layer_bottom.jpg)
