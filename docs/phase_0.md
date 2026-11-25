@@ -13,9 +13,12 @@ without guessing.
 
 - [ ] Record the exact Raspberry Pi model, board revision, operating system
   image, and 40-pin header layout.
+  >> Raspberry pi 3 Model B v1.2. Operating system can be any, I have used Ubuntu so far. I would like it to be a secured and updated system.
 - [ ] List every installed component: Pi, power bank, battery holders and
   cells, L298N, motors, wheels, rear wheel, LED, resistor, switch, Arduino,
   sensors, breadboard, and cables.
+  >> Raspberry, Arduino, Power Bank 10000 mah, 6xAA Batteries, L298N
+  >> 2x 12V DC motors like https://www.manomano.de/p/dc-12-v-diy-encoder-getriebemotor-micro-drehzahlreduzierung-motor-vollmetallgetriebe-mit-halterung-65mm-magnetgetriebe-motor-rad-kit-fur-smart-auto-roboter-modell-diy200rpm-86186545#sidePanel-description 
 - [ ] Photograph readable labels, connector positions, jumpers, and the
   underside of the L298N.
 - [ ] Mark each item as `present`, `missing`, `damaged`, or `unknown`.
