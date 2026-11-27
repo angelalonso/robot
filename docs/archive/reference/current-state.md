@@ -18,7 +18,7 @@ working; those points are marked **unverified**.
 | Raspberry power | Anker PowerCore 20100 or equivalent USB power bank | `docs/hardware_chassis.md` | Documented, physically unverified |
 | Wiring | Breadboard, jumper wires, switch, fuse if available, nuts and bolts | `docs/hardware-requirements.md` | Reported, physically unverified |
 | Status output | One LED on Raspberry GPIO 21, nominally with a resistor | `files/env.template`, `docs/hardware_gpio.md` | Software/documented, physical wiring unverified |
-| Sensors | Arduino UNO and HC-SR04; VL53L0X experiments also exist | `docs/archive/later/hardware_new_input.md`, `arduino/` | Later milestone, physically unverified |
+| Sensors | Arduino UNO, HC-SR04, and a reported VL53L0X time-of-flight breakout marked `CJUL53LOXV2` | `docs/archive/later/hardware_new_input.md`, `arduino/`, `docs/phase_0-done.md` | Later milestone, physically unverified |
 
 ### Current Raspberry/L298N pin configuration
 

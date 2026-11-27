@@ -22,6 +22,7 @@ only marked `confirmed` after its physical identity is checked and recorded.
 | Chassis and rear support wheel | Mobile robot | Existing parts reported; condition/fit pending | Provisional |
 | Breadboard | Low-current prototyping and signal distribution | Available; exact size/type pending | Reported by user |
 | Arduino and sensors | Later phases only | Not required for first drive milestone | Deferred |
+| VL53L0X time-of-flight distance sensor breakout | Short-range optical distance sensing | Board marking reported by user: `CJUL53LOXV2`; exact carrier, voltage compatibility, and wiring pending | Reported, unverified |
 
 When a part is confirmed, record its exact model, rating, supplier or
 identifying link, and any compatibility notes in this table.
@@ -41,6 +42,25 @@ identifying link, and any compatibility notes in this table.
 - The Arduino and sensors are excluded from the first working-drive milestone.
 - Every hardware observation, wiring change, test result, or goal change must
   update this record and the active Phase 0/task documents.
+
+## Sensor use ideas
+
+The existing HC-SR04 and the reported VL53L0X should initially be treated as
+complementary, not interchangeable:
+
+- Use the HC-SR04 as a longer-range, low-cost forward obstacle detector.
+- Use the VL53L0X for short-range close-obstacle detection and distance
+  confirmation where ultrasonic readings are unreliable.
+- After both sensors are calibrated, compare overlapping readings to detect
+  stale, out-of-range, or contradictory data before allowing autonomous motion.
+- For triangulation or crude object localisation, mount two or more distance
+  sensors at known positions and combine their readings only when the target
+  geometry and field of view are documented. One HC-SR04 plus one VL53L0X is
+  not sufficient for general 2-D triangulation by itself.
+
+The first useful behaviour is therefore a fail-safe obstacle envelope:
+stop when either sensor reports a near obstacle, and use disagreement between
+the sensors as a diagnostic rather than silently choosing one value.
 
 ## Work completed
 

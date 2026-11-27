@@ -113,6 +113,11 @@ without brownout, uncontrolled motion, or excessive driver temperature.
   timeout, and out-of-range states.
 - Decide whether VL53L0X replaces or complements HC-SR04; do not combine the
   experimental sketches without a wiring and protocol decision.
+- Treat the reported `CJUL53LOXV2` board as a VL53L0X candidate until its
+  carrier board and voltage requirements are confirmed. Start with one sensor
+  at a time, then add a fused obstacle-stop rule; defer triangulation until at
+  least two sensors have known positions, fields of view, and calibrated
+  readings.
 
 **Gate:** stale or missing sensor data causes a known safe state, not autonomy.
 
