@@ -7,9 +7,9 @@ A step by step Guide on how I build, configure and run my own robot using a spec
 Yeah. You just need to be familiar with troubleshooting on linux and searching the web for resources :) 
 Everything software-related I use is included here, but neither properly sorted nor documented.
 Some thing you may want to check are:
-- [How I put together the current Chassis](docs/hardware_chassis.md)
-- [Where I originally got my HW from](docs/hardware_shopping_list.md)
-- [How to configure the Raspberry](docs/hardware_raspberry.md)
+- [What has already been established](docs/phase_0-done.md)
+- [Current Phase 0 work](docs/phase_0.md)
+- [Next short tasks](docs/next-tasks.md)
  
 
 ## Notes on why I do this
@@ -30,12 +30,11 @@ Right now, It can manage two motors through an API.
 
 ## Working-robot planning documents
 
-- [Documentation standard for every phase](docs/documentation-standard.md)
-- [Current hardware and software state](docs/current-state.md)
-- [Target working robot](docs/target-state.md)
-- [Roadmap and verification gates](docs/roadmap.md)
-- [Phase 0 hardware fact-finding checklist](docs/phase_0.md)
-- [Image meanings and document conflicts](docs/images-and-conflicts.md)
+- [Completed Phase 0 facts](docs/phase_0-done.md)
+- [Remaining Phase 0 work](docs/phase_0.md)
+- [Testing, setup, and calibration](docs/testing-and-calibration.md)
+- [Future phases](docs/roadmap.md)
+- [Next tasks (5 minutes to 2 hours)](docs/next-tasks.md)
 
 ## Notes on my choice of Software
 

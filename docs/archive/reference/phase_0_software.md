@@ -22,8 +22,8 @@ bash -n circuits/reset_gpio.sh
 git diff --check
 ```
 
-The configured GPIO table must be compared manually with
-`docs/phase_0_hardware.txt` and the physical wiring record. Do not run
+The configured GPIO table must be compared manually with the approved physical
+wiring record in `docs/phase_0.md`. Do not run
 the motor-control binary on connected hardware until the Phase 0 gate is closed.
 
 ## Known limitations

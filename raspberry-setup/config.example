@@ -1,0 +1,6 @@
+# Copy this file to raspberry-setup/config and edit it.
+# Do not put passwords or private keys here.
+
+PI_HOST="robot-pi.local"
+PI_USER="robot"
+SSH_KEY="${HOME}/.ssh/id_ed25519"

@@ -22,8 +22,8 @@ the current phase:
 ### Phase documents
 
 The current phase uses clearly prefixed files directly under `docs/`, such as
-`phase_0.md`, `phase_0_hardware.txt`, `phase_0_software.md`, and
-`phase_0_tests.md`. When a phase is completed, move its complete document set
+`phase_0.md`, `phase_0_software.md`, and `phase_0_tests.md`, plus the current
+hardware requirements document. When a phase is completed, move its complete document set
 to `docs/phase_N/`. Its main document should be named `README.md` only after it
 is historical, so the active documentation remains visible at `docs/`.
 

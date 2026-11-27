@@ -6,7 +6,7 @@ remote control can be proven independently.
 
 ## Minimum working robot: hardware
 
-1. A verified Raspberry Pi 1 B+ (or a confirmed compatible replacement) running
+1. A verified Raspberry Pi 3 Model B v1.2 running
    32-bit armhf Raspberry Pi OS.
 2. A bootable microSD card and a reliable power bank capable of powering the Pi
    during Wi-Fi and motor operation.
@@ -14,8 +14,9 @@ remote control can be proven independently.
    wheel, no exposed sharp edges, and room for wiring.
 4. Two motors connected to the L298N outputs, with the physical left/right identity
    recorded.
-5. A six-cell AA motor supply connected to the L298N motor supply through a
-   switch and, preferably, a fuse. The motor supply must not feed Pi GPIO.
+5. A verified final motor supply connected to the L298N motor supply through a
+   switch and fuse. The temporary six-AA pack is permitted only for controlled
+   bring-up tests; the motor supply must not feed Pi GPIO.
 6. A verified common ground between Pi and L298N logic ground.
 7. Six verified Pi-to-L298N control wires using the selected GPIO table, including
    two enable/PWM wires.
@@ -23,6 +24,10 @@ remote control can be proven independently.
    replacement pin.
 9. Strain relief, insulation, cable routing away from wheels, and a physical
    motor power disconnect.
+
+The breadboard is an optional temporary prototyping aid for low-current logic,
+sensor signals, and common-ground distribution. It is not part of the motor
+power path and is not considered a permanent mobile-robot connection.
 
 Before any powered test, the builder must record measured supply voltages,
 polarity, motor current behaviour, and continuity for every control and ground
@@ -44,14 +49,16 @@ wire.
 
 ### Drive and API features
 
-- `POST /do/fwd`: both motors forward.
-- `POST /do/bwd`: both motors backward.
-- `POST /do/left`: left backward and right forward.
-- `POST /do/right`: left forward and right backward.
+- A continuous joystick command carries normalized forward/backward and
+  left/right values in the range `-1..1`.
+- The Raspberry performs differential-drive mixing to calculate bounded left
+  and right motor targets.
 - `POST /do/stop`: both motors stopped.
 - `POST /do/led_on`, `/do/led_off`, `/do/led_switch`.
 - `GET /get/status`: returns structured state including command, motor states,
   LED state, startup time, last error, and safety state.
+- The Android app presents an on-screen pointer/joystick rather than discrete
+  directional buttons. Centering or releasing it commands a stop.
 - Every movement command has a bounded timeout/dead-man policy; loss of the
   controller or process must result in stop.
 - Invalid commands and hardware failures return explicit non-2xx errors and are
@@ -76,6 +83,8 @@ The first release is working only when all of these pass:
 After the minimum robot is stable:
 
 - Arduino UNO is powered and connected to the Raspberry by USB serial.
+- The breadboard is used, if still needed, for labelled low-current sensor and
+  logic prototyping; motor power remains on secured wiring outside the board.
 - HC-SR04 reports distance with explicit timeout/out-of-range handling.
 - VL53L0X is added only after its exact wiring, library, address, and usefulness
   are chosen; the experimental sketches are not a production interface.

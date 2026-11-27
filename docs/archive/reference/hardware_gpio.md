@@ -80,4 +80,4 @@ ros2 action send_goal pi_gpio_server pi_gpio_interface/action/GPIO {'gpio: "21,l
 ## Turning a GPIO on and off with ROS2
 TBD
 
-[PREV: Preparing the Raspberry <--](archive/maybe-obsolete/002_Raspberry.md) [--> NEXT: Build a Chassis](hardware_legacy_chassis.md)
+[PREV: Preparing the Raspberry <--](archive/superseded/hardware_raspberry.md) [--> NEXT: Build a Chassis](hardware_chassis.md)

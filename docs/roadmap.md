@@ -4,6 +4,10 @@ The order below minimizes the chance of damaging hardware. Do not skip a gate
 because a software test passed on x86_64: the repository's x86_64 GPIO layer is a
 mock.
 
+Testing, setup, and calibration procedures are maintained in
+`docs/testing-and-calibration.md`. Each phase below must use those procedures
+and record its results before advancing past the phase gate.
+
 ## Phase 0: resolve and record physical facts
 
 **Goal:** replace assumptions with a one-page wiring record.
@@ -36,7 +40,7 @@ mock.
 ## Phase 2: make the Rust baseline deployable
 
 - Create a documented armhf build command for `circuits`; verify dependency
-  compatibility with Pi 1 B+.
+  compatibility with the Raspberry Pi 3 Model B v1.2.
 - Replace `brain/` references in provisioning/service scripts with `circuits`.
 - Define a runtime `.env` installation method without committing credentials.
 - Install only the dependencies needed by the Rust baseline, including the
@@ -65,16 +69,23 @@ without brownout, uncontrolled motion, or excessive driver temperature.
 ## Phase 4: validate API and remote control
 
 - Test each endpoint locally with `curl`.
-- Replace empty/success-shaped responses with explicit command acknowledgement
-  and failure responses.
+  - Replace discrete directional control with a continuous joystick command:
+    forward/backward input plus left/right steering, each normalized to `-1..1`.
+  - Implement differential-drive mixing on the Raspberry so the joystick vector
+    becomes independent left/right motor targets, with a dead zone and bounded
+    output.
+  - Replace empty/success-shaped responses with explicit command acknowledgement
+    and failure responses.
 - Add authentication or strict network restriction before exposing the API beyond
   a trusted isolated LAN.
-- Test the Android app against the real API, including URL configuration, press,
-  release, timeout, and stop behaviour.
+  - Test the Android app's on-screen pointer/joystick against the real API,
+    including center/release, network timeout, connection loss, and stop
+    behaviour.
 - Test API loss and process termination: both motors must stop.
 
-**Gate:** a person can command the robot, release the control, and recover from
-  connection loss without the robot continuing to drive.
+  **Gate:** a person can move an on-screen pointer like a joystick, release or
+  center it, and recover from connection loss without the robot continuing to
+  drive.
 
 ## Phase 5: battery and endurance
 
@@ -92,6 +103,8 @@ without brownout, uncontrolled motion, or excessive driver temperature.
 
 - Confirm the Arduino model and USB device path.
 - Build and upload only `arduino/sensors/sensors.ino` first.
+- Use the breadboard only for labelled low-current sensor, Arduino, and logic
+  connections; do not route motor or unfused battery current through it.
 - Verify HC-SR04 5 V, trigger, echo, and ground wiring; protect any signal that
   could reach a Pi GPIO.
 - Connect USB to the Pi and validate `/dev/ttyACM0` (or actual device) and 9600

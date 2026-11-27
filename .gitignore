@@ -31,3 +31,6 @@ brain/scripts/robotlogic/robotlogic.so
 **/files/sshd_config
 **/files/50-cloud-init.yaml
 **/files/robot.service
+
+# Local Raspberry Pi setup target configuration
+/raspberry-setup/config

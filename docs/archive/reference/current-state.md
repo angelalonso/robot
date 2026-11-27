@@ -10,15 +10,15 @@ working; those points are marked **unverified**.
 
 | Area | Current documented choice | Evidence | Confidence |
 |---|---|---|---|
-| Controller | Raspberry Pi 1 B+ with Wi-Fi dongle | `docs/hardware_shopping_list.md` | Documented, physically unverified |
-| Motor driver | L298N dual H-bridge | `docs/hardware_shopping_list.md`, `docs/hardware_l298n.md` | Documented, physically unverified |
-| Drive | Two DC gear motors and two wheels | `docs/hardware_shopping_list.md` | Documented, physically unverified |
+| Controller | Raspberry Pi 3 Model B v1.2 with onboard Wi-Fi | `docs/phase_0.md`, `docs/hardware-requirements.md` | Reported, physically unverified |
+| Motor driver | L298N dual H-bridge | `docs/hardware-requirements.md`, `docs/hardware_l298n.md` | Reported, physical board unverified |
+| Drive | Two DC encoder gearmotors and two wheels | `docs/hardware-requirements.md`, `docs/hardware_motor_encoder.md` | Reported, physically unverified |
 | Chassis | Two A4 plywood layers, a cut plastic lunchbox, and a rear dummy/castor wheel | `docs/hardware_chassis.md` | Documented, physically unverified |
-| Motor power | Six AA cells: a 4-cell holder in series with a 2-cell holder | `docs/hardware_chassis.md` | Documented, physically unverified |
+| Motor power | Existing six-AA pack for controlled temporary tests only; final supply not selected | `docs/phase_0.md` | Decision recorded, physically unverified |
 | Raspberry power | Anker PowerCore 20100 or equivalent USB power bank | `docs/hardware_chassis.md` | Documented, physically unverified |
-| Wiring | Breadboard, jumper wires, switch, nuts and bolts | `docs/hardware_shopping_list.md` | Documented, physically unverified |
+| Wiring | Breadboard, jumper wires, switch, fuse if available, nuts and bolts | `docs/hardware-requirements.md` | Reported, physically unverified |
 | Status output | One LED on Raspberry GPIO 21, nominally with a resistor | `files/env.template`, `docs/hardware_gpio.md` | Software/documented, physical wiring unverified |
-| Sensors | Arduino UNO and HC-SR04; VL53L0X experiments also exist | `docs/hardware_new_input.md`, `arduino/` | Later milestone, physically unverified |
+| Sensors | Arduino UNO and HC-SR04; VL53L0X experiments also exist | `docs/archive/later/hardware_new_input.md`, `arduino/` | Later milestone, physically unverified |
 
 ### Current Raspberry/L298N pin configuration
 
@@ -63,8 +63,11 @@ The executable implementation is the Rust crate in `circuits/`:
   API, Arduino, left motor, right motor, LED, and status.
 - `circuits/src/api_node.rs` exposes an unauthenticated HTTP API on `APIPORT`
   (template value `5000`) and binds to all interfaces.
-- The API supports forward, backward, left, right, stop, LED on/off/switch,
-  scan (currently empty), mode (currently only sends an LED command), and status.
+- The API currently supports discrete forward, backward, left, right, and stop
+  commands, LED on/off/switch, scan (currently empty), mode (currently only
+  sends an LED command), and status. The intended control design is changing
+  to a continuous on-screen joystick/pointer; that API and motor mixing are
+  not implemented yet.
 - Nodes communicate over localhost UDP ports defined in `circuits/src/lib.rs`.
 - `gpio_robot.rs` uses the legacy `/sys/class/gpio` interface and `rust-pigpio`
   for PWM on ARM; x86_64 uses a mock implementation.
@@ -82,6 +85,8 @@ The executable implementation is the Rust crate in `circuits/`:
 - `arduino/` contains sketches for an HC-SR04 and experimental VL53L0X use.
 - `AndroidApp/` contains a basic Kotlin controller with directional press-and-hold
   controls and a configurable HTTP base URL. It has no authentication or TLS.
+  The target UI is a virtual joystick/pointer that sends a continuous movement
+  vector and stops when centered, released, or disconnected.
 - `tests/worlds/robot_testing_unit.wbt` is a small Webots two-wheel model, but no
   controller is present in this repository.
 - `files/` contains the current runtime templates plus a legacy cloud-init/autosetup

@@ -42,10 +42,10 @@ and verify them electrically.
 
 | Topic | Conflicting sources | Decision for this plan |
 |---|---|---|
-| Raspberry OS | `docs/archive/maybe-obsolete/NEW_Raspberry.md` describes Ubuntu 64-bit/aarch64; `install_to_raspberry.sh` and `docs/hardware_raspberry.md` describe Raspberry Pi OS/armhf. | User selected Raspberry Pi 1 B+/armhf. Treat Ubuntu/aarch64 as historical or alternative until hardware proves otherwise. |
+| Raspberry OS | Archived setup documents describe Ubuntu 64-bit/aarch64 or Pi 1-era Raspberry Pi OS/armhf. | User selected Raspberry Pi 3 Model B v1.2. Select and document the OS during bring-up; 32-bit armhf remains the conservative software target. |
 | Software tree | Several setup documents refer to `brain/`; the tracked executable code is `circuits/`. | User selected Rust `circuits` as the baseline. Provisioning must be corrected before deployment. |
 | ROS2 | README describes abandoned ROS2 Python/C++ experiments; current crate has no ROS2 dependency. | Do not install or target ROS2 for the minimum robot. |
-| Arduino timing | `docs/hardware_new_input.md` describes Arduino as current design; README says the current robot manages two motors through an API; `main.rs` still starts an Arduino node. | First working milestone excludes Arduino/sensors; retain them as Phase 6. |
+| Arduino timing | The archived Arduino document describes sensor integration; README says the current robot manages two motors through an API; `main.rs` still starts an Arduino node. | First working milestone excludes Arduino/sensors; retain them as Phase 6. |
 | Right motor pins | Chassis/L298N text says IN1=GPIO23 and IN2=GPIO24; `files/env.template` says IN1=GPIO24 and IN2=GPIO23. | Unresolved. Verify with continuity and lifted-wheel direction test before motor power. |
 | LED pin | `files/env.template` uses GPIO21; older documents show generic LED tests and no single final LED wiring record. | Keep GPIO21 as the intended software default, but verify resistor and physical connection. |
 | Provisioning | `files/archive/maybe-obsolete/autosetup.sh` uses cloud-init/Ubuntu assumptions, installs ROS2/Python, and copies to `/robot/brain`; `install_to_raspberry.sh` is a separate manual Raspberry Pi OS path. | Use the simpler armhf path as the basis, then replace it with a tested Rust-specific installer. |
